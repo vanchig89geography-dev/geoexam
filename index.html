@@ -297,6 +297,13 @@ footer{text-align:center;font-size:13px;color:var(--muted);display:grid;gap:8px;
 .opt>span,.opt>div{min-width:0}
 .card,.pane,.qwrap{min-width:0;max-width:100%;box-sizing:border-box}
 html,body{overflow-x:hidden}
+/* Табууд утсан дээр: 2×2 торонд, хүрээнээс гарахгүй */
+.tabs{min-width:0}
+.tabs button{min-width:0;white-space:normal;overflow-wrap:anywhere}
+@media (max-width:520px){
+  .tabs{grid-template-columns:1fr 1fr;gap:5px}
+  .tabs button{font-size:14px;padding:9px 6px}
+}
 </style>
 </head>
 <body>
@@ -318,8 +325,8 @@ html,body{overflow-x:hidden}
   <!-- CATALOGUE -->
   <section class="card pad" id="list">
     <div class="tabs" role="tablist" id="tabs">
-      <button type="button" role="tab" data-t="var" aria-selected="true">Хувилбарууд</button>
-      <button type="button" role="tab" data-t="topic" aria-selected="false">Сэдвээр давтах</button>
+      <button type="button" role="tab" data-t="var" aria-selected="true">ЭЕШ</button>
+      <button type="button" role="tab" data-t="topic" aria-selected="false">Сэдвийн шалгалт</button>
       <button type="button" role="tab" data-t="own" aria-selected="false">Мультимедиа</button>
       <button type="button" role="tab" data-t="contest" aria-selected="false">Тэмцээн</button>
     </div>
