@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Газарзүйн даалгаврын сан: ЭЕШ-ийн хувилбарууд, сэдвээр давтах. Powered by Б.Ванчигдорж">
+<title>GeoExam · Газарзүйн даалгаврын сан</title>
+<meta name="theme-color" content="#4F46E5">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap">
+<style>
+/* Layout: slim hero band with logo + account chip → test catalogue cards → exam view (question, A–E, number grid) → result & review */
+:root{
+  --bg:#F2F4FA; --surface:#FFFFFF; --fg:#141A33; --muted:#5B6382; --line:#D9DEEE; --chip:#E9ECF7;
+  --accent:#4F46E5; --accent-ink:#FFFFFF; --gold:#F59E0B; --blue:#0B5CFF; --violet:#7B2FF7;
+  --good:#16834F; --bad:#C2412D; --good-bg:#E2F4EA; --bad-bg:#FBE5E0; --lock-bg:#FFF4E0;
+  --font:"Roboto",Arial,Helvetica,sans-serif; --btn-font:"Montserrat",Arial,Helvetica,sans-serif;
+  --shadow:0 1px 2px rgba(20,26,51,.06),0 10px 28px rgba(20,26,51,.08);
+  --shade:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0));
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0D1022; --surface:#161A33; --fg:#E7EAF8; --muted:#9BA3C4; --line:#283058; --chip:#1F2546;
+  --accent:#8B85FF; --accent-ink:#0D1022; --gold:#FBBF24; --blue:#4FA3FF; --violet:#B38BFF;
+  --good:#5CD39A; --bad:#F2876F; --good-bg:#14382A; --bad-bg:#3D1D17; --lock-bg:#3A2C10;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --shade:linear-gradient(rgba(8,12,30,.72),rgba(8,12,30,.5)); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1022; --surface:#161A33; --fg:#E7EAF8; --muted:#9BA3C4; --line:#283058; --chip:#1F2546;
+  --accent:#8B85FF; --accent-ink:#0D1022; --gold:#FBBF24; --blue:#4FA3FF; --violet:#B38BFF;
+  --good:#5CD39A; --bad:#F2876F; --good-bg:#14382A; --bad-bg:#3D1D17; --lock-bg:#3A2C10;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --shade:linear-gradient(rgba(8,12,30,.72),rgba(8,12,30,.5)); color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--font)}
+button{font-family:var(--btn-font)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* HERO */
+.hero{background:transparent}
+.hero-in{max-width:880px;margin:0 auto;padding-block:22px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo img{width:48px;height:48px}
+.logo span{font:800 clamp(26px,6vw,34px)/1 var(--btn-font);letter-spacing:-.03em}
+.logo em{font-style:normal}.logo .g1{color:var(--blue)}.logo .g2{color:var(--violet)}
+.acct{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:8px 14px 8px 8px;background:rgba(255,255,255,.88);color:#141A33;font:700 13px var(--btn-font);cursor:pointer;box-shadow:var(--shadow);max-width:60vw}
+.acct i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-style:normal;flex:none}
+.acct b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acct .st{font-size:10px;padding:2px 7px;border-radius:999px;background:#FCC46A;color:#2B1A00;flex:none}
+.acct .st.paid{background:#16A34A;color:#fff}
+.title{display:grid;gap:6px;text-align:center;justify-items:center}
+.title h1{margin:0;font:800 clamp(24px,5.5vw,36px)/1.15 var(--font);text-wrap:balance;text-shadow:0 0 12px var(--surface)}
+.title p{margin:0;font-size:15px;max-width:44ch;text-shadow:0 0 10px var(--surface)}
+
+/* MAIN */
+.wrap{max-width:880px;margin:-40px auto 0;padding-block:0 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px;position:relative}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);min-width:0}
+.pad{padding:clamp(16px,4vw,24px)}
+.lbl{font:700 12px var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tests{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:12px}
+.test{display:grid;gap:10px;text-align:left;padding:16px;border-radius:16px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;font-family:var(--font)}
+.test:hover{border-color:var(--accent)}
+.test .tg{justify-self:start;font:700 11px var(--font);letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--good-bg);color:var(--good)}
+.test.locked .tg{background:var(--lock-bg);color:#B45309}
+.test b{font:700 16px/1.3 var(--font)}
+.test small{color:var(--muted);font-size:13px}
+.test .go{font:700 14px var(--font);color:var(--accent)}
+.empty{color:var(--muted);text-align:center;padding:20px;margin:0}
+
+/* EXAM */
+.ex-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.ex-top h2{margin:0;font:800 18px var(--font)}
+.timer{font:800 18px var(--font);font-variant-numeric:tabular-nums;padding:6px 12px;border-radius:12px;background:var(--chip)}
+.timer.low{background:var(--bad-bg);color:var(--bad)}
+.grid{display:flex;flex-wrap:nowrap;gap:6px;margin:14px -4px;padding:4px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:thin}
+.grid button{flex:none}
+.grid button{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);font:700 13px var(--btn-font);cursor:pointer}
+.grid button.done{background:var(--chip);border-color:var(--accent);color:var(--accent)}
+.grid button.cur{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.grid button.ok{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.grid button.no{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.qn{font:700 12px var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.q{font:700 clamp(18px,4vw,21px)/1.4 var(--font);margin:6px 0 14px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;min-height:54px;padding:10px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);font:500 16px/1.35 var(--font);text-align:left;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt kbd{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--chip);font:700 13px var(--font);color:var(--muted)}
+.opt.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}.opt.sel kbd{background:var(--accent);color:var(--accent-ink)}
+.opt.ok{border-color:var(--good);background:var(--good-bg)}.opt.ok kbd{background:var(--good);color:var(--surface)}
+.opt.no{border-color:var(--bad);background:var(--bad-bg)}.opt.no kbd{background:var(--bad);color:var(--surface)}
+.opt:disabled{cursor:default}
+.sol{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--chip);font-size:14px}
+.sol b{font-family:var(--font)}
+.nav{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{border:0;border-radius:14px;padding:13px 20px;font:700 15px var(--btn-font);background:var(--accent);color:var(--accent-ink);cursor:pointer;min-height:48px}
+.btn.ghost{background:transparent;color:var(--fg);border:1.5px solid var(--line)}
+.btn.gold{background:var(--gold);color:#2B1A00}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.grow{flex:1}
+
+/* RESULT */
+.res{display:grid;gap:10px;justify-items:center;text-align:center}
+.res .big{font:800 60px/1 var(--font);color:var(--accent);font-variant-numeric:tabular-nums}
+.res h2{margin:0;font:800 22px var(--font)}
+.res p{margin:0;color:var(--muted)}
+
+/* MODAL */
+.ov{position:fixed;inset:0;z-index:40;background:rgba(10,14,30,.55);display:grid;place-items:center;padding:16px}
+.modal{width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);color:var(--fg);border-radius:22px;padding:22px;display:grid;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.stack{display:grid;gap:14px}
+.modal h3{margin:0;font:800 20px var(--font)}
+.modal p{margin:0;color:var(--muted);font-size:14px}
+.fld{display:grid;gap:6px}
+.fld span{font:700 12px var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.fld input{min-height:48px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg);font:16px var(--font);padding:10px 12px;width:100%}
+.fld input:focus{outline:none;border-color:var(--accent)}
+.code{letter-spacing:.4em;font-weight:700;text-align:center;font-size:22px!important}
+.err{color:var(--bad);font:700 14px var(--font);margin:0;min-height:0}
+.pay{display:grid;gap:6px;padding:14px;border-radius:14px;background:var(--lock-bg);font-size:14px}
+.pay div{display:flex;justify-content:space-between;gap:10px}
+.pay span{color:var(--muted)}
+.pay b{text-align:right;word-break:break-word}
+.x{justify-self:end;background:none;border:0;color:var(--muted);font:700 14px var(--btn-font);cursor:pointer;padding:4px}
+.status{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--chip)}
+.status.paid{background:var(--good-bg)}
+footer{text-align:center;font-size:13px;color:var(--muted);display:grid;gap:8px;justify-items:center;padding-top:6px}
+.by{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.by b{font-size:15px;background:linear-gradient(90deg,var(--blue),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.demo{font-size:13px;color:var(--muted);text-align:center;margin:0}
+
+/* ЭЕШ нэмэлт */
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:5px;border-radius:16px;background:var(--chip)}
+.tabs button{border:0;border-radius:12px;padding:8px 6px;line-height:1.2;background:transparent;color:var(--muted);font:700 13px var(--btn-font);cursor:pointer;min-height:44px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--accent);box-shadow:var(--shadow)}
+.grp{margin:18px 0 0;font:800 16px var(--font);display:flex;align-items:center;gap:8px}
+.grp:first-child{margin-top:4px}
+.grp small{font:500 13px var(--font);color:var(--muted)}
+.test{cursor:default}
+.test .two{display:flex;gap:8px;flex-wrap:wrap}
+.test .two button{flex:1;min-height:42px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);font:700 14px var(--btn-font);cursor:pointer;padding:8px 10px}
+.test .two button.pr{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.test.locked .two button{background:var(--surface);color:#B45309;border-color:#F6C77A}
+.topic{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;padding:14px 16px;border-radius:16px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;font-family:var(--font)}
+.topic:hover{border-color:var(--accent)}
+.topic .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--chip)}
+.topic b{font:700 15px/1.3 var(--font)}
+.topic small{display:block;color:var(--muted);font-size:13px}
+.topic .go{font:700 14px var(--font);color:var(--accent)}
+.badge{font:700 11px var(--font);letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--chip);color:var(--accent)}
+.badge.ex{background:var(--lock-bg);color:#B45309}
+.scorep{font:800 16px var(--font);padding:6px 12px;border-radius:12px;background:var(--good-bg);color:var(--good);font-variant-numeric:tabular-nums}
+.meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.meta .tp{font-size:12px;color:var(--muted);font-weight:500}
+.figs{display:grid;gap:10px;margin:0 0 14px}
+.figs img{max-width:100%;height:auto;border-radius:12px;border:1px solid var(--line);background:#fff;cursor:zoom-in;justify-self:center}
+.q{white-space:pre-line}
+.letters{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.letters .opt{justify-content:center;padding:8px}
+.letters .opt kbd{margin:0}
+.slots{display:grid;gap:10px}
+.slot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg)}
+.slot code{font:800 15px var(--font);color:var(--accent);min-width:64px}
+.slot input{width:120px;min-height:44px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--fg);font:700 18px var(--font);text-align:center;letter-spacing:.15em}
+.slot input:focus{outline:none;border-color:var(--accent)}
+.slot.ok{border-color:var(--good);background:var(--good-bg)}.slot.no{border-color:var(--bad);background:var(--bad-bg)}
+.slot .right{font:700 14px var(--font);color:var(--good)}
+.slot small{color:var(--muted);font-size:12px}
+.fb{margin-top:12px;padding:12px 14px;border-radius:12px;font:700 15px var(--font)}
+.fb.ok{background:var(--good-bg);color:var(--good)}.fb.no{background:var(--bad-bg);color:var(--bad)}
+.fb span{display:block;font-weight:500;color:var(--fg);margin-top:4px;font-size:14px}
+.zoom{position:fixed;inset:0;z-index:50;background:rgba(10,14,30,.85);display:grid;place-items:center;padding:12px;cursor:zoom-out}
+.zoom img{max-width:100%;max-height:100%;background:#fff;border-radius:8px}
+.note{font-size:13px;color:var(--muted);margin:10px 0 0}
+
+/* ===== ЗАГВАР: цэгэн фон, цагаан карт, индиго ===== */
+:root{--bg:#EEF0F7;--surface:#FFFFFF;--fg:#141A33;--muted:#5B6382;--line:#E1E4F0;--chip:#ECEEF6;
+  --accent:#4F46E5;--accent-ink:#FFFFFF;--gold:#F59E0B;--good:#059669;--bad:#E11D48;--good-bg:#DDF6EA;--bad-bg:#FDE4E8;--lock-bg:#FFF1D6}
+@media (prefers-color-scheme:light),(prefers-color-scheme:no-preference){
+  body{background-color:#EEF0F7;background-image:radial-gradient(#D3D7E6 1.2px,transparent 1.3px);background-size:22px 22px}
+  .card{border-radius:26px;border:1px solid #E1E4F0;box-shadow:0 2px 4px rgba(20,26,51,.04),0 16px 40px rgba(20,26,51,.08)}
+  .btn:not(.ghost):not(.gold),.test .two button.pr{background:#4F46E5;color:#fff;border:0;box-shadow:0 6px 16px rgba(79,70,229,.28)}
+  .btn.gold{background:#F59E0B;color:#2B1A00;box-shadow:0 6px 16px rgba(245,158,11,.3)}
+  .btn.ghost,.test .two button:not(.pr){background:#F3F4F9;border:1.5px solid #DCDFEC;color:#141A33}
+  .tabs{background:#ECEEF6}
+  .tabs button[aria-selected="true"]{background:#fff;color:#4F46E5;box-shadow:0 2px 8px rgba(20,26,51,.1)}
+  .test{background:#F7F8FC;border:1.5px solid #E1E4F0;border-radius:20px}
+  .test:hover{border-color:#4F46E5}
+  .test .tg{background:#DDF6EA;color:#047857}.test.locked .tg{background:#FFE7B3;color:#92400E}
+  .topic{background:#F7F8FC;border:1.5px solid #E1E4F0;border-radius:20px}.topic .ic{background:#4F46E5;color:#fff}
+  .badge{background:#F59E0B;color:#2B1A00;border-radius:999px;padding:5px 12px}.badge.ex{background:#4F46E5;color:#fff}
+  .scorep{background:#DDF6EA;color:#047857}
+  .prog{display:flex;align-items:center;gap:14px;margin:14px 0 4px}
+  .prog .bar{flex:1;height:10px;border-radius:999px;background:#E6E8F2;overflow:hidden}
+  .prog .bar i{display:block;height:100%;width:0;background:#4F46E5;border-radius:999px;transition:width .4s}
+  .prog b{font:700 15px var(--font);color:#5B6382;font-variant-numeric:tabular-nums}
+  .grid button{background:#F3F4F9;border:1.5px solid #DCDFEC;border-radius:12px}
+  .grid button.cur{background:#4F46E5;border-color:#4F46E5;color:#fff}
+  .grid button.done{background:#E7E6FB;border-color:#A5A1F3;color:#4F46E5}
+  .grid button.ok{background:#10B981;border-color:#10B981;color:#fff}
+  .grid button.no{background:#F43F5E;border-color:#F43F5E;color:#fff}
+  .qn{color:#4F46E5;letter-spacing:.14em;font-weight:700}
+  .q{font:700 clamp(20px,4.6vw,26px)/1.3 var(--font);color:#141A33}
+  .opts.two{grid-template-columns:1fr 1fr}
+  .opts{gap:12px}
+  .opt{background:#F3F4F9;border:1.5px solid #DCDFEC;border-radius:18px;min-height:64px;padding:12px 16px;gap:14px;font-size:17px}
+  .opt:hover{border-color:#4F46E5}
+  .opt kbd{width:34px;height:34px;border-radius:10px;background:#E6E8F2;color:#5B6382}
+  .opt.sel{border-color:#4F46E5;background:#EEEDFD}.opt.sel kbd{background:#4F46E5;color:#fff}
+  .opt.ok{border-color:#10B981;background:#DDF6EA}.opt.ok kbd{background:#10B981;color:#fff}
+  .opt.no{border-color:#F43F5E;background:#FDE4E8}.opt.no kbd{background:#F43F5E;color:#fff}
+  .letters .opt{min-height:54px}
+  .fb.ok{background:#DDF6EA;color:#047857}.fb.no{background:#FDE4E8;color:#BE123C}
+  .slot{background:#F3F4F9;border-color:#DCDFEC;border-radius:16px}
+  .res .big{color:#4F46E5}
+}
+@media (max-width:420px){.opts.two{grid-template-columns:1fr}}
+.topic{grid-template-columns:auto 1fr;cursor:default}
+.topic .two{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.topic .two button{flex:1;min-height:42px;border-radius:12px;border:1.5px solid #DCDFEC;background:#fff;color:var(--fg);font:700 14px var(--btn-font);cursor:pointer;padding:8px 10px}
+.topic .two button.pr{background:#4F46E5;border-color:#4F46E5;color:#fff;box-shadow:0 6px 16px rgba(79,70,229,.28)}
+/* Явцын зурвас — хоёр горимд */
+.prog{display:flex;align-items:center;gap:14px;margin:14px 0 4px}
+.prog .bar{flex:1;height:10px;border-radius:999px;background:var(--chip);overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .4s}
+.prog b{font:700 15px var(--font);color:var(--muted);font-variant-numeric:tabular-nums}
+.opts{gap:12px}.opts.two{grid-template-columns:1fr 1fr}
+@media (max-width:420px){.opts.two{grid-template-columns:1fr}}
+/* Харанхуй горим: ижил загвар, бараан өнгөөр */
+@media (prefers-color-scheme:dark){
+  body{background-color:#0D1022;background-image:radial-gradient(#22284A 1.2px,transparent 1.3px);background-size:22px 22px}
+  .card{border-radius:26px}
+  .q{font:700 clamp(20px,4.6vw,26px)/1.3 var(--font)}
+  .opt{border-radius:18px;min-height:64px;padding:12px 16px;gap:14px;font-size:17px}
+  .opt kbd{width:34px;height:34px;border-radius:10px}
+  .badge{background:#F59E0B;color:#2B1A00;border-radius:999px;padding:5px 12px}.badge.ex{background:#8B85FF;color:#0D1022}
+  .test,.topic{border-radius:20px}
+  .topic .two button{background:var(--surface);color:var(--fg);border-color:var(--line)}
+  .topic .two button.pr{background:#8B85FF;border-color:#8B85FF;color:#0D1022;box-shadow:none}
+  .topic .ic{background:#8B85FF;color:#0D1022}
+  .grid button.ok{background:#10B981;border-color:#10B981;color:#fff}
+  .grid button.no{background:#F43F5E;border-color:#F43F5E;color:#fff}
+}
+
+/* Дүрс: индиго дэвсгэр дээр улбар шар */
+.topic .ic,.qic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#4F46E5;color:#FB923C;flex:none}
+.topic .ic svg{width:22px;height:22px}
+.qic{width:34px;height:34px;border-radius:10px}.qic svg{width:19px;height:19px}
+.meta{align-items:center}
+@media (prefers-color-scheme:dark){.topic .ic,.qic{background:#2A2F5E;color:#FDBA74}}
+
+/* Арын зураггүй толгой */
+.title h1,.title p{text-shadow:none}
+.title p{color:var(--muted)}
+.hero-in{padding-block:18px 56px}
+
+/* ===== Тэмцээн ===== */
+.cjoin{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0 4px}
+.cjoin input{flex:1;min-width:150px;min-height:52px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);font:700 22px var(--font);letter-spacing:.3em;text-align:center}
+.cjoin input:focus{outline:none;border-color:var(--accent)}
+.cjoin .err{flex-basis:100%}
+.cjoin .empty{flex-basis:100%;padding:10px 0}
+.ctest .cline{color:var(--accent);font-weight:700}
+.tg.st-up{background:#FFE7B3!important;color:#92400E!important}.tg.st-open{background:#DDF6EA!important;color:#047857!important}.tg.st-done{background:var(--chip)!important;color:var(--muted)!important}
+.link{background:none;border:0;color:var(--accent);font:700 14px var(--btn-font);cursor:pointer;padding:6px 0;justify-self:start}
+.chead{display:grid;gap:6px;margin:6px 0 10px}.chead .tg{justify-self:start;font:700 11px var(--font);letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
+.chead h3{margin:0;font:800 22px var(--font)}.chead p{margin:0;color:var(--muted)}.cmeta{white-space:pre-line;font-size:14px}
+.cinfo{padding:12px 14px;border-radius:14px;background:var(--chip);margin:0 0 12px}.cinfo.ok{background:var(--good-bg);color:var(--good);font-weight:700}
+.cme{font:800 20px var(--font);padding:14px 16px;border-radius:16px;background:var(--good-bg);color:var(--good);margin-bottom:10px}
+.rank table{width:100%;border-collapse:collapse;font-size:15px;margin-top:8px}
+.rank th{text-align:left;font:700 12px var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1.5px solid var(--line)}
+.rank td{padding:10px;border-bottom:1px solid var(--line)}
+.rank tr.top1 td{background:#FFF6D6}.rank tr.top2 td{background:#F1F3F7}.rank tr.top3 td{background:#FBEBDD}.rank tr.me td{background:#EEEDFD;font-weight:700}
+@media (prefers-color-scheme:dark){.rank tr.top1 td,.rank tr.top2 td,.rank tr.top3 td,.rank tr.me td{background:var(--chip)}}
+.teach{margin-top:18px;padding-top:6px;border-top:1.5px dashed var(--line);display:grid;gap:12px}
+.bh{margin:6px 0;font:800 22px var(--font)}
+.bform{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.bform .fld:first-child,.bform .fld:nth-child(2){grid-column:1/-1}
+.bform input{min-height:46px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--fg);font:16px var(--font);padding:8px 12px;width:100%}
+.bbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.bbar select{flex:1;min-width:150px;min-height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--fg);font:15px var(--font);padding:6px 10px}
+.bbar .btn{min-height:40px;padding:8px 14px;font-size:13px}
+.bcnt{flex:1;font:700 15px var(--font);color:var(--accent)}
+.blist{display:grid;gap:6px;max-height:420px;overflow:auto;padding:4px;border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px}
+.bq{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:10px;cursor:pointer}
+.bq:hover{background:var(--chip)}.bq input{margin-top:4px;width:18px;height:18px;accent-color:var(--accent)}
+.bq b{display:block;font:700 13px var(--font);color:var(--accent)}.bq small{color:var(--fg);font-size:14px}
+.cdone{display:grid;gap:10px;justify-items:center;text-align:center;padding:10px 0}
+.ccode{font:800 46px var(--font);letter-spacing:.2em;color:var(--accent)}
+.cdone code{font-size:13px;word-break:break-all;background:var(--chip);padding:8px 12px;border-radius:10px}
+@media (max-width:420px){.bform{grid-template-columns:1fr}.tabs button{font-size:12px;padding:8px 2px}}
+.cjoin input::placeholder{letter-spacing:.02em;font-size:16px;font-weight:500}
+.rank{overflow-x:auto}.rank td:nth-child(5){font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-in">
+    <div class="bar">
+      <a class="logo" href="#" id="home"><img src="data:image/webp;base64,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" alt=""><span><em class="g1">Geo</em><em class="g2">Exam</em></span></a>
+      <button class="acct" id="acct" type="button"><i id="acI">?</i><b id="acN">Нэвтрэх</b><span class="st" id="acS" hidden></span></button>
+    </div>
+    <div class="title">
+      <h1>Газарзүйн даалгаврын сан</h1>
+      <p>Өдөр бүр нэг алхам — амжилт таных</p>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <!-- CATALOGUE -->
+  <section class="card pad" id="list">
+    <div class="tabs" role="tablist" id="tabs">
+      <button type="button" role="tab" data-t="var" aria-selected="true">Хувилбарууд</button>
+      <button type="button" role="tab" data-t="topic" aria-selected="false">Сэдвээр давтах</button>
+      <button type="button" role="tab" data-t="own" aria-selected="false">Мультимедиа</button>
+      <button type="button" role="tab" data-t="contest" aria-selected="false">Тэмцээн</button>
+    </div>
+    <div id="pane"><p class="empty">Ачаалж байна...</p></div>
+  </section>
+
+  <!-- EXAM / PRACTICE -->
+  <section class="card pad" id="exam" hidden>
+    <div class="ex-top"><h2 id="exName"></h2><span class="badge" id="exMode"></span><span class="grow"></span><span class="scorep" id="pScore" hidden></span><span class="timer" id="timer" hidden></span></div>
+    <div class="prog"><div class="bar"><i id="progI"></i></div><b id="progN"></b></div>
+    <div class="grid" id="grid"></div>
+    <div class="meta"><span class="qic" id="qIc"></span><span class="qn" id="qn"></span><span class="tp" id="qTopic"></span></div>
+    <p class="q" id="q"></p>
+    <div class="figs" id="figs"></div>
+    <div id="opts"></div>
+    <div id="fb"></div>
+    <div class="nav">
+      <button class="btn ghost" id="prev" type="button">← Өмнөх</button>
+      <span class="grow"></span>
+      <button class="btn ghost" id="next" type="button">Дараах →</button>
+      <button class="btn gold" id="submit" type="button">Дуусгах</button>
+      <button class="btn" id="back" type="button" hidden>Буцах</button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="card pad res" id="result" hidden>
+    <div class="lbl" id="rName"></div>
+    <div class="big" id="rScore"></div>
+    <h2 id="rTitle"></h2>
+    <p id="rText"></p>
+    <div class="nav" style="justify-content:center">
+      <button class="btn" id="review" type="button">Хариутай нь харах</button>
+      <button class="btn ghost" id="toList" type="button">Бусад тестүүд</button>
+    </div>
+  </section>
+
+  <p class="demo" id="demo" hidden>Урьдчилан харах горим: Sheet холбогдоход хувилбарууд, нэвтрэх, төлбөр ажиллана.</p>
+  <footer>
+    <div class="by"><span>Powered by</span><b>Б.Ванчигдорж</b></div>
+    <div>GeoExam · Газарзүйн даалгаврын сан</div>
+  </footer>
+</main>
+
+<!-- ACCOUNT MODAL -->
+<div class="ov" id="ov" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal">
+    <button class="x" id="mClose" type="button">Хаах ✕</button>
+    <form id="f1" class="stack">
+      <h3 id="mTitle">Нэвтрэх / Бүртгүүлэх</h3>
+      <p>Майл хаягаа оруулахад нэвтрэх код илгээнэ. Шинэ хэрэглэгч автоматаар бүртгэгдэнэ.</p>
+      <label class="fld"><span>Нэр</span><input id="inName" maxlength="60" autocomplete="name" placeholder="Жишээ: Тэмүүлэн"></label>
+      <label class="fld"><span>Майл хаяг</span><input id="inEmail" type="email" required autocomplete="email" placeholder="name@gmail.com"></label>
+      <p class="err" id="e1" aria-live="polite"></p>
+      <button class="btn" id="b1" type="submit">Код авах</button>
+    </form>
+    <form id="f2" class="stack" hidden>
+      <h3>Кодоо оруулна уу</h3>
+      <p id="sentTo"></p>
+      <label class="fld"><span>6 оронтой код</span><input id="inCode" class="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••"></label>
+      <p class="err" id="e2" aria-live="polite"></p>
+      <button class="btn" id="b2" type="submit">Баталгаажуулах</button>
+      <button class="btn ghost" id="again1" type="button">Майлаа солих</button>
+    </form>
+    <div id="f3" class="stack" hidden>
+      <h3 id="uName"></h3>
+      <p id="uEmail"></p>
+      <div class="status" id="uStatus"></div>
+      <div id="payBox"></div>
+      <button class="btn ghost" id="logout" type="button">Гарах</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIOZfXcRuuNtXF9Fw5JcwmUaBpQHWaN-nH5xfcL1tFFOidLne3Ai9ao0IG6NndIw0w/exec"; // Apps Script-ийн Web app URL
+const ONLINE = !!SCRIPT_URL;
+const $ = id => document.getElementById(id);
+const L = ["A", "B", "C", "D", "E"];
+const st = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}} };
+const TOPIC_ORDER = ["Гео орон зайн дүрслэл", "Дэлхий бидний орон гэр", "Хүн ам ба суурьшил", "Байгаль нийгмийн орчин", "Байгаль нийгмийн хамаарал, бүс нутаг"];
+const SVG = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+const ICON = {
+  "Гео орон зайн дүрслэл": SVG('<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>'),
+  "Дэлхий бидний орон гэр": SVG('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'),
+  "Хүн ам ба суурьшил": SVG('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.8 3.4-6 6.5-6s5.7 2.2 6.5 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.6.2 4.3 2.2 5 5.3"/>'),
+  "Байгаль нийгмийн орчин": SVG('<path d="M3 21V11l5 3v-3l5 3v-3l5 3V5h3v16z"/><path d="M7 18h2M12 18h2M17 18h2"/>'),
+  "Байгаль нийгмийн хамаарал, бүс нутаг": SVG('<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>')
+};
+const DEF_ICON = SVG('<path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2zm0 0A2 2 0 0 0 6 22h13v-4"/>');
+const TOPIC_EXAM_N = 20, TOPIC_EXAM_MIN_PER_Q = 2;
+let token = st.get("ge-token"), user = null, cfg = {}, tests = [], topics = [], tab = st.get("ge-tab") || "var";
+let T = null, QS = [], ans = [], done = [], cur = 0, reviewMode = false, practice = true, timer = null, left = 0;
+
+/* demo data (сервергүй үед) */
+const DEMO = {"tests":[{"id":"2022-A","name":"ЭЕШ 2022 · A хувилбар","free":true,"minutes":90,"desc":"50 сонгох + 4 нөхөх даалгавар","group":"ЭЕШ 2022","count":54,"locked":false}],"topics":[],"q":[{"n":"1","q":"Дэлхийн хэлбэр хэмжээг багасган үзүүлсэн бодит загварыг сонгоно уу.","o":["Глобус","Газарзүйн зураг","Гэрэл зураг","Атлас","Агаарын зураг"],"sol":"Глобус — дэлхийн бөмбөрцөг хэлбэр, хэмжээг багасган үзүүлсэн бодит загвар.","topic":"Гео орон зайн дүрслэл","img":[],"optImg":[],"a":0,"p":1},{"n":"2","q":"Наранд хамгийн ойр орших гараг аль нь вэ?","o":["Бархасбадь","Дэлхий","Буд","Ангараг","Тэнгэрийн ван"],"sol":"Буд гараг нарнаас ~58 сая км зайд оршдог, хамгийн ойр.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":2,"p":1},{"n":"3","q":"Хүний хөгжлийн индекс (ХХИ)-ийн үзүүлэлтэд асуултын тэмдгийн оронд тохирох хариултыг сонгоно уу.","o":["Тогтвортой хөгжил","Хүн амын өсөлт","Ажиллах хүч","Дундаж наслалт","Амьдралын түвшин"],"sol":"ХХИ = нэг хүнд ногдох ДНБ + боловсролын түвшин + дундаж наслалт.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A3_0.jpg"],"optImg":[],"a":3,"p":1},{"n":"4","q":"2022 оны эхний хагаст ОХУ, Украйн улсын дайны улмаас Украйны 11 сая орчим хүн Европын улс орон руу дүрвэн суурьшсан нь шилжих хөдөлгөөний ямар хэлбэр вэ?","o":["Түр зуурын шилжих хөдөлгөөн","Гадаад шилжих хөдөлгөөн","Сайн дурын шилжих хөдөлгөөн","Дотоод шилжих хөдөлгөөн","Албадлагын шилжих хөдөлгөөн"],"sol":"Дайны улмаас хүсэлгүйгээр дүрвэсэн тул албадлагын шилжих хөдөлгөөн.","topic":"Хүн ам ба суурьшил","img":[],"optImg":[],"a":4,"p":1},{"n":"5","q":"Хотжилтын түвшин хамгийн өндөр улс аль нь вэ?","o":["Аргентин","Франц","Энэтхэг","Бельги","Индонез"],"sol":"Бельги ~98% хотжилттой, хамгийн өндөр.","topic":"Хүн ам ба суурьшил","img":[],"optImg":[],"a":3,"p":1},{"n":"6","q":"Аж үйлдвэрийг байршуулахад нөлөөлөх байгалийн хүчин зүйлийг сонгоно уу.","o":["Зам тээвэр","Зах зээл","Түүхий эд","Ажиллах хүч","Амьдралын чанар"],"sol":"Түүхий эд — байгалийн хүчин зүйл; бусад нь нийгэм, эдийн засгийн хүчин зүйл.","topic":"Байгаль нийгмийн орчин","img":[],"optImg":[],"a":2,"p":1},{"n":"7","q":"Бөхөн байгалийн аль бүсэд амьдардаг вэ?","o":["Хүйтэн бүс","Сэрүүн бүс","Субтропикийн бүс","Тропикийн бүс","Экваторын бүс"],"sol":"Бөхөн сэрүүн бүсийн хээр, цөлөрхөг хээрт амьдардаг.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":1,"p":1},{"n":"8","q":"Магмын чулуулаг аль нь вэ?","o":["Шохойн чулуу","Гантиг","Шаварлаг занар","Галт уулын шил","Хөрзөн чулуу"],"sol":"Галт уулын шил (обсидиан) — магмын гадаргын чулуулаг.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":1},{"n":"9","q":"Агаарын ижил даралттай цэгүүдийг холбосон шугамыг...................гэнэ.","o":["Изобар","Изокол","Изотерм","Изогипс","Изобат"],"sol":"Изобар — агаарын ижил даралттай цэгүүдийг холбосон шугам.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":0,"p":1},{"n":"10","q":"Далайн урсгалын зурагт 1-ийн тоогоор тэмдэглэсэн урсгалыг нэрлэнэ үү.","o":["Гольфстримын урсгал","Аляскийн урсгал","Саргассын урсгал","Куросиогийн урсгал","Бразилийн урсгал"],"sol":"1 — Өмнөд Америкийн зүүн эргийн дагуух дулаан урсгал: Бразилийн урсгал.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A10_0.jpg"],"optImg":[],"a":4,"p":1},{"n":"11","q":"Биомасс хаана хамгийн бага байна вэ?","o":["Субтропикийн ой","Цөл","Хээр","Тундр","Мөс"],"sol":"Мөсөн цөлд хүйтний улмаас амьд биет хамгийн бага.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A11_0.jpg"],"optImg":[],"a":4,"p":1},{"n":"12","q":"Газарзүйн зургийг хамрах нутгаар нь ангилдаг. Тивийн зургийг сонгоно уу.","o":["","","","",""],"sol":"D — Африк тивийг бүхэлд нь дүрсэлсэн тивийн зураг.","topic":"Гео орон зайн дүрслэл","img":[],"optImg":["img/2022/A12_0.jpg"],"a":3,"p":1},{"n":"13","q":"Зургийг ажиглан зөв тодорхойлсон хариултыг сонгоно уу.","o":["Вектор зураг","Сансрын зураг","Агаарын зураг","Растер зураг","Аялалын зураг"],"sol":"Агаараас (өндрөөс) авсан гэрэл зураг тул агаарын зураг.","topic":"Гео орон зайн дүрслэл","img":["img/2022/A13_0.jpg"],"optImg":[],"a":2,"p":1},{"n":"14","q":"Нарны аймгийн алслагдсан дарааллаар 4 дүгээрт байрлах, тэнхлэгээ эргэх хугацаа нь 24 цаг 7 минут 23 секунт бөгөөд 687 хоногт нарыг 1 бүтэн тойрдог, сайн судлагдаж буй гарагийг олно уу.","o":["Сугар","Дэлхий","Бархасбадь","Ангараг","Санчир"],"sol":"4-р гараг Ангараг: тэнхлэгээ 24 цаг 37 минутад эргэж, нарыг 687 хоногт тойрно.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":1},{"n":"15","q":"Хурдтай хөгжиж буй олон нийтийн мэдээллийн хэрэгсэл, ТВ, интернет, харилцаа холбооны болон орчин үеийн тээврийн хэрэгсэл, хөгжлийн хувьд нэгдэж буй үйл явцыг илэрхийлсэн даяаршлын хүрээг тодорхойлно уу.","o":["Ардчилалын даяаршил","Улс төрийн даяаршил","Нийгмийн даяаршил","Эдийн засгийн даяаршил","Соёлын даяаршил"],"sol":"Хэвлэл мэдээлэл, интернет, харилцаа холбоо, тээвэр → нийгмийн даяаршил.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":[],"optImg":[],"a":2,"p":1},{"n":"16","q":"Тоон үзүүлэлтийг ашиглан орхигдсон бүс нутгийн хүн амын эзлэх хувийг тодорхойлно уу.","o":["13.5%","12.5%","14.5%","15.5%","11.5%"],"sol":"100 − (10.8 + 15.2 + 22.6 + 37.8) = 13.6 ≈ 13.5%.","topic":"Хүн ам ба суурьшил","img":["img/2022/A16_0.jpg"],"optImg":[],"a":0,"p":2},{"n":"17","q":"2017 оны Катар улсын хүн амын суваргыг ашиглан зөв тайлбарласан хариуг олоорой.","o":["60-с дээш насны эрэгтэйчүүдийн тоо цөөн","10-29 насны эмэгтэйчүүд эрэгтэйчүүдийн тоо ойролцоо","50-59 насны эмэгтэйчүүдийн тоо эрэгтэйчүүдээс олон","40-49 насны эмэгтэйчүүдээс эрэгтэйчүүдийн тоо олон","0-9 насны эрэгтэй хүүхдийн тоо эмэгтэйгээсээ цөөн"],"sol":"40–49 насанд эрэгтэйчүүд (цагаач ажилчид) эмэгтэйгээс хавьгүй олон.","topic":"Хүн ам ба суурьшил","img":["img/2022/A17_0.jpg"],"optImg":[],"a":3,"p":1},{"n":"18","q":"Органик фермийн тариалангийн талбайн хэмжээгээр тэргүүлэгч Америк тивийн орнуудыг сонгоно уу.","o":["Канад, Перу","Уругвай, Бразил","Аргентин, АНУ","АНУ, Боливи","Аргентин, Чили"],"sol":"Америк тивд Аргентин, АНУ органик талбайгаар тэргүүлдэг.","topic":"Байгаль нийгмийн орчин","img":[],"optImg":[],"a":2,"p":1},{"n":"19","q":"Хуурай газарт тээврийн сүлжээг өргөжүүлэхэд тулгардаг саадуудын нэг нь............ холбосон авто зам барих нь........................хүчин зүйл юм.","o":["Нуур ба гол мөрөнг, харьцангуй","Уул ба хөндийг, харьцангуй","Уул ба хөндийг, үнэмлэхүй","Тэнгис ба буланг, үнэмлэхүй","Шавар ба намгийг, харьцангуй"],"sol":"Уул ба хөндийг холбох зам — техникээр даван туулах харьцангуй саад.","topic":"Байгаль нийгмийн орчин","img":["img/2022/A19_0.jpg"],"optImg":[],"a":1,"p":1},{"n":"20","q":"Газарзүйн бүрхэвчийн бүс, бүслүүрлэг шинж чанарын онцлогийг зөв тодорхойлсон хариултыг олно уу.","o":["Галт уулын дэлбэрэлтээс хий, тоос нэмэгдэх","Тектоникийн хөдөлгөөн эрчимжих","Агаарт чийг өтгөрч үүл бүрэлдэх","Хөрс, ургамал, амьтан тархах","Өдөр шөнө ээлжлэх, улирал солигдох"],"sol":"Бүс бүслүүрлэг чанар — хөрс, ургамал, амьтан өргөргийн дагуу дэс дараалан тархах.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":2},{"n":"21","q":"Голдуу үйлдвэр ихтэй том хотын дээр үүсдэг, агаарт нүүрсхүчлийн хий болон хатуу хольцууд ихэссэнээс болж газрын гадаргаас ялгарах дулааныг тогтоон барьж буй үзэгдэл инверсийн ямар төрөл вэ?","o":["Адвекцийн инверс","Хаврын инверс","Цацрагийн инверс","Уулзүйн инверс","Агаарын бохирдлын инверс"],"sol":"Хотын агаарын бохирдол дулааныг барьж үүсдэг — агаарын бохирдлын инверс.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":4,"p":1},{"n":"22","q":"Хойд Америкийн Сьерра Невада уул нь д.т.д 4418 м өндөр бөгөөд энэ нь уулын ямар төрөлд хамаарагдах вэ?","o":["Атираат уул","Галт уул","Хөмбөн уул","Зөрөгт уул","Өндөр уул"],"sol":"Хагарлын дагуу блок өргөгдөж үүссэн — зөрөгт уул.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A22_0.jpg"],"optImg":[],"a":3,"p":1},{"n":"23","q":"Гадаргын хэлбэрт нөлөөлсөн гол хүчин зүйлийг тодорхойлно уу.","o":["Мөсөн голын нөлөө","Усны нөлөө","Нарны энергийн нөлөө","Галт уулын нөлөө","Салхины нөлөө"],"sol":"Цөлийн нуман хаалга хэлбэрийн хад — салхины элэгдлийн үр дүн.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A23_0.jpg"],"optImg":[],"a":4,"p":1},{"n":"24","q":"ОХУ-ын Иркутск хотод хэддүгээр саруудад хамгийн их тунадас унадаг вэ?","o":["IV - V сард","V - VI сард","VI – VII сард","VIII - IX сард","VII - VIII сард"],"sol":"Тунадасны багана VII–VIII сард хамгийн өндөр.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A24_0.jpg"],"optImg":[],"a":4,"p":2},{"n":"25","q":"Тойргон диаграммаар далайн усны бохирдлын хувийг харуулав. Хамгийн их бохирдуулж байгаа эх үүсвэрийг сонгоно уу.","o":["Эрэг орчмын уул уурхай","Хөлөг онгоц","Хог хаягдал","Агаарын бохирдол","Цутгал гол"],"sol":"Диаграммд цутгал голын эзлэх хувь хамгийн их.","topic":"Байгаль нийгмийн орчин","img":["img/2022/A25_0.jpg"],"optImg":[],"a":4,"p":1},{"n":"26","q":"Гималайн нуруунд д.т.д 8848 м өндөрт биомассын тархалтад тохирох экосистем аль нь байна вэ?","o":["Өвстэй тал","Тундр ба таг","Нуга намаг","Чулуу ба мөс","Жинхэнэ цөл"],"sol":"8848 м нь 4572 м-ээс дээш — чулуу ба мөсний бүс.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A26_0.jpg"],"optImg":[],"a":3,"p":1},{"n":"27","q":"Ургамал ургахад шаардагдах органик бодисын хэмжээг хөрсний үржил шим гэнэ. Хамгийн үржил шимт хөрсийг сонгоно уу.","o":["","","","",""],"sol":"Хар шороон хөрс ялзмаг ихтэй, хамгийн үржил шимтэй.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":["img/2022/A27_0.jpg"],"a":2,"p":1},{"n":"28","q":"Сурагч Туяа найзын хамт модон гүүрээр гарч голын зүүн эргээр хойд зүгт аялав. Аялалын төгсгөлд ямар обьект таарах вэ?","o":["Сайжруулсан шороон зам","Гуу жалга","Бут ба ой","Усан цахилгаан станц","Жимсний цэцэрлэг"],"sol":"Модон гүүрээс голын зүүн эргээр хойш явахад голын эх хэсэг дэх далан (УЦС) таарна.","topic":"Гео орон зайн дүрслэл","img":["img/2022/A28_0.jpg"],"optImg":[],"a":3,"p":2},{"n":"29","q":"“Google Map”-ын газарзүйн зургийг ашиглан Эрдмийн өргөө цогцолбор сургуулиас зүүн хойд зүгт байрлах обьектыг нэрлэнэ үү.","o":["56-р сургууль","114-р цэцэрлэг","Голомт банк","Хөл бөмбөгийн талбай","Прогресс зочид буудал"],"sol":"Сургуулиас зүүн хойт зүгт 56-р сургууль байрлана.","topic":"Гео орон зайн дүрслэл","img":["img/2022/A29_0.jpg"],"optImg":[],"a":0,"p":2},{"n":"30","q":"Улаанбаатар хотод өдрийн 13 цаг болж байв. Энэ үед Берлинд (I цагийн бүс) хэдэн цаг болж байх вэ?","o":["09 цаг","08 цаг","07 цаг","13 цаг","12 цаг"],"sol":"Улаанбаатарыг VII бүс гэж тооцвол 13 − 6 = 07 цаг.","topic":"Гео орон зайн дүрслэл","img":[],"optImg":[],"a":2,"p":2},{"n":"31","q":"Өндөр технологийн ололтыг үйлдвэрлэлд нэвтрүүлж байгаа үйл явцыг тодорхойлно уу.","o":["Гэрийн мод, тавилга хийх","Нано бүрхүүлт гэрийн бүрээс үйлдвэрлэх","Арьс, шир элдэж сур бэлтгэх","Сүүг уламжлалт аргаар боловсруулах","Алтыг гар аргаар олборлох"],"sol":"Нано бүрхүүлт бүрээс — өндөр технологийн ололт.","topic":"Байгаль нийгмийн орчин","img":[],"optImg":[],"a":1,"p":2},{"n":"32","q":"Хүн амын ихэнх хувийг 30-60 насныхан эзэлдэг, дундаж наслалт өндөртэй, төрөлт буурснаас шалтгаалж хүн амзүйн хямралд орсон улсыг сонгоно уу.","o":["","","","",""],"sol":"Германы сувраг: 30–60 насныхан олон, төрөлт бага — хүн амзүйн хямрал.","topic":"Хүн ам ба суурьшил","img":[],"optImg":["img/2022/A32_0.jpg"],"a":1,"p":2},{"n":"33","q":"Иргэн Дорж хөдөөнөөс хот руу ирж сууршихдаа хамаатныхаа хашаанд амьдрахаар төлөвлөжээ. Энэ нь хот төлөвлөлтийн “Бага орлоготой иргэдийн хороолол”-д хамаарах тул секторлог загварын аль тоон утгад тохирох вэ?","o":["1","5","2","3","6"],"sol":"Хойтын секторлог загварт 3 — бага орлоготой иргэдийн хороолол.","topic":"Хүн ам ба суурьшил","img":["img/2022/A33_0.jpg"],"optImg":[],"a":3,"p":2},{"n":"34","q":"Өгөгдлийг уншаад эрчим хүчний гол эх үүсвэр нь байгалийн ямар нөхцлөөс шалтгаалсан болохыг тодорхойлно уу.","o":["Харьцангуй өндрийн зөрүү ихтэй уулархаг гадарга","Хөндий, хотгорын төвийн чийг намагтай гадарга","Салхины хурд тогтворгүй талархаг нам гадарга","Нарны тусгал болон ууршилт ихтэй ээвэр гадарга","Салхины хурд тогтвортой өндөрлөг гадарга"],"sol":"\"Салхит\" салхин станц — салхины хурд тогтвортой өндөрлөг гадарга.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A34_0.jpg"],"optImg":[],"a":4,"p":2},{"n":"35","q":"Тээврийн төрлүүдийг давуу талуудтай нь харгалзуулна уу.","o":["1в,2а,3г,4б","1г,2б,3а,4в","1а,2г,3в,4б","1в,2б,3г,4а","1б,2а,3в,4г"],"sol":"Агаар — хурдан, тав тухтай (в); ус — их ачаа, хямд (а); авто — богино зайд шууд (г); төмөр зам — цаг агаараас хамаарахгүй (б).","topic":"Байгаль нийгмийн орчин","img":["img/2022/A35_0.jpg"],"optImg":[],"a":0,"p":2},{"n":"36","q":"Хэрэв чи Индонез улсын Жакарта хотод суралцахаар явж байгаа гэж төсөөлье. Тэнд газарзүйн бүсийн ямар орчинтой байх вэ?","o":["7-р сард +10°С хүрэхгүй, өвөлдөө -40°С, дунджаар 50-100 мм орчим тунадас унадаг. Дулаан дутагдалтай учир ууршилт бага, цэвдэг, намаг элбэг тархсан.","Халуун хуурай, агаарын их даралтын мужид оршдог. Пассат салхи зонхилдог. Өвөл +10°С-ээс буурахгүй, зундаа дунджаар +30°С- +35°С. Саванн, цөл, халуун орны ойтой.","Баруун зүгийн салхины нөлөөнд оршино. Далайн эргээр чийглэг, эх газрын төв хэсгээр хуурай, тайга, хээр, цөл, холимог ойтой. 1-р сард –10°С орчим, 7-р сард +25°С, дунджаар 180-200 мм орчим тунадас унадаг.","Дулаан ба чийгийн хувьд улирлын ялгаа байхгүй. Чийглэг, мөнх ногоон ойтой, жилийн туршид +25°С- +30°С, дунджаар 2000 мм түүнээс их тунадас унадаг.","Хамгийн дулаан сардаа +5°С орчим түүнээс бага температуртай. Дээд ургамалгүй, хаг, хөвд ургана, үргэлжилсэн цэвдэгтэй, дунджаар 5-30 мм орчим тунадас унадаг."],"sol":"Жакарта экваторын бүсэд: улирлын ялгаагүй, +25…+30°C, 2000 мм-ээс их тунадас.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":2},{"n":"37","q":"Монгол Улс Парисын хэлэлцээрийг УИХ-аар хэлэлцэн 2016 онд соёрхон баталсан. Хүлэмжийн хийн ялгаруулалтаа бууруулахад хувь нэмрээ оруулах зорилгоор хийж буй үндсэн үйл ажиллагааг сонгоно уу.","o":["Бэлчээрийн даацыг нэмэгдүүлэх","Ойн санг багасгах","Ногоон байгууламжийг нэмэгдүүлэх","Нүүрсхүчлийн хийг ихэсгэх","Гадаргын усыг бохирдуулах"],"sol":"Ногоон байгууламж CO₂ шингээж хүлэмжийн хийг бууруулна.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":[],"optImg":[],"a":2,"p":2},{"n":"38","q":"Хүн ам нь ундны усны хомсдолд орсон Африк тивийн улсуудыг олно уу.","o":["Мозамбик, Колумб, Египет","Сомали, Чад, Нигери","Нигер, Судан, Афганистан","Этиоп, Конго, Албани","Ангол, Кени, Иордан"],"sol":"Сомали, Чад, Нигери — гурвуулаа Африкт, ундны усны хангамж бага.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A38_0.jpg"],"optImg":[],"a":1,"p":2},{"n":"39","q":"Өмнөд Америкийн хавтан, Африкийн хавтангаас 1 жилд 4 см-ээр холдон салдаг бол 1 сая жилийн дараа хэдэн км-ийн зайтай холдохыг тооцоолно уу.","o":["4000 км","4 км","400 км","40 км","0.4 км"],"sol":"4 см × 1 000 000 жил = 4 000 000 см = 40 км.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":2},{"n":"40","q":"АНУ-ын Вашингтон хотод амьдардаг ахындаа урилгаар зочилсон Дулмаад өнөөдөр агаарын температур 95°F гэдгийг цельсийн хуваариар хэд гэж ойлгуулах вэ? t°C=5/9(t°F-32)","o":["30°С","32°С","36°С","34°С","35°С"],"sol":"t°C = 5/9 × (95 − 32) = 35°C.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":4,"p":2},{"n":"41","q":"Хуурай газар ба усны харилцан адилгүй халж, хөрдөг зүй тогтлоос болж өдөр, шөнөөр чиглэлээ өөрчилдөг орон нутгийн салхины өдрийн чиглэлийг тодорхойлно уу.","o":["Нуураас эрэг рүү чиглэнэ","Эргээс нуур луу чиглэнэ","Далайгаас эх газар луу чиглэнэ","Эх газраас далай руу чиглэнэ","Мэлхийн замаас экватор луу чиглэнэ"],"sol":"Өдөр хуурай газар хурдан халж даралт буурна → салхи далайгаас эх газар луу чиглэнэ (сэвшээ салхи).","topic":"Дэлхий бидний орон гэр","img":["img/2022/A41_0.jpg"],"optImg":[],"a":2,"p":2},{"n":"42","q":"Орхон гол Хангай нурууны Суваргахайрхан уул (д.т.д 3021 м) -аас эх авч 1124 км урсаад Сэлэнгэ мөрөн (д.т.д 601 м) -д цутгадаг бол голын уналыг тооцоолно уу. (H = H₁ − H₂)","o":["3622 м","1897 м","1725 м","2420 м","4145 м"],"sol":"H = H₁ − H₂ = 3021 − 601 = 2420 м.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":2},{"n":"43","q":"Хээрийн бүсэд хүнсний ногоо тариалахад хамгийн тохиромжтой хөрсийг сонгоно уу.","o":["Цайвар саарал, Карбонат, шохой, давс их, 0.2-0.5% ялзмагт хөрс","Улаан хүрэн, Төмөр, хөнгөн цагааны исэл их, 3-5% ялзмагт хөрс","Хүрэн, Кальци, магниар баялаг, 5-7% ялзмагт хөрс","Цайвар бор, Сульфат, натриар баялаг, 2-3% ялзмагт хөрс","Саарал, Цахиур, шүлтийн агууламж их, 1.5 – 2% ялзмагт хөрс"],"sol":"Хүрэн хөрс (5–7% ялзмаг, кальци, магни) — хээрийн бүсэд ногоо тариалахад тохиромжтой.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":2,"p":2},{"n":"44","q":"...... гараг нарнаас 58 сая км зайд алслагдсан байдаг. Энэ зайг одон орны нэгжээр илэрхийлнэ үү.","o":["Дэлхий, 92 o.o.н","Буд, 0.39 о.о.н","Сугар, 39 о.о.н","Буд, 2.58 о.о.н","Дэлхий, 1.00 о.о.н"],"sol":"58 сая км ÷ 150 сая км ≈ 0.39 о.о.н — Буд гараг.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":1,"p":2},{"n":"45","q":"Дунд зэргийн хөгжилтэй орнуудын хүн ам, бараа бүтээгдэхүүн, худалдааны хувь хэмжээг тодорхойлно уу.","o":["Хүн ам 95%, Бараа бүтээгдэхүүн 68.4%, Худалдаа 81%","Хүн ам 5%, Бараа бүтээгдэхүүн 25.6%, Худалдаа 21%","Хүн ам 65%, Бараа бүтээгдэхүүн 31.6%, Худалдаа 19%","Хүн ам 5%, Бараа бүтээгдэхүүн 31.6%, Худалдаа 19%","Хүн ам 5%, Бараа бүтээгдэхүүн 68.4%, Худалдаа 19%"],"sol":"Хүн ам 100 − 15 − 80 = 5%; бараа 100 − 47 − 21.4 = 31.6%; худалдаа 100 − 51 − 30 = 19%.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A45_0.jpg"],"optImg":[],"a":3,"p":2},{"n":"46","q":"Графикийг ашиглан сүүлийн 20 жилд хөдөөгийн хүн ам хэдэн хувиар буурах хандлагатай байгааг тооцоолно уу.","o":["89.3%","49.2%","40.1%","11.8%","9.1%"],"sol":"Хөдөөгийн хүн ам 2010 онд 49.2%, 2030 онд 40.1% → 49.2 − 40.1 = 9.1%.","topic":"Хүн ам ба суурьшил","img":["img/2022/A46_0.jpg"],"optImg":[],"a":4,"p":2},{"n":"47","q":"Дэлхийн уур амьсгалын зарим бүсүүдийн онцлогоос хамаарсан эрхлэх аж ахуйг харгалзуулна уу.","o":["1Вб, 2Ав, 3Ба","1Аб, 2Бв, 3Ва","1Бв, 2Ва, 3Бб","1Ва, 2Вв, 3Аб","1Бв, 2Вб, 3Ба"],"sol":"Экваторын — жилийн турш халуун чийглэг, кофе (1Вб); Газар дундын тэнгисийн — усан үзэм (2Ав); Эх газрын — өвөл хүйтэн, алим (3Ба).","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A47_0.jpg"],"optImg":[],"a":0,"p":2},{"n":"48","q":"Дэлхий дээрх хоёр цэгийн хоорондох хамгийн богино буюу дөт агаарын зам нь дэлхийн бөмбөрцгийн их тойргийн нумын дагуу тодорхойлогдоно. Токио хотоос Нью-Йорк хот руу шууд нислэг хийхэд аль зүг рүү хөөрвөл илүү дөт зам байх вэ?","o":["Баруун өмнөд зүг рүү","Баруун хойд зүг рүү","Зүүн өмнөд зүг рүү","Зүүн хойд зүг рүү","Баруун зүг рүү"],"sol":"Их тойргийн нум хойд туйл руу муруйдаг тул Токиогоос зүүн хойд зүг рүү хөөрнө.","topic":"Гео орон зайн дүрслэл","img":["img/2022/A48_0.jpg"],"optImg":[],"a":3,"p":2},{"n":"49","q":"Гималай нурууны өвөрт орших Черрапунжид жилд 12000 мм тунадас унах бөгөөд уурших чадвар нь 1550 бол чийглэг байдлыг тооцоолно уу. (K=r/E. r-тунадасны нийлбэр, E-уурших чадвар)","o":["0.1","0.7","7.7","0.8","1.3"],"sol":"K = r / E = 12000 / 1550 ≈ 7.7.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":2,"p":2},{"n":"50","q":"Монгол орны гадаргын усны нөөц хамгийн ихтэй аймаг болон хамаарах гол мөрдийн ай савыг зөв тодорхойлсон хариултыг сонгоно уу.","o":["Завхан-Номхон далайн ай сав","Хөвсгөл-Хойд мөсөн далайн ай сав","Баянхонгор-Төв Азийн гадагш урсгалгүй ай сав","Дорнод-Номхон далайн ай сав","Архангай-Хойд мөсөн далайн ай сав"],"sol":"Хөвсгөл аймаг (Мөрөн) 4000 сая м³-ээс их — Хойд мөсөн далайн ай сав.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A50_0.jpg"],"optImg":[],"a":1,"p":2},{"n":"2.1","q":"БУ45° дээр орших А хотод ням гарагийн 21 цаг болж байв. Тэгвэл ЗУ90° дээр орших Б хотод ямар гарагийн хэдэн цаг болж байхыг тооцоолно уу.","o":[],"sol":"БУ45° ба ЗУ90°-ын зөрүү 135° = 9 цаг. Зүүн тийш цаг урагшилна: 21 + 9 = 30 → маргааш 06 цаг, Даваа гараг.","topic":"Гео орон зайн дүрслэл","img":["img/2022/A2_1_0.jpg"],"optImg":[],"slots":[{"k":"a","a":"6","p":4},{"k":"b","a":"2","p":2}]},{"n":"2.2","q":"Графикийг ажиглан дараах асуултад хариулна уу.","o":[],"sol":"(51 500 − 47 900) ÷ 10 = 360 хүн/жил. Жилийн дундаж өсөлт 2010–2015 онд хамгийн их (9000 ÷ 5 = 1800).","topic":"Хүн ам ба суурьшил","img":["img/2022/A2_2_0.jpg"],"optImg":[],"slots":[{"k":"abc","a":"360","p":3},{"k":"d","a":"2","p":3}]},{"n":"2.3","q":"Сүхбаатар аймгийн Дарьганга сумын нутагт орших Шилийн Богд (д.т.д 1778 м) уулын бэлд (д.т.д 1278 м) агаарын температур +20°С байх үед уулын оройд хэдэн хэм байх вэ?","o":[],"sol":"Харьцангуй өндөр 1778 − 1278 = 500 м; 500 м × 0.6°C/100 м = 3°C; 20 − 3 = 17°C. 500 м харьцангуй өндөртэй тул нам уул.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A2_3_0.jpg"],"optImg":[],"slots":[{"k":"ab","a":"17","p":2},{"k":"cde","a":"500","p":2},{"k":"f","a":"3","p":2}]},{"n":"2.4","q":"Далай, тэнгисийн тухай ойлголтуудыг зөв хариутай нь харгалзуулна уу. [a], [b], [c], [d], [e], [f]","o":[],"sol":"a — Татралт (3), b — Беринг (6), c — Давсжилт (1), d — Гольфстрим (2), e — Тасман (4), f — Гвиней (5).","topic":"Дэлхий бидний орон гэр","img":["img/2022/A2_4_0.jpg"],"optImg":[],"slots":[{"k":"a","a":"3","p":1},{"k":"b","a":"6","p":1},{"k":"c","a":"1","p":1},{"k":"d","a":"2","p":1},{"k":"e","a":"4","p":1},{"k":"f","a":"5","p":1}]}],"cfg":{"Үнэ":"50 000₮ / 1 жил","Банк":"Банкны нэр","Данс":"0000000000","Данс эзэмшигч":"Б.Ванчигдорж","Гүйлгээний утга":"Бүртгүүлсэн майл хаягаа бичнэ үү","Холбоо барих":"Утас эсвэл майл"}};
+
+async function api(params) { const r = await fetch(SCRIPT_URL + "?" + new URLSearchParams(params)); return r.json(); }
+async function post(data) { const r = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) }); return r.json(); }
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+
+/* ---------- account chip ---------- */
+function renderAcct() {
+  $("acI").textContent = user ? (user.name || user.email).charAt(0).toUpperCase() : "?";
+  $("acN").textContent = user ? (user.name || user.email) : "Нэвтрэх";
+  $("acS").hidden = !user; if (user) { $("acS").textContent = user.paid ? "Төлсөн" : "Үнэгүй"; $("acS").classList.toggle("paid", user.paid); }
+}
+
+/* ---------- catalogue ---------- */
+async function loadTests() {
+  $("pane").innerHTML = '<p class="empty">Ачаалж байна...</p>';
+  if (!ONLINE) { tests = DEMO.tests; topics = DEMO.topics; cfg = DEMO.cfg; $("demo").hidden = false; renderPane(); return; }
+  try {
+    const [r, c] = await Promise.all([api({ action: "tests", token: token || "" }), Object.keys(cfg).length ? null : api({ action: "config" })]);
+    if (c && c.ok) cfg = c.config;
+    tests = r.tests || []; topics = r.topics || []; user = r.user; if (!user && token) { token = null; st.set("ge-token", null); }
+    renderAcct(); renderPane();
+  } catch (e) { $("pane").innerHTML = '<p class="empty">Ачаалж чадсангүй. Интернэтээ шалгаад хуудсаа дахин ачаална уу.</p>'; }
+}
+const isOwn = t => !/^ЭЕШ/.test(t.group || "");
+function setTab(t) { tab = t; st.set("ge-tab", t); document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t)); renderPane(); }
+$("tabs").onclick = e => { const b = e.target.closest("button"); if (b) setTab(b.dataset.t); };
+function renderPane() {
+  const box = $("pane"); box.innerHTML = "";
+  if (tab === "topic") return renderTopics(box);
+  if (tab === "contest") return renderContest(box);
+  const list = tests.filter(t => tab === "own" ? isOwn(t) : !isOwn(t));
+  if (!list.length) { box.append(el("p", "empty", tab === "own" ? "Мультимедиа даалгавар одоогоор алга." : "Одоогоор тест алга.")); return; }
+  const groups = {}; list.forEach(t => (groups[t.group] = groups[t.group] || []).push(t));
+  Object.keys(groups).sort().reverse().forEach(g => {
+    const h = el("div", "grp", g); const n = groups[g].length; h.append(el("small", "", "· " + n + " тест")); box.append(h);
+    const grid = el("div", "tests"); groups[g].forEach(t => grid.append(testCard(t))); box.append(grid);
+  });
+  if (tab === "var") box.append(el("p", "note", "Дасгал: хариулмагц зөв, буруу нь шууд харагдана. Шалгалт: жинхэнэ ЭЕШ шиг цаг тоолж, эцэст нь дүнгээ харна."));
+}
+function testCard(t) {
+  const c = el("div", "test" + (t.locked ? " locked" : ""));
+  c.append(el("span", "tg", t.free ? "Үнэгүй" : (t.locked ? "🔒 Төлбөртэй" : "✓ Нээлттэй")), el("b", "", t.name),
+    el("small", "", t.count + " даалгавар" + (t.minutes ? " · " + t.minutes + " минут" : "") + (t.desc ? " · " + t.desc : "")));
+  const two = el("div", "two");
+  if (t.locked) { const b = el("button", "", "🔒 Эрх авах →"); b.type = "button"; b.onclick = () => openAcct(true); two.append(b); }
+  else {
+    const p = el("button", "pr", "Дасгал"); p.type = "button"; p.onclick = () => startTest(t, true);
+    two.append(p);
+    if (t.minutes) { const x = el("button", "", "Шалгалт · " + t.minutes + " мин"); x.type = "button"; x.onclick = () => startTest(t, false); two.append(x); }
+  }
+  c.append(two); return c;
+}
+function renderTopics(box) {
+  if (!topics.length) { box.append(el("p", "empty", "Сэдэв алга.")); return; }
+  box.append(el("p", "note", "Бүх оны хувилбаруудаас нэг сэдвийн даалгавруудыг холино. Давтах: хариулмагц зөв, буруу нь шууд гарна. Сэдвийн шалгалт: " + TOPIC_EXAM_N + " даалгавар, цагтай." + (user && user.paid ? "" : " Төлбөртэй хэрэглэгчид бүх хувилбарын даалгавар нээгдэнэ.")));
+  const grid = el("div", "tests");
+  const rank = n => { const k = TOPIC_ORDER.indexOf(n); return k < 0 ? 99 : k; };
+  topics.slice().sort((a, b) => rank(a.name) - rank(b.name) || b.total - a.total).forEach(tp => {
+    const c = el("div", "topic");
+    const tx = el("span"); tx.append(el("b", "", tp.name), el("small", "", tp.open + " даалгавар нээлттэй" + (tp.total > tp.open ? " · 🔒 " + (tp.total - tp.open) : "")));
+    const ic = el("span", "ic"); ic.innerHTML = ICON[tp.name] || DEF_ICON; c.append(ic, tx);
+    const two = el("div", "two");
+    if (!tp.open) { const x = el("button", "", "🔒 Эрх авах →"); x.type = "button"; x.onclick = () => openAcct(true); two.append(x); }
+    else {
+      const a = el("button", "pr", "Давтах"); a.type = "button"; a.onclick = () => startTopic(tp, true);
+      const n = Math.min(TOPIC_EXAM_N, tp.open);
+      const e = el("button", "", "Сэдвийн шалгалт · " + n * TOPIC_EXAM_MIN_PER_Q + " мин"); e.type = "button"; e.onclick = () => startTopic(tp, false);
+      two.append(a, e);
+    }
+    c.append(two); grid.append(c);
+  });
+  box.append(grid);
+}
+
+/* ---------- start ---------- */
+async function startTest(t, prac) {
+  let qs;
+  if (!ONLINE) qs = (DEMO.qs && DEMO.qs[t.id]) || DEMO.q;
+  else {
+    $("pane").style.opacity = .5;
+    try { const r = await api({ action: "test", id: t.id, token: token || "" }); $("pane").style.opacity = 1;
+      if (!r.ok) { if (r.error === "locked") openAcct(true); return; } qs = r.questions; t = r.test; }
+    catch (e) { $("pane").style.opacity = 1; alertBox("Тестийг ачаалж чадсангүй."); return; }
+  }
+  begin({ id: t.id, name: t.name, minutes: t.minutes }, qs, prac);
+}
+async function startTopic(tp, prac) {
+  let qs;
+  if (!ONLINE) qs = DEMO.qs ? [].concat(...DEMO.tests.filter(t => DEMO.qs[t.id]).map(t => DEMO.qs[t.id].filter(q => q.topic === tp.name).map(q => Object.assign({ from: t.name }, q)))) : DEMO.q.filter(q => q.topic === tp.name).map(q => Object.assign({ from: "ЭЕШ 2022 · A хувилбар" }, q));
+  else {
+    $("pane").style.opacity = .5;
+    try { const r = await api({ action: "topic", name: tp.name, token: token || "" }); $("pane").style.opacity = 1; if (!r.ok) return; qs = r.questions; }
+    catch (e) { $("pane").style.opacity = 1; alertBox("Ачаалж чадсангүй."); return; }
+  }
+  qs = qs.slice(); for (let i = qs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [qs[i], qs[j]] = [qs[j], qs[i]]; }
+  if (!prac) qs = qs.slice(0, TOPIC_EXAM_N);
+  begin({ id: (prac ? "Сэдэв: " : "Сэдвийн шалгалт: ") + tp.name, name: tp.name, minutes: prac ? 0 : qs.length * TOPIC_EXAM_MIN_PER_Q }, qs, prac);
+}
+function begin(t, qs, prac) {
+  T = t; QS = qs; practice = prac; ans = qs.map(q => q.slots ? {} : -1); done = qs.map(() => false); cur = 0; reviewMode = false;
+  $("list").hidden = true; $("result").hidden = true; $("exam").hidden = false; $("exName").textContent = t.name;
+  $("exMode").textContent = prac ? "Дасгал" : "Шалгалт"; $("exMode").classList.toggle("ex", !prac);
+  $("submit").hidden = false; $("back").hidden = true; $("pScore").hidden = !prac;
+  clearInterval(timer); left = prac ? 0 : (t.minutes || 0) * 60; $("timer").hidden = !left;
+  if (left) { tick(); timer = setInterval(() => { left--; tick(); if (left <= 0) finish(true); }, 1000); }
+  updScore(); renderQ(); scrollTo({ top: $("exam").offsetTop - 12, behavior: "smooth" });
+}
+function tick() { const s = Math.max(0, left), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  $("timer").textContent = "⏱ " + (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(x).padStart(2, "0"); $("timer").classList.toggle("low", left <= 300); }
+
+/* ---------- scoring ---------- */
+const maxPts = q => q.slots ? q.slots.reduce((s, x) => s + x.p, 0) : (q.p || 1);
+const normV = v => String(v == null ? "" : v).replace(/\s+/g, "").replace(",", ".");
+function gotPts(q, a) {
+  if (q.slots) return q.slots.reduce((s, x) => s + (normV(a[x.k]) !== "" && normV(a[x.k]) === normV(x.a) ? x.p : 0), 0);
+  return a === q.a ? (q.p || 1) : 0;
+}
+const isRight = (q, a) => gotPts(q, a) === maxPts(q);
+const answered = (q, a) => q.slots ? Object.values(a).some(v => normV(v) !== "") : a >= 0;
+function updScore() {
+  if (!practice) return;
+  let g = 0, m = 0; QS.forEach((q, k) => { if (done[k]) { g += gotPts(q, ans[k]); m += maxPts(q); } });
+  $("pScore").textContent = "Оноо " + g + " / " + m;
+}
+
+/* ---------- render ---------- */
+function renderQ() {
+  const nDone = QS.filter((x, k) => (practice && done[k]) || answered(x, ans[k])).length;
+  $("progI").style.width = (QS.length ? nDone / QS.length * 100 : 0) + "%"; $("progN").textContent = (cur + 1) + " / " + QS.length;
+  const q = QS[cur], show = reviewMode || (practice && done[cur]);
+  $("grid").innerHTML = "";
+  QS.forEach((x, k) => { const b = el("button", "", k + 1); b.type = "button";
+    const fin = reviewMode || (practice && done[k]);
+    b.className = fin ? (isRight(x, ans[k]) ? "ok" : "no") : (k === cur ? "cur" : answered(x, ans[k]) ? "done" : "");
+    if (fin && k === cur) b.style.outline = "2px solid var(--fg)";
+    b.onclick = () => { cur = k; renderQ(); }; $("grid").append(b); });
+  const cb = $("grid").children[cur]; if (cb) $("grid").scrollLeft = cb.offsetLeft - $("grid").clientWidth / 2 + 18;
+  $("qn").textContent = (q.slots ? "Нөхөх даалгавар " + q.n : q.n + "-р даалгавар") + " · " + maxPts(q) + " оноо";
+  $("qIc").innerHTML = ICON[q.topic] || DEF_ICON;
+  $("qTopic").textContent = [q.from ? q.from + " · №" + q.n : "", q.topic].filter(Boolean).join(" · ");
+  $("q").textContent = q.q;
+  const figs = $("figs"); figs.innerHTML = "";
+  (q.img || []).forEach(src => { const im = el("img"); setImg(im, src); im.alt = "Даалгаврын зураг"; im.onclick = () => zoom(src); figs.append(im); });
+  figs.hidden = !figs.children.length;
+  const box = $("opts"); box.innerHTML = ""; box.className = "";
+  if (q.slots) renderSlots(q, box, show);
+  else {
+    const imgOpts = (q.optImg || []).length > 0 || q.o.every(o => !o);
+    if ((q.optImg || []).length) q.optImg.forEach(src => { const im = el("img"); setImg(im, src); im.alt = "Хариултын сонголтууд"; im.onclick = () => zoom(src); figs.append(im); figs.hidden = false; });
+    const maxLen = Math.max(...q.o.map(o => (o || "").length)); const wrap = el("div", imgOpts ? "letters" : "opts" + (maxLen <= 32 ? " two" : ""));
+    L.forEach((letter, k) => {
+      if (!imgOpts && (q.o[k] == null || q.o[k] === "")) return;
+      const b = el("button", "opt"); b.type = "button"; b.innerHTML = "<kbd>" + letter + "</kbd>";
+      if (!imgOpts) b.append(el("span", "", q.o[k]));
+      if (show) { b.disabled = true; if (k === q.a) b.classList.add("ok"); else if (k === ans[cur]) b.classList.add("no"); }
+      else { if (k === ans[cur]) b.classList.add("sel");
+        b.onclick = () => { ans[cur] = k; if (practice) { done[cur] = true; updScore(); renderQ(); } else { if (cur < QS.length - 1) cur++; renderQ(); } }; }
+      wrap.append(b);
+    });
+    box.append(wrap);
+  }
+  const fb = $("fb"); fb.innerHTML = "";
+  if (show) {
+    const ok = isRight(q, ans[cur]), part = gotPts(q, ans[cur]);
+    const d = el("div", "fb " + (ok ? "ok" : "no"), ok ? "✓ Зөв! +" + maxPts(q) + " оноо" : q.slots ? "Оноо: " + part + " / " + maxPts(q) : (ans[cur] >= 0 ? "✗ Буруу. " : "Хариулаагүй. ") + "Зөв хариу: " + L[q.a]);
+    if (q.sol) d.append(el("span", "", q.sol)); fb.append(d);
+  }
+  $("prev").disabled = cur === 0; $("next").disabled = cur === QS.length - 1;
+  $("submit").textContent = practice ? "Дуусгах" : "Илгээх";
+}
+function renderSlots(q, box, show) {
+  const wrap = el("div", "slots");
+  q.slots.forEach(s => {
+    const row = el("div", "slot"); row.append(el("code", "", "[" + s.k + "]"));
+    const inp = el("input"); inp.inputMode = "decimal"; inp.maxLength = 8; inp.value = ans[cur][s.k] || ""; inp.setAttribute("aria-label", "[" + s.k + "] хариу");
+    inp.oninput = () => { ans[cur][s.k] = inp.value.trim(); };
+    inp.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); const nx = inp.closest(".slot").nextElementSibling; nx && nx.querySelector("input") ? nx.querySelector("input").focus() : chk && chk.click(); } };
+    row.append(inp, el("small", "", s.p + " оноо"));
+    if (show) { inp.disabled = true; const ok = normV(ans[cur][s.k]) === normV(s.a); row.classList.add(ok ? "ok" : "no"); if (!ok) row.append(el("span", "right", "Зөв: " + s.a)); }
+    wrap.append(row);
+  });
+  box.append(wrap);
+  var chk = null;
+  if (!show) {
+    const hint = el("p", "note", "Хариуны хуудасны [ ] нүдэнд бичих тоог оруулна. Жишээ: [abc] = 360.");
+    box.append(hint);
+    if (practice) { chk = el("button", "btn", "Шалгах"); chk.type = "button"; chk.style.marginTop = "10px";
+      chk.onclick = () => { done[cur] = true; updScore(); renderQ(); }; box.append(chk); }
+  }
+}
+/* Зургууд: img/2024/A12f0.jpg → packs/2024-A.json доторх өгөгдлөөс ачаална (GitHub-д цөөн файл) */
+const PACKS = {};
+function getPack(id) { return PACKS[id] || (PACKS[id] = fetch("packs/" + id + ".json").then(r => r.ok ? r.json() : {}).catch(() => ({}))); }
+function setImg(im, src) {
+  const m = /^img\/(\d{4})\/([A-D])/.exec(src);
+  if (!m) { im.src = src; return; }
+  im.style.minHeight = "60px";
+  getPack(m[1] + "-" + m[2]).then(p => { im.src = p[src] || src; im.style.minHeight = ""; });
+}
+function zoom(src) { const z = el("div", "zoom"); const im = el("img"); setImg(im, src); z.append(im); z.onclick = () => z.remove(); document.body.append(z); }
+$("prev").onclick = () => { if (cur > 0) { cur--; renderQ(); } };
+$("next").onclick = () => { if (cur < QS.length - 1) { cur++; renderQ(); } };
+$("submit").onclick = () => {
+  const blank = QS.filter((q, k) => practice ? !done[k] : !answered(q, ans[k])).length;
+  if (blank && !$("submit").dataset.sure) { $("submit").dataset.sure = 1; $("submit").textContent = blank + " даалгавар үлдсэн. Дуусгах уу?"; setTimeout(() => { delete $("submit").dataset.sure; renderQ(); }, 4000); return; }
+  delete $("submit").dataset.sure; finish(false);
+};
+function finish(timeUp) {
+  clearInterval(timer);
+  if (T.contest) return contestFinish(timeUp);
+  $("review").hidden = false;
+  const g = QS.reduce((s, q, k) => s + gotPts(q, ans[k]), 0), m = QS.reduce((s, q) => s + maxPts(q), 0);
+  const right = QS.filter((q, k) => isRight(q, ans[k])).length, pct = m ? Math.round(g / m * 100) : 0;
+  $("exam").hidden = true; $("result").hidden = false;
+  $("rName").textContent = T.name; $("rScore").textContent = g + "/" + m;
+  $("rTitle").textContent = (timeUp ? "Хугацаа дууслаа. " : "") + (pct >= 90 ? "Гайхалтай!" : pct >= 70 ? "Сайн байна!" : pct >= 50 ? "Дунд зэрэг" : "Дахин давтъя");
+  $("rText").textContent = "Оноо " + pct + "% · " + QS.length + " даалгавраас " + right + " бүрэн зөв. Хариутай нь хараад алдаагаа засаарай.";
+  if (ONLINE && token) post({ action: "result", token, testId: T.id, score: g, total: m, mode: practice ? "Дасгал" : "Шалгалт" }).catch(() => {});
+  scrollTo({ top: $("result").offsetTop - 12, behavior: "smooth" });
+}
+$("review").onclick = () => { if (T && T.contest) return; reviewMode = true; cur = 0; $("result").hidden = true; $("exam").hidden = false; $("submit").hidden = true; $("back").hidden = false; $("timer").hidden = true; renderQ(); };
+const toList = () => { clearInterval(timer); $("exam").hidden = true; $("result").hidden = true; $("list").hidden = false; renderPane(); };
+$("toList").onclick = toList; $("back").onclick = toList;
+$("home").onclick = e => { e.preventDefault(); if (!$("exam").hidden && !reviewMode && QS.some((q, k) => answered(q, ans[k])) && !confirm("Тестээс гарах уу? Хариултууд хадгалагдахгүй.")) return; toList(); scrollTo({ top: 0 }); };
+document.addEventListener("keydown", e => {
+  if (document.querySelector(".zoom")) { if (e.key === "Escape") document.querySelector(".zoom").remove(); return; }
+  if (!$("ov").hidden) { if (e.key === "Escape") closeAcct(); return; }
+  if ($("exam").hidden || e.target.tagName === "INPUT") return;
+  if (e.key === "ArrowRight") $("next").click(); if (e.key === "ArrowLeft") $("prev").click();
+  if (reviewMode || QS[cur].slots) return;
+  const k = "abcde".indexOf(e.key.toLowerCase()), n = "12345".indexOf(e.key), i = k >= 0 ? k : n;
+  const btns = $("opts").querySelectorAll(".opt"); if (i >= 0 && btns[i] && !btns[i].disabled) btns[i].click();
+});
+
+
+/* ---------- ТЭМЦЭЭН ---------- */
+let CT = null, ctStart = 0;
+const fmtD = s => { const d = new Date(s); const p = n => String(n).padStart(2, "0"); return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes()); };
+const fmtS = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+const CERR = { auth: "Эхлээд нэвтэрнэ үү.", no_contest: "Ийм кодтой тэмцээн олдсонгүй.", closed: "Тэмцээн дууссан тул хариулт хүлээн авах боломжгүй.", already: "Та энэ тэмцээнд аль хэдийн хариулт илгээсэн.", not_started: "Тэмцээн хараахан эхлээгүй.", teacher: "Зөвхөн багш үүсгэнэ.", no_q: "Даалгавар сонгоогүй байна.", time: "Эхлэх, дуусах цагаа шалгана уу." };
+const STAT = { upcoming: ["Удахгүй", "up"], open: ["Явагдаж байна", "open"], done: ["Дууссан", "done"] };
+function renderContest(box) {
+  box.append(el("p", "note", "Багшийн үүсгэсэн тэмцээнд 6 оронтой кодоор нэгдэнэ. Нэг л удаа оролцоно. Дүн, зөв хариу тэмцээн дууссаны дараа гарна."));
+  if (!ONLINE) { box.append(el("p", "empty", "Тэмцээн Google Sheet холбогдсоны дараа ажиллана.")); return; }
+  if (!user) { const b = el("button", "btn", "Нэвтрэх"); b.type = "button"; b.onclick = () => openAcct(false);
+    const w = el("div", "cjoin"); w.append(el("p", "empty", "Тэмцээнд оролцохын тулд майлаараа нэвтэрнэ үү."), b); box.append(w); return; }
+  const j = el("form", "cjoin"); const inp = el("input"); inp.inputMode = "numeric"; inp.maxLength = 6; inp.placeholder = "Тэмцээний код"; inp.id = "cCode";
+  inp.value = st.get("ge-ccode") || ""; const go = el("button", "btn", "Нэгдэх"); go.type = "submit";
+  const err = el("p", "err"); j.append(inp, go, err);
+  j.onsubmit = e => { e.preventDefault(); const c = inp.value.replace(/\D/g, ""); if (c.length !== 6) { err.textContent = "6 оронтой кодоо оруулна уу."; return; } openContest(c, err); };
+  box.append(j);
+  const my = el("div"); box.append(my); loadMy(my);
+  if (AUTO_C) { const c = AUTO_C; AUTO_C = null; setTimeout(() => openContest(c), 0); }
+  if (user.teacher) { const t = el("div", "teach"); box.append(t); renderTeacher(t); }
+}
+async function loadMy(box) {
+  try { const r = await api({ action: "contestMy", token }); if (!r.ok || !r.contests.length) return;
+    box.append(el("div", "grp", "Миний оролцсон тэмцээнүүд"));
+    const g = el("div", "tests"); r.contests.forEach(c => g.append(contestCard(c, c.status === "done" ? "Дүн: " + c.score + " / " + c.total : "Дүн " + fmtD(c.end) + "-д гарна", () => openContest(c.code)))); box.append(g);
+  } catch (e) {}
+}
+function contestCard(c, line, onOpen, btnText) {
+  const d = el("div", "test ctest"); const s = STAT[c.status] || STAT.open;
+  d.append(el("span", "tg st-" + s[1], s[0]), el("b", "", c.name), el("small", "", "Код " + c.code + " · " + c.count + " даалгавар" + (c.minutes ? " · " + c.minutes + " мин" : "") + " · " + fmtD(c.start) + " – " + fmtD(c.end)));
+  if (line) d.append(el("small", "cline", line));
+  if (onOpen) { const two = el("div", "two"); const b = el("button", "pr", btnText || "Нээх"); b.type = "button"; b.onclick = onOpen; two.append(b); d.append(two); }
+  return d;
+}
+async function openContest(code, errEl) {
+  st.set("ge-ccode", code);
+  let r; try { $("pane").style.opacity = .5; r = await api({ action: "contest", code, token }); } catch (e) { r = { ok: false, error: "net" }; } $("pane").style.opacity = 1;
+  if (!r.ok) { const m = CERR[r.error] || "Алдаа гарлаа."; if (errEl) errEl.textContent = m; else alertBox(m); return; }
+  CT = r; const c = r.contest, box = $("pane"); box.innerHTML = "";
+  const back = el("button", "link", "← Тэмцээнүүд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
+  const head = el("div", "chead"); const s = STAT[c.status];
+  head.append(el("span", "tg st-" + s[1], s[0]), el("h3", "", c.name));
+  if (c.desc) head.append(el("p", "", c.desc));
+  head.append(el("p", "cmeta", "Код " + c.code + " · " + c.count + " даалгавар" + (c.minutes ? " · " + c.minutes + " минут" : "") + "\n" + fmtD(c.start) + " – " + fmtD(c.end)));
+  box.append(head);
+  if (c.status === "upcoming") box.append(el("p", "cinfo", "Тэмцээн " + fmtD(c.start) + "-д эхэлнэ. Тэр үед энэ хуудсаа дахин нээгээрэй."));
+  else if (c.status === "open" && r.submitted) box.append(el("p", "cinfo ok", "✓ Таны хариулт илгээгдсэн. Дүн, зөв хариу " + fmtD(c.end) + "-д гарна."));
+  else if (c.status === "open") {
+    const left = Math.floor((new Date(c.end) - Date.now()) / 60000);
+    box.append(el("p", "cinfo", "Эхлэх товч дарсны дараа " + (c.minutes ? Math.min(c.minutes, left) + " минутын" : "") + " цаг тоологдоно. Нэг л удаа оролцох боломжтой, хаагдаж болохгүй."));
+    const b = el("button", "btn wide", "Тэмцээнийг эхлүүлэх"); b.type = "button"; b.onclick = () => startContest(r); box.append(b);
+  } else {
+    if (r.my) { const me = r.ranking.find(x => x.email === (user.email || "")); box.append(el("div", "cme", "Таны дүн: " + r.my.score + " / " + r.my.total + (me ? " · " + me.rank + "-р байр / " + r.ranking.length : "")));
+      const rv = el("button", "btn ghost", "Миний хариуг харах"); rv.type = "button"; rv.onclick = () => contestReview(r); box.append(rv); }
+    else box.append(el("p", "cinfo", "Та энэ тэмцээнд оролцоогүй байна."));
+    box.append(rankTable(r.ranking, false));
+  }
+}
+function rankTable(list, full) {
+  const w = el("div", "rank"); w.append(el("div", "grp", "Байр эзэлсэн дараалал"));
+  if (!list.length) { w.append(el("p", "empty", "Оролцогч алга.")); return w; }
+  const t = el("table"); const h = el("tr"); ["#", "Нэр", "Оноо", "Хугацаа"].concat(full ? ["Майл"] : []).forEach(x => h.append(el("th", "", x))); t.append(h);
+  list.forEach(x => { const tr = el("tr", x.rank <= 3 ? "top" + x.rank : (user && x.email === user.email ? "me" : ""));
+    [x.rank <= 3 ? ["🥇", "🥈", "🥉"][x.rank - 1] : x.rank, x.name, x.score + " / " + x.total, fmtS(x.secs)].concat(full ? [x.email] : []).forEach(v => tr.append(el("td", "", v))); t.append(tr); });
+  w.append(t); return w;
+}
+function startContest(r) {
+  const c = r.contest, leftEnd = Math.floor((new Date(c.end) - Date.now()) / 1000);
+  const mins = c.minutes ? Math.min(c.minutes * 60, leftEnd) / 60 : leftEnd / 60;
+  ctStart = Date.now();
+  begin({ id: "contest:" + c.code, name: "🏆 " + c.name, minutes: mins, contest: c.code }, r.questions, false);
+  $("exMode").textContent = "Тэмцээн";
+}
+async function contestFinish(timeUp) {
+  $("exam").hidden = true; $("result").hidden = false; $("review").hidden = true;
+  $("rName").textContent = T.name; $("rScore").textContent = "…"; $("rTitle").textContent = "Хариултыг илгээж байна…"; $("rText").textContent = "";
+  const answers = QS.map((q, k) => q.slots ? ans[k] : ans[k]);
+  let r; try { r = await post({ action: "contestSubmit", token, code: T.contest, answers, secs: Math.round((Date.now() - ctStart) / 1000) }); } catch (e) { r = { ok: false, error: "net" }; }
+  if (r.ok) { $("rScore").textContent = "✓"; $("rTitle").textContent = (timeUp ? "Хугацаа дууслаа. " : "") + "Хариулт илгээгдлээ!";
+    $("rText").textContent = "Дүн, байр, зөв хариу " + fmtD(r.end) + "-д гарна. Тэмцээн табаас кодоороо орж үзээрэй."; }
+  else { $("rScore").textContent = "!"; $("rTitle").textContent = CERR[r.error] || "Илгээж чадсангүй. Интернэтээ шалгаад дахин оролдоно уу.";
+    if (r.error === "net") { $("rText").textContent = "Хариулт тань энэ төхөөрөмж дээр хадгалагдсан. Дахин илгээх товч дарна уу.";
+      const again = el("button", "btn", "Дахин илгээх"); again.type = "button"; again.onclick = () => { again.remove(); contestFinish(timeUp); }; $("rText").after(again); } }
+  scrollTo({ top: $("result").offsetTop - 12, behavior: "smooth" });
+}
+function contestReview(r) {
+  T = { id: "contest-review", name: "🏆 " + r.contest.name };
+  QS = r.questions; ans = QS.map((q, k) => r.answers[k] == null ? (q.slots ? {} : -1) : r.answers[k]); done = QS.map(() => true);
+  practice = false; reviewMode = true; cur = 0;
+  $("list").hidden = true; $("result").hidden = true; $("exam").hidden = false; $("exName").textContent = T.name; $("exMode").textContent = "Хариу";
+  $("submit").hidden = true; $("back").hidden = false; $("timer").hidden = true; $("pScore").hidden = false; $("pScore").textContent = "Оноо " + r.my.score + " / " + r.my.total;
+  renderQ(); scrollTo({ top: $("exam").offsetTop - 12 });
+}
+/* --- багшид --- */
+async function renderTeacher(box) {
+  box.append(el("div", "grp", "Багшийн хэсэг"));
+  const nb = el("button", "btn", "+ Шинэ тэмцээн үүсгэх"); nb.type = "button"; nb.onclick = () => contestBuilder(); box.append(nb);
+  try { const r = await api({ action: "contestMine", token }); if (!r.ok || !r.contests.length) return;
+    const g = el("div", "tests"); r.contests.forEach(c => g.append(contestCard(c, c.players + " сурагч оролцсон", () => teacherResults(c.code), "Дүн харах"))); box.append(g);
+  } catch (e) {}
+}
+async function teacherResults(code) {
+  const r = await api({ action: "contestResults", code, token }); if (!r.ok) return alertBox(CERR[r.error] || "Алдаа");
+  const box = $("pane"); box.innerHTML = ""; const back = el("button", "link", "← Тэмцээнүүд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
+  box.append(contestCard(r.contest, "Сурагчдад код: " + r.contest.code));
+  box.append(rankTable(r.ranking, true));
+  box.append(el("p", "note", "Бүх дүн Google Sheet-ийн \"Тэмцээний дүн\" хуудсанд хадгалагдана."));
+}
+async function contestBuilder() {
+  const box = $("pane"); box.innerHTML = '<p class="empty">Даалгаврын санг ачаалж байна…</p>';
+  const r = await api({ action: "contestBank", token }); if (!r.ok) { box.innerHTML = ""; return alertBox(CERR[r.error] || "Алдаа"); }
+  box.innerHTML = ""; const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
+  box.append(el("h3", "bh", "Шинэ тэмцээн"));
+  const now = new Date(), p = n => String(n).padStart(2, "0"), loc = d => d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes());
+  const f = el("div", "bform");
+  const fld = (lab, inp) => { const l = el("label", "fld"); l.append(el("span", "", lab), inp); f.append(l); return inp; };
+  const nm = fld("Нэр", Object.assign(el("input"), { placeholder: "Жишээ: 10-р ангийн газарзүйн тэмцээн", maxLength: 80 }));
+  const ds = fld("Тайлбар (заавал биш)", Object.assign(el("input"), { maxLength: 200 }));
+  const s1 = fld("Эхлэх", Object.assign(el("input"), { type: "datetime-local", value: loc(new Date(now.getTime() + 10 * 60e3)) }));
+  const s2 = fld("Дуусах", Object.assign(el("input"), { type: "datetime-local", value: loc(new Date(now.getTime() + 2 * 3600e3)) }));
+  const mn = fld("Хугацаа (минут)", Object.assign(el("input"), { type: "number", value: 30, min: 1, max: 600 }));
+  box.append(f);
+  // сонгогч
+  const sel = new Set();
+  const fT = el("select"); fT.append(Object.assign(el("option", "", "Бүх хувилбар"), { value: "" })); r.tests.forEach(t => fT.append(Object.assign(el("option", "", t.name), { value: t.id })));
+  const fP = el("select"); fP.append(Object.assign(el("option", "", "Бүх сэдэв"), { value: "" })); TOPIC_ORDER.forEach(t => fP.append(Object.assign(el("option", "", t), { value: t })));
+  const bar = el("div", "bbar"); const cnt = el("b", "bcnt"); const all = el("button", "btn ghost", "Харагдаж буйг бүгдийг сонгох"); all.type = "button";
+  const rnd = el("button", "btn ghost", "Санамсаргүй 10"); rnd.type = "button";
+  bar.append(fT, fP); box.append(bar);
+  const bar2 = el("div", "bbar"); bar2.append(cnt, all, rnd); box.append(bar2);
+  const list = el("div", "blist"); box.append(list);
+  const vis = () => r.questions.filter(q => (!fT.value || q.test === fT.value) && (!fP.value || q.topic === fP.value));
+  const upd = () => { const pts = r.questions.filter(q => sel.has(q.id)).reduce((s, q) => s + (q.p || 1), 0); cnt.textContent = sel.size + " даалгавар · " + pts + " оноо"; };
+  const draw = () => { list.innerHTML = ""; vis().forEach(q => { const l = el("label", "bq"); const c = el("input"); c.type = "checkbox"; c.checked = sel.has(q.id);
+    c.onchange = () => { c.checked ? sel.add(q.id) : sel.delete(q.id); upd(); };
+    const tx = el("span"); tx.append(el("b", "", q.test + " · №" + q.n + (q.fill ? " · нөхөх" : "") + (q.img ? " · 🖼" : "") + " · " + q.p + " оноо"), el("small", "", q.q));
+    l.append(c, tx); list.append(l); }); upd(); };
+  fT.onchange = draw; fP.onchange = draw;
+  all.onclick = () => { vis().forEach(q => sel.add(q.id)); draw(); };
+  rnd.onclick = () => { const v = vis().filter(q => !sel.has(q.id)); for (let i = 0; i < 10 && v.length; i++) sel.add(v.splice(Math.random() * v.length | 0, 1)[0].id); draw(); };
+  draw();
+  const err = el("p", "err"); const mk = el("button", "btn wide", "Тэмцээн үүсгэх"); mk.type = "button"; box.append(err, mk);
+  mk.onclick = async () => {
+    err.textContent = ""; if (!nm.value.trim()) { err.textContent = "Нэр оруулна уу."; return; }
+    const ids = r.questions.filter(q => sel.has(q.id)).map(q => q.id);
+    mk.disabled = true; mk.textContent = "Үүсгэж байна…";
+    let x; try { x = await post({ action: "contestCreate", token, name: nm.value.trim(), desc: ds.value.trim(), start: new Date(s1.value).toISOString(), end: new Date(s2.value).toISOString(), minutes: +mn.value, ids }); } catch (e) { x = { ok: false }; }
+    mk.disabled = false; mk.textContent = "Тэмцээн үүсгэх";
+    if (!x.ok) { err.textContent = CERR[x.error] || "Үүсгэж чадсангүй."; return; }
+    box.innerHTML = ""; const link = location.origin + location.pathname + "?c=" + x.code;
+    const d = el("div", "cdone"); d.append(el("p", "", "Тэмцээн үүслээ! Сурагчдад энэ кодыг өгнө:"), el("div", "ccode", x.code), el("p", "", "Эсвэл шууд холбоос:"), el("code", "", link));
+    const cp = el("button", "btn", "Холбоос хуулах"); cp.type = "button"; cp.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(link); cp.textContent = "✓ Хуулагдлаа"; };
+    const bk = el("button", "btn ghost", "Тэмцээнүүд рүү"); bk.type = "button"; bk.onclick = () => renderPane();
+    d.append(cp, bk); box.append(d);
+  };
+}
+let AUTO_C = null;
+(() => { const c = new URLSearchParams(location.search).get("c"); if (c && /^\d{6}$/.test(c)) { st.set("ge-ccode", c); tab = "contest"; AUTO_C = c; } })();
+
+/* ---------- account modal ---------- */
+function payHTML() {
+  const box = el("div", "pay");
+  const h = el("b", "", "Бүх хувилбарыг нээх · " + (cfg["Үнэ"] || "")); h.style.textAlign = "left"; box.append(h);
+  ["Банк", "Данс", "Данс эзэмшигч", "Гүйлгээний утга", "Холбоо барих"].forEach(k => { if (!cfg[k]) return; const d = el("div");
+    d.append(el("span", "", k), el("b", "", k === "Гүйлгээний утга" && user ? user.email : cfg[k])); box.append(d); });
+  const p = el("p", "", "Төлбөр шалгагдмагц 1 жилийн эрх нээгдэнэ. Дараа нь хуудсаа refresh хийнэ үү."); p.style.margin = "4px 0 0"; box.append(p);
+  return box;
+}
+function openAcct(wantPay) {
+  $("ov").hidden = false;
+  ["f1", "f2", "f3"].forEach(id => $(id).hidden = true);
+  if (!user) {
+    $("f1").hidden = false; $("e1").textContent = ONLINE ? "" : "Жишээ горимд нэвтрэх боломжгүй.";
+    $("f1").querySelector("p").textContent = wantPay ? "Төлбөртэй хувилбаруудыг нээхийн тулд эхлээд майлаараа бүртгүүлнэ үү. Үүний дараа төлбөрийн мэдээлэл гарна." : "Майл хаягаа оруулахад нэвтрэх код илгээнэ. Шинэ хэрэглэгч автоматаар бүртгэгдэнэ.";
+    if (!ONLINE && !$("f1").querySelector(".pay")) $("f1").querySelector("p").after(payHTML());
+    $("inEmail").focus();
+  } else {
+    $("f3").hidden = false; $("uName").textContent = user.name || "Миний эрх"; $("uEmail").textContent = user.email;
+    $("uStatus").className = "status" + (user.paid ? " paid" : "");
+    $("uStatus").textContent = user.paid ? "✓ Бүх хувилбар нээлттэй · " + user.until + " хүртэл" : "Үнэгүй хэрэглэгч · зөвхөн үнэгүй хувилбарууд";
+    $("payBox").innerHTML = ""; if (!user.paid) $("payBox").append(payHTML());
+  }
+}
+function closeAcct() { $("ov").hidden = true; const extra = $("f1").querySelector(".pay"); if (extra) extra.remove(); }
+$("acct").onclick = () => openAcct(false); $("mClose").onclick = closeAcct;
+$("ov").addEventListener("click", e => { if (e.target === $("ov")) closeAcct(); });
+const ERR = { email: "Майл хаяг буруу байна.", wait: "Код саяхан илгээсэн. 1 минутын дараа дахин оролдоно уу.", code: "Код буруу байна.", expired: "Кодын хугацаа дууссан. Шинэ код аваарай.", server: "Серверт алдаа гарлаа. Дахин оролдоно уу." };
+$("f1").addEventListener("submit", async e => {
+  e.preventDefault(); if (!ONLINE) return;
+  const email = $("inEmail").value.trim(); $("e1").textContent = ""; $("b1").disabled = true; $("b1").textContent = "Илгээж байна...";
+  try { const r = await api({ action: "sendCode", email, name: $("inName").value.trim() });
+    if (r.ok) { $("f1").hidden = true; $("f2").hidden = false; $("sentTo").textContent = email + " хаяг руу код илгээлээ. Spam хавтсаа ч шалгаарай."; $("inCode").value = ""; $("inCode").focus(); }
+    else $("e1").textContent = ERR[r.error] || "Алдаа гарлаа."; }
+  catch (err) { $("e1").textContent = "Интернэт холболтоо шалгана уу."; }
+  $("b1").disabled = false; $("b1").textContent = "Код авах";
+});
+$("f2").addEventListener("submit", async e => {
+  e.preventDefault(); $("e2").textContent = ""; $("b2").disabled = true;
+  try { const r = await api({ action: "verify", email: $("inEmail").value.trim(), code: $("inCode").value.trim() });
+    if (r.ok) { token = r.token; st.set("ge-token", token); user = r.user; renderAcct(); await loadTests(); openAcct(false); }
+    else $("e2").textContent = ERR[r.error] || "Алдаа гарлаа."; }
+  catch (err) { $("e2").textContent = "Интернэт холболтоо шалгана уу."; }
+  $("b2").disabled = false;
+});
+$("again1").onclick = () => { $("f2").hidden = true; $("f1").hidden = false; };
+$("logout").onclick = () => { token = null; user = null; st.set("ge-token", null); renderAcct(); closeAcct(); loadTests(); };
+function alertBox(m) { const p = el("p", "empty", m); $("pane").prepend(p); }
+
+document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === tab));
+renderAcct(); loadTests();
+</script>
+
+</body>
+</html>
