@@ -310,6 +310,28 @@ html,body{overflow-x:hidden}
 /* ачаалж байна */
 .busy{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;padding:10px 18px;border-radius:999px;background:var(--accent);color:var(--accent-ink,#fff);font:700 14px var(--btn-font);box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .busy[hidden]{display:none}
+/* Сэдвийн шалгалтын ангилал: ЭЕШ · 9 · 10 · 11 · Сонгон */
+.cats{display:flex;flex-wrap:wrap;gap:6px;padding:2px;margin:12px 0 12px}
+.cats::-webkit-scrollbar{display:none}
+.cats button{flex:1 1 auto;justify-content:center;display:flex;align-items:center;gap:6px;min-height:40px;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface,#fff);color:var(--fg);font:700 14px var(--btn-font,var(--font));cursor:pointer;white-space:nowrap}
+.cats button small{font:700 11px var(--font);padding:2px 7px;border-radius:999px;background:var(--chip);color:var(--muted)}
+.cats button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.cats button.on small{background:rgba(255,255,255,.22);color:#fff}
+.topic.soon{opacity:.55}.topic.soon .ic{filter:grayscale(1)}
+.bnum{width:80px;min-height:42px;border-radius:12px;border:1.5px solid var(--line);padding:6px 10px;font:700 15px var(--font);background:var(--surface,#fff);color:var(--fg)}
+.bsum{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}.bsum span{font:600 12px var(--font);padding:4px 10px;border-radius:999px;background:var(--chip);color:var(--fg)}
+.bvis{display:block;color:var(--muted);margin:4px 0 6px}
+/* Шилдэг сурагчид */
+.lb{margin-top:18px;padding:14px 16px;border-radius:18px;border:1.5px solid var(--line);background:var(--bg)}
+.lbh{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.lbh b{font:800 16px var(--font)}
+.lbp{display:flex;gap:4px;padding:3px;border-radius:999px;background:var(--chip)}
+.lbp button{border:0;background:none;padding:6px 10px;border-radius:999px;font:700 12px var(--font);color:var(--muted);cursor:pointer}
+.lbp button.on{background:var(--surface,#fff);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.lb .rank table{font-size:14px}.lb .rank td:nth-child(5){font-size:14px;color:var(--fg)}
+.lb .rank td:nth-child(3){font-weight:800;color:var(--accent)}
+.lb tr.lbx{display:none}.lb.open tr.lbx{display:table-row}
+.lbn{color:var(--muted);font-size:13px;margin:8px 0 0}.lbme{font-weight:700;margin:10px 0 0;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -456,13 +478,30 @@ async function loadTests() {
   } catch (e) { if (cached && cached.tests) return; $("pane").innerHTML = '<p class="empty">Ачаалж чадсангүй. Интернэтээ шалгаад хуудсаа дахин ачаална уу.</p>'; }
 }
 const isOwn = t => !/^ЭЕШ/.test(t.group || "");
+const TOPIC_CATS = ["ЭЕШ", "9-р анги", "10-р анги", "11-р анги", "Сонгон"];
+const catOfGroup = g => { g = g || ""; for (let i = 1; i < TOPIC_CATS.length; i++) if (g.indexOf(TOPIC_CATS[i]) === 0) return TOPIC_CATS[i]; return "ЭЕШ"; };
+const isTopicOnly = t => catOfGroup(t.group) !== "ЭЕШ";   // 9, 10, 11, Сонгон — зөвхөн «Сэдвийн шалгалт»-д орно
+let tcat = st.get("ge-tcat") || "ЭЕШ";
+const OWN_CATS = ["IGEO", "Улсын олимпиад", "Шинэ"];
+const ownCat = t => { const g = (t.group || "").toUpperCase(); return g.indexOf("IGEO") === 0 ? "IGEO" : /^УЛСЫН ОЛИМПИАД/.test(g) ? "Улсын олимпиад" : "Шинэ"; };
+let ocat = OWN_CATS.indexOf(st.get("ge-ocat")) >= 0 ? st.get("ge-ocat") : null;
 function setTab(t) { tab = t; st.set("ge-tab", t); document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t)); renderPane(); }
 $("tabs").onclick = e => { const b = e.target.closest("button"); if (b) setTab(b.dataset.t); };
 function renderPane() {
   const box = $("pane"); box.innerHTML = "";
   if (tab === "topic") return renderTopics(box);
   if (tab === "contest") return renderContest(box);
-  const list = tests.filter(t => tab === "own" ? isOwn(t) : !isOwn(t));
+  let list = tests.filter(t => !isTopicOnly(t) && (tab === "own" ? isOwn(t) : !isOwn(t)));
+  if (tab === "own") {   // Мультимедиа: IGEO · Улсын олимпиад · Шинэ
+    if (!ocat) ocat = OWN_CATS.find(c => list.some(t => ownCat(t) === c)) || OWN_CATS[0];
+    const seg = el("div", "cats");
+    OWN_CATS.forEach(c => { const n = list.filter(t => ownCat(t) === c).length;
+      const b = el("button", c === ocat ? "on" : "", c); b.type = "button"; if (n) b.append(el("small", "", n));
+      b.onclick = () => { ocat = c; st.set("ge-ocat", c); renderPane(); }; seg.append(b); });
+    box.append(seg);
+    list = list.filter(t => ownCat(t) === ocat);
+    if (!list.length) { box.append(el("p", "empty", ocat + " — тест удахгүй нэмэгдэнэ.")); return; }
+  }
   if (!list.length) { box.append(el("p", "empty", tab === "own" ? "Мультимедиа даалгавар одоогоор алга." : "Одоогоор тест алга.")); return; }
   const groups = {}; list.forEach(t => (groups[t.group] = groups[t.group] || []).push(t));
   Object.keys(groups).sort().reverse().forEach(g => {
@@ -470,6 +509,7 @@ function renderPane() {
     const grid = el("div", "tests"); groups[g].forEach(t => grid.append(testCard(t))); box.append(grid);
   });
   if (tab === "var") box.append(el("p", "note", "Дасгал: хариулмагц зөв, буруу нь шууд харагдана. Шалгалт: жинхэнэ ЭЕШ шиг цаг тоолж, эцэст нь дүнгээ харна."));
+  renderLB(box, tab, tab === "own" ? ocat : "");
 }
 function testCard(t) {
   const c = el("div", "test" + (t.locked ? " locked" : ""));
@@ -485,15 +525,23 @@ function testCard(t) {
   c.append(two); return c;
 }
 function renderTopics(box) {
-  if (!topics.length) { box.append(el("p", "empty", "Сэдэв алга.")); return; }
-  box.append(el("p", "note", "Бүх оны хувилбаруудаас нэг сэдвийн даалгавруудыг холино. Давтах: хариулмагц зөв, буруу нь шууд гарна. Сэдвийн шалгалт: " + TOPIC_EXAM_N + " даалгавар, цагтай." + (user && user.paid ? "" : " Төлбөртэй хэрэглэгчид бүх хувилбарын даалгавар нээгдэнэ.")));
+  const seg = el("div", "cats"); seg.setAttribute("role", "tablist");
+  TOPIC_CATS.forEach(c => { const n = topics.filter(tp => (tp.cat || "ЭЕШ") === c).reduce((s, tp) => s + tp.total, 0);
+    const b = el("button", c === tcat ? "on" : "", c); b.type = "button"; if (n) b.append(el("small", "", n)); b.setAttribute("aria-selected", c === tcat);
+    b.onclick = () => { tcat = c; st.set("ge-tcat", c); renderPane(); }; seg.append(b); });
+  box.append(seg);
+  const have = topics.filter(tp => (tp.cat || "ЭЕШ") === tcat);
+  // Анги бүрт ижил 5 бүлэг: даалгаваргүй бүлэг ч «удахгүй» гэж харагдана
+  const list = TOPIC_ORDER.map(n => have.find(tp => tp.name === n) || { name: n, cat: tcat, total: 0, open: 0, soon: true }).concat(have.filter(tp => TOPIC_ORDER.indexOf(tp.name) < 0));
+  box.append(el("p", "note", (tcat === "ЭЕШ" ? "ЭЕШ-ийн бүх оны хувилбаруудаас" : tcat + (tcat === "Сонгон" ? " хичээлийн" : "ийн") + " даалгавруудаас") + " нэг бүлгийнхийг холино. Давтах: хариулмагц зөв, буруу нь шууд гарна. Сэдвийн шалгалт: " + TOPIC_EXAM_N + " даалгавар, цагтай." + (user && user.paid ? "" : " Төлбөртэй хэрэглэгчид бүх даалгавар нээгдэнэ.")));
   const grid = el("div", "tests");
   const rank = n => { const k = TOPIC_ORDER.indexOf(n); return k < 0 ? 99 : k; };
-  topics.slice().sort((a, b) => rank(a.name) - rank(b.name) || b.total - a.total).forEach(tp => {
+  list.slice().sort((a, b) => rank(a.name) - rank(b.name) || b.total - a.total).forEach(tp => {
     const c = el("div", "topic");
-    const tx = el("span"); tx.append(el("b", "", tp.name), el("small", "", tp.open + " даалгавар нээлттэй" + (tp.total > tp.open ? " · 🔒 " + (tp.total - tp.open) : "")));
+    const tx = el("span"); tx.append(el("b", "", tp.name), el("small", "", tp.soon ? "Удахгүй нэмэгдэнэ" : tp.open + " даалгавар нээлттэй" + (tp.total > tp.open ? " · 🔒 " + (tp.total - tp.open) : "")));
     const ic = el("span", "ic"); ic.innerHTML = ICON[tp.name] || DEF_ICON; c.append(ic, tx);
     const two = el("div", "two");
+    if (tp.soon) { c.classList.add("soon"); c.append(tx); grid.append(c); return; }
     if (!tp.open) { const x = el("button", "", "🔒 Эрх авах →"); x.type = "button"; x.onclick = () => openAcct(true); two.append(x); }
     else {
       const a = el("button", "pr", "Давтах"); a.type = "button"; a.onclick = () => startTopic(tp, true);
@@ -504,6 +552,37 @@ function renderTopics(box) {
     c.append(two); grid.append(c);
   });
   box.append(grid);
+  renderLB(box, "topic", tcat);
+}
+
+
+/* ---------- Шилдэг сурагчид ---------- */
+const LBC = {}; let lbPer = st.get("ge-lbp") || "month";
+const LB_PER = [["week", "7 хоног"], ["month", "Сар"], ["all", "Бүх цаг"]];
+function renderLB(box, sec, cat) {
+  const w = el("div", "lb"); box.append(w);
+  const head = el("div", "lbh"); head.append(el("b", "", "🏆 Шилдэг сурагчид" + (cat ? " · " + cat : "")));
+  const per = el("div", "lbp"); LB_PER.forEach(([k, n]) => { const b = el("button", k === lbPer ? "on" : "", n); b.type = "button";
+    b.onclick = () => { lbPer = k; st.set("ge-lbp", k); const nw = el("div"); renderLB(nw, sec, cat); w.replaceWith(nw.firstChild); }; per.append(b); });
+  head.append(per); w.append(head);
+  const body = el("div", "lbb"); body.append(el("p", "lbn", "Ачаалж байна…")); w.append(body);
+  const key = [sec, cat, lbPer].join("|"), hit = LBC[key];
+  const show = r => { body.innerHTML = "";
+    if (!r || !r.ok) { body.append(el("p", "lbn", "Ачаалж чадсангүй.")); return; }
+    if (!r.list.length) { body.append(el("p", "lbn", "Одоогоор дүн алга. Нэвтэрч тест өгсөн сурагчид энд гарна.")); return; }
+    const t = el("table"); const hr = el("tr"); ["#", "Нэр", "Оноо", "Тест", "%"].forEach(h => hr.append(el("th", "", h))); t.append(hr);
+    let more = false;
+    r.list.forEach((x, i) => { const tr = el("tr", (x.rank <= 3 ? "top" + x.rank : "") + (x.me ? " me" : "") + (i >= 5 ? " lbx" : ""));
+      [x.rank <= 3 ? ["🥇", "🥈", "🥉"][x.rank - 1] : x.rank, x.name, x.score, x.tests, x.pct + "%"].forEach(v => tr.append(el("td", "", v))); t.append(tr); if (i >= 5) more = true; });
+    const tw = el("div", "rank"); tw.append(t); body.append(tw);
+    if (more) { const mb = el("button", "link", "Бүгдийг харах (" + r.list.length + ")"); mb.type = "button"; mb.onclick = () => { w.classList.add("open"); mb.remove(); }; body.append(mb); }
+    if (r.me && !r.list.some(x => x.me)) body.append(el("p", "lbme", "Таны байр: " + r.me.rank + " / " + r.count + " · " + r.me.score + " оноо"));
+    else if (!token) body.append(el("p", "lbn", "Нэвтэрч тест өгвөл таны нэр энд гарна."));
+    body.append(el("p", "lbn", "Тест бүрийн хамгийн сайн оноог нэмж тооцно."));
+  };
+  if (hit && Date.now() - hit.t < 120e3) return show(hit.r);
+  if (!ONLINE) { const N = ["Тэмүүлэн", "Анужин", "Билгүүн", "Номин", "Хулан", "Эрдэнэ", "Мөнхжин"]; return show({ ok: true, count: 7, list: N.map((n, i) => ({ rank: i + 1, name: n + " (жишээ)", score: 420 - i * 37, tests: 6 - (i >> 1), pct: 92 - i * 4, me: false })) }); }
+  api({ action: "leaderboard", sec, cat: cat || "", period: lbPer, token: token || "" }).then(r => { if (r.ok) LBC[key] = { t: Date.now(), r }; show(r); }).catch(() => show(null));
 }
 
 /* ---------- start ---------- */
@@ -526,15 +605,16 @@ async function startTest(t, prac) {
 }
 async function startTopic(tp, prac) {
   let qs;
-  if (!ONLINE) qs = DEMO.qs ? [].concat(...DEMO.tests.filter(t => DEMO.qs[t.id]).map(t => DEMO.qs[t.id].filter(q => q.topic === tp.name).map(q => Object.assign({ from: t.name }, q)))) : DEMO.q.filter(q => q.topic === tp.name).map(q => Object.assign({ from: "ЭЕШ 2022 · A хувилбар" }, q));
+  const cat = tp.cat || "ЭЕШ";
+  if (!ONLINE) qs = DEMO.qs ? [].concat(...DEMO.tests.filter(t => DEMO.qs[t.id] && catOfGroup(t.group) === cat).map(t => DEMO.qs[t.id].filter(q => q.topic === tp.name).map(q => Object.assign({ from: t.name }, q)))) : DEMO.q.filter(q => q.topic === tp.name).map(q => Object.assign({ from: "ЭЕШ 2022 · A хувилбар" }, q));
   else {
     $("pane").style.opacity = .5; busy(true);
-    try { const r = await api({ action: "topic", name: tp.name, token: token || "" }); $("pane").style.opacity = 1; busy(false); if (!r.ok) return; qs = r.questions; }
+    try { const r = await api({ action: "topic", name: tp.name, cat: tp.cat || "", token: token || "" }); $("pane").style.opacity = 1; busy(false); if (!r.ok) return; qs = r.questions; }
     catch (e) { $("pane").style.opacity = 1; busy(false); alertBox("Ачаалж чадсангүй."); return; }
   }
   qs = qs.slice(); for (let i = qs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [qs[i], qs[j]] = [qs[j], qs[i]]; }
   if (!prac) qs = qs.slice(0, TOPIC_EXAM_N);
-  begin({ id: (prac ? "Сэдэв: " : "Сэдвийн шалгалт: ") + tp.name, name: tp.name, minutes: prac ? 0 : qs.length * TOPIC_EXAM_MIN_PER_Q }, qs, prac);
+  begin({ id: (prac ? "Сэдэв: " : "Сэдвийн шалгалт: ") + cat + " · " + tp.name, name: (cat === "ЭЕШ" ? "" : cat + " · ") + tp.name, minutes: prac ? 0 : qs.length * TOPIC_EXAM_MIN_PER_Q }, qs, prac);
 }
 function begin(t, qs, prac) {
   T = t; QS = qs; practice = prac; ans = qs.map(q => q.slots ? {} : -1); done = qs.map(() => false); cur = 0; reviewMode = false;
@@ -633,10 +713,10 @@ const PACKS = {};
 function busy(on) { let b = $("busy"); if (!b) { b = el("div", "busy", "Ачаалж байна…"); b.id = "busy"; document.body.append(b); } b.hidden = !on; }
 function getPack(id) { return PACKS[id] || (PACKS[id] = fetch("packs/" + id + ".json").then(r => r.ok ? r.json() : {}).catch(() => ({}))); }
 function setImg(im, src) {
-  const m = /^img\/(\d{4})\/([A-D])/.exec(src);
-  if (!m) { im.src = src; return; }
+  const m = /^img\/(\d{4})\/([A-D])/.exec(src), g = /^img\/(G10-\d+)\//.exec(src);
+  if (!m && !g) { im.src = src; return; }
   im.style.minHeight = "60px";
-  getPack(m[1] + "-" + m[2]).then(p => { im.src = p[src] || src; im.style.minHeight = ""; });
+  getPack(m ? m[1] + "-" + m[2] : g[1]).then(p => { im.src = p[src] || src; im.style.minHeight = ""; });
 }
 function zoom(src) { const z = el("div", "zoom"); const im = el("img"); setImg(im, src); z.append(im); z.onclick = () => z.remove(); document.body.append(z); }
 $("prev").onclick = () => { if (cur > 0) { cur--; renderQ(); } };
@@ -657,6 +737,7 @@ function finish(timeUp) {
   $("rTitle").textContent = (timeUp ? "Хугацаа дууслаа. " : "") + (pct >= 90 ? "Гайхалтай!" : pct >= 70 ? "Сайн байна!" : pct >= 50 ? "Дунд зэрэг" : "Дахин давтъя");
   $("rText").textContent = "Оноо " + pct + "% · " + QS.length + " даалгавраас " + right + " бүрэн зөв. Хариутай нь хараад алдаагаа засаарай.";
   if (ONLINE && token) post({ action: "result", token, testId: T.id, score: g, total: m, mode: practice ? "Дасгал" : "Шалгалт" }).catch(() => {});
+  Object.keys(LBC).forEach(k => delete LBC[k]);
   scrollTo({ top: $("result").offsetTop - 12, behavior: "smooth" });
 }
 $("review").onclick = () => { if (T && T.contest) return; reviewMode = true; cur = 0; $("result").hidden = true; $("exam").hidden = false; $("submit").hidden = true; $("back").hidden = false; $("timer").hidden = true; renderQ(); };
@@ -797,22 +878,43 @@ async function contestBuilder() {
   box.append(f);
   // сонгогч
   const sel = new Set();
-  const fT = el("select"); fT.append(Object.assign(el("option", "", "Бүх хувилбар"), { value: "" })); r.tests.forEach(t => fT.append(Object.assign(el("option", "", t.name), { value: t.id })));
-  const fP = el("select"); fP.append(Object.assign(el("option", "", "Бүх сэдэв"), { value: "" })); TOPIC_ORDER.forEach(t => fP.append(Object.assign(el("option", "", t), { value: t })));
-  const bar = el("div", "bbar"); const cnt = el("b", "bcnt"); const all = el("button", "btn ghost", "Харагдаж буйг бүгдийг сонгох"); all.type = "button";
-  const rnd = el("button", "btn ghost", "Санамсаргүй 10"); rnd.type = "button";
-  bar.append(fT, fP); box.append(bar);
-  const bar2 = el("div", "bbar"); bar2.append(cnt, all, rnd); box.append(bar2);
+  // Ангилал → хувилбар/тест → бүлэг сэдвээр шүүгээд, хүссэн тоогоор санамсаргүй түүвэр авна
+  const catOfTest = t => isTopicOnly(t) ? catOfGroup(t.group) : isOwn(t) ? ownCat(t) : "ЭЕШ";
+  const tcatOf = {}; r.tests.forEach(t => tcatOf[t.id] = catOfTest(t));
+  const BCATS = TOPIC_CATS.concat(OWN_CATS).filter(c => r.tests.some(t => tcatOf[t.id] === c));
+  const opt = (txt, v) => Object.assign(el("option", "", txt), { value: v });
+  const fC = el("select"); fC.append(opt("Бүх ангилал", "")); BCATS.forEach(c => fC.append(opt(c, c)));
+  const fT = el("select");
+  const fillT = () => { const v = fT.value; fT.innerHTML = ""; fT.append(opt("Бүх тест", ""));
+    r.tests.filter(t => !fC.value || tcatOf[t.id] === fC.value).forEach(t => fT.append(opt(t.name, t.id)));
+    if ([...fT.options].some(o => o.value === v)) fT.value = v; };
+  fillT();
+  const fP = el("select"); fP.append(opt("Бүх бүлэг сэдэв", "")); TOPIC_ORDER.forEach(t => fP.append(opt(t, t)));
+  const bar = el("div", "bbar"); bar.append(fC, fT, fP); box.append(bar);
+  const cnt = el("b", "bcnt");
+  const nIn = Object.assign(el("input"), { type: "number", value: 10, min: 1, max: 200, title: "Хэдэн даалгавар" }); nIn.className = "bnum";
+  const rnd = el("button", "btn", "Санамсаргүй сонгох"); rnd.type = "button";
+  const all = el("button", "btn ghost", "Харагдаж буйг бүгдийг"); all.type = "button";
+  const clr = el("button", "btn ghost", "Цэвэрлэх"); clr.type = "button";
+  const bar2 = el("div", "bbar"); bar2.append(nIn, rnd, all, clr); box.append(bar2);
+  const sum = el("div", "bsum"); box.append(cnt, sum);
+  box.append(el("p", "note", "Түүвэр: ангилал, бүлгээ сонгоод тоогоо бичээд «Санамсаргүй сонгох» дарна. Бүлэг солиод дахин дарвал өмнөх сонголт дээр нэмэгдэнэ. Жишээ: 10-р анги → бүлэг бүрээс 4-өөр = 20 даалгавар."));
   const list = el("div", "blist"); box.append(list);
-  const vis = () => r.questions.filter(q => (!fT.value || q.test === fT.value) && (!fP.value || q.topic === fP.value));
-  const upd = () => { const pts = r.questions.filter(q => sel.has(q.id)).reduce((s, q) => s + (q.p || 1), 0); cnt.textContent = sel.size + " даалгавар · " + pts + " оноо"; };
-  const draw = () => { list.innerHTML = ""; vis().forEach(q => { const l = el("label", "bq"); const c = el("input"); c.type = "checkbox"; c.checked = sel.has(q.id);
+  const vis = () => r.questions.filter(q => (!fC.value || tcatOf[q.test] === fC.value) && (!fT.value || q.test === fT.value) && (!fP.value || q.topic === fP.value));
+  const upd = () => { const S = r.questions.filter(q => sel.has(q.id)); const pts = S.reduce((s, q) => s + (q.p || 1), 0);
+    cnt.textContent = "Сонгосон: " + sel.size + " даалгавар · " + pts + " оноо";
+    const by = {}; S.forEach(q => { const k = (tcatOf[q.test] || "") + " · " + (q.topic || "—"); by[k] = (by[k] || 0) + 1; });
+    sum.innerHTML = ""; Object.keys(by).sort().forEach(k => sum.append(el("span", "", k + ": " + by[k]))); };
+  const draw = () => { list.innerHTML = ""; const V = vis(); list.append(el("small", "bvis", "Шүүлтүүрт " + V.length + " даалгавар"));
+    V.forEach(q => { const l = el("label", "bq"); const c = el("input"); c.type = "checkbox"; c.checked = sel.has(q.id);
     c.onchange = () => { c.checked ? sel.add(q.id) : sel.delete(q.id); upd(); };
     const tx = el("span"); tx.append(el("b", "", q.test + " · №" + q.n + (q.fill ? " · нөхөх" : "") + (q.img ? " · 🖼" : "") + " · " + q.p + " оноо"), el("small", "", q.q));
     l.append(c, tx); list.append(l); }); upd(); };
-  fT.onchange = draw; fP.onchange = draw;
+  fC.onchange = () => { fillT(); draw(); }; fT.onchange = draw; fP.onchange = draw;
   all.onclick = () => { vis().forEach(q => sel.add(q.id)); draw(); };
-  rnd.onclick = () => { const v = vis().filter(q => !sel.has(q.id)); for (let i = 0; i < 10 && v.length; i++) sel.add(v.splice(Math.random() * v.length | 0, 1)[0].id); draw(); };
+  clr.onclick = () => { sel.clear(); draw(); };
+  rnd.onclick = () => { const v = vis().filter(q => !sel.has(q.id)); const n = Math.max(1, +nIn.value || 10);
+    for (let i = 0; i < n && v.length; i++) sel.add(v.splice(Math.random() * v.length | 0, 1)[0].id); draw(); };
   draw();
   const err = el("p", "err"); const mk = el("button", "btn wide", "Тэмцээн үүсгэх"); mk.type = "button"; box.append(err, mk);
   mk.onclick = async () => {
