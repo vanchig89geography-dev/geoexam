@@ -6,6 +6,8 @@
 <meta name="description" content="Газарзүйн даалгаврын сан: ЭЕШ-ийн хувилбарууд, сэдвээр давтах. Powered by Б.Ванчигдорж">
 <title>GeoExam · Газарзүйн даалгаврын сан</title>
 <meta name="theme-color" content="#4F46E5">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap">
@@ -304,6 +306,10 @@ html,body{overflow-x:hidden}
   .tabs{grid-template-columns:1fr 1fr;gap:5px}
   .tabs button{font-size:14px;padding:9px 6px}
 }
+
+/* ачаалж байна */
+.busy{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;padding:10px 18px;border-radius:999px;background:var(--accent);color:var(--accent-ink,#fff);font:700 14px var(--btn-font);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.busy[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -437,14 +443,17 @@ function renderAcct() {
 
 /* ---------- catalogue ---------- */
 async function loadTests() {
-  $("pane").innerHTML = '<p class="empty">Ачаалж байна...</p>';
+  let cached = null; try { cached = JSON.parse(st.get("ge-tests") || "null"); } catch (e) {}
+  if (ONLINE && cached && cached.tests) { tests = cached.tests; topics = cached.topics || []; if (cached.cfg) cfg = cached.cfg; renderPane(); }
+  else $("pane").innerHTML = '<p class="empty">Ачаалж байна...</p>';
   if (!ONLINE) { tests = DEMO.tests; topics = DEMO.topics; cfg = DEMO.cfg; $("demo").hidden = false; renderPane(); return; }
   try {
     const [r, c] = await Promise.all([api({ action: "tests", token: token || "" }), Object.keys(cfg).length ? null : api({ action: "config" })]);
     if (c && c.ok) cfg = c.config;
     tests = r.tests || []; topics = r.topics || []; user = r.user; if (!user && token) { token = null; st.set("ge-token", null); }
+    st.set("ge-tests", JSON.stringify({ tests, topics, cfg }));
     renderAcct(); renderPane();
-  } catch (e) { $("pane").innerHTML = '<p class="empty">Ачаалж чадсангүй. Интернэтээ шалгаад хуудсаа дахин ачаална уу.</p>'; }
+  } catch (e) { if (cached && cached.tests) return; $("pane").innerHTML = '<p class="empty">Ачаалж чадсангүй. Интернэтээ шалгаад хуудсаа дахин ачаална уу.</p>'; }
 }
 const isOwn = t => !/^ЭЕШ/.test(t.group || "");
 function setTab(t) { tab = t; st.set("ge-tab", t); document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t)); renderPane(); }
@@ -502,10 +511,16 @@ async function startTest(t, prac) {
   let qs;
   if (!ONLINE) qs = (DEMO.qs && DEMO.qs[t.id]) || DEMO.q;
   else {
-    $("pane").style.opacity = .5;
-    try { const r = await api({ action: "test", id: t.id, token: token || "" }); $("pane").style.opacity = 1;
-      if (!r.ok) { if (r.error === "locked") openAcct(true); return; } qs = r.questions; t = r.test; }
-    catch (e) { $("pane").style.opacity = 1; alertBox("Тестийг ачаалж чадсангүй."); return; }
+    if (/^\d{4}-[A-D]$/.test(t.id)) getPack(t.id);            // зургийг зэрэг татаж эхэлнэ
+    const key = "ge-q-" + t.id; let hit = null; try { hit = JSON.parse(st.get(key) || "null"); } catch (e) {}
+    const fresh = api({ action: "test", id: t.id, token: token || "" }).then(r => { if (r.ok) st.set(key, JSON.stringify({ q: r.questions, t: r.test })); return r; });
+    if (hit && hit.q && !t.locked) { qs = hit.q; fresh.catch(() => {}); }   // өмнө нь нээсэн бол шууд эхэлнэ
+    else {
+      $("pane").style.opacity = .5; busy(true);
+      try { const r = await fresh; $("pane").style.opacity = 1; busy(false);
+        if (!r.ok) { if (r.error === "locked") openAcct(true); return; } qs = r.questions; t = r.test; }
+      catch (e) { $("pane").style.opacity = 1; busy(false); alertBox("Тестийг ачаалж чадсангүй."); return; }
+    }
   }
   begin({ id: t.id, name: t.name, minutes: t.minutes }, qs, prac);
 }
@@ -513,9 +528,9 @@ async function startTopic(tp, prac) {
   let qs;
   if (!ONLINE) qs = DEMO.qs ? [].concat(...DEMO.tests.filter(t => DEMO.qs[t.id]).map(t => DEMO.qs[t.id].filter(q => q.topic === tp.name).map(q => Object.assign({ from: t.name }, q)))) : DEMO.q.filter(q => q.topic === tp.name).map(q => Object.assign({ from: "ЭЕШ 2022 · A хувилбар" }, q));
   else {
-    $("pane").style.opacity = .5;
-    try { const r = await api({ action: "topic", name: tp.name, token: token || "" }); $("pane").style.opacity = 1; if (!r.ok) return; qs = r.questions; }
-    catch (e) { $("pane").style.opacity = 1; alertBox("Ачаалж чадсангүй."); return; }
+    $("pane").style.opacity = .5; busy(true);
+    try { const r = await api({ action: "topic", name: tp.name, token: token || "" }); $("pane").style.opacity = 1; busy(false); if (!r.ok) return; qs = r.questions; }
+    catch (e) { $("pane").style.opacity = 1; busy(false); alertBox("Ачаалж чадсангүй."); return; }
   }
   qs = qs.slice(); for (let i = qs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [qs[i], qs[j]] = [qs[j], qs[i]]; }
   if (!prac) qs = qs.slice(0, TOPIC_EXAM_N);
@@ -615,6 +630,7 @@ function renderSlots(q, box, show) {
 }
 /* Зургууд: img/2024/A12f0.jpg → packs/2024-A.json доторх өгөгдлөөс ачаална (GitHub-д цөөн файл) */
 const PACKS = {};
+function busy(on) { let b = $("busy"); if (!b) { b = el("div", "busy", "Ачаалж байна…"); b.id = "busy"; document.body.append(b); } b.hidden = !on; }
 function getPack(id) { return PACKS[id] || (PACKS[id] = fetch("packs/" + id + ".json").then(r => r.ok ? r.json() : {}).catch(() => ({}))); }
 function setImg(im, src) {
   const m = /^img\/(\d{4})\/([A-D])/.exec(src);
