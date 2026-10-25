@@ -772,7 +772,7 @@ const PACKS = {};
 function busy(on) { let b = $("busy"); if (!b) { b = el("div", "busy", "Ачаалж байна…"); b.id = "busy"; document.body.append(b); } b.hidden = !on; }
 function getPack(id) { return PACKS[id] || (PACKS[id] = fetch("packs/" + id + ".json").then(r => r.ok ? r.json() : {}).catch(() => ({}))); }
 function setImg(im, src) {
-  const m = /^img\/(\d{4})\/([A-D])/.exec(src), g = /^img\/(G10-\d+)\//.exec(src);
+  const m = /^img\/(\d{4})\/([A-D])/.exec(src), g = /^img\/([A-Z]\d+-\d+)\//.exec(src);
   if (!m && !g) { im.src = src; return; }
   im.style.minHeight = "60px";
   getPack(m ? m[1] + "-" + m[2] : g[1]).then(p => { im.src = p[src] || src; im.style.minHeight = ""; });
