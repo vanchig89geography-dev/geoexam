@@ -375,6 +375,22 @@ footer{text-align:center;font-size:13px;color:var(--muted);display:grid;gap:6px;
   .btn:hover:not(:disabled)::after,.two button:hover::after,.snd:hover::after,.acct:hover::after,.opt:hover:not(:disabled)::after{opacity:.75}}
 .opt.ok::after,.opt.no::after{opacity:0!important}
 #exam .nav .btn.x:active{box-shadow:none}
+/* Google нэвтрэлт & багшийн самбар */
+.gbtn{display:none;align-items:center;justify-content:center;gap:10px;background:var(--surface)!important;color:var(--fg)!important;border:1px solid var(--line-2)!important}
+.gmode .gbtn{display:flex}
+.gmode .fld,.gmode #b1{display:none}
+.adm{display:grid;gap:12px;margin-top:6px;padding-top:12px;border-top:1px dashed var(--line-2)}
+.adm h4{margin:0;font:800 16px var(--btn-font)}
+.admb{display:grid;gap:8px;padding:12px;border-radius:var(--r-md);background:var(--sunk);border:1px solid var(--line)}
+.admb>b{font:700 14px var(--btn-font)}
+.admrowf{display:flex;gap:6px;flex-wrap:wrap}
+.admrowf input{flex:1 1 180px;min-width:0;min-height:42px;border:1px solid var(--line-2);border-radius:10px;padding:6px 10px;background:var(--surface);color:var(--fg);font:15px var(--font)}
+.admrowf select{min-height:42px;border:1px solid var(--line-2);border-radius:10px;padding:6px 8px;background:var(--surface);color:var(--fg);font:14px var(--font)}
+.admrowf .btn{min-height:42px;padding:6px 14px}
+.admlist{display:grid;gap:4px;max-height:220px;overflow:auto}
+.admrow{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:6px 8px;border-radius:8px;background:var(--surface)}
+.admrow span{overflow-wrap:anywhere;min-width:0}.admrow small{color:var(--good);flex:none}.admrow.off small{color:var(--faint)}
+.adm .fld input{min-height:40px}
 </style>
 </head>
 <body>
@@ -454,6 +470,7 @@ footer{text-align:center;font-size:13px;color:var(--muted);display:grid;gap:6px;
       <label class="fld"><span>Майл хаяг</span><input id="inEmail" type="email" required autocomplete="email" placeholder="name@gmail.com"></label>
       <p class="err" id="e1" aria-live="polite"></p>
       <button class="btn" id="b1" type="submit">Код авах</button>
+      <button class="btn gbtn" id="gSign" type="button"><svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Google-ээр нэвтрэх</button>
     </form>
     <form id="f2" class="stack" hidden>
       <h3>Кодоо оруулна уу</h3>
@@ -475,7 +492,9 @@ footer{text-align:center;font-size:13px;color:var(--muted);display:grid;gap:6px;
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIOZfXcRuuNtXF9Fw5JcwmUaBpQHWaN-nH5xfcL1tFFOidLne3Ai9ao0IG6NndIw0w/exec"; // Apps Script-ийн Web app URL
-const ONLINE = !!SCRIPT_URL;
+const USE_FB = true;   // Firebase backend (false бол Apps Script)
+let fbReady; const FB = new Promise(r => fbReady = r); window.__fbReady = x => fbReady(x);
+const ONLINE = USE_FB || !!SCRIPT_URL;
 const $ = id => document.getElementById(id);
 const L = ["A", "B", "C", "D", "E"];
 const st = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}} };
@@ -491,21 +510,25 @@ const ICON = {
 const DEF_ICON = SVG('<path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2zm0 0A2 2 0 0 0 6 22h13v-4"/>');
 const TOPIC_EXAM_N = 25, TOPIC_EXAM_MIN = 40;   // нэг шалгалт: 25 даалгавар, 40 минут
 const examMin = n => Math.max(5, Math.round(n * TOPIC_EXAM_MIN / TOPIC_EXAM_N));
-let token = st.get("ge-token"), user = null, cfg = {}, tests = [], topics = [], tab = st.get("ge-tab") || "var";
+let token = USE_FB ? null : st.get("ge-token"), user = null, cfg = {}, tests = [], topics = [], tab = st.get("ge-tab") || "var";
 let T = null, QS = [], ans = [], done = [], cur = 0, reviewMode = false, practice = true, timer = null, left = 0;
 
 /* demo data (сервергүй үед) */
 const DEMO = {"tests":[{"id":"2022-A","name":"ЭЕШ 2022 · A хувилбар","free":true,"minutes":90,"desc":"50 сонгох + 4 нөхөх даалгавар","group":"ЭЕШ 2022","count":54,"locked":false}],"topics":[],"q":[{"n":"1","q":"Дэлхийн хэлбэр хэмжээг багасган үзүүлсэн бодит загварыг сонгоно уу.","o":["Глобус","Газарзүйн зураг","Гэрэл зураг","Атлас","Агаарын зураг"],"sol":"Глобус — дэлхийн бөмбөрцөг хэлбэр, хэмжээг багасган үзүүлсэн бодит загвар.","topic":"Гео орон зайн дүрслэл","img":[],"optImg":[],"a":0,"p":1},{"n":"2","q":"Наранд хамгийн ойр орших гараг аль нь вэ?","o":["Бархасбадь","Дэлхий","Буд","Ангараг","Тэнгэрийн ван"],"sol":"Буд гараг нарнаас ~58 сая км зайд оршдог, хамгийн ойр.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":2,"p":1},{"n":"3","q":"Хүний хөгжлийн индекс (ХХИ)-ийн үзүүлэлтэд асуултын тэмдгийн оронд тохирох хариултыг сонгоно уу.","o":["Тогтвортой хөгжил","Хүн амын өсөлт","Ажиллах хүч","Дундаж наслалт","Амьдралын түвшин"],"sol":"ХХИ = нэг хүнд ногдох ДНБ + боловсролын түвшин + дундаж наслалт.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A3_0.jpg"],"optImg":[],"a":3,"p":1},{"n":"4","q":"2022 оны эхний хагаст ОХУ, Украйн улсын дайны улмаас Украйны 11 сая орчим хүн Европын улс орон руу дүрвэн суурьшсан нь шилжих хөдөлгөөний ямар хэлбэр вэ?","o":["Түр зуурын шилжих хөдөлгөөн","Гадаад шилжих хөдөлгөөн","Сайн дурын шилжих хөдөлгөөн","Дотоод шилжих хөдөлгөөн","Албадлагын шилжих хөдөлгөөн"],"sol":"Дайны улмаас хүсэлгүйгээр дүрвэсэн тул албадлагын шилжих хөдөлгөөн.","topic":"Хүн ам ба суурьшил","img":[],"optImg":[],"a":4,"p":1},{"n":"5","q":"Хотжилтын түвшин хамгийн өндөр улс аль нь вэ?","o":["Аргентин","Франц","Энэтхэг","Бельги","Индонез"],"sol":"Бельги ~98% хотжилттой, хамгийн өндөр.","topic":"Хүн ам ба суурьшил","img":[],"optImg":[],"a":3,"p":1},{"n":"6","q":"Аж үйлдвэрийг байршуулахад нөлөөлөх байгалийн хүчин зүйлийг сонгоно уу.","o":["Зам тээвэр","Зах зээл","Түүхий эд","Ажиллах хүч","Амьдралын чанар"],"sol":"Түүхий эд — байгалийн хүчин зүйл; бусад нь нийгэм, эдийн засгийн хүчин зүйл.","topic":"Байгаль нийгмийн орчин","img":[],"optImg":[],"a":2,"p":1},{"n":"7","q":"Бөхөн байгалийн аль бүсэд амьдардаг вэ?","o":["Хүйтэн бүс","Сэрүүн бүс","Субтропикийн бүс","Тропикийн бүс","Экваторын бүс"],"sol":"Бөхөн сэрүүн бүсийн хээр, цөлөрхөг хээрт амьдардаг.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":1,"p":1},{"n":"8","q":"Магмын чулуулаг аль нь вэ?","o":["Шохойн чулуу","Гантиг","Шаварлаг занар","Галт уулын шил","Хөрзөн чулуу"],"sol":"Галт уулын шил (обсидиан) — магмын гадаргын чулуулаг.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":1},{"n":"9","q":"Агаарын ижил даралттай цэгүүдийг холбосон шугамыг...................гэнэ.","o":["Изобар","Изокол","Изотерм","Изогипс","Изобат"],"sol":"Изобар — агаарын ижил даралттай цэгүүдийг холбосон шугам.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":0,"p":1},{"n":"10","q":"Далайн урсгалын зурагт 1-ийн тоогоор тэмдэглэсэн урсгалыг нэрлэнэ үү.","o":["Гольфстримын урсгал","Аляскийн урсгал","Саргассын урсгал","Куросиогийн урсгал","Бразилийн урсгал"],"sol":"1 — Өмнөд Америкийн зүүн эргийн дагуух дулаан урсгал: Бразилийн урсгал.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A10_0.jpg"],"optImg":[],"a":4,"p":1},{"n":"11","q":"Биомасс хаана хамгийн бага байна вэ?","o":["Субтропикийн ой","Цөл","Хээр","Тундр","Мөс"],"sol":"Мөсөн цөлд хүйтний улмаас амьд биет хамгийн бага.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A11_0.jpg"],"optImg":[],"a":4,"p":1},{"n":"12","q":"Газарзүйн зургийг хамрах нутгаар нь ангилдаг. Тивийн зургийг сонгоно уу.","o":["","","","",""],"sol":"D — Африк тивийг бүхэлд нь дүрсэлсэн тивийн зураг.","topic":"Гео орон зайн дүрслэл","img":[],"optImg":["img/2022/A12_0.jpg"],"a":3,"p":1},{"n":"13","q":"Зургийг ажиглан зөв тодорхойлсон хариултыг сонгоно уу.","o":["Вектор зураг","Сансрын зураг","Агаарын зураг","Растер зураг","Аялалын зураг"],"sol":"Агаараас (өндрөөс) авсан гэрэл зураг тул агаарын зураг.","topic":"Гео орон зайн дүрслэл","img":["img/2022/A13_0.jpg"],"optImg":[],"a":2,"p":1},{"n":"14","q":"Нарны аймгийн алслагдсан дарааллаар 4 дүгээрт байрлах, тэнхлэгээ эргэх хугацаа нь 24 цаг 7 минут 23 секунт бөгөөд 687 хоногт нарыг 1 бүтэн тойрдог, сайн судлагдаж буй гарагийг олно уу.","o":["Сугар","Дэлхий","Бархасбадь","Ангараг","Санчир"],"sol":"4-р гараг Ангараг: тэнхлэгээ 24 цаг 37 минутад эргэж, нарыг 687 хоногт тойрно.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":1},{"n":"15","q":"Хурдтай хөгжиж буй олон нийтийн мэдээллийн хэрэгсэл, ТВ, интернет, харилцаа холбооны болон орчин үеийн тээврийн хэрэгсэл, хөгжлийн хувьд нэгдэж буй үйл явцыг илэрхийлсэн даяаршлын хүрээг тодорхойлно уу.","o":["Ардчилалын даяаршил","Улс төрийн даяаршил","Нийгмийн даяаршил","Эдийн засгийн даяаршил","Соёлын даяаршил"],"sol":"Хэвлэл мэдээлэл, интернет, харилцаа холбоо, тээвэр → нийгмийн даяаршил.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":[],"optImg":[],"a":2,"p":1},{"n":"16","q":"Тоон үзүүлэлтийг ашиглан орхигдсон бүс нутгийн хүн амын эзлэх хувийг тодорхойлно уу.","o":["13.5%","12.5%","14.5%","15.5%","11.5%"],"sol":"100 − (10.8 + 15.2 + 22.6 + 37.8) = 13.6 ≈ 13.5%.","topic":"Хүн ам ба суурьшил","img":["img/2022/A16_0.jpg"],"optImg":[],"a":0,"p":2},{"n":"17","q":"2017 оны Катар улсын хүн амын суваргыг ашиглан зөв тайлбарласан хариуг олоорой.","o":["60-с дээш насны эрэгтэйчүүдийн тоо цөөн","10-29 насны эмэгтэйчүүд эрэгтэйчүүдийн тоо ойролцоо","50-59 насны эмэгтэйчүүдийн тоо эрэгтэйчүүдээс олон","40-49 насны эмэгтэйчүүдээс эрэгтэйчүүдийн тоо олон","0-9 насны эрэгтэй хүүхдийн тоо эмэгтэйгээсээ цөөн"],"sol":"40–49 насанд эрэгтэйчүүд (цагаач ажилчид) эмэгтэйгээс хавьгүй олон.","topic":"Хүн ам ба суурьшил","img":["img/2022/A17_0.jpg"],"optImg":[],"a":3,"p":1},{"n":"18","q":"Органик фермийн тариалангийн талбайн хэмжээгээр тэргүүлэгч Америк тивийн орнуудыг сонгоно уу.","o":["Канад, Перу","Уругвай, Бразил","Аргентин, АНУ","АНУ, Боливи","Аргентин, Чили"],"sol":"Америк тивд Аргентин, АНУ органик талбайгаар тэргүүлдэг.","topic":"Байгаль нийгмийн орчин","img":[],"optImg":[],"a":2,"p":1},{"n":"19","q":"Хуурай газарт тээврийн сүлжээг өргөжүүлэхэд тулгардаг саадуудын нэг нь............ холбосон авто зам барих нь........................хүчин зүйл юм.","o":["Нуур ба гол мөрөнг, харьцангуй","Уул ба хөндийг, харьцангуй","Уул ба хөндийг, үнэмлэхүй","Тэнгис ба буланг, үнэмлэхүй","Шавар ба намгийг, харьцангуй"],"sol":"Уул ба хөндийг холбох зам — техникээр даван туулах харьцангуй саад.","topic":"Байгаль нийгмийн орчин","img":["img/2022/A19_0.jpg"],"optImg":[],"a":1,"p":1},{"n":"20","q":"Газарзүйн бүрхэвчийн бүс, бүслүүрлэг шинж чанарын онцлогийг зөв тодорхойлсон хариултыг олно уу.","o":["Галт уулын дэлбэрэлтээс хий, тоос нэмэгдэх","Тектоникийн хөдөлгөөн эрчимжих","Агаарт чийг өтгөрч үүл бүрэлдэх","Хөрс, ургамал, амьтан тархах","Өдөр шөнө ээлжлэх, улирал солигдох"],"sol":"Бүс бүслүүрлэг чанар — хөрс, ургамал, амьтан өргөргийн дагуу дэс дараалан тархах.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":2},{"n":"21","q":"Голдуу үйлдвэр ихтэй том хотын дээр үүсдэг, агаарт нүүрсхүчлийн хий болон хатуу хольцууд ихэссэнээс болж газрын гадаргаас ялгарах дулааныг тогтоон барьж буй үзэгдэл инверсийн ямар төрөл вэ?","o":["Адвекцийн инверс","Хаврын инверс","Цацрагийн инверс","Уулзүйн инверс","Агаарын бохирдлын инверс"],"sol":"Хотын агаарын бохирдол дулааныг барьж үүсдэг — агаарын бохирдлын инверс.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":4,"p":1},{"n":"22","q":"Хойд Америкийн Сьерра Невада уул нь д.т.д 4418 м өндөр бөгөөд энэ нь уулын ямар төрөлд хамаарагдах вэ?","o":["Атираат уул","Галт уул","Хөмбөн уул","Зөрөгт уул","Өндөр уул"],"sol":"Хагарлын дагуу блок өргөгдөж үүссэн — зөрөгт уул.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A22_0.jpg"],"optImg":[],"a":3,"p":1},{"n":"23","q":"Гадаргын хэлбэрт нөлөөлсөн гол хүчин зүйлийг тодорхойлно уу.","o":["Мөсөн голын нөлөө","Усны нөлөө","Нарны энергийн нөлөө","Галт уулын нөлөө","Салхины нөлөө"],"sol":"Цөлийн нуман хаалга хэлбэрийн хад — салхины элэгдлийн үр дүн.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A23_0.jpg"],"optImg":[],"a":4,"p":1},{"n":"24","q":"ОХУ-ын Иркутск хотод хэддүгээр саруудад хамгийн их тунадас унадаг вэ?","o":["IV - V сард","V - VI сард","VI – VII сард","VIII - IX сард","VII - VIII сард"],"sol":"Тунадасны багана VII–VIII сард хамгийн өндөр.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A24_0.jpg"],"optImg":[],"a":4,"p":2},{"n":"25","q":"Тойргон диаграммаар далайн усны бохирдлын хувийг харуулав. Хамгийн их бохирдуулж байгаа эх үүсвэрийг сонгоно уу.","o":["Эрэг орчмын уул уурхай","Хөлөг онгоц","Хог хаягдал","Агаарын бохирдол","Цутгал гол"],"sol":"Диаграммд цутгал голын эзлэх хувь хамгийн их.","topic":"Байгаль нийгмийн орчин","img":["img/2022/A25_0.jpg"],"optImg":[],"a":4,"p":1},{"n":"26","q":"Гималайн нуруунд д.т.д 8848 м өндөрт биомассын тархалтад тохирох экосистем аль нь байна вэ?","o":["Өвстэй тал","Тундр ба таг","Нуга намаг","Чулуу ба мөс","Жинхэнэ цөл"],"sol":"8848 м нь 4572 м-ээс дээш — чулуу ба мөсний бүс.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A26_0.jpg"],"optImg":[],"a":3,"p":1},{"n":"27","q":"Ургамал ургахад шаардагдах органик бодисын хэмжээг хөрсний үржил шим гэнэ. Хамгийн үржил шимт хөрсийг сонгоно уу.","o":["","","","",""],"sol":"Хар шороон хөрс ялзмаг ихтэй, хамгийн үржил шимтэй.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":["img/2022/A27_0.jpg"],"a":2,"p":1},{"n":"28","q":"Сурагч Туяа найзын хамт модон гүүрээр гарч голын зүүн эргээр хойд зүгт аялав. Аялалын төгсгөлд ямар обьект таарах вэ?","o":["Сайжруулсан шороон зам","Гуу жалга","Бут ба ой","Усан цахилгаан станц","Жимсний цэцэрлэг"],"sol":"Модон гүүрээс голын зүүн эргээр хойш явахад голын эх хэсэг дэх далан (УЦС) таарна.","topic":"Гео орон зайн дүрслэл","img":["img/2022/A28_0.jpg"],"optImg":[],"a":3,"p":2},{"n":"29","q":"“Google Map”-ын газарзүйн зургийг ашиглан Эрдмийн өргөө цогцолбор сургуулиас зүүн хойд зүгт байрлах обьектыг нэрлэнэ үү.","o":["56-р сургууль","114-р цэцэрлэг","Голомт банк","Хөл бөмбөгийн талбай","Прогресс зочид буудал"],"sol":"Сургуулиас зүүн хойт зүгт 56-р сургууль байрлана.","topic":"Гео орон зайн дүрслэл","img":["img/2022/A29_0.jpg"],"optImg":[],"a":0,"p":2},{"n":"30","q":"Улаанбаатар хотод өдрийн 13 цаг болж байв. Энэ үед Берлинд (I цагийн бүс) хэдэн цаг болж байх вэ?","o":["09 цаг","08 цаг","07 цаг","13 цаг","12 цаг"],"sol":"Улаанбаатарыг VII бүс гэж тооцвол 13 − 6 = 07 цаг.","topic":"Гео орон зайн дүрслэл","img":[],"optImg":[],"a":2,"p":2},{"n":"31","q":"Өндөр технологийн ололтыг үйлдвэрлэлд нэвтрүүлж байгаа үйл явцыг тодорхойлно уу.","o":["Гэрийн мод, тавилга хийх","Нано бүрхүүлт гэрийн бүрээс үйлдвэрлэх","Арьс, шир элдэж сур бэлтгэх","Сүүг уламжлалт аргаар боловсруулах","Алтыг гар аргаар олборлох"],"sol":"Нано бүрхүүлт бүрээс — өндөр технологийн ололт.","topic":"Байгаль нийгмийн орчин","img":[],"optImg":[],"a":1,"p":2},{"n":"32","q":"Хүн амын ихэнх хувийг 30-60 насныхан эзэлдэг, дундаж наслалт өндөртэй, төрөлт буурснаас шалтгаалж хүн амзүйн хямралд орсон улсыг сонгоно уу.","o":["","","","",""],"sol":"Германы сувраг: 30–60 насныхан олон, төрөлт бага — хүн амзүйн хямрал.","topic":"Хүн ам ба суурьшил","img":[],"optImg":["img/2022/A32_0.jpg"],"a":1,"p":2},{"n":"33","q":"Иргэн Дорж хөдөөнөөс хот руу ирж сууршихдаа хамаатныхаа хашаанд амьдрахаар төлөвлөжээ. Энэ нь хот төлөвлөлтийн “Бага орлоготой иргэдийн хороолол”-д хамаарах тул секторлог загварын аль тоон утгад тохирох вэ?","o":["1","5","2","3","6"],"sol":"Хойтын секторлог загварт 3 — бага орлоготой иргэдийн хороолол.","topic":"Хүн ам ба суурьшил","img":["img/2022/A33_0.jpg"],"optImg":[],"a":3,"p":2},{"n":"34","q":"Өгөгдлийг уншаад эрчим хүчний гол эх үүсвэр нь байгалийн ямар нөхцлөөс шалтгаалсан болохыг тодорхойлно уу.","o":["Харьцангуй өндрийн зөрүү ихтэй уулархаг гадарга","Хөндий, хотгорын төвийн чийг намагтай гадарга","Салхины хурд тогтворгүй талархаг нам гадарга","Нарны тусгал болон ууршилт ихтэй ээвэр гадарга","Салхины хурд тогтвортой өндөрлөг гадарга"],"sol":"\"Салхит\" салхин станц — салхины хурд тогтвортой өндөрлөг гадарга.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A34_0.jpg"],"optImg":[],"a":4,"p":2},{"n":"35","q":"Тээврийн төрлүүдийг давуу талуудтай нь харгалзуулна уу.","o":["1в,2а,3г,4б","1г,2б,3а,4в","1а,2г,3в,4б","1в,2б,3г,4а","1б,2а,3в,4г"],"sol":"Агаар — хурдан, тав тухтай (в); ус — их ачаа, хямд (а); авто — богино зайд шууд (г); төмөр зам — цаг агаараас хамаарахгүй (б).","topic":"Байгаль нийгмийн орчин","img":["img/2022/A35_0.jpg"],"optImg":[],"a":0,"p":2},{"n":"36","q":"Хэрэв чи Индонез улсын Жакарта хотод суралцахаар явж байгаа гэж төсөөлье. Тэнд газарзүйн бүсийн ямар орчинтой байх вэ?","o":["7-р сард +10°С хүрэхгүй, өвөлдөө -40°С, дунджаар 50-100 мм орчим тунадас унадаг. Дулаан дутагдалтай учир ууршилт бага, цэвдэг, намаг элбэг тархсан.","Халуун хуурай, агаарын их даралтын мужид оршдог. Пассат салхи зонхилдог. Өвөл +10°С-ээс буурахгүй, зундаа дунджаар +30°С- +35°С. Саванн, цөл, халуун орны ойтой.","Баруун зүгийн салхины нөлөөнд оршино. Далайн эргээр чийглэг, эх газрын төв хэсгээр хуурай, тайга, хээр, цөл, холимог ойтой. 1-р сард –10°С орчим, 7-р сард +25°С, дунджаар 180-200 мм орчим тунадас унадаг.","Дулаан ба чийгийн хувьд улирлын ялгаа байхгүй. Чийглэг, мөнх ногоон ойтой, жилийн туршид +25°С- +30°С, дунджаар 2000 мм түүнээс их тунадас унадаг.","Хамгийн дулаан сардаа +5°С орчим түүнээс бага температуртай. Дээд ургамалгүй, хаг, хөвд ургана, үргэлжилсэн цэвдэгтэй, дунджаар 5-30 мм орчим тунадас унадаг."],"sol":"Жакарта экваторын бүсэд: улирлын ялгаагүй, +25…+30°C, 2000 мм-ээс их тунадас.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":2},{"n":"37","q":"Монгол Улс Парисын хэлэлцээрийг УИХ-аар хэлэлцэн 2016 онд соёрхон баталсан. Хүлэмжийн хийн ялгаруулалтаа бууруулахад хувь нэмрээ оруулах зорилгоор хийж буй үндсэн үйл ажиллагааг сонгоно уу.","o":["Бэлчээрийн даацыг нэмэгдүүлэх","Ойн санг багасгах","Ногоон байгууламжийг нэмэгдүүлэх","Нүүрсхүчлийн хийг ихэсгэх","Гадаргын усыг бохирдуулах"],"sol":"Ногоон байгууламж CO₂ шингээж хүлэмжийн хийг бууруулна.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":[],"optImg":[],"a":2,"p":2},{"n":"38","q":"Хүн ам нь ундны усны хомсдолд орсон Африк тивийн улсуудыг олно уу.","o":["Мозамбик, Колумб, Египет","Сомали, Чад, Нигери","Нигер, Судан, Афганистан","Этиоп, Конго, Албани","Ангол, Кени, Иордан"],"sol":"Сомали, Чад, Нигери — гурвуулаа Африкт, ундны усны хангамж бага.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A38_0.jpg"],"optImg":[],"a":1,"p":2},{"n":"39","q":"Өмнөд Америкийн хавтан, Африкийн хавтангаас 1 жилд 4 см-ээр холдон салдаг бол 1 сая жилийн дараа хэдэн км-ийн зайтай холдохыг тооцоолно уу.","o":["4000 км","4 км","400 км","40 км","0.4 км"],"sol":"4 см × 1 000 000 жил = 4 000 000 см = 40 км.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":2},{"n":"40","q":"АНУ-ын Вашингтон хотод амьдардаг ахындаа урилгаар зочилсон Дулмаад өнөөдөр агаарын температур 95°F гэдгийг цельсийн хуваариар хэд гэж ойлгуулах вэ? t°C=5/9(t°F-32)","o":["30°С","32°С","36°С","34°С","35°С"],"sol":"t°C = 5/9 × (95 − 32) = 35°C.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":4,"p":2},{"n":"41","q":"Хуурай газар ба усны харилцан адилгүй халж, хөрдөг зүй тогтлоос болж өдөр, шөнөөр чиглэлээ өөрчилдөг орон нутгийн салхины өдрийн чиглэлийг тодорхойлно уу.","o":["Нуураас эрэг рүү чиглэнэ","Эргээс нуур луу чиглэнэ","Далайгаас эх газар луу чиглэнэ","Эх газраас далай руу чиглэнэ","Мэлхийн замаас экватор луу чиглэнэ"],"sol":"Өдөр хуурай газар хурдан халж даралт буурна → салхи далайгаас эх газар луу чиглэнэ (сэвшээ салхи).","topic":"Дэлхий бидний орон гэр","img":["img/2022/A41_0.jpg"],"optImg":[],"a":2,"p":2},{"n":"42","q":"Орхон гол Хангай нурууны Суваргахайрхан уул (д.т.д 3021 м) -аас эх авч 1124 км урсаад Сэлэнгэ мөрөн (д.т.д 601 м) -д цутгадаг бол голын уналыг тооцоолно уу. (H = H₁ − H₂)","o":["3622 м","1897 м","1725 м","2420 м","4145 м"],"sol":"H = H₁ − H₂ = 3021 − 601 = 2420 м.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":3,"p":2},{"n":"43","q":"Хээрийн бүсэд хүнсний ногоо тариалахад хамгийн тохиромжтой хөрсийг сонгоно уу.","o":["Цайвар саарал, Карбонат, шохой, давс их, 0.2-0.5% ялзмагт хөрс","Улаан хүрэн, Төмөр, хөнгөн цагааны исэл их, 3-5% ялзмагт хөрс","Хүрэн, Кальци, магниар баялаг, 5-7% ялзмагт хөрс","Цайвар бор, Сульфат, натриар баялаг, 2-3% ялзмагт хөрс","Саарал, Цахиур, шүлтийн агууламж их, 1.5 – 2% ялзмагт хөрс"],"sol":"Хүрэн хөрс (5–7% ялзмаг, кальци, магни) — хээрийн бүсэд ногоо тариалахад тохиромжтой.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":2,"p":2},{"n":"44","q":"...... гараг нарнаас 58 сая км зайд алслагдсан байдаг. Энэ зайг одон орны нэгжээр илэрхийлнэ үү.","o":["Дэлхий, 92 o.o.н","Буд, 0.39 о.о.н","Сугар, 39 о.о.н","Буд, 2.58 о.о.н","Дэлхий, 1.00 о.о.н"],"sol":"58 сая км ÷ 150 сая км ≈ 0.39 о.о.н — Буд гараг.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":1,"p":2},{"n":"45","q":"Дунд зэргийн хөгжилтэй орнуудын хүн ам, бараа бүтээгдэхүүн, худалдааны хувь хэмжээг тодорхойлно уу.","o":["Хүн ам 95%, Бараа бүтээгдэхүүн 68.4%, Худалдаа 81%","Хүн ам 5%, Бараа бүтээгдэхүүн 25.6%, Худалдаа 21%","Хүн ам 65%, Бараа бүтээгдэхүүн 31.6%, Худалдаа 19%","Хүн ам 5%, Бараа бүтээгдэхүүн 31.6%, Худалдаа 19%","Хүн ам 5%, Бараа бүтээгдэхүүн 68.4%, Худалдаа 19%"],"sol":"Хүн ам 100 − 15 − 80 = 5%; бараа 100 − 47 − 21.4 = 31.6%; худалдаа 100 − 51 − 30 = 19%.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A45_0.jpg"],"optImg":[],"a":3,"p":2},{"n":"46","q":"Графикийг ашиглан сүүлийн 20 жилд хөдөөгийн хүн ам хэдэн хувиар буурах хандлагатай байгааг тооцоолно уу.","o":["89.3%","49.2%","40.1%","11.8%","9.1%"],"sol":"Хөдөөгийн хүн ам 2010 онд 49.2%, 2030 онд 40.1% → 49.2 − 40.1 = 9.1%.","topic":"Хүн ам ба суурьшил","img":["img/2022/A46_0.jpg"],"optImg":[],"a":4,"p":2},{"n":"47","q":"Дэлхийн уур амьсгалын зарим бүсүүдийн онцлогоос хамаарсан эрхлэх аж ахуйг харгалзуулна уу.","o":["1Вб, 2Ав, 3Ба","1Аб, 2Бв, 3Ва","1Бв, 2Ва, 3Бб","1Ва, 2Вв, 3Аб","1Бв, 2Вб, 3Ба"],"sol":"Экваторын — жилийн турш халуун чийглэг, кофе (1Вб); Газар дундын тэнгисийн — усан үзэм (2Ав); Эх газрын — өвөл хүйтэн, алим (3Ба).","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A47_0.jpg"],"optImg":[],"a":0,"p":2},{"n":"48","q":"Дэлхий дээрх хоёр цэгийн хоорондох хамгийн богино буюу дөт агаарын зам нь дэлхийн бөмбөрцгийн их тойргийн нумын дагуу тодорхойлогдоно. Токио хотоос Нью-Йорк хот руу шууд нислэг хийхэд аль зүг рүү хөөрвөл илүү дөт зам байх вэ?","o":["Баруун өмнөд зүг рүү","Баруун хойд зүг рүү","Зүүн өмнөд зүг рүү","Зүүн хойд зүг рүү","Баруун зүг рүү"],"sol":"Их тойргийн нум хойд туйл руу муруйдаг тул Токиогоос зүүн хойд зүг рүү хөөрнө.","topic":"Гео орон зайн дүрслэл","img":["img/2022/A48_0.jpg"],"optImg":[],"a":3,"p":2},{"n":"49","q":"Гималай нурууны өвөрт орших Черрапунжид жилд 12000 мм тунадас унах бөгөөд уурших чадвар нь 1550 бол чийглэг байдлыг тооцоолно уу. (K=r/E. r-тунадасны нийлбэр, E-уурших чадвар)","o":["0.1","0.7","7.7","0.8","1.3"],"sol":"K = r / E = 12000 / 1550 ≈ 7.7.","topic":"Дэлхий бидний орон гэр","img":[],"optImg":[],"a":2,"p":2},{"n":"50","q":"Монгол орны гадаргын усны нөөц хамгийн ихтэй аймаг болон хамаарах гол мөрдийн ай савыг зөв тодорхойлсон хариултыг сонгоно уу.","o":["Завхан-Номхон далайн ай сав","Хөвсгөл-Хойд мөсөн далайн ай сав","Баянхонгор-Төв Азийн гадагш урсгалгүй ай сав","Дорнод-Номхон далайн ай сав","Архангай-Хойд мөсөн далайн ай сав"],"sol":"Хөвсгөл аймаг (Мөрөн) 4000 сая м³-ээс их — Хойд мөсөн далайн ай сав.","topic":"Байгаль нийгмийн хамаарал, бүс нутаг","img":["img/2022/A50_0.jpg"],"optImg":[],"a":1,"p":2},{"n":"2.1","q":"БУ45° дээр орших А хотод ням гарагийн 21 цаг болж байв. Тэгвэл ЗУ90° дээр орших Б хотод ямар гарагийн хэдэн цаг болж байхыг тооцоолно уу.","o":[],"sol":"БУ45° ба ЗУ90°-ын зөрүү 135° = 9 цаг. Зүүн тийш цаг урагшилна: 21 + 9 = 30 → маргааш 06 цаг, Даваа гараг.","topic":"Гео орон зайн дүрслэл","img":["img/2022/A2_1_0.jpg"],"optImg":[],"slots":[{"k":"a","a":"6","p":4},{"k":"b","a":"2","p":2}]},{"n":"2.2","q":"Графикийг ажиглан дараах асуултад хариулна уу.","o":[],"sol":"(51 500 − 47 900) ÷ 10 = 360 хүн/жил. Жилийн дундаж өсөлт 2010–2015 онд хамгийн их (9000 ÷ 5 = 1800).","topic":"Хүн ам ба суурьшил","img":["img/2022/A2_2_0.jpg"],"optImg":[],"slots":[{"k":"abc","a":"360","p":3},{"k":"d","a":"2","p":3}]},{"n":"2.3","q":"Сүхбаатар аймгийн Дарьганга сумын нутагт орших Шилийн Богд (д.т.д 1778 м) уулын бэлд (д.т.д 1278 м) агаарын температур +20°С байх үед уулын оройд хэдэн хэм байх вэ?","o":[],"sol":"Харьцангуй өндөр 1778 − 1278 = 500 м; 500 м × 0.6°C/100 м = 3°C; 20 − 3 = 17°C. 500 м харьцангуй өндөртэй тул нам уул.","topic":"Дэлхий бидний орон гэр","img":["img/2022/A2_3_0.jpg"],"optImg":[],"slots":[{"k":"ab","a":"17","p":2},{"k":"cde","a":"500","p":2},{"k":"f","a":"3","p":2}]},{"n":"2.4","q":"Далай, тэнгисийн тухай ойлголтуудыг зөв хариутай нь харгалзуулна уу. [a], [b], [c], [d], [e], [f]","o":[],"sol":"a — Татралт (3), b — Беринг (6), c — Давсжилт (1), d — Гольфстрим (2), e — Тасман (4), f — Гвиней (5).","topic":"Дэлхий бидний орон гэр","img":["img/2022/A2_4_0.jpg"],"optImg":[],"slots":[{"k":"a","a":"3","p":1},{"k":"b","a":"6","p":1},{"k":"c","a":"1","p":1},{"k":"d","a":"2","p":1},{"k":"e","a":"4","p":1},{"k":"f","a":"5","p":1}]}],"cfg":{"Үнэ":"50 000₮ / 1 жил","Банк":"Банкны нэр","Данс":"0000000000","Данс эзэмшигч":"Б.Ванчигдорж","Гүйлгээний утга":"Бүртгүүлсэн майл хаягаа бичнэ үү","Холбоо барих":"Утас эсвэл майл"}};
 
-async function api(params) { const r = await fetch(SCRIPT_URL + "?" + new URLSearchParams(params)); return r.json(); }
-async function post(data) { const r = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) }); return r.json(); }
+async function api(params) { if (USE_FB) return (await FB).call(params); const r = await fetch(SCRIPT_URL + "?" + new URLSearchParams(params)); return r.json(); }
+async function post(data) { if (USE_FB) return (await FB).call(data); const r = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) }); return r.json(); }
+if (USE_FB) {
+  FB.then(f => { user = f.user; token = user ? user.uid : null; renderAcct(); });
+  window.__onAuth = async u => { user = u; token = u ? u.uid : null; st.set("ge-tests", null); renderAcct(); await loadTests(); if (!$("ov").hidden) openAcct(false); };
+}
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 
 /* ---------- account chip ---------- */
 function renderAcct() {
   $("acI").textContent = user ? (user.name || user.email).charAt(0).toUpperCase() : "?";
   $("acN").textContent = user ? (user.name || user.email) : "Нэвтрэх";
-  $("acS").hidden = !user; if (user) { $("acS").textContent = user.paid ? "Төлбөртэй" : "Үнэгүй"; $("acS").classList.toggle("paid", user.paid); }
+  $("acS").hidden = !user; if (user) { $("acS").textContent = user.teacher ? "Багш" : user.paid ? "Төлбөртэй" : "Үнэгүй"; $("acS").classList.toggle("paid", !!(user.paid || user.teacher)); }
 }
 
 /* ---------- catalogue ---------- */
@@ -517,7 +540,8 @@ async function loadTests() {
   try {
     const [r, c] = await Promise.all([api({ action: "tests", token: token || "" }), Object.keys(cfg).length ? null : api({ action: "config" })]);
     if (c && c.ok) cfg = c.config;
-    tests = r.tests || []; topics = r.topics || []; user = r.user; if (!user && token) { token = null; st.set("ge-token", null); }
+    if (!r.ok && r.error) throw new Error(r.error);
+    tests = r.tests || []; topics = r.topics || []; user = r.user; if (USE_FB) token = user ? user.uid : null; else if (!user && token) { token = null; st.set("ge-token", null); }
     st.set("ge-tests", JSON.stringify({ tests, topics, cfg }));
     renderAcct(); renderPane();
   } catch (e) { if (cached && cached.tests) return; $("pane").innerHTML = '<p class="empty">Ачаалж чадсангүй. Интернэтээ шалгаад хуудсаа дахин ачаална уу.</p>'; }
@@ -1060,6 +1084,11 @@ function payHTML() {
 function openAcct(wantPay) {
   $("ov").hidden = false;
   ["f1", "f2", "f3"].forEach(id => $(id).hidden = true);
+  if (!user && USE_FB) {
+    $("f1").hidden = false; $("f1").classList.add("gmode"); $("e1").textContent = "";
+    $("f1").querySelector("p").textContent = wantPay ? "Төлбөртэй тестүүдийг нээхийн тулд эхлээд Google акаунтаараа нэвтэрнэ үү. Үүний дараа төлбөрийн мэдээлэл гарна." : "Google акаунтаараа нэг товчоор нэвтэрнэ. Шинэ хэрэглэгч автоматаар бүртгэгдэнэ.";
+    return;
+  }
   if (!user) {
     $("f1").hidden = false; $("e1").textContent = ONLINE ? "" : "Жишээ горимд нэвтрэх боломжгүй.";
     $("f1").querySelector("p").textContent = wantPay ? "Төлбөртэй хувилбаруудыг нээхийн тулд эхлээд майлаараа бүртгүүлнэ үү. Үүний дараа төлбөрийн мэдээлэл гарна." : "Майл хаягаа оруулахад нэвтрэх код илгээнэ. Шинэ хэрэглэгч автоматаар бүртгэгдэнэ.";
@@ -1070,6 +1099,7 @@ function openAcct(wantPay) {
     $("uStatus").className = "status" + (user.paid ? " paid" : "");
     $("uStatus").textContent = user.paid ? "Төлбөртэй хэрэглэгч · бүх тест · " + user.until + " хүртэл" : "Үнэгүй хэрэглэгч · зөвхөн үнэгүй тестүүд";
     $("payBox").innerHTML = ""; if (!user.paid) $("payBox").append(payHTML());
+    if (USE_FB && user.teacher) $("payBox").append(adminPanel());
   }
 }
 function closeAcct() { $("ov").hidden = true; const extra = $("f1").querySelector(".pay"); if (extra) extra.remove(); }
@@ -1094,11 +1124,309 @@ $("f2").addEventListener("submit", async e => {
   $("b2").disabled = false;
 });
 $("again1").onclick = () => { $("f2").hidden = true; $("f1").hidden = false; };
-$("logout").onclick = () => { token = null; user = null; st.set("ge-token", null); renderAcct(); closeAcct(); loadTests(); };
+$("logout").onclick = async () => { if (USE_FB) { closeAcct(); (await FB).signOut(); return; } token = null; user = null; st.set("ge-token", null); renderAcct(); closeAcct(); loadTests(); };
+if (USE_FB) $("gSign").onclick = async () => {
+  $("e1").textContent = ""; $("gSign").disabled = true;
+  const r = await (await FB).signIn(); $("gSign").disabled = false;
+  if (!r.ok && r.error !== "cancel") $("e1").textContent = r.error === "auth/unauthorized-domain" ? "Энэ хаягаас нэвтрэх зөвшөөрөлгүй байна (Firebase → Authorized domains)." : "Нэвтэрч чадсангүй. Дахин оролдоно уу. (" + r.error + ")";
+};
+/* ---------- Багшийн самбар (Firebase) ---------- */
+function adminPanel() {
+  const w = el("div", "adm"); w.append(el("h4", "", "Багшийн самбар"));
+  // 1. Эрх олгох
+  const g = el("div", "admb"); g.append(el("b", "", "Төлбөртэй эрх олгох"));
+  const em = Object.assign(el("input"), { type: "email", placeholder: "сурагчийн Google майл", id: "admEmail" });
+  const mo = el("select"); mo.id = "admMonths"; [["1", "1 сар"], ["3", "3 сар"], ["6", "6 сар"], ["12", "1 жил"], ["0", "Эрхийг цуцлах"]].forEach(([v, t]) => { const o = el("option", "", t); o.value = v; if (v === "12") o.selected = true; mo.append(o); });
+  const gb = el("button", "btn", "Хадгалах"); gb.type = "button"; const gm = el("p", "lbn");
+  const list = el("div", "admlist");
+  const loadList = async () => { const r = await api({ action: "grants" }); list.innerHTML = ""; if (!r.ok) return;
+    if (!r.list.length) list.append(el("p", "lbn", "Одоогоор эрхтэй хэрэглэгч алга."));
+    r.list.forEach(x => { const d = el("div", "admrow" + (x.active ? "" : " off")); d.append(el("span", "", x.email), el("small", "", x.until + (x.active ? "" : " · дууссан"))); list.append(d); }); };
+  gb.onclick = async () => { gb.disabled = true; gm.textContent = "Хадгалж байна…"; const r = await api({ action: "grant", email: em.value, months: mo.value }); gb.disabled = false;
+    gm.textContent = r.ok ? (r.until ? r.email + " · " + r.until + " хүртэл эрхтэй боллоо" : r.email + " · эрх цуцлагдлаа") : (r.error === "email" ? "Майл хаяг буруу байна." : "Алдаа гарлаа."); if (r.ok) { em.value = ""; loadList(); } };
+  const row = el("div", "admrowf"); row.append(em, mo, gb); g.append(row, gm, list); w.append(g); loadList();
+  // 2. Төлбөрийн мэдээлэл
+  const c = el("div", "admb"); c.append(el("b", "", "Төлбөрийн мэдээлэл"));
+  const F = [["price", "Үнэ"], ["bank", "Банк"], ["account", "Данс"], ["holder", "Данс эзэмшигч"], ["note", "Гүйлгээний утга"], ["contact", "Холбоо барих"]], ins = {};
+  F.forEach(([k, lab]) => { const l = el("label", "fld"); l.append(el("span", "", lab)); const i = el("input"); i.id = "cfg_" + k; i.value = cfg[lab] || ""; ins[k] = i; l.append(i); c.append(l); });
+  const cb = el("button", "btn ghost", "Хадгалах"); cb.type = "button"; const cm = el("p", "lbn");
+  cb.onclick = async () => { const p = { action: "saveConfig" }; Object.keys(ins).forEach(k => p[k] = ins[k].value.trim()); const r = await api(p); cm.textContent = r.ok ? "Хадгаллаа." : "Алдаа гарлаа."; if (r.ok) { F.forEach(([k, lab]) => cfg[lab] = ins[k].value.trim()); } };
+  c.append(cb, cm); w.append(c);
+  // 3. Өгөгдөл оруулах
+  const s = el("div", "admb"); s.append(el("b", "", "Тест, даалгавар оруулах (seed.json)"), el("p", "lbn", "Шинэ тест нэмэх эсвэл засах бүрт Claude-оос авсан seed.json файлыг энд сонгоно. Байгаа тестүүд шинэчлэгдэнэ."));
+  const fi = el("input"); fi.type = "file"; fi.accept = ".json,application/json"; fi.id = "seedFile"; const sm = el("p", "lbn");
+  fi.onchange = async () => { const f = fi.files[0]; if (!f) return; sm.textContent = "Уншиж байна…";
+    let seed; try { seed = JSON.parse(await f.text()); } catch (e) { sm.textContent = "Файл буруу байна."; return; }
+    const r = await (await FB).call({ action: "importSeed", seed, progress: (a, b) => sm.textContent = "Оруулж байна… " + a + " / " + b + " тест" });
+    sm.textContent = r.ok ? "Боллоо: " + r.tests + " тест, " + r.questions + " даалгавар орлоо." : "Алдаа гарлаа (" + r.error + ")."; if (r.ok) { st.set("ge-tests", null); loadTests(); } };
+  s.append(fi, sm); w.append(s);
+  return w;
+}
 function alertBox(m) { const p = el("p", "empty", m); $("pane").prepend(p); }
 
 document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === tab));
 renderAcct(); loadTests();
+</script>
+<script type="module">
+/* ===== GeoExam · Firebase backend =====
+   Apps Script-ийн api()/post() хариуг ижил хэлбэрээр Firestore-оос гаргана. */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, query, where, orderBy, limit, getCountFromServer, runTransaction, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyCqKbolRnDJKYeM2kJHVmx9haGUwuN0wL4",
+  authDomain: "geoexam.firebaseapp.com",
+  projectId: "geoexam",
+  storageBucket: "geoexam.firebasestorage.app",
+  messagingSenderId: "460640369424",
+  appId: "1:460640369424:web:5b3bf4bb49fd19782b0395"
+});
+const auth = getAuth(app), db = getFirestore(app);
+const D = (...p) => doc(db, ...p), C = (...p) => collection(db, ...p);
+const low = s => String(s || "").trim().toLowerCase();
+const ADMINS = ["vanchig8989@gmail.com"];   // багшийн (админ) Google майл
+
+/* ---- туслах ---- */
+const TOPIC_CATS = ["ЭЕШ", "9-р анги", "10-р анги", "11-р анги", "Сонгон"];
+const catOfGroup = g => { g = g || ""; for (let i = 1; i < TOPIC_CATS.length; i++) if (g.indexOf(TOPIC_CATS[i]) === 0) return TOPIC_CATS[i]; return "ЭЕШ"; };
+const ownCat = g => { g = String(g || "").toUpperCase(); return g.indexOf("IGEO") === 0 ? "IGEO" : g.indexOf("УЛСЫН ОЛИМПИАД") === 0 ? "Улсын олимпиад" : "Шинэ"; };
+const secOf = t => catOfGroup(t.group) !== "ЭЕШ" ? "topic" : /^ЭЕШ/.test(t.group || "") ? "var" : "own";
+const nv = v => String(v == null ? "" : v).replace(/\s+/g, "").replace(",", ".");
+const maxP = q => q.slots ? q.slots.reduce((s, x) => s + x.p, 0) : (q.p || 1);
+const grade = (q, a) => q.slots ? q.slots.reduce((s, x) => s + (a && nv(a[x.k]) !== "" && nv(a[x.k]) === nv(x.a) ? x.p : 0), 0) : (a === q.a ? (q.p || 1) : 0);
+const toD = v => v && v.toDate ? v.toDate() : new Date(v);
+const ymd = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const CFG_KEYS = { price: "Үнэ", bank: "Банк", account: "Данс", holder: "Данс эзэмшигч", note: "Гүйлгээний утга", contact: "Холбоо барих" };
+
+let ME = null, CONF = null, TESTS = null, QCACHE = {};
+async function conf() { if (!CONF) { const s = await getDoc(D("config", "app")); CONF = s.exists() ? s.data() : {}; } return CONF; }
+async function meInfo() {
+  const u = auth.currentUser; if (!u) return null;
+  if (ME && ME.uid === u.uid) return ME;
+  const email = low(u.email), c = await conf();
+  let until = null; try { const g = await getDoc(D("grants", email)); if (g.exists() && g.data().until) until = toD(g.data().until); } catch (e) {}
+  const paid = !!until && until.getTime() > Date.now();
+  ME = { uid: u.uid, email, name: u.displayName || email.split("@")[0], paid, status: paid ? "Төлсөн" : "Хүлээгдэж буй", until: until ? ymd(until) : "", teacher: ADMINS.concat(c.admins || []).map(low).indexOf(email) >= 0 };
+  setDoc(D("users", u.uid), { name: ME.name, email, seen: Timestamp.now() }, { merge: true }).catch(() => {});
+  return ME;
+}
+async function allTests(force) {
+  if (!TESTS || force) { const s = await getDocs(C("tests")); TESTS = s.docs.map(d => Object.assign({ id: d.id }, d.data())).sort((a, b) => (a.order || 0) - (b.order || 0) || (a.id < b.id ? -1 : 1)); }
+  return TESTS;
+}
+async function qsOf(id) { if (!QCACHE[id]) { const s = await getDoc(D("qs", id)); QCACHE[id] = s.exists() ? (s.data().q || []) : []; } return QCACHE[id]; }
+
+/* ---- үйлдлүүд ---- */
+const H = {};
+H.config = async () => { const c = await conf(), o = {}; Object.keys(CFG_KEYS).forEach(k => { if (c[k]) o[CFG_KEYS[k]] = c[k]; }); return { ok: true, config: o }; };
+H.me = async () => { const m = await meInfo(); return m ? { ok: true, user: m } : { ok: false, error: "auth" }; };
+H.tests = async () => {
+  const [m, L] = await Promise.all([meInfo(), allTests(true)]);
+  const paid = !!(m && (m.paid || m.teacher)), topics = {};
+  const tests = L.map(t => {
+    const locked = !t.free && !paid;
+    const cat = catOfGroup(t.group);
+    Object.keys(t.topics || {}).forEach(tp => { const n = t.topics[tp], k = cat + "|" + tp;
+      const x = topics[k] || (topics[k] = { name: tp, cat, total: 0, open: 0, free: 0 }); x.total += n; if (!locked) x.open += n; if (t.free) x.free += n; });
+    return { id: t.id, name: t.name, free: !!t.free, minutes: t.minutes || 0, desc: t.desc || "", group: t.group || "Бусад", count: t.count || 0, locked, cat };
+  });
+  return { ok: true, tests, topics: Object.values(topics), user: m };
+};
+H.test = async p => {
+  const L = (await H.tests()).tests, t = L.find(x => x.id === String(p.id));
+  if (!t) return { ok: false, error: "not_found" };
+  if (t.locked) return { ok: false, error: "locked" };
+  return { ok: true, test: t, questions: await qsOf(t.id) };
+};
+H.topic = async p => {
+  const L = (await H.tests()).tests, raw = await allTests(), qs = [];
+  const use = L.filter(t => !t.locked && (!p.cat || t.cat === p.cat) && ((raw.find(r => r.id === t.id) || {}).topics || {})[p.name]);
+  const lists = await Promise.all(use.map(t => qsOf(t.id)));
+  use.forEach((t, i) => lists[i].forEach(q => { if (q.topic === p.name) qs.push(Object.assign({ from: t.name }, q)); }));
+  return { ok: true, topic: p.name, questions: qs };
+};
+
+/* дүн → шилдэг сурагчдын самбар */
+function periods(d) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
+  const w = Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7);
+  return { all: "all", month: "m" + d.getFullYear() + "-" + (d.getMonth() + 1), week: "w" + t.getUTCFullYear() + "-" + w };
+}
+H.result = async p => {
+  const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
+  const total = Math.max(0, Math.min(+p.total || 0, 500)), score = Math.max(0, Math.min(+p.score || 0, total)); if (!total) return { ok: true };
+  const tid = String(p.testId || ""); let sec, cat = "", key = tid;
+  const mm = /^(?:Сэдвийн шалгалт|Сэдэв): (.*)$/.exec(tid);
+  if (mm) { sec = "topic"; const i = mm[1].indexOf(" · "); cat = i > 0 && TOPIC_CATS.indexOf(mm[1].slice(0, i)) >= 0 ? mm[1].slice(0, i) : "ЭЕШ"; key = cat + "|" + (i > 0 && cat === mm[1].slice(0, i) ? mm[1].slice(i + 3) : mm[1]); }
+  else { const t = (await allTests()).find(x => x.id === tid); if (!t) return { ok: true }; sec = secOf(t); cat = sec === "own" ? ownCat(t.group) : sec === "topic" ? catOfGroup(t.group) : ""; }
+  const board = sec + "|" + cat, P = periods(new Date());
+  await Promise.all(Object.values(P).map(per => runTransaction(db, async tx => {
+    const ref = D("boards", board, per, m.uid), s = await tx.get(ref), d = s.exists() ? s.data() : { best: {} };
+    const b = d.best || {}, old = b[key]; if (old && old.s / old.t >= score / total) return;
+    b[key] = { s: score, t: total }; let S = 0, T = 0; Object.values(b).forEach(x => { S += x.s; T += x.t; });
+    tx.set(ref, { name: m.name, best: b, score: S, total: T, tests: Object.keys(b).length, pct: T ? Math.round(S / T * 100) : 0, at: Timestamp.now() });
+  }).catch(() => {})));
+  return { ok: true };
+};
+H.leaderboard = async p => {
+  const board = (p.sec || "var") + "|" + (p.cat || ""), per = periods(new Date())[p.period || "all"] || "all";
+  const col = C("boards", board, per);
+  const s = await getDocs(query(col, orderBy("score", "desc"), limit(20)));
+  const uid = auth.currentUser && auth.currentUser.uid;
+  let rank = 0, prev = null;
+  const list = s.docs.map((d, i) => { const x = d.data(); if (!prev || x.score !== prev.score || x.pct !== prev.pct) rank = i + 1; prev = x;
+    return { rank, name: x.name || "Сурагч", score: x.score, total: x.total, tests: x.tests, pct: x.pct, me: d.id === uid }; });
+  let me = null, count = list.length;
+  try { count = (await getCountFromServer(col)).data().count; } catch (e) {}
+  if (uid && !list.some(x => x.me)) { const md = await getDoc(D("boards", board, per, uid)); if (md.exists()) { const x = md.data();
+    const above = (await getCountFromServer(query(col, where("score", ">", x.score)))).data().count; me = { rank: above + 1, name: x.name, score: x.score, total: x.total, tests: x.tests, pct: x.pct, me: true }; } }
+  else me = list.find(x => x.me) || null;
+  return { ok: true, list, me, count };
+};
+
+/* ---- тэмцээн ---- */
+const stat = c => { const now = Date.now(); return now < toD(c.start).getTime() ? "upcoming" : now <= toD(c.end).getTime() ? "open" : "done"; };
+const pubC = (code, c) => ({ code, name: c.name, start: toD(c.start).toISOString(), end: toD(c.end).toISOString(), minutes: c.minutes || 0, count: c.count || 0, desc: c.desc || "", status: stat(c) });
+async function ranking(code, key) {
+  const s = await getDocs(C("contests", code, "subs")), Q = key.qs || [];
+  const list = s.docs.map(d => { const x = d.data(); let A = []; try { A = JSON.parse(x.answers || "[]"); } catch (e) {}
+    let sc = 0, tot = 0; Q.forEach((q, i) => { tot += maxP(q); sc += grade(q, A[i]); });
+    return { name: x.name || x.email, email: x.email, score: sc, total: tot, secs: x.secs || 0, uid: d.id, answers: A }; });
+  list.sort((a, b) => b.score - a.score || a.secs - b.secs); list.forEach((x, i) => x.rank = i + 1);
+  return list;
+}
+H.contest = async p => {
+  const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
+  const code = String(p.code || "").trim(), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
+  const c = cs.data(), pc = pubC(code, c), sub = await getDoc(D("contests", code, "subs", m.uid));
+  const out = { ok: true, contest: pc, submitted: sub.exists() };
+  if (pc.status === "open" && !sub.exists()) out.questions = ((await getDoc(D("contestQs", code))).data() || {}).qs || [];
+  if (pc.status === "done") {
+    const key = (await getDoc(D("contestKeys", code))).data() || {}, R = await ranking(code, key);
+    out.ranking = R.map(x => ({ rank: x.rank, name: x.name, email: x.email, score: x.score, total: x.total, secs: x.secs }));
+    const mine = R.find(x => x.uid === m.uid);
+    if (mine) { out.questions = key.qs || []; out.answers = mine.answers; out.my = { score: mine.score, total: mine.total, secs: mine.secs }; }
+  }
+  return out;
+};
+H.contestSubmit = async p => {
+  const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
+  const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
+  const c = cs.data(), now = Date.now();
+  if (now < toD(c.start).getTime()) return { ok: false, error: "not_started" };
+  if (now > toD(c.end).getTime() + 3 * 60e3) return { ok: false, error: "closed" };
+  const ref = D("contests", code, "subs", m.uid);
+  if ((await getDoc(ref)).exists()) return { ok: false, error: "already" };
+  const secs = Math.max(0, Math.min(+p.secs || 0, (c.minutes || 600) * 60 + 60));
+  try { await setDoc(ref, { name: m.name, email: m.email, answers: JSON.stringify(p.answers || []).slice(0, 45000), secs, at: Timestamp.now() }); }
+  catch (e) { return { ok: false, error: "closed" }; }
+  setDoc(D("users", m.uid, "joined", code), { at: Timestamp.now() }).catch(() => {});
+  return { ok: true, end: pc_end(c) };
+};
+const pc_end = c => toD(c.end).toISOString();
+H.contestMy = async () => {
+  const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
+  const j = await getDocs(C("users", m.uid, "joined")), out = [];
+  for (const d of j.docs) { const cs = await getDoc(D("contests", d.id)); if (!cs.exists()) continue; const pc = pubC(d.id, cs.data());
+    if (pc.status === "done") { try { const key = (await getDoc(D("contestKeys", d.id))).data() || {}, sub = (await getDoc(D("contests", d.id, "subs", m.uid))).data() || {};
+      let A = []; try { A = JSON.parse(sub.answers || "[]"); } catch (e) {} let sc = 0, tot = 0; (key.qs || []).forEach((q, i) => { tot += maxP(q); sc += grade(q, A[i]); }); pc.score = sc; pc.total = tot; } catch (e) {} }
+    out.push(pc); }
+  out.sort((a, b) => a.start < b.start ? 1 : -1);
+  return { ok: true, contests: out };
+};
+H.contestBank = async () => {
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const L = await allTests(), qs = [];
+  const lists = await Promise.all(L.map(t => qsOf(t.id)));
+  L.forEach((t, i) => lists[i].forEach(q => qs.push({ id: t.id + "#" + q.n, test: t.id, n: q.n, q: String(q.q).slice(0, 140), topic: q.topic, p: maxP(q), fill: !!q.slots, img: (q.img || []).length + (q.optImg || []).length > 0 })));
+  return { ok: true, tests: L.map(t => ({ id: t.id, name: t.name, group: t.group })), questions: qs };
+};
+H.contestCreate = async p => {
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const ids = (Array.isArray(p.ids) ? p.ids : []).map(String).slice(0, 200), start = new Date(p.start), end = new Date(p.end);
+  if (!ids.length) return { ok: false, error: "no_q" };
+  if (isNaN(start) || isNaN(end) || end <= start) return { ok: false, error: "time" };
+  const full = [];
+  for (const id of ids) { const [tid, n] = id.split("#"); const q = (await qsOf(tid)).find(x => String(x.n) === n); if (q) full.push(Object.assign({ id }, q)); }
+  const pub = full.map(q => { const o = Object.assign({}, q); delete o.a; delete o.sol; if (o.slots) o.slots = o.slots.map(s => ({ k: s.k, p: s.p })); return o; });
+  let code; do { code = String(Math.floor(100000 + Math.random() * 900000)); } while ((await getDoc(D("contests", code))).exists());
+  const b = writeBatch(db);
+  b.set(D("contests", code), { name: String(p.name || "Тэмцээн").slice(0, 80), desc: String(p.desc || "").slice(0, 200), start: Timestamp.fromDate(start), end: Timestamp.fromDate(end), minutes: Math.max(0, Math.min(+p.minutes || 0, 600)), count: full.length, owner: m.email, created: Timestamp.now() });
+  b.set(D("contestQs", code), { qs: pub }); b.set(D("contestKeys", code), { qs: full });
+  await b.commit();
+  return { ok: true, code };
+};
+H.contestMine = async () => {
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const s = await getDocs(query(C("contests"), where("owner", "==", m.email))), out = [];
+  for (const d of s.docs) { const pc = pubC(d.id, d.data()); try { pc.players = (await getCountFromServer(C("contests", d.id, "subs"))).data().count; } catch (e) { pc.players = 0; } out.push(pc); }
+  out.sort((a, b) => a.start < b.start ? 1 : -1);
+  return { ok: true, contests: out };
+};
+H.contestResults = async p => {
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
+  const key = (await getDoc(D("contestKeys", code))).data() || {}, R = await ranking(code, key);
+  return { ok: true, contest: pubC(code, cs.data()), ranking: R.map(x => ({ rank: x.rank, name: x.name, email: x.email, score: x.score, total: x.total, secs: x.secs })) };
+};
+
+/* ---- багшийн хэрэгслүүд ---- */
+H.grant = async p => {   // эрх олгох / цуцлах: {email, months}
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const e = low(p.email); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return { ok: false, error: "email" };
+  if (+p.months <= 0) { await deleteDoc(D("grants", e)); return { ok: true, email: e, until: "" }; }
+  const old = await getDoc(D("grants", e)); let base = Date.now();
+  if (old.exists() && old.data().until && toD(old.data().until).getTime() > base) base = toD(old.data().until).getTime();
+  const u = new Date(base); u.setMonth(u.getMonth() + (+p.months));
+  await setDoc(D("grants", e), { until: Timestamp.fromDate(u), by: m.email, at: Timestamp.now() });
+  return { ok: true, email: e, until: ymd(u) };
+};
+H.grants = async () => {
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const s = await getDocs(C("grants"));
+  return { ok: true, list: s.docs.map(d => ({ email: d.id, until: d.data().until ? ymd(toD(d.data().until)) : "", active: d.data().until && toD(d.data().until).getTime() > Date.now() })).sort((a, b) => a.until < b.until ? 1 : -1) };
+};
+H.saveConfig = async p => {
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const o = {}; Object.keys(CFG_KEYS).forEach(k => { if (p[k] != null) o[k] = String(p[k]).slice(0, 200); });
+  await setDoc(D("config", "app"), o, { merge: true }); CONF = null; return { ok: true };
+};
+H.importSeed = async p => {   // seed.json: {tests:[{id,...,q:[...]}]}
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const S = p.seed || {}, L = S.tests || []; let n = 0;
+  for (let i = 0; i < L.length; i += 20) {
+    const b = writeBatch(db);
+    L.slice(i, i + 20).forEach(t => { const q = t.q || []; const meta = Object.assign({}, t); delete meta.q;
+      b.set(D("tests", t.id), meta); b.set(D("qs", t.id), { q }); n += q.length; });
+    await b.commit(); if (p.progress) p.progress(Math.min(L.length, i + 20), L.length);
+  }
+  TESTS = null; QCACHE = {};
+  return { ok: true, tests: L.length, questions: n };
+};
+
+/* ---- нэвтрэлт ---- */
+const provider = new GoogleAuthProvider(); provider.setCustomParameters({ prompt: "select_account" });
+async function signIn() {
+  try { await signInWithPopup(auth, provider); return { ok: true }; }
+  catch (e) {
+    if (e && /popup-blocked|operation-not-supported|web-storage/.test(e.code || "")) { await signInWithRedirect(auth, provider); return { ok: true }; }
+    if (e && /popup-closed|cancelled-popup/.test(e.code || "")) return { ok: false, error: "cancel" };
+    return { ok: false, error: e && e.code || "server" };
+  }
+}
+getRedirectResult(auth).catch(() => {});
+let first = true;
+onAuthStateChanged(auth, async u => {
+  ME = null;
+  const m = u ? await meInfo().catch(() => null) : null;
+  if (first) { first = false; window.__fbReady({ call, signIn, signOut: () => signOut(auth), user: m }); }
+  else if (window.__onAuth) window.__onAuth(m);
+});
+async function call(p) {
+  const f = H[p.action]; if (!f) return { ok: false, error: "unknown" };
+  try { return await f(p); } catch (e) { console.error("GeoExam", p.action, e); return { ok: false, error: e && e.code === "permission-denied" ? "locked" : "server" }; }
+}
 </script>
 
 </body>
