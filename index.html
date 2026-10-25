@@ -1097,8 +1097,9 @@ function openAcct(wantPay) {
   } else {
     $("f3").hidden = false; $("uName").textContent = user.name || "Миний эрх"; $("uEmail").textContent = user.email;
     $("uStatus").className = "status" + (user.paid ? " paid" : "");
-    $("uStatus").textContent = user.paid ? "Төлбөртэй хэрэглэгч · бүх тест · " + user.until + " хүртэл" : "Үнэгүй хэрэглэгч · зөвхөн үнэгүй тестүүд";
-    $("payBox").innerHTML = ""; if (!user.paid) $("payBox").append(payHTML());
+    $("uStatus").textContent = user.teacher ? "Багш · бүх тест нээлттэй" : user.paid ? "Төлбөртэй хэрэглэгч · бүх тест · " + user.until + " хүртэл" : "Үнэгүй хэрэглэгч · зөвхөн үнэгүй тестүүд";
+    if (user.teacher) $("uStatus").className = "status paid";
+    $("payBox").innerHTML = ""; if (!user.paid && !user.teacher) $("payBox").append(payHTML());
     if (USE_FB && user.teacher) $("payBox").append(adminPanel());
   }
 }
