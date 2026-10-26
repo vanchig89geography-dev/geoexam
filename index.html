@@ -812,7 +812,7 @@ body.onhome #list{margin-top:16px}
       <p id="uEmail"></p>
       <div class="status" id="uStatus"></div>
       <div id="payBox"></div>
-      <button class="btn ghost" id="logout" type="button">Гарах</button>
+      <button class="btn ghost" id="logout" type="button">Акаунтаас гарах</button>
     </div>
   </div>
 </div>
@@ -837,7 +837,7 @@ const ICON = {
 const DEF_ICON = SVG('<path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2zm0 0A2 2 0 0 0 6 22h13v-4"/>');
 const TOPIC_EXAM_N = 25, TOPIC_EXAM_MIN = 40, OWN_EXAM_N = 20;   // Мультимедиа шалгалт: 20 асуулт   // нэг шалгалт: 25 даалгавар, 40 минут
 const examMin = n => Math.max(5, Math.round(n * TOPIC_EXAM_MIN / TOPIC_EXAM_N));
-let devMsg = "", guard = false;   // guard: шалгалт/шалгалтын үед сайтаас гарвал дуусгана
+let devMsg = "", guard = false, justSigned = false;   // guard: шалгалт/шалгалтын үед сайтаас гарвал дуусгана
 const LEFT_MSG = "Сайтаас гарсан тул шалгалт дууслаа. ";
 function setGuard(on) { guard = on; document.body.classList.toggle("locked", on); const n = $("lockN"); if (n) { n.hidden = !on; n.classList.toggle("rec", on && recOn);
   n.textContent = (on && recOn ? "🔴 Дэлгэц бичигдэж байна. " : "") + "⚠ Шалгалтын үеэр сайтаас гарвал (өөр апп, таб, цонх нээвэл) шалгалт шууд дуусч, дахин орох боломжгүй."; } }
@@ -896,7 +896,10 @@ async function post(data) { if (USE_FB) return (await FB).call(data); const r = 
 if (USE_FB) {
   FB.then(f => { user = f.user; token = user ? user.uid : null; renderAcct(); askRole(); });
   window.__devBlocked = () => { devMsg = "Энэ акаунт 2 төхөөрөмж дээр аль хэдийн нэвтэрсэн байна. Шинэ төхөөрөмжөөс нэвтрэхийн тулд багшдаа хандаж төхөөрөмжийн жагсаалтаа цэвэрлүүлнэ үү."; user = null; token = null; renderAcct(); };
-  window.__onAuth = async u => { user = u; token = u ? u.uid : null; st.set("ge-tests", null); renderAcct(); await loadTests(); if (!$("ov").hidden) openAcct(false); askRole(); };
+  window.__onAuth = async u => { user = u; token = u ? u.uid : null; st.set("ge-tests", null); renderAcct();
+    if (u && justSigned) { justSigned = false; closeAcct(); }   // нэвтэрмэгц цонх автоматаар хаагдана
+    else if (!$("ov").hidden) openAcct(false);
+    await loadTests(); askRole(); };
 }
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 
@@ -1693,8 +1696,9 @@ $("f2").addEventListener("submit", async e => {
 $("again1").onclick = () => { $("f2").hidden = true; $("f1").hidden = false; };
 $("logout").onclick = async () => { if (USE_FB) { closeAcct(); (await FB).signOut(); return; } token = null; user = null; st.set("ge-token", null); renderAcct(); closeAcct(); loadTests(); };
 if (USE_FB) $("gSign").onclick = async () => {
-  devMsg = ""; $("e1").textContent = ""; $("gSign").disabled = true;
+  devMsg = ""; $("e1").textContent = ""; $("gSign").disabled = true; justSigned = true;
   const r = await (await FB).signIn(); $("gSign").disabled = false;
+  if (!r.ok) justSigned = false;
   if (!r.ok && r.error !== "cancel") $("e1").textContent = r.error === "auth/unauthorized-domain" ? "Энэ хаягаас нэвтрэх зөвшөөрөлгүй байна (Firebase → Authorized domains)." : "Нэвтэрч чадсангүй. Дахин оролдоно уу. (" + r.error + ")";
 };
 /* ---------- Багшийн самбар (Firebase) ---------- */
@@ -2222,7 +2226,7 @@ function renderLanding() {
 /* ---------- 💬 Сэтгэгдэл ---------- */
 const starStr = n => "★".repeat(n) + "☆".repeat(5 - n);
 async function renderReviews(box) {
-  box.append(el("p", "note", "GeoExam-ийн талаарх санал, сэтгэгдлээ үлдээгээрэй. Багш шалгасны дараа бусдад харагдана."));
+  box.append(el("p", "note", "GeoExam-ийн талаарх санал, сэтгэгдлээ үлдээгээрэй."));
   const head = el("div", "revh"); box.append(head);
   const formW = el("div"); box.append(formW);
   const listW = el("div", "revl"); listW.append(el("p", "lbn", "Ачаалж байна…")); box.append(listW);
@@ -2236,7 +2240,6 @@ async function renderReviews(box) {
   if (!user) { const b = el("button", "btn ghost", "Нэвтэрч сэтгэгдэл үлдээх"); b.type = "button"; b.onclick = () => openAcct(false); formW.append(b); }
   else {
     const f = el("div", "revf"); let stars = r.mine ? r.mine.stars : 5;
-    if (r.mine) f.append(el("p", "revst " + (r.mine.ok ? "ok" : ""), r.mine.ok ? "✓ Таны сэтгэгдэл нийтлэгдсэн. Засвал дахин хянагдана." : "⏳ Таны сэтгэгдэл багшийн хяналтад байна."));
     const sp = el("div", "revpick"); const paint = () => sp.querySelectorAll("button").forEach((b, i) => b.classList.toggle("on", i < stars));
     for (let i = 1; i <= 5; i++) { const b = el("button", "", "★"); b.type = "button"; b.setAttribute("aria-label", i + " од"); b.onclick = () => { stars = i; paint(); }; sp.append(b); }
     paint();
@@ -2244,7 +2247,7 @@ async function renderReviews(box) {
     const sb = el("button", "btn", r.mine ? "Шинэчлэх" : "Илгээх"); sb.type = "button"; const msg = el("p", "lbn");
     sb.onclick = async () => { if (ta.value.trim().length < 3) { msg.textContent = "Сэтгэгдлээ бичнэ үү."; return; } sb.disabled = true; msg.textContent = "Илгээж байна…";
       const x = await api({ action: "reviewSave", stars, text: ta.value }); sb.disabled = false;
-      msg.textContent = x.ok ? "Баярлалаа! 🙏 Багш шалгасны дараа бусдад харагдана." : "Алдаа гарлаа. Дахин оролдоно уу."; if (x.ok) play("ok"); };
+      msg.textContent = x.ok ? "Баярлалаа! 🙏 Таны сэтгэгдэл илгээгдлээ." : "Алдаа гарлаа. Дахин оролдоно уу."; if (x.ok) play("ok"); };
     f.append(el("b", "", r.mine ? "Таны сэтгэгдэл" : "Сэтгэгдэл үлдээх"), sp, ta, sb, msg); formW.append(f);
   }
   if (!n) { listW.append(el("p", "empty", "Одоогоор сэтгэгдэл алга. Анхны сэтгэгдлийг та үлдээгээрэй!")); return; }
