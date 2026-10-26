@@ -671,6 +671,41 @@ body.onhome #list{margin-top:16px}
 .tabs button{white-space:nowrap;overflow-wrap:normal;word-break:keep-all}
 @media (min-width:521px) and (max-width:820px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media (min-width:521px){.tabs{display:flex!important;flex-wrap:wrap}.tabs button{flex:1 0 auto;padding:8px 12px}}
+
+.ivplay{position:absolute;inset:0;margin:auto;width:max-content;height:max-content;display:grid;justify-items:center;gap:8px;border:0;background:none;color:#fff;cursor:pointer;z-index:3;font-family:var(--btn-font)}
+.ivplay[hidden]{display:none}
+.ivplay span{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;font-size:30px;padding-left:5px;box-sizing:border-box;background:rgba(255,255,255,.95);color:#0b1d3a;box-shadow:0 0 0 0 rgba(255,255,255,.55);animation:ivring 1.6s ease-out infinite}
+.ivplay b{font:800 15px var(--btn-font);background:rgba(0,0,0,.45);padding:5px 12px;border-radius:999px;backdrop-filter:blur(4px)}
+@keyframes ivring{0%{box-shadow:0 0 0 0 rgba(255,255,255,.55)}100%{box-shadow:0 0 0 22px rgba(255,255,255,0)}}
+.ivid:has(.ivplay:not([hidden])) .ivstage,.ivid:has(.ivplay:not([hidden])) .ivcap{filter:blur(2px) brightness(.8)}
+
+.bchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
+.bchl{flex-basis:100%;color:var(--muted);font:700 12px var(--btn-font)}
+.bchip{border:1px solid var(--line-2);background:var(--surface);color:var(--fg);border-radius:999px;padding:6px 12px;font:600 13px var(--font);cursor:pointer}
+.bchip.on{background:var(--fg);color:var(--surface);border-color:var(--fg)}
+.tg.olymp{background:#fef3c7;color:#92400e;margin-left:6px}
+@media (max-width:440px){.acct .st,#acS{display:none!important}.logo span{font-size:21px!important}.logo img{width:34px!important;height:34px!important}.bar{gap:6px}}
+/* цэсний сонгогдсон мөр: цайвар ногоон */
+.drwi.on{background:#e3f6ec}.drwi.on .ic{background:#10b981;color:#fff}.drwi.on b{color:#065f46}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .drwi.on{background:#123326}:root:not([data-theme="light"]) .drwi.on b{color:#6ee7b7}}
+:root[data-theme="dark"] .drwi.on{background:#123326}:root[data-theme="dark"] .drwi.on b{color:#6ee7b7}
+.drwi{transition:background .15s}
+.drwi:hover{background:#e3f6ec}.drwi:hover .ic{background:#10b981;color:#fff}.drwi:hover b{color:#065f46}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .drwi:hover{background:#123326}:root:not([data-theme="light"]) .drwi:hover b{color:#6ee7b7}}
+:root[data-theme="dark"] .drwi:hover{background:#123326}:root[data-theme="dark"] .drwi:hover b{color:#6ee7b7}
+/* одоо байгаа хэсэг: таб болон хэсгийн гарчиг ч ногоон */
+.tabs button[aria-selected="true"]{background:#e3f6ec!important;color:#065f46!important}
+.tabs button:hover:not([aria-selected="true"]){background:#effaf4;color:#065f46}
+.secT{background:#e3f6ec!important;color:#065f46!important;border-color:#a7f3d0!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tabs button[aria-selected="true"],:root:not([data-theme="light"]) .secT{background:#123326!important;color:#6ee7b7!important;border-color:#14532d!important}}
+:root[data-theme="dark"] .tabs button[aria-selected="true"],:root[data-theme="dark"] .secT{background:#123326!important;color:#6ee7b7!important;border-color:#14532d!important}
+/* сонголтын хайрцаг: гадна нь ногоон, доторх сонголт цагаан */
+.pick{background:#e3f6ec!important;border-color:#a7f3d0!important}
+.pick>span{color:#065f46!important}
+.pick select{background-color:#fff!important;color:#18181b!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pick{background:#123326!important;border-color:#14532d!important}:root:not([data-theme="light"]) .pick>span{color:#6ee7b7!important}:root:not([data-theme="light"]) .pick select{background-color:#18181b!important;color:#ededef!important}}
+:root[data-theme="dark"] .pick{background:#123326!important;border-color:#14532d!important}:root[data-theme="dark"] .pick>span{color:#6ee7b7!important}:root[data-theme="dark"] .pick select{background-color:#18181b!important;color:#ededef!important}
+.pick>span{min-width:96px;box-sizing:border-box}
 </style>
 </head>
 <body>
@@ -705,8 +740,8 @@ body.onhome #list{margin-top:16px}
       <button type="button" role="tab" data-t="var" aria-selected="true">ЭЕШ</button>
       <button type="button" role="tab" data-t="topic" aria-selected="false">Сэдвийн шалгалт</button>
       <button type="button" role="tab" data-t="own" aria-selected="false">Мультимедиа</button>
-      <button type="button" role="tab" data-t="map" aria-selected="false">Газрын зураг</button>
-      <button type="button" role="tab" data-t="contest" aria-selected="false">Тэмцээн</button>
+      <button type="button" role="tab" data-t="map" aria-selected="false">Газарзүйн зураг</button>
+      <button type="button" role="tab" data-t="contest" aria-selected="false">Шалгалт · Олимпиад</button>
       <button type="button" role="tab" data-t="rev" aria-selected="false">Сэтгэгдэл</button>
     </div>
     <div id="pane"><p class="empty">Ачаалж байна...</p></div>
@@ -802,7 +837,7 @@ const ICON = {
 const DEF_ICON = SVG('<path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2zm0 0A2 2 0 0 0 6 22h13v-4"/>');
 const TOPIC_EXAM_N = 25, TOPIC_EXAM_MIN = 40, OWN_EXAM_N = 20;   // Мультимедиа шалгалт: 20 асуулт   // нэг шалгалт: 25 даалгавар, 40 минут
 const examMin = n => Math.max(5, Math.round(n * TOPIC_EXAM_MIN / TOPIC_EXAM_N));
-let devMsg = "", guard = false;   // guard: шалгалт/тэмцээний үед сайтаас гарвал дуусгана
+let devMsg = "", guard = false;   // guard: шалгалт/шалгалтын үед сайтаас гарвал дуусгана
 const LEFT_MSG = "Сайтаас гарсан тул шалгалт дууслаа. ";
 function setGuard(on) { guard = on; document.body.classList.toggle("locked", on); const n = $("lockN"); if (n) { n.hidden = !on; n.classList.toggle("rec", on && recOn);
   n.textContent = (on && recOn ? "🔴 Дэлгэц бичигдэж байна. " : "") + "⚠ Шалгалтын үеэр сайтаас гарвал (өөр апп, таб, цонх нээвэл) шалгалт шууд дуусч, дахин орох боломжгүй."; } }
@@ -866,7 +901,14 @@ if (USE_FB) {
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 
 /* ---------- account chip ---------- */
+function navLabels() {   // багш/админд «Шалгалт үүсгэх», бусдад «Шалгалт · Олимпиад»
+  const lab = user && user.teacher ? "Шалгалт үүсгэх" : "Шалгалт · Олимпиад";
+  const tb = document.querySelector('#tabs [data-t="contest"]'); if (tb) tb.textContent = lab;
+  const n = NAV.find(x => x[0] === "contest"); if (n) { n[1] = lab; n[2] = user && user.teacher ? "Олимпиад, шалгалт үүсгэх · дүн, хэвлэх" : "Олимпиадууд · багшийн шалгалтад кодоор нэгдэх"; }
+  if (typeof secTitle === "function" && $("secT")) secTitle();
+}
 function renderAcct() {
+  try { navLabels(); } catch (e) {}
   $("acI").textContent = user ? (user.name || user.email).charAt(0).toUpperCase() : "?";
   $("acN").textContent = user ? (user.name || user.email) : "Нэвтрэх";
   $("acS").hidden = !user; if (user) { $("acS").textContent = user.admin ? "Админ" : user.teacher ? "Багш" : user.paid ? "Төлбөртэй" : "Үнэгүй"; $("acS").classList.toggle("paid", !!(user.paid || user.teacher)); }
@@ -902,9 +944,9 @@ const NAV = [
   ["var", "ЭЕШ", "2022–2026 оны хувилбарууд", '<path d="M9 3h6l1 2h3v16H5V5h3z"/><path d="M9 12l2 2 4-4"/>'],
   ["topic", "Сэдвийн шалгалт", "9, 10, 11-р анги, Сонгон", '<path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2zm0 0A2 2 0 0 0 6 22h13v-4"/>'],
   ["own", "Мультимедиа", "IGEO, Улсын олимпиад", '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>'],
-  ["map", "Газрын зураг", "🎯 Solo ба ⚔️ Battle", '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>'],
+  ["map", "Газарзүйн зураг", "🎯 Solo ба ⚔️ Battle", '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>'],
   ["rev", "Сэтгэгдэл", "⭐ Үнэлгээ, сэтгэгдэл үлдээх", '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>'],
-  ["contest", "Тэмцээн · Шалгалт", "Багш шалгалт үүсгэнэ · сурагч кодоор нэгдэнэ", '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>']];
+  ["contest", "Шалгалт · Олимпиад", "Олимпиадууд · багшийн шалгалтад кодоор нэгдэх", '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>']];
 const navSvg = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + d + "</svg>";
 function secTitle() { let h = $("secT"); if (!h) { h = el("button", "secT"); h.id = "secT"; h.type = "button"; h.onclick = () => openNav(); $("tabs").before(h); }
   const n = NAV.find(x => x[0] === tab) || NAV[0]; h.innerHTML = navSvg(n[3]) + "<b>" + n[1] + "</b><span>Цэс ▾</span>"; }
@@ -1278,27 +1320,34 @@ document.addEventListener("keydown", e => {
 let CT = null, ctStart = 0;
 const fmtD = s => { const d = new Date(s); const p = n => String(n).padStart(2, "0"); return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes()); };
 const fmtS = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-const CERR = { auth: "Эхлээд нэвтэрнэ үү.", no_contest: "Ийм кодтой тэмцээн олдсонгүй.", closed: "Тэмцээн дууссан тул хариулт хүлээн авах боломжгүй.", already: "Та энэ тэмцээнд аль хэдийн хариулт илгээсэн.", not_started: "Тэмцээн хараахан эхлээгүй.", left: "Та энэ тэмцээнийг эхлүүлээд гарсан тул дахин орох боломжгүй.", teacher: "Зөвхөн багш үүсгэнэ.", no_q: "Даалгавар сонгоогүй байна.", time: "Эхлэх, дуусах цагаа шалгана уу." };
+const CERR = { auth: "Эхлээд нэвтэрнэ үү.", no_contest: "Ийм кодтой шалгалт олдсонгүй.", closed: "Шалгалт дууссан тул хариулт хүлээн авах боломжгүй.", already: "Та энэ шалгалтад аль хэдийн хариулт илгээсэн.", not_started: "Шалгалт хараахан эхлээгүй.", left: "Та энэ шалгалтыг эхлүүлээд гарсан тул дахин орох боломжгүй.", teacher: "Зөвхөн багш үүсгэнэ.", no_q: "Даалгавар сонгоогүй байна.", time: "Эхлэх, дуусах цагаа шалгана уу." };
 const STAT = { upcoming: ["Удахгүй", "up"], open: ["Явагдаж байна", "open"], done: ["Дууссан", "done"] };
 function renderContest(box) {
-  box.append(el("p", "note", "Багшийн үүсгэсэн тэмцээнд 6 оронтой кодоор нэгдэнэ. Нэг л удаа оролцоно. Дүн, зөв хариу тэмцээн дууссаны дараа гарна."));
-  if (!ONLINE) { box.append(el("p", "empty", "Тэмцээн Google Sheet холбогдсоны дараа ажиллана.")); return; }
+  box.append(el("p", "note", "🏆 Олимпиадад шууд, багшийн шалгалтад 6 оронтой кодоор нэгдэнэ. Нэг л удаа оролцоно. Дүн, зөв хариу дууссаны дараа гарна."));
+  if (!ONLINE) { box.append(el("p", "empty", "Шалгалт Google Sheet холбогдсоны дараа ажиллана.")); return; }
   if (!user) { const b = el("button", "btn", "Нэвтрэх"); b.type = "button"; b.onclick = () => openAcct(false);
-    const w = el("div", "cjoin"); w.append(el("p", "empty", "Тэмцээнд оролцохын тулд майлаараа нэвтэрнэ үү."), b); box.append(w); return; }
-  const j = el("form", "cjoin"); const inp = el("input"); inp.inputMode = "numeric"; inp.maxLength = 6; inp.placeholder = "Тэмцээний код"; inp.id = "cCode";
+    const w = el("div", "cjoin"); w.append(el("p", "empty", "Шалгалтад оролцохын тулд майлаараа нэвтэрнэ үү."), b); box.append(w); return; }
+  const j = el("form", "cjoin"); const inp = el("input"); inp.inputMode = "numeric"; inp.maxLength = 6; inp.placeholder = "Шалгалтын код"; inp.id = "cCode";
   inp.value = st.get("ge-ccode") || ""; const go = el("button", "btn", "Нэгдэх"); go.type = "submit";
   const err = el("p", "err"); j.append(inp, go, err);
   j.onsubmit = e => { e.preventDefault(); const c = inp.value.replace(/\D/g, ""); if (c.length !== 6) { err.textContent = "6 оронтой кодоо оруулна уу."; return; } openContest(c, err); };
   box.append(j);
+  const ol = el("div"); box.append(ol); loadOlymp(ol);
   const my = el("div"); box.append(my); loadMy(my);
   if (AUTO_C) { const c = AUTO_C; AUTO_C = null; setTimeout(() => openContest(c), 0); }
   if (user.teacher) { const t = el("div", "teach"); box.append(t); renderTeacher(t); }
   else if (USE_FB && user.role === "teacher") { const t = el("div", "cinfo"); t.append(el("p", "", "👩‍🏫 Өөрийн шалгалт үүсгэж сурагчдаасаа авахын тулд багшийн эрх авна уу."));
     const b = el("button", "btn", "Багшийн эрх авах"); b.type = "button"; b.onclick = () => openAcct(false); t.append(b); box.append(t); }
 }
+async function loadOlymp(box) {
+  try { const r = await api({ action: "olympiads" }); if (!r.ok || !r.list.length) return;
+    box.append(el("div", "grp", "🏆 Олимпиадууд"));
+    const g = el("div", "tests"); r.list.forEach(c => g.append(contestCard(c, c.status === "upcoming" ? "Эхлэх: " + fmtD(c.start) : c.status === "open" ? "Одоо явагдаж байна — нэгдэх" : "Дууссан · дүн харах", () => openContest(c.code), c.status === "done" ? "Дүн харах" : "Нэгдэх"))); box.append(g);
+  } catch (e) {}
+}
 async function loadMy(box) {
   try { const r = await api({ action: "contestMy", token }); if (!r.ok || !r.contests.length) return;
-    box.append(el("div", "grp", "Миний оролцсон тэмцээнүүд"));
+    box.append(el("div", "grp", "Миний оролцсон шалгалтууд"));
     const g = el("div", "tests"); r.contests.forEach(c => g.append(contestCard(c, c.status === "done" ? "Дүн: " + c.score + " / " + c.total : "Дүн " + fmtD(c.end) + "-д гарна", () => openContest(c.code)))); box.append(g);
   } catch (e) {}
 }
@@ -1314,29 +1363,29 @@ async function openContest(code, errEl) {
   let r; try { $("pane").style.opacity = .5; r = await api({ action: "contest", code, token }); } catch (e) { r = { ok: false, error: "net" }; } $("pane").style.opacity = 1;
   if (!r.ok) { const m = CERR[r.error] || "Алдаа гарлаа."; if (errEl) errEl.textContent = m; else alertBox(m); return; }
   CT = r; const c = r.contest, box = $("pane"); box.innerHTML = "";
-  const back = el("button", "link", "← Тэмцээнүүд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
+  const back = el("button", "link", "← Шалгалтууд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
   const head = el("div", "chead"); const s = STAT[c.status];
-  head.append(el("span", "tg st-" + s[1], s[0]), el("h3", "", c.name));
+  head.append(el("span", "tg st-" + s[1], s[0])); if (c.type === "olymp") head.append(el("span", "tg olymp", "🏆 Олимпиад")); head.append(el("h3", "", c.name));
   if (c.desc) head.append(el("p", "", c.desc));
   head.append(el("p", "cmeta", "Код " + c.code + " · " + c.count + " даалгавар" + (c.minutes ? " · " + c.minutes + " минут" : "") + "\n" + fmtD(c.start) + " – " + fmtD(c.end)));
   box.append(head);
-  if (c.status === "upcoming") box.append(el("p", "cinfo", "Тэмцээн " + fmtD(c.start) + "-д эхэлнэ. Тэр үед энэ хуудсаа дахин нээгээрэй."));
+  if (c.status === "upcoming") box.append(el("p", "cinfo", "Шалгалт " + fmtD(c.start) + "-д эхэлнэ. Тэр үед энэ хуудсаа дахин нээгээрэй."));
   else if (c.status === "open" && r.started && !r.submitted) {
     let sv = {}; try { sv = JSON.parse(localStorage.getItem("gx-ct-" + c.code) || "{}"); } catch (e) {}
-    const info = el("p", "cinfo", "Та тэмцээнийг эхлүүлээд сайтаас гарсан тул дахин орох боломжгүй. Хадгалагдсан хариултыг тань илгээж байна…"); box.append(info);
+    const info = el("p", "cinfo", "Та шалгалтыг эхлүүлээд сайтаас гарсан тул дахин орох боломжгүй. Хадгалагдсан хариултыг тань илгээж байна…"); box.append(info);
     let x; try { x = await post({ action: "contestSubmit", token, code: c.code, answers: sv.a || [], secs: sv.s ? Math.round((Date.now() - sv.s) / 1000) : 0 }); } catch (e) { x = { ok: false }; }
-    if (x.ok || x.error === "already") { try { localStorage.removeItem("gx-ct-" + c.code); } catch (e) {} info.className = "cinfo ok"; info.textContent = "Та тэмцээнээс гарсан тул дахин орох боломжгүй. Гарахаас өмнөх хариулт тань илгээгдлээ. Дүн " + fmtD(c.end) + "-д гарна."; }
-    else info.textContent = "Та тэмцээнээс гарсан тул дахин орох боломжгүй.";
+    if (x.ok || x.error === "already") { try { localStorage.removeItem("gx-ct-" + c.code); } catch (e) {} info.className = "cinfo ok"; info.textContent = "Та шалгалтаас гарсан тул дахин орох боломжгүй. Гарахаас өмнөх хариулт тань илгээгдлээ. Дүн " + fmtD(c.end) + "-д гарна."; }
+    else info.textContent = "Та шалгалтаас гарсан тул дахин орох боломжгүй.";
   }
   else if (c.status === "open" && r.submitted) box.append(el("p", "cinfo ok", "✓ Таны хариулт илгээгдсэн. Дүн, зөв хариу " + fmtD(c.end) + "-д гарна."));
   else if (c.status === "open") {
     const left = Math.floor((new Date(c.end) - Date.now()) / 60000);
     box.append(el("p", "cinfo", "Эхлэх товч дарсны дараа " + (c.minutes ? Math.min(c.minutes, left) + " минутын" : "") + " цаг тоологдоно. Нэг л удаа оролцох боломжтой, хаагдаж болохгүй."));
-    const b = el("button", "btn wide", "Тэмцээнийг эхлүүлэх"); b.type = "button"; b.onclick = () => startContest(r); box.append(b);
+    const b = el("button", "btn wide", "Шалгалтыг эхлүүлэх"); b.type = "button"; b.onclick = () => startContest(r); box.append(b);
   } else {
     if (r.my) { const me = r.ranking.find(x => x.email === (user.email || "")); box.append(el("div", "cme", "Таны дүн: " + r.my.score + " / " + r.my.total + (me ? " · " + me.rank + "-р байр / " + r.ranking.length : "")));
       const rv = el("button", "btn ghost", "Миний хариуг харах"); rv.type = "button"; rv.onclick = () => contestReview(r); box.append(rv); }
-    else box.append(el("p", "cinfo", "Та энэ тэмцээнд оролцоогүй байна."));
+    else box.append(el("p", "cinfo", "Та энэ шалгалтад оролцоогүй байна."));
     box.append(rankTable(r.ranking, false));
   }
 }
@@ -1349,14 +1398,14 @@ function rankTable(list, full) {
   w.append(t); return w;
 }
 async function startContest(r) {
-  if (r.contest.rec && !(await recStart({ contest: r.contest.code, tname: "🏆 " + r.contest.name, mode: "Тэмцээн" }))) return;
+  if (r.contest.rec && !(await recStart({ contest: r.contest.code, tname: "🏆 " + r.contest.name, mode: "Шалгалт" }))) return;
   let x; try { x = await post({ action: "contestStart", token, code: r.contest.code }); } catch (e) { x = { ok: false, error: "net" }; }
   if (!x.ok) { if (recOn) { recOn = false; (await FB).call({ action: "recStop", cancel: true }); } return alertBox(CERR[x.error] || "Алдаа гарлаа. Дахин оролдоно уу."); }
   const c = r.contest, leftEnd = Math.floor((new Date(c.end) - Date.now()) / 1000);
   const mins = c.minutes ? Math.min(c.minutes * 60, leftEnd) / 60 : leftEnd / 60;
   ctStart = Date.now();
   begin({ id: "contest:" + c.code, name: "🏆 " + c.name, minutes: mins, contest: c.code }, r.questions, false);
-  $("exMode").textContent = "Тэмцээн";
+  $("exMode").textContent = "Шалгалт";
 }
 async function contestFinish(timeUp, leftSite) {
   $("exam").hidden = true; $("result").hidden = false; $("review").hidden = true;
@@ -1365,8 +1414,8 @@ async function contestFinish(timeUp, leftSite) {
   let r; try { r = await post({ action: "contestSubmit", token, code: T.contest, answers, secs: Math.round((Date.now() - ctStart) / 1000) }); } catch (e) { r = { ok: false, error: "net" }; }
   if (r.ok || r.error === "already") { try { localStorage.removeItem("gx-ct-" + T.contest); } catch (e) {} }
   recStop({ left: !!leftSite });
-  if (r.ok) { $("rScore").textContent = "✓"; $("rTitle").textContent = (leftSite ? "Сайтаас гарсан тул тэмцээн дууслаа. " : timeUp ? "Хугацаа дууслаа. " : "") + "Хариулт илгээгдлээ!";
-    $("rText").textContent = "Дүн, байр, зөв хариу " + fmtD(r.end) + "-д гарна. Тэмцээн табаас кодоороо орж үзээрэй."; }
+  if (r.ok) { $("rScore").textContent = "✓"; $("rTitle").textContent = (leftSite ? "Сайтаас гарсан тул шалгалт дууслаа. " : timeUp ? "Хугацаа дууслаа. " : "") + "Хариулт илгээгдлээ!";
+    $("rText").textContent = "Дүн, байр, зөв хариу " + fmtD(r.end) + "-д гарна. Шалгалт табаас кодоороо орж үзээрэй."; }
   else { $("rScore").textContent = "!"; $("rTitle").textContent = CERR[r.error] || "Илгээж чадсангүй. Интернэтээ шалгаад дахин оролдоно уу.";
     if (r.error === "net") { $("rText").textContent = "Хариулт тань энэ төхөөрөмж дээр хадгалагдсан. Дахин илгээх товч дарна уу.";
       const again = el("button", "btn", "Дахин илгээх"); again.type = "button"; again.onclick = () => { again.remove(); contestFinish(timeUp); }; $("rText").after(again); } }
@@ -1393,13 +1442,17 @@ async function renderTeacher(box) {
 }
 async function teacherResults(code) {
   const r = await api({ action: "contestResults", code, token }); if (!r.ok) return alertBox(CERR[r.error] || "Алдаа");
-  const box = $("pane"); box.innerHTML = ""; const back = el("button", "link", "← Тэмцээнүүд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
+  const box = $("pane"); box.innerHTML = ""; const back = el("button", "link", "← Шалгалтууд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
   box.append(contestCard(r.contest, "Сурагчдад код: " + r.contest.code));
   const csv = el("button", "btn ghost", "⬇ Excel-ээр татах"); csv.type = "button";
   csv.onclick = () => { const rows = [["Байр", "Нэр", "Майл", "Оноо", "Нийт", "Хувь", "Хугацаа"]].concat(r.ranking.map(x => [x.rank, x.name, x.email, x.score, x.total, x.total ? Math.round(x.score / x.total * 100) + "%" : "", fmtS(x.secs)]));
     const txt = "\ufeff" + rows.map(rw => rw.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(",")).join("\r\n");
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "text/csv;charset=utf-8" })); a.download = r.contest.name.replace(/[\\/:*?"<>|]/g, "") + " - дүн.csv"; document.body.append(a); a.click(); setTimeout(() => a.remove(), 500); };
-  box.append(csv, rankTable(r.ranking, true));
+  const pr1 = el("button", "btn ghost", "🖨 Сурагчийн хувилбар"), pr2 = el("button", "btn ghost", "🖨 Багшийн хувилбар (хариутай)"); pr1.type = pr2.type = "button";
+  pr1.onclick = () => printExam(code, false); pr2.onclick = () => printExam(code, true);
+  const tb = el("div", "tbtns"); tb.append(csv, pr1, pr2); box.append(tb);
+  box.append(el("p", "note", "🖨 товч дарахад шалгалтын материал шинэ цонхонд нээгдэнэ. Тэндээс хэвлэх эсвэл «Save as PDF»-ээр PDF файл болгон хадгална."));
+  box.append(rankTable(r.ranking, true));
 }
 /* багшийн өөрийн асуултууд */
 async function myQuestions() {
@@ -1434,21 +1487,54 @@ async function myQuestions() {
     d.onclick = async () => { if (!confirm("Устгах уу?")) return; await api({ action: "myQDel", id: x.id }); c.remove(); };
     bt.append(e, d); c.append(bt); list.append(c); });
 }
+/* шалгалтыг хэвлэх / PDF болгох (сурагч эсвэл багшийн хувилбар) */
+async function imgData(src) { const m = /^img\/(\d{4})\/([A-D])/.exec(src), g = /^img\/([A-Z]\d+-\d+)\//.exec(src);
+  if (!m && !g) return src; try { const p = await getPack(m ? m[1] + "-" + m[2] : g[1]); return p[src] || ""; } catch (e) { return ""; } }
+async function printExam(code, teacher) {
+  const w = window.open("", "_blank"); if (!w) { alertBox("Шинэ цонх нээгдсэнгүй. Хөтчийн popup хориглолтыг зөвшөөрнө үү."); return; }
+  w.document.write("<p style='font-family:sans-serif;padding:20px'>Бэлдэж байна…</p>");
+  const r = await api({ action: "contestExport", code }); if (!r.ok) { w.document.body.innerHTML = "<p>Алдаа гарлаа.</p>"; return; }
+  const esc = t => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const L = ["A", "B", "C", "D", "E"]; let html = "", key = [];
+  for (let i = 0; i < r.questions.length; i++) { const q = r.questions[i]; let imgs = "";
+    for (const src of (q.img || [])) { const d = await imgData(src); if (d) imgs += '<img src="' + d + '">'; }
+    html += '<div class="q"><p><b>' + (i + 1) + ".</b> " + esc(q.q) + ' <span class="pt">(' + (q.slots ? q.slots.reduce((a, x) => a + x.p, 0) : (q.p || 1)) + " оноо)</span></p>" + (imgs ? '<div class="im">' + imgs + "</div>" : "");
+    if (q.slots) { html += '<p class="sl">' + q.slots.map(x => esc(x.k) + " = " + (teacher ? "<b>" + esc(x.a) + "</b>" : "______")).join("&nbsp;&nbsp;&nbsp; ") + "</p>"; key.push((i + 1) + ". " + q.slots.map(x => x.k + "=" + x.a).join(", ")); }
+    else { const oi = []; for (let k = 0; k < (q.optImg || []).length; k++) { const d = await imgData(q.optImg[k]); oi.push(d); }
+      html += '<ol class="op">' + (q.o || []).map((o, k) => '<li class="' + (teacher && k === q.a ? "ok" : "") + '"><b>' + L[k] + ".</b> " + esc(o) + (oi[k] ? '<br><img src="' + oi[k] + '">' : "") + "</li>").join("") + "</ol>";
+      key.push((i + 1) + "-" + L[q.a]); }
+    if (teacher && q.sol) html += '<p class="sol">Тайлбар: ' + esc(q.sol) + "</p>";
+    html += "</div>"; }
+  const c = r.contest, tot = r.questions.reduce((a, q) => a + (q.slots ? q.slots.reduce((x, y) => x + y.p, 0) : (q.p || 1)), 0);
+  w.document.open(); w.document.write('<!doctype html><html lang="mn"><head><meta charset="utf-8"><title>' + esc(c.name) + (teacher ? " — багш" : "") + '</title><style>'
+    + 'body{font-family:Arial,sans-serif;font-size:13px;line-height:1.45;margin:24px;color:#111}h1{font-size:19px;margin:0 0 4px}.meta{color:#555;margin:0 0 10px}'
+    + '.who{display:flex;gap:24px;border:1px solid #999;padding:8px 10px;margin:0 0 14px}.who span{flex:1}.q{break-inside:avoid;margin:0 0 12px}.q p{margin:0 0 4px}.pt{color:#666;font-size:11px}'
+    + '.im img{max-width:420px;max-height:260px;margin:4px 0}.op{list-style:none;padding:0 0 0 14px;margin:0;columns:2}.op li{margin:2px 0;break-inside:avoid}.op li img{max-width:180px}.op li.ok{font-weight:700;color:#0a7a3e}'
+    + '.sol{color:#555;font-size:12px;font-style:italic}.key{border-top:2px solid #111;margin-top:16px;padding-top:8px;columns:4;font-size:12px}.bar{position:sticky;top:0;background:#fff;padding:6px 0;margin:-6px 0 10px}'
+    + '.bar button{font-size:14px;padding:8px 14px;cursor:pointer}@media print{.bar{display:none}body{margin:12mm}}</style></head><body>'
+    + '<div class="bar"><button onclick="print()">🖨 Хэвлэх / PDF хадгалах</button></div>'
+    + "<h1>" + esc(c.name) + (teacher ? " · Багшийн хувилбар" : "") + '</h1><p class="meta">' + r.questions.length + " даалгавар · " + tot + " оноо" + (c.minutes ? " · " + c.minutes + " минут" : "") + " · Код " + esc(c.code) + "</p>"
+    + (teacher ? "" : '<div class="who"><span>Нэр: ______________________</span><span>Анги: ________</span><span>Оноо: ______ / ' + tot + "</span></div>")
+    + html + (teacher ? '<div class="key"><b>Хариултын түлхүүр</b><br>' + key.join("<br>") + "</div>" : "") + '<p class="meta" style="margin-top:16px">GeoExam · geoexam.mn</p></body></html>');
+  w.document.close();
+}
 async function contestBuilder() {
   const box = $("pane"); box.innerHTML = '<p class="empty">Даалгаврын санг ачаалж байна…</p>';
   const r = await api({ action: "contestBank", token }); if (!r.ok) { box.innerHTML = ""; return alertBox(CERR[r.error] || "Алдаа"); }
   box.innerHTML = ""; const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
-  box.append(el("h3", "bh", "Шинэ тэмцээн"));
+  box.append(el("h3", "bh", user.admin ? "Шинэ шалгалт / олимпиад" : "Шинэ шалгалт"));
   const now = new Date(), p = n => String(n).padStart(2, "0"), loc = d => d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes());
   const f = el("div", "bform");
   const fld = (lab, inp) => { const l = el("label", "fld"); l.append(el("span", "", lab), inp); f.append(l); return inp; };
-  const nm = fld("Нэр", Object.assign(el("input"), { placeholder: "Жишээ: 10-р ангийн газарзүйн тэмцээн", maxLength: 80 }));
+  const nm = fld("Нэр", Object.assign(el("input"), { placeholder: "Жишээ: 10-р ангийн газарзүйн шалгалт", maxLength: 80 }));
   const ds = fld("Тайлбар (заавал биш)", Object.assign(el("input"), { maxLength: 200 }));
   const s1 = fld("Эхлэх", Object.assign(el("input"), { type: "datetime-local", value: loc(new Date(now.getTime() + 10 * 60e3)) }));
   const s2 = fld("Дуусах", Object.assign(el("input"), { type: "datetime-local", value: loc(new Date(now.getTime() + 2 * 3600e3)) }));
   const mn = fld("Хугацаа (минут)", Object.assign(el("input"), { type: "number", value: 30, min: 1, max: 600 }));
   const rcl = el("label", "chk"); const rc = Object.assign(el("input"), { type: "checkbox", checked: false }); rc.id = "cRec";
   rcl.append(rc, el("span", "", " Дэлгэцийн бичлэгтэй (зөвхөн компьютерээр оролцоно)")); f.append(rcl);
+  const ocl = el("label", "chk"); const oc = Object.assign(el("input"), { type: "checkbox", checked: !!user.admin }); oc.id = "cOlymp";
+  ocl.append(oc, el("span", "", " 🏆 Олимпиад болгох (бүх хэрэглэгчийн «Олимпиадууд» жагсаалтад харагдана)")); if (user.admin) f.append(ocl);
   box.append(f);
   // сонгогч
   const sel = new Set();
@@ -1457,51 +1543,66 @@ async function contestBuilder() {
   const tcatOf = {}; r.tests.forEach(t => tcatOf[t.id] = catOfTest(t));
   const BCATS = ["Миний асуултууд"].concat(TOPIC_CATS, OWN_CATS).filter(c => r.tests.some(t => tcatOf[t.id] === c));
   const opt = (txt, v) => Object.assign(el("option", "", txt), { value: v });
-  const fC = el("select"); fC.append(opt("Бүх ангилал", "")); BCATS.forEach(c => fC.append(opt(c, c)));
+  // олон сонголттой шүүлтүүр: ангилал ба бүлгүүдийг чеклээд холино
+  const selC = new Set(), selP = new Set();
+  const chips = (title, items, set, onCh) => { const w = el("div", "bchips"); w.append(el("small", "bchl", title));
+    const allb = el("button", "bchip on", "Бүгд"); allb.type = "button"; w.append(allb);
+    const bs = items.map(it => { const b = el("button", "bchip", it); b.type = "button";
+      b.onclick = () => { set.has(it) ? set.delete(it) : set.add(it); b.classList.toggle("on", set.has(it)); allb.classList.toggle("on", !set.size); onCh(); }; w.append(b); return b; });
+    allb.onclick = () => { set.clear(); bs.forEach(b => b.classList.remove("on")); allb.classList.add("on"); onCh(); };
+    return w; };
   const fT = el("select");
   const fillT = () => { const v = fT.value; fT.innerHTML = ""; fT.append(opt("Бүх тест", ""));
-    r.tests.filter(t => !fC.value || tcatOf[t.id] === fC.value).forEach(t => fT.append(opt(t.name, t.id)));
+    r.tests.filter(t => !selC.size || selC.has(tcatOf[t.id])).forEach(t => fT.append(opt(t.name, t.id)));
     if ([...fT.options].some(o => o.value === v)) fT.value = v; };
   fillT();
-  const fP = el("select"); fP.append(opt("Бүх бүлэг сэдэв", "")); TOPIC_ORDER.forEach(t => fP.append(opt(t, t)));
-  const bar = el("div", "bbar"); bar.append(fC, fT, fP); box.append(bar);
+  box.append(chips("Ангилал (хэдийг ч сонгож болно)", BCATS, selC, () => { fillT(); draw(); }));
+  box.append(chips("Бүлэг сэдэв (хэдийг ч сонгож болно)", TOPIC_ORDER, selP, () => draw()));
+  const bar = el("div", "bbar"); bar.append(fT); box.append(bar);
   const cnt = el("b", "bcnt");
   const nIn = Object.assign(el("input"), { type: "number", value: 10, min: 1, max: 200, title: "Хэдэн даалгавар" }); nIn.className = "bnum";
   const rnd = el("button", "btn", "Санамсаргүй сонгох"); rnd.type = "button";
   const all = el("button", "btn ghost", "Харагдаж буйг бүгдийг"); all.type = "button";
   const clr = el("button", "btn ghost", "Цэвэрлэх"); clr.type = "button";
-  const bar2 = el("div", "bbar"); bar2.append(nIn, rnd, all, clr); box.append(bar2);
+  const eqL = el("label", "chk"); const eq = Object.assign(el("input"), { type: "checkbox", checked: true }); eqL.append(eq, el("span", "", " Сонгосон бүлэг бүрээс тэнцүү хувааж авах"));
+  const bar2 = el("div", "bbar"); bar2.append(nIn, rnd, all, clr); box.append(bar2, eqL);
   const sum = el("div", "bsum"); box.append(cnt, sum);
-  box.append(el("p", "note", "Түүвэр: ангилал, бүлгээ сонгоод тоогоо бичээд «Санамсаргүй сонгох» дарна. Бүлэг солиод дахин дарвал өмнөх сонголт дээр нэмэгдэнэ. Жишээ: 10-р анги → бүлэг бүрээс 4-өөр = 20 даалгавар."));
+  box.append(el("p", "note", "Жишээ: «10-р анги», «11-р анги»-г чеклээд, «Гео орон зайн дүрслэл», «Хүн ам ба суурьшил» бүлгүүдийг чеклэнэ. 20 гэж бичээд «Санамсаргүй сонгох» дарвал бүлэг бүрээс 10-ыг холиод авна."));
   const list = el("div", "blist"); box.append(list);
-  const vis = () => r.questions.filter(q => (!fC.value || tcatOf[q.test] === fC.value) && (!fT.value || q.test === fT.value) && (!fP.value || q.topic === fP.value));
+  const vis = () => r.questions.filter(q => (!selC.size || selC.has(tcatOf[q.test])) && (!fT.value || q.test === fT.value) && (!selP.size || selP.has(q.topic)));
   const upd = () => { const S = r.questions.filter(q => sel.has(q.id)); const pts = S.reduce((s, q) => s + (q.p || 1), 0);
     cnt.textContent = "Сонгосон: " + sel.size + " даалгавар · " + pts + " оноо";
     const by = {}; S.forEach(q => { const k = (tcatOf[q.test] || "") + " · " + (q.topic || "—"); by[k] = (by[k] || 0) + 1; });
     sum.innerHTML = ""; Object.keys(by).sort().forEach(k => sum.append(el("span", "", k + ": " + by[k]))); };
   const draw = () => { list.innerHTML = ""; const V = vis(); list.append(el("small", "bvis", "Шүүлтүүрт " + V.length + " даалгавар"));
-    V.forEach(q => { const l = el("label", "bq"); const c = el("input"); c.type = "checkbox"; c.checked = sel.has(q.id);
+    V.slice(0, 300).forEach(q => { const l = el("label", "bq"); const c = el("input"); c.type = "checkbox"; c.checked = sel.has(q.id);
     c.onchange = () => { c.checked ? sel.add(q.id) : sel.delete(q.id); upd(); };
     const tx = el("span"); tx.append(el("b", "", q.test + " · №" + q.n + (q.fill ? " · нөхөх" : "") + (q.img ? " · 🖼" : "") + " · " + q.p + " оноо"), el("small", "", q.q));
-    l.append(c, tx); list.append(l); }); upd(); };
-  fC.onchange = () => { fillT(); draw(); }; fT.onchange = draw; fP.onchange = draw;
+    l.append(c, tx); list.append(l); });
+    if (V.length > 300) list.append(el("small", "bvis", "… бас " + (V.length - 300) + " даалгавар (шүүлтүүрээр нарийсгана уу)")); upd(); };
+  fT.onchange = draw;
   all.onclick = () => { vis().forEach(q => sel.add(q.id)); draw(); };
   clr.onclick = () => { sel.clear(); draw(); };
-  rnd.onclick = () => { const v = vis().filter(q => !sel.has(q.id)); const n = Math.max(1, +nIn.value || 10);
-    for (let i = 0; i < n && v.length; i++) sel.add(v.splice(Math.random() * v.length | 0, 1)[0].id); draw(); };
+  const pickN = (arr, n) => { const v = arr.slice(), out = []; for (let i = 0; i < n && v.length; i++) out.push(v.splice(Math.random() * v.length | 0, 1)[0]); return out; };
+  rnd.onclick = () => { const n = Math.max(1, +nIn.value || 10), V = vis().filter(q => !sel.has(q.id));
+    if (eq.checked && selP.size > 1) {   // бүлэг бүрээс тэнцүү
+      const T = [...selP], per = Math.floor(n / T.length); let extra = n - per * T.length;
+      T.forEach(tp => { const k = per + (extra > 0 ? 1 : 0); if (extra > 0) extra--; pickN(V.filter(q => q.topic === tp), k).forEach(q => sel.add(q.id)); });
+    } else pickN(V, n).forEach(q => sel.add(q.id));
+    draw(); };
   draw();
-  const err = el("p", "err"); const mk = el("button", "btn wide", "Тэмцээн үүсгэх"); mk.type = "button"; box.append(err, mk);
+  const err = el("p", "err"); const mk = el("button", "btn wide", "Шалгалт үүсгэх"); mk.type = "button"; box.append(err, mk);
   mk.onclick = async () => {
     err.textContent = ""; if (!nm.value.trim()) { err.textContent = "Нэр оруулна уу."; return; }
     const ids = r.questions.filter(q => sel.has(q.id)).map(q => q.id);
     mk.disabled = true; mk.textContent = "Үүсгэж байна…";
-    let x; try { x = await post({ action: "contestCreate", token, name: nm.value.trim(), desc: ds.value.trim(), start: new Date(s1.value).toISOString(), end: new Date(s2.value).toISOString(), minutes: +mn.value, rec: rc.checked, ids }); } catch (e) { x = { ok: false }; }
-    mk.disabled = false; mk.textContent = "Тэмцээн үүсгэх";
+    let x; try { x = await post({ action: "contestCreate", token, name: nm.value.trim(), desc: ds.value.trim(), start: new Date(s1.value).toISOString(), end: new Date(s2.value).toISOString(), minutes: +mn.value, rec: rc.checked, olymp: oc.checked, ids }); } catch (e) { x = { ok: false }; }
+    mk.disabled = false; mk.textContent = "Шалгалт үүсгэх";
     if (!x.ok) { err.textContent = CERR[x.error] || "Үүсгэж чадсангүй."; return; }
     box.innerHTML = ""; const link = location.origin + location.pathname + "?c=" + x.code;
-    const d = el("div", "cdone"); d.append(el("p", "", "Тэмцээн үүслээ! Сурагчдад энэ кодыг өгнө:"), el("div", "ccode", x.code), el("p", "", "Эсвэл шууд холбоос:"), el("code", "", link));
+    const d = el("div", "cdone"); d.append(el("p", "", "Шалгалт үүслээ! Сурагчдад энэ кодыг өгнө:"), el("div", "ccode", x.code), el("p", "", "Эсвэл шууд холбоос:"), el("code", "", link));
     const cp = el("button", "btn", "Холбоос хуулах"); cp.type = "button"; cp.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(link); cp.textContent = "✓ Хуулагдлаа"; };
-    const bk = el("button", "btn ghost", "Тэмцээнүүд рүү"); bk.type = "button"; bk.onclick = () => renderPane();
+    const bk = el("button", "btn ghost", "Шалгалтууд рүү"); bk.type = "button"; bk.onclick = () => renderPane();
     d.append(cp, bk); box.append(d);
   };
 }
@@ -1534,7 +1635,7 @@ function askRole() {
   const z = el("div", "recov roleov"), b = el("div", "recbox");
   b.append(el("h4", "", "Тавтай морил, " + (user.name || "") + "! 👋"), el("p", "", "Та хэн бэ?"));
   const g = el("div", "rolepick");
-  [["student", "🎓", "Сурагч", "Тест ажиллах, тоглоом, тэмцээн"], ["teacher", "👩‍🏫", "Багш", "Шалгалт үүсгэж сурагчдаасаа авах"]].forEach(([v, ic, t, sub]) => {
+  [["student", "🎓", "Сурагч", "Тест ажиллах, тоглоом, шалгалт"], ["teacher", "👩‍🏫", "Багш", "Шалгалт үүсгэж сурагчдаасаа авах"]].forEach(([v, ic, t, sub]) => {
     const btn = el("button", "rolebtn"); btn.type = "button"; btn.append(el("span", "ri", ic), el("b", "", t), el("small", "", sub));
     btn.onclick = async () => { btn.disabled = true; const r = await api({ action: "setRole", role: v }); z.remove(); if (r.ok) { user = r.user; renderAcct(); loadTests(); if (v === "teacher" && !user.teacher) openAcct(false); } };
     g.append(btn); });
@@ -1654,7 +1755,7 @@ function adminPanel() {
   // 1в. Дэлгэцийн бичлэг
   const rv = el("div", "admb"); rv.append(el("b", "", "Дэлгэцийн бичлэг"));
   const rel = el("label", "chk"); const rex = Object.assign(el("input"), { type: "checkbox" }); rex.id = "recExam";
-  rel.append(rex, el("span", "", " «Шалгалт» горимд дэлгэцийн бичлэг шаардах (тэмцээнийг үүсгэхдээ тус бүрд нь сонгоно)")); rv.append(rel);
+  rel.append(rex, el("span", "", " «Шалгалт» горимд дэлгэцийн бичлэг шаардах (шалгалтыг үүсгэхдээ тус бүрд нь сонгоно)")); rv.append(rel);
   api({ action: "config" }).then(r => { rex.checked = !!(r && r.recExam); });
   rex.onchange = async () => { const r = await api({ action: "saveConfig", recExam: rex.checked }); rm.textContent = r.ok ? (rex.checked ? "Шалгалт горимд бичлэг шаардана." : "Шалгалт горимд бичлэг шаардахгүй.") : "Алдаа гарлаа."; };
   const rm = el("p", "lbn"); const rl = el("div", "admlist"); const rr = el("button", "btn ghost", "Бичлэгүүдийг харах"); rr.type = "button";
@@ -1709,7 +1810,7 @@ async function recView(id) {
 function alertBox(m) { const p = el("p", "empty", m); $("pane").prepend(p); }
 
 document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === tab));
-/* ---------- Газрын зураг: тодорсон улсын нэрийг сонгох тоглоом ---------- */
+/* ---------- Газарзүйн зураг: тодорсон улсын нэрийг сонгох тоглоом ---------- */
 const MAP_URLS = ["https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json", "https://unpkg.com/world-atlas@2/countries-50m.json"];
 const MAP_SCOPES = [
   { v: "W", t: "Дэлхий", box: null },
@@ -1780,15 +1881,15 @@ function renderMapTab(box) {
     b.onclick = () => { if (v === mmode) return; if (v !== "battle") btStop(); mmode = v; st.set("ge-mmode", v); renderPane(); }; seg.append(b); });
   box.append(seg);
   if (mmode === "battle") return renderBattle(box);
-  box.append(el("p", "note", "Газрын зураг дээр тодорсон улсын нэрийг сонгоорой. Бүс нутгаа сонгоод эхлүүлнэ."));
+  box.append(el("p", "note", "Газарзүйн зураг дээр тодорсон улсын нэрийг сонгоорой. Бүс нутгаа сонгоод эхлүүлнэ."));
   box.append(pick("Бүс нутаг", MAP_SCOPES.map(s => ({ v: s.v, t: s.t })), mscope, v => { mscope = v; st.set("ge-mscope", v); renderPane(); }));
   box.append(pick("Асуулт", [["10", "10 асуулт"], ["20", "20 асуулт"], ["all", "Бүх улс"]].map(([v, t]) => ({ v, t })), mcount, v => { mcount = v; st.set("ge-mcount", v); renderPane(); }));
   const go = el("button", "btn wide", "Эхлүүлэх"); go.type = "button"; go.onclick = () => startMap(); box.append(go);
   renderLB(box, "map", mscope + "-" + mcount, mapLabel(mscope, mcount));
 }
 async function startMap() {
-  const box = $("pane"); box.innerHTML = ""; box.append(el("p", "empty", "Газрын зураг ачаалж байна…"));
-  try { await loadMap(); } catch (e) { box.innerHTML = ""; alertBox("Газрын зургийг ачаалж чадсангүй. Интернэтээ шалгаад дахин оролдоно уу."); return; }
+  const box = $("pane"); box.innerHTML = ""; box.append(el("p", "empty", "Газарзүйн зураг ачаалж байна…"));
+  try { await loadMap(); } catch (e) { box.innerHTML = ""; alertBox("Газарзүйн зургийг ачаалж чадсангүй. Интернэтээ шалгаад дахин оролдоно уу."); return; }
   const V = mapView(mscope); let pool = Object.keys(V.targets);
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [pool[i], pool[j]] = [pool[j], pool[i]]; }
   const n = mcount === "all" ? pool.length : Math.min(+mcount, pool.length);
@@ -1846,7 +1947,7 @@ function mapDone() {
   mapBoard(lbb, MG.scope + "-" + MG.cnt, MG.score);
 }
 async function mapBoard(body, cat, myScore) {   // эхний 5 сурагч + миний байр
-  if (ONLINE && token) { try { await post({ action: "result", token, testId: "map:" + cat, score: myScore, total: (MG ? MG.list.length : 10) * 100, mode: "Газрын зураг" }); } catch (e) {} }
+  if (ONLINE && token) { try { await post({ action: "result", token, testId: "map:" + cat, score: myScore, total: (MG ? MG.list.length : 10) * 100, mode: "Газарзүйн зураг" }); } catch (e) {} }
   Object.keys(LBC).forEach(k => delete LBC[k]);
   let r; try { r = ONLINE ? await api({ action: "leaderboard", sec: "map", cat, period: "all", limit: 5, token: token || "" }) : null; } catch (e) { r = null; }
   if (!ONLINE) { const N = ["Тэмүүлэн", "Анужин", "Билгүүн", "Номин", "Хулан", "Эрдэнэ"]; r = { ok: true, count: 24, list: N.map((n, i) => ({ rank: i + 1, name: n + " (жишээ)", score: 960 - i * 55 })), me: { rank: 9, name: "Та", score: myScore, me: true } }; }
@@ -1863,14 +1964,14 @@ async function mapBoard(body, cat, myScore) {   // эхний 5 сурагч + �
   else body.append(el("p", "lbn", "Нэвтэрч тоглосон сурагчид энд гарна. Нэвтэрвэл таны байр харагдана."));
 }
 
-/* ---------- ⚔️ Battle: газрын зургаар найзуудтайгаа өрсөлдөх ---------- */
+/* ---------- ⚔️ Battle: газарзүйн зургаар найзуудтайгаа өрсөлдөх ---------- */
 const BT_SEC = 10, btPts = sec => Math.max(10, Math.round(100 - Math.max(0, sec - 1) * 10));
 let BT = null;   // { code, uid, b, players, stop, i, score, right, ... }
 const BT_ERR = { auth: "Эхлээд нэвтэрнэ үү.", none: "Ийм кодтой өрөө олдсонгүй.", started: "Энэ тоглолт аль хэдийн эхэлсэн байна.", full: "Өрөө дүүрсэн байна.", host: "Зөвхөн өрөө үүсгэсэн хүн эхлүүлнэ." };
 function btStop() { if (BT) { clearTimeout(BT.to); clearInterval(BT.cd); if (BT.stop) BT.stop(); } BT = null; }
 function renderBattle(box) {
   if (BT) { if (BT.phase === "lobby") return btScreen(); if (BT.phase === "end") return btResults(); btStop(); }
-  box.append(el("p", "note", "Найзуудаа кодоор дуудаад газрын зургаар өрсөлдөөрэй. 1 vs 1 эсвэл бүлгээрээ (10 хүртэл хүн) тоглоно. Хурдан, зөв хариулсан нь илүү оноо авна."));
+  box.append(el("p", "note", "Найзуудаа кодоор дуудаад газарзүйн зургаар өрсөлдөөрэй. 1 vs 1 эсвэл бүлгээрээ (10 хүртэл хүн) тоглоно. Хурдан, зөв хариулсан нь илүү оноо авна."));
   if (!USE_FB) { box.append(el("p", "empty", "Battle нь сайт дээр (нэвтэрсний дараа) ажиллана.")); return; }
   if (!user) { const b = el("button", "btn", "Нэвтрэх"); b.type = "button"; b.onclick = () => openAcct(false);
     const w = el("div", "cjoin"); w.append(el("p", "empty", "Battle-д оролцохын тулд нэвтэрнэ үү."), b); box.append(w); return; }
@@ -1888,7 +1989,7 @@ function renderBattle(box) {
     pick("Асуулт", [["10", "10 асуулт"], ["15", "15 асуулт"], ["20", "20 асуулт"]].map(([v, t]) => ({ v, t })), bn, v => { bn = v; st.set("ge-bn", v); }));
   const mk = el("button", "btn wide", "⚔️ Өрөө үүсгэх"); mk.type = "button"; const me = el("p", "err");
   mk.onclick = async () => { mk.disabled = true; me.textContent = "Бэлдэж байна…";
-    try { await loadMap(); } catch (e) { me.textContent = "Газрын зургийг ачаалж чадсангүй."; mk.disabled = false; return; }
+    try { await loadMap(); } catch (e) { me.textContent = "Газарзүйн зургийг ачаалж чадсангүй."; mk.disabled = false; return; }
     const V = mapView(bscope), all = Object.keys(V.targets), pool = all.slice();
     for (let i = pool.length - 1; i > 0; i--) { const k = Math.random() * (i + 1) | 0; [pool[i], pool[k]] = [pool[k], pool[i]]; }
     const G = { V, all, scope: bscope }, qs = pool.slice(0, Math.min(+bn, pool.length)).map(c => ({ c, o: mapOptions(c, G) }));
@@ -1926,7 +2027,7 @@ function btScreen() {   // хүлээлгийн өрөө
     el("p", "", MAP_SCOPES.find(s => s.v === b.scope).t + " · " + b.n + " асуулт · асуулт бүр " + BT_SEC + " секунд"));
   const link = location.origin + location.pathname + "?b=" + BT.code;
   const sh = el("button", "btn ghost", "🔗 Найзаа дуудах"); sh.type = "button";
-  sh.onclick = async () => { try { if (navigator.share) await navigator.share({ title: "GeoExam Battle", text: "Газрын зургийн Battle-д ороорой! Код: " + BT.code, url: link }); else { await navigator.clipboard.writeText(link); sh.textContent = "✓ Холбоос хуулагдлаа"; } } catch (e) {} };
+  sh.onclick = async () => { try { if (navigator.share) await navigator.share({ title: "GeoExam Battle", text: "Газарзүйн зургийн Battle-д ороорой! Код: " + BT.code, url: link }); else { await navigator.clipboard.writeText(link); sh.textContent = "✓ Холбоос хуулагдлаа"; } } catch (e) {} };
   h.append(sh); box.append(h);
   const pl = el("div", "bplayers"); pl.append(el("b", "", "Тоглогчид (" + BT.players.length + "/" + b.max + ")"));
   BT.players.forEach(p => { const d = el("div", "bp" + (p.uid === BT.uid ? " me" : "")); d.append(el("span", "bav", (p.name || "?").charAt(0).toUpperCase()), el("span", "", p.name + (p.uid === b.host ? " 👑" : ""))); pl.append(d); });
@@ -1942,7 +2043,7 @@ function btCountdown() {
   const c = el("div", "bcount"); box.append(c);
   const tick = () => { const left = Math.ceil((BT.b.start - Date.now()) / 1000);
     if (left > 0) { c.textContent = left; play("tap"); } else { clearInterval(BT.cd); BT.phase = "play"; BT.i = 0; btQ(); } };
-  loadMap().then(() => { tick(); BT.cd = setInterval(tick, 1000); }).catch(() => alertBox("Газрын зургийг ачаалж чадсангүй."));
+  loadMap().then(() => { tick(); BT.cd = setInterval(tick, 1000); }).catch(() => alertBox("Газарзүйн зургийг ачаалж чадсангүй."));
 }
 function btLive() {   // дээд талын оноо (бодит цагаар)
   const w = document.getElementById("blive"); if (!w || !BT) return; w.innerHTML = "";
@@ -1997,13 +2098,13 @@ function btResults() {
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
 const IV = { DUR: 2.8, timers: [], on: false, loopT: null, nodes: [] };
 const IV_SCENES = [
-  { k: "logo" }, { k: "test", cap: "📝 ЭЕШ-ийн жинхэнэ хувилбарууд" }, { k: "map", cap: "🗺️ Газрын зургийн тоглоом" },
+  { k: "logo" }, { k: "test", cap: "📝 ЭЕШ-ын хувилбарууд" }, { k: "map", cap: "🗺️ Газарзүйн зургийн тоглоом" },
   { k: "battle", cap: "⚔️ Найзуудтайгаа Battle" }, { k: "board", cap: "🏆 Шилдэг сурагчдын самбар" }, { k: "end" }];
 function ivScene(k) {
   const s = el("div", "ivs iv-" + k), logo = (document.querySelector(".logo img") || {}).src || "";
   if (k === "logo") s.innerHTML = '<div class="ivglobe"><i></i><i></i><i></i></div><img class="ivlogo" src="' + logo + '" alt=""><b class="ivname">Geo<span>Exam</span></b><p class="ivtag">Өдөр бүр нэг алхам — амжилт таных</p>';
   if (k === "test") s.innerHTML = '<div class="ivcard"><small>ЭЕШ 2024 · 12-р даалгавар</small><p>Дэлхийн хамгийн урт гол аль нь вэ?</p><div class="ivo">A. Амазон</div><div class="ivo">B. Миссисипи</div><div class="ivo ok">C. Нил <em>✓</em></div><div class="ivo">D. Янцзы</div><span class="ivplus">+100</span></div>';
-  if (k === "map") {   // жинхэнэ газрын зураг (Европ, Франц тодорсон)
+  if (k === "map") {   // жинхэнэ газарзүйн зураг (Европ, Франц тодорсон)
     let map = '<div class="ivwait">🗺️</div>';
     if (typeof MAPDATA !== "undefined" && MAPDATA && typeof d3 !== "undefined") { try {
       const V = mapView("EU"), T = V.targets["250"];
@@ -2045,16 +2146,35 @@ function ivRun(box, withSound) {
     s.querySelectorAll(".ivsc").forEach(e => { const to = +e.dataset.to; let v = 0; const st = setInterval(() => { v = Math.min(to, v + Math.ceil(to / 25)); e.textContent = v; if (v >= to) clearInterval(st); }, 50); IV.timers.push(st); });
   }, i * IV.DUR * 1000)));
   IV.timers.push(setTimeout(() => { if (withSound) ivSound(box, false); ivRun(box, false); }, total * 1000));
+  IV.box = box;
 }
-function ivSound(box, on) { IV.on = on; const b = box.querySelector(".ivsnd"); b.textContent = on ? "🔊" : "🔇 Дуутай үзэх"; b.classList.toggle("on", on); }
+function ivSound(box, on) { IV.on = on; const b = box.querySelector(".ivsnd"); b.textContent = on ? "🔇 Дуу хаах" : "🔊 Дуу нээх"; b.classList.toggle("on", on); }
+const ivMuted = () => { try { return localStorage.getItem("gx-ivmute") === "1" || !SOUND; } catch (e) { return !SOUND; } };
+function ivSetMute(v) { try { localStorage.setItem("gx-ivmute", v ? "1" : "0"); } catch (e) {} }
 function ivStop() { IV.timers.forEach(t => { clearTimeout(t); clearInterval(t); }); IV.timers = []; if (AC && IV.on) { try { AC.close(); } catch (e) {} AC = null; } IV.on = false; }
 function introPlayer() {
-  if (typeof loadMap === "function") loadMap().catch(() => {});   // газрын зургийн өгөгдлийг урьдчилан ачаална
-  const box = el("div", "ivid"); box.innerHTML = '<div class="ivbg"></div><div class="ivstage"></div><div class="ivcap"></div><button class="ivsnd" type="button">🔇 Дуутай үзэх</button><div class="ivbar"><i></i></div>';
-  box.querySelector(".ivsnd").onclick = e => { e.stopPropagation(); if (IV.on) { ivStop(); ivSound(box, false); ivRun(box, false); } else { ivSound(box, true); ivRun(box, true); } };
-  setTimeout(() => ivRun(box, false), 50);
+  if (typeof loadMap === "function") loadMap().catch(() => {});   // газарзүйн зургийн өгөгдлийг урьдчилан ачаална
+  const box = el("div", "ivid"); box.innerHTML = '<div class="ivbg"></div><div class="ivstage"></div><div class="ivcap"></div><button class="ivsnd" type="button"></button><div class="ivbar"><i></i></div><button class="ivplay" type="button" hidden><span>▶</span><b>Дарж үзэх</b></button>';
+  IV.pending = false;
+  box.querySelector(".ivsnd").onclick = e => { e.stopPropagation();
+    if (IV.on || IV.pending) { IV.pending = false; box.querySelector(".ivplay").hidden = true; ivSetMute(true); ivStop(); ivSound(box, false); ivRun(box, false); }
+    else { ivSetMute(false); ivSound(box, true); ivRun(box, true); } };
+  setTimeout(() => {
+    if (ivMuted()) { ivSound(box, false); ivRun(box, false); return; }
+    const a = ac();   // хөтөч зөвшөөрвөл шууд дуутай, үгүй бол хэрэглэгч анх хүрэхэд дуу эхэлнэ
+    if (a && a.state === "running") { ivSound(box, true); ivRun(box, true); }
+    else { IV.pending = true; ivSound(box, true); ivRun(box, false); box.querySelector(".ivplay").hidden = false; }
+  }, 60);
   return box;
 }
+
+/* хөтөч автоматаар дуу тоглуулахыг хориглодог тул хэрэглэгч хуудсанд анх хүрэх үед дууг эхлүүлнэ */
+["pointerdown", "keydown", "touchstart"].forEach(ev => document.addEventListener(ev, e => {
+  if (!IV.pending || !IV.box || !document.body.contains(IV.box)) return;
+  if (e.target && e.target.closest && e.target.closest(".ivsnd")) return;   // «Дуу хаах» дарвал эхлүүлэхгүй
+  IV.pending = false; const pl = IV.box.querySelector(".ivplay"); if (pl) pl.hidden = true; const a = ac(); if (a && a.state !== "running") a.resume();
+  ivSound(IV.box, true); ivRun(IV.box, true);
+}, { capture: true, passive: true }));
 
 /* ---------- 🏠 Нүүр хуудас (танилцуулга) ---------- */
 const GLOBE = '<svg class="lglobe" viewBox="0 0 220 220" aria-hidden="true"><defs><radialGradient id="lgO" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#7dd3fc"/><stop offset=".55" stop-color="#0ea5e9"/><stop offset="1" stop-color="#075985"/></radialGradient>'
@@ -2084,7 +2204,7 @@ function renderLanding() {
   const hh = el("h2", "leng", ""); hh.innerHTML = "I'm ready for my <em>Geography</em> exam ✓"; tx.append(hh);
   ivStop(); const vis = el("div", "lvis"); vis.append(introPlayer()); hero.append(tx, vis); L.append(hero);
   const stats = el("div", "lstats");
-  [[nQ ? nQ.toLocaleString("en-US") + "+" : "1,300+", "даалгавар"], [nE || 5, "ЭЕШ хувилбар"], ["190+", "улсын газрын зураг"], ["0₮", "үнэгүй эхлэх"]].forEach(([n, t]) => { const d = el("div"); d.append(el("b", "", String(n)), el("span", "", t)); stats.append(d); });
+  [[nQ ? nQ.toLocaleString("en-US") + "+" : "1,300+", "даалгавар"], [nE || 5, "ЭЕШ хувилбар"], ["190+", "улсын газарзүйн зураг"], ["0₮", "үнэгүй эхлэх"]].forEach(([n, t]) => { const d = el("div"); d.append(el("b", "", String(n)), el("span", "", t)); stats.append(d); });
   L.append(stats);
   // 💬 сэтгэгдлүүд
   const rv = el("div", "lrevs card"); F.append(rv);
@@ -2296,7 +2416,7 @@ H.leaderboard = async p => {
 
 /* ---- тэмцээн ---- */
 const stat = c => { const now = Date.now(); return now < toD(c.start).getTime() ? "upcoming" : now <= toD(c.end).getTime() ? "open" : "done"; };
-const pubC = (code, c) => ({ code, name: c.name, start: toD(c.start).toISOString(), end: toD(c.end).toISOString(), minutes: c.minutes || 0, count: c.count || 0, desc: c.desc || "", rec: !!c.rec, status: stat(c) });
+const pubC = (code, c) => ({ code, name: c.name, start: toD(c.start).toISOString(), end: toD(c.end).toISOString(), minutes: c.minutes || 0, count: c.count || 0, desc: c.desc || "", rec: !!c.rec, type: c.type || "exam", status: stat(c) });
 async function ranking(code, key) {
   const s = await getDocs(C("contests", code, "subs")), Q = key.qs || [];
   const list = s.docs.map(d => { const x = d.data(); let A = []; try { A = JSON.parse(x.answers || "[]"); } catch (e) {}
@@ -2376,10 +2496,23 @@ H.contestCreate = async p => {
   const pub = full.map(q => { const o = Object.assign({}, q); delete o.a; delete o.sol; if (o.slots) o.slots = o.slots.map(s => ({ k: s.k, p: s.p })); return o; });
   let code; do { code = String(Math.floor(100000 + Math.random() * 900000)); } while ((await getDoc(D("contests", code))).exists());
   const b = writeBatch(db);
-  b.set(D("contests", code), { name: String(p.name || "Тэмцээн").slice(0, 80), desc: String(p.desc || "").slice(0, 200), start: Timestamp.fromDate(start), end: Timestamp.fromDate(end), minutes: Math.max(0, Math.min(+p.minutes || 0, 600)), count: full.length, rec: p.rec === true || p.rec === "true", owner: m.email, created: Timestamp.now() });
+  b.set(D("contests", code), { name: String(p.name || "Тэмцээн").slice(0, 80), desc: String(p.desc || "").slice(0, 200), start: Timestamp.fromDate(start), end: Timestamp.fromDate(end), minutes: Math.max(0, Math.min(+p.minutes || 0, 600)), count: full.length, rec: p.rec === true || p.rec === "true", type: m.admin && (p.olymp === true || p.olymp === "true") ? "olymp" : "exam", owner: m.email, created: Timestamp.now() });
   b.set(D("contestQs", code), { qs: pub }); b.set(D("contestKeys", code), { qs: full });
   await b.commit();
   return { ok: true, code };
+};
+H.contestExport = async p => {   // багш өөрийн шалгалтыг хэвлэх/татах: асуулт + зөв хариу
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
+  if (!m.admin && cs.data().owner !== m.email) return { ok: false, error: "teacher" };
+  const key = (await getDoc(D("contestKeys", code))).data() || {};
+  return { ok: true, contest: pubC(code, cs.data()), questions: key.qs || [] };
+};
+H.olympiads = async () => {   // админы зарласан олимпиадууд: бүх хэрэглэгчид харагдана
+  const s = await getDocs(query(C("contests"), where("type", "==", "olymp"), limit(30)));
+  const now = Date.now(), L = s.docs.map(d => pubC(d.id, d.data())).filter(c => c.status !== "done" || now - new Date(c.end).getTime() < 30 * 864e5);
+  L.sort((a, b) => (a.status === "done") - (b.status === "done") || (a.start < b.start ? -1 : 1));
+  return { ok: true, list: L };
 };
 H.contestMine = async () => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
