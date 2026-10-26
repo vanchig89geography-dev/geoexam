@@ -656,6 +656,16 @@ body.onhome #list{margin-top:16px}
 
 .ltxt h2.leng{font:800 clamp(22px,4.2vw,34px)/1.15 "Inter","Inter Display",var(--btn-font);letter-spacing:-.02em;margin:2px 0 14px;text-align:center}
 .ltxt h2.leng em{font-style:normal;background:linear-gradient(90deg,#0ea5e9,#0d9488);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ltxt h2.leng{white-space:nowrap;font-size:min(34px,5.2vw)}
+.lhero>*{min-width:0}.ltxt h2.leng{font-size:min(34px,4.5vw)}
+.ltxt h2.leng{font-size:min(34px,4.2vw)}
+#lfoot{display:none!important}.ltxt h2.leng{margin-bottom:0}
+
+#lfoot{display:grid!important}#lfoot[hidden]{display:none!important}
+.lrevs{padding:16px}.lrvh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.lrvh .lh{margin:0}.lrvh .btn{min-height:36px;padding:6px 12px;font-size:13px}
+.lrlist{display:grid;gap:10px}
+.hamb{display:grid!important}
+.by{padding:4px 10px!important;gap:5px!important;font-size:11px!important}.by span{font-size:11px!important}.by b{font-size:11.5px!important}
 </style>
 </head>
 <body>
@@ -2050,11 +2060,11 @@ const LCARD = { var: ["#2563eb", "5 жилийн жинхэнэ хувилбар
   map: ["#0891b2", "Улс таах тоглоом · найзуудтайгаа ⚔️ Battle"], contest: ["#ea580c", "Багшийн шалгалтад кодоор нэгдэх"], rev: ["#db2777", "Бусдын сэтгэгдэл, үнэлгээ"] };
 function hideLanding() { if (typeof ivStop === "function") ivStop(); ["landing", "lfoot"].forEach(id => { const l = $(id); if (l) l.hidden = true; }); document.body.classList.remove("onhome"); if ($("list")) $("list").hidden = false; }
 function showLanding() {
-  if (guard) return; $("exam").hidden = true; $("result").hidden = true; $("list").hidden = false;
+  if (guard) return; $("exam").hidden = true; $("result").hidden = true; $("list").hidden = true;
   $("landing").hidden = false; $("lfoot").hidden = false; document.body.classList.add("onhome"); $("landing").dataset.n = ""; renderLanding(); scrollTo({ top: 0 });
 }
-function goSection(t) { if (!$("exam").hidden || !$("result").hidden) { clearInterval(timer); setGuard(false); $("exam").hidden = true; $("result").hidden = true; hideLanding(); }
-  $("list").hidden = false; setTab(t); scrollTo({ top: $("list").offsetTop - 10, behavior: "smooth" }); }
+function goSection(t) { if (!$("exam").hidden || !$("result").hidden) { clearInterval(timer); setGuard(false); $("exam").hidden = true; $("result").hidden = true; }
+  hideLanding(); $("list").hidden = false; setTab(t); scrollTo({ top: $("list").offsetTop - 10, behavior: "smooth" }); }
 function renderLanding() {
   const L = $("landing"), F = $("lfoot");
   const nQ0 = tests.reduce((a, t) => a + (t.count || 0), 0);
@@ -2063,22 +2073,22 @@ function renderLanding() {
   const nQ = tests.reduce((a, t) => a + (t.count || 0), 0), nE = tests.filter(t => /^ЭЕШ/.test(t.group || "")).length;
   const hero = el("div", "lhero card"); const tx = el("div", "ltxt");
   const hh = el("h2", "leng", ""); hh.innerHTML = "I'm ready for my <em>Geography</em> exam ✓"; tx.append(hh);
-  const cta = el("div", "lcta"); const b1 = el("button", "btn", "🚀 Тест ажиллах"), b2 = el("button", "btn ghost", "🗺️ Тоглоом тоглох"); b1.type = b2.type = "button";
-  b1.onclick = () => goSection("var"); b2.onclick = () => goSection("map"); cta.append(b1, b2); tx.append(cta);
   ivStop(); const vis = el("div", "lvis"); vis.append(introPlayer()); hero.append(tx, vis); L.append(hero);
   const stats = el("div", "lstats");
   [[nQ ? nQ.toLocaleString("en-US") + "+" : "1,300+", "даалгавар"], [nE || 5, "ЭЕШ хувилбар"], ["190+", "улсын газрын зураг"], ["0₮", "үнэгүй эхлэх"]].forEach(([n, t]) => { const d = el("div"); d.append(el("b", "", String(n)), el("span", "", t)); stats.append(d); });
   L.append(stats);
-  const why = el("div", "lwhy card"); why.append(el("h3", "lh", "Яагаад GeoExam?"));
-  [["✅", "Зөв хариу, тайлбартай", "Алдаагаа шууд хараад засна"], ["⏱️", "Жинхэнэ шалгалтын нөхцөл", "Хугацаа, оноо, хувиар дүн"], ["🏆", "Шилдэг сурагчид", "7 хоног, сар бүрийн самбар"], ["📱", "Хаанаас ч", "Утас, компьютер дээр адилхан"]]
-    .forEach(([i, t, s2]) => { const d = el("div", "lw"); d.append(el("span", "lwi", i)); const x = el("div"); x.append(el("b", "", t), el("small", "", s2)); d.append(x); why.append(d); });
-  F.append(why);
-  const tch = el("div", "lteach card"); tch.append(el("span", "lwi", "👩‍🏫"));
-  const tt = el("div"); tt.append(el("b", "", "Та багш уу?"), el("small", "", "Өөрийн шалгалтаа үүсгэж, сурагчдаасаа кодоор аваад дүнг нь Excel-ээр татаарай."));
-  const tb = el("button", "btn ghost", "Дэлгэрэнгүй"); tb.type = "button"; tb.onclick = () => openAcct(false); tch.append(tt, tb); F.append(tch);
-  if (ONLINE) { const rv = el("div", "lrevs"); F.append(rv);
-    api({ action: "reviews" }).then(r => { if (!r || !r.ok || !r.list.length) return; rv.append(el("h3", "lh", "Сурагчид юу гэж байна?"));
-      const row = el("div", "lrrow"); r.list.slice(0, 6).forEach(x => { const c = el("div", "revc"); c.append(el("span", "revs", starStr(x.stars)), el("p", "", x.text), el("small", "", "— " + x.name)); row.append(c); }); rv.append(row); }).catch(() => {}); }
+  // 💬 сэтгэгдлүүд
+  const rv = el("div", "lrevs card"); F.append(rv);
+  const rh = el("div", "lrvh"); rh.append(el("h3", "lh", "💬 Сэтгэгдлүүд")); const wb = el("button", "btn ghost", "Сэтгэгдэл үлдээх"); wb.type = "button"; wb.onclick = () => goSection("rev"); rh.append(wb); rv.append(rh);
+  const rl = el("div", "lrlist"); rl.append(el("p", "lbn", "Ачаалж байна…")); rv.append(rl);
+  if (!ONLINE) { rl.innerHTML = ""; rl.append(el("p", "lbn", "Сэтгэгдэл сайт дээр харагдана.")); return; }
+  api({ action: "reviews" }).then(r => { rl.innerHTML = "";
+    if (!r || !r.ok || !r.list.length) { rl.append(el("p", "lbn", "Одоогоор сэтгэгдэл алга. Анхны сэтгэгдлийг та үлдээгээрэй!")); return; }
+    const n = r.list.length, avg = r.list.reduce((a, x) => a + x.stars, 0) / n;
+    const top = el("div", "revh"); top.append(el("div", "revavg", avg.toFixed(1)), Object.assign(el("div", "revs"), { textContent: starStr(Math.round(avg)) }), el("small", "", n + " сэтгэгдэл")); rl.append(top);
+    r.list.slice(0, 6).forEach(x => { const c = el("div", "revc"); const tp = el("div", "revct"); const nm = el("div");
+      nm.append(el("b", "", x.name), el("span", "revs", starStr(x.stars))); tp.append(el("span", "bav", (x.name || "?").charAt(0).toUpperCase()), nm, el("small", "", x.at)); c.append(tp, el("p", "", x.text)); rl.append(c); });
+  }).catch(() => { rl.innerHTML = ""; });
 }
 /* ---------- 💬 Сэтгэгдэл ---------- */
 const starStr = n => "★".repeat(n) + "☆".repeat(5 - n);
