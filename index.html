@@ -706,6 +706,7 @@ body.onhome #list{margin-top:16px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pick{background:#123326!important;border-color:#14532d!important}:root:not([data-theme="light"]) .pick>span{color:#6ee7b7!important}:root:not([data-theme="light"]) .pick select{background-color:#18181b!important;color:#ededef!important}}
 :root[data-theme="dark"] .pick{background:#123326!important;border-color:#14532d!important}:root[data-theme="dark"] .pick>span{color:#6ee7b7!important}:root[data-theme="dark"] .pick select{background-color:#18181b!important;color:#ededef!important}
 .pick>span{min-width:96px;box-sizing:border-box}
+.btn.danger{color:#be123c!important;border-color:#fecdd3!important}.btn.danger:hover{background:#fff1f2!important}
 </style>
 </head>
 <body>
@@ -1453,7 +1454,11 @@ async function teacherResults(code) {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "text/csv;charset=utf-8" })); a.download = r.contest.name.replace(/[\\/:*?"<>|]/g, "") + " - дүн.csv"; document.body.append(a); a.click(); setTimeout(() => a.remove(), 500); };
   const pr1 = el("button", "btn ghost", "🖨 Сурагчийн хувилбар"), pr2 = el("button", "btn ghost", "🖨 Багшийн хувилбар (хариутай)"); pr1.type = pr2.type = "button";
   pr1.onclick = () => printExam(code, false); pr2.onclick = () => printExam(code, true);
-  const tb = el("div", "tbtns"); tb.append(csv, pr1, pr2); box.append(tb);
+  const del = el("button", "btn ghost danger", "🗑 Шалгалтыг устгах"); del.type = "button";
+  del.onclick = async () => { if (!confirm("«" + r.contest.name + "» шалгалтыг бүх дүнтэй нь устгах уу? Буцааж сэргээх боломжгүй.")) return;
+    del.disabled = true; del.textContent = "Устгаж байна…"; const x = await api({ action: "contestDelete", code });
+    if (x.ok) renderPane(); else { del.disabled = false; del.textContent = "🗑 Шалгалтыг устгах"; alertBox("Устгаж чадсангүй."); } };
+  const tb = el("div", "tbtns"); tb.append(csv, pr1, pr2, del); box.append(tb);
   box.append(el("p", "note", "🖨 товч дарахад шалгалтын материал шинэ цонхонд нээгдэнэ. Тэндээс хэвлэх эсвэл «Save as PDF»-ээр PDF файл болгон хадгална."));
   box.append(rankTable(r.ranking, true));
 }
@@ -2516,6 +2521,16 @@ H.olympiads = async () => {   // админы зарласан олимпиад�
   const now = Date.now(), L = s.docs.map(d => pubC(d.id, d.data())).filter(c => c.status !== "done" || now - new Date(c.end).getTime() < 30 * 864e5);
   L.sort((a, b) => (a.status === "done") - (b.status === "done") || (a.start < b.start ? -1 : 1));
   return { ok: true, list: L };
+};
+H.contestDelete = async p => {   // багш өөрийн шалгалтыг бүх дүнтэй нь устгах
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: true };
+  if (!m.admin && cs.data().owner !== m.email) return { ok: false, error: "teacher" };
+  for (const sub of ["subs", "starts"]) { const L = (await getDocs(C("contests", code, sub))).docs;
+    for (let i = 0; i < L.length; i += 400) { const b = writeBatch(db); L.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); } }
+  await deleteDoc(D("contestQs", code)).catch(() => {}); await deleteDoc(D("contestKeys", code)).catch(() => {});
+  await deleteDoc(D("contests", code));
+  return { ok: true };
 };
 H.contestMine = async () => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
