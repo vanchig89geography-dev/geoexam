@@ -416,7 +416,7 @@ label.chk{display:flex;align-items:flex-start;gap:6px;font-size:13.5px;margin:8p
 .mapbox svg{display:block;width:100%;height:auto;max-height:62vh}
 .mapbox .mc{fill:#e9e5dc;stroke:#fff;stroke-width:.5;vector-effect:non-scaling-stroke}
 .mapbox .mc.t{fill:#d8d2c4;stroke:#9a9384}
-.mapbox .mc.hi{fill:#e5484d;stroke:#7a1013;stroke-width:1.2}
+.mapbox .mc.hi{fill:#e5484d;stroke:#7a1013;stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(229,72,77,.9));animation:mhi 1.2s ease-in-out infinite}@keyframes mhi{50%{stroke:#ff6b70;filter:drop-shadow(0 0 9px rgba(229,72,77,1))}}
 .mapbox .mring{fill:none;stroke:#e5484d;stroke-width:2.5;vector-effect:non-scaling-stroke;animation:mring 1.2s ease-in-out infinite}
 @keyframes mring{50%{stroke-opacity:.25}}
 .mzoom{position:absolute;right:8px;bottom:8px;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);border-radius:10px;padding:6px 10px;font:700 12.5px var(--btn-font);cursor:pointer}
@@ -635,7 +635,7 @@ body.onhome .title{display:none}
 
 .ivmapbox{width:100%;aspect-ratio:2/1.15;border-radius:12px;overflow:hidden;background:#cfe3f3;display:grid;place-items:center}
 .ivreal{width:100%;height:100%;display:block}.ivreal .mc{fill:#e9e5dc;stroke:#fff;stroke-width:.6}.ivreal .mc.t{fill:#d8d2c4;stroke:#9a9384}
-.ivreal path.ivhi2{fill:#d8d2c4;animation:ivhi2 .3s .4s forwards}@keyframes ivhi2{to{fill:#e5484d;stroke:#7a1013}}
+.ivreal path.ivhi2{fill:#d8d2c4;stroke-width:2.5;vector-effect:non-scaling-stroke;animation:ivhi2 .3s .4s forwards}@keyframes ivhi2{to{fill:#e5484d;stroke:#7a1013;filter:drop-shadow(0 0 6px rgba(229,72,77,.9))}}
 .ivwait{font-size:40px;animation:ivpop .5s both}
 .ivmap{width:min(66%,360px)}
 
@@ -707,6 +707,7 @@ body.onhome #list{margin-top:16px}
 :root[data-theme="dark"] .pick{background:#123326!important;border-color:#14532d!important}:root[data-theme="dark"] .pick>span{color:#6ee7b7!important}:root[data-theme="dark"] .pick select{background-color:#18181b!important;color:#ededef!important}
 .pick>span{min-width:96px;box-sizing:border-box}
 .btn.danger{color:#be123c!important;border-color:#fecdd3!important}.btn.danger:hover{background:#fff1f2!important}
+@media (max-width:440px){.acct b#acN{display:none}}
 </style>
 </head>
 <body>
@@ -1919,8 +1920,8 @@ function drawMapQ() {
   const top = el("div", "mtop"); const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => { clearTimeout(MG.to); MG = null; renderPane(); };
   top.append(back, el("span", "mprog", (MG.i + 1) + " / " + MG.list.length), el("span", "mscore", "Оноо " + MG.score)); box.append(top);
   const bar = el("div", "bar"); const bi = el("i"); bi.style.width = (MG.i / MG.list.length * 100) + "%"; bar.append(bi); box.append(bar);
-  const wrap = el("div", "mapbox"); const r = Math.max(10, Math.min(60, Math.max(T.w, T.h) / 2 + 8));
-  wrap.innerHTML = '<svg viewBox="0 0 ' + V.W + " " + V.H + '" preserveAspectRatio="xMidYMid meet">' + V.svg + '<circle class="mring" cx="' + T.c[0].toFixed(1) + '" cy="' + T.c[1].toFixed(1) + '" r="' + r.toFixed(1) + '"/></svg>';
+  const wrap = el("div", "mapbox"); if (Math.max(T.w, T.h) < 16) MG.zoom = true;   // жижиг улсыг автоматаар томруулна
+  wrap.innerHTML = '<svg viewBox="0 0 ' + V.W + " " + V.H + '" preserveAspectRatio="xMidYMid meet">' + V.svg + '</svg>';
   const svg = wrap.firstChild; svg.querySelectorAll('path[data-c="' + code + '"]').forEach(p => p.classList.add("hi"));
   const setZoom = () => { if (!MG.zoom) { svg.setAttribute("viewBox", "0 0 " + V.W + " " + V.H); return; }
     const s = Math.max(T.w, T.h, 60) * 3.2, w = Math.max(s, 160), h = w * V.H / V.W; svg.setAttribute("viewBox", (T.c[0] - w / 2).toFixed(1) + " " + (T.c[1] - h / 2).toFixed(1) + " " + w.toFixed(1) + " " + h.toFixed(1)); };
@@ -2118,7 +2119,7 @@ function ivScene(k) {
     if (typeof MAPDATA !== "undefined" && MAPDATA && typeof d3 !== "undefined") { try {
       const V = mapView("EU"), T = V.targets["250"];
       if (T) { const w = 420, h = w * V.H / V.W, x = Math.max(0, Math.min(V.W - w, T.c[0] - w / 2)), y = Math.max(0, Math.min(V.H - h, T.c[1] - h / 2));
-        map = '<svg class="ivreal" viewBox="' + x.toFixed(0) + " " + y.toFixed(0) + " " + w + " " + h.toFixed(0) + '" preserveAspectRatio="xMidYMid slice">' + V.svg.replace('class="mc t" data-c="250"', 'class="mc t ivhi2" data-c="250"') + '<circle class="ivring" cx="' + T.c[0].toFixed(1) + '" cy="' + T.c[1].toFixed(1) + '" r="' + Math.max(26, Math.max(T.w, T.h) / 2 + 10).toFixed(1) + '"/></svg>'; }
+        map = '<svg class="ivreal" viewBox="' + x.toFixed(0) + " " + y.toFixed(0) + " " + w + " " + h.toFixed(0) + '" preserveAspectRatio="xMidYMid slice">' + V.svg.replace('class="mc t" data-c="250"', 'class="mc t ivhi2" data-c="250"') + '</svg>'; }
     } catch (e) {} }
     s.innerHTML = '<div class="ivmap"><div class="ivmapbox">' + map + '</div><div class="ivtime"><i></i></div><div class="ivpills"><span>Герман</span><span class="ok">Франц ✓</span><span>Испани</span></div></div>';
   }
