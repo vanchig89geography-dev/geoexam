@@ -708,6 +708,8 @@ body.onhome #list{margin-top:16px}
 .pick>span{min-width:96px;box-sizing:border-box}
 .btn.danger{color:#be123c!important;border-color:#fecdd3!important}.btn.danger:hover{background:#fff1f2!important}
 @media (max-width:440px){.acct b#acN{display:none}}
+
+.mapbox .mfeat{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.mapbox .mfeat.mt{stroke:#8a4b1f;stroke-width:7;filter:drop-shadow(0 0 4px rgba(138,75,31,.9));animation:mfmt 1.2s ease-in-out infinite}@keyframes mfmt{50%{stroke:#c9742f;filter:drop-shadow(0 0 10px rgba(201,116,47,1))}}
 </style>
 </head>
 <body>
@@ -1838,6 +1840,49 @@ const MAP_C = {"004":["Афганистан","AS"],"050":["Бангладеш","
 "032":["Аргентин","SA"],"068":["Боливи","SA"],"076":["Бразил","SA"],"152":["Чили","SA"],"170":["Колумби","SA"],"218":["Эквадор","SA"],"328":["Гайана","SA"],"600":["Парагвай","SA"],"604":["Перу","SA"],"740":["Суринам","SA"],"858":["Уругвай","SA"],"862":["Венесуэл","SA"],
 "036":["Австрали","OC"],"554":["Шинэ Зеланд","OC"],"598":["Папуа Шинэ Гвиней","OC"],"242":["Фижи","OC"],"090":["Соломоны арлууд","OC"],"548":["Вануату","OC"],"882":["Самоа","OC"],"776":["Тонга","OC"],"296":["Кирибати","OC"],"583":["Микронези","OC"],"584":["Маршаллын арлууд","OC"],"585":["Палау","OC"],"520":["Науру","OC"],"798":["Тувалу","OC"]};
 const MAP_BYNAME = { "Kosovo": "XKX" };
+
+/* ---------- Уул нурууд: [нэр, тив, шугам [lon,lat]...] ---------- */
+const MAP_MT = [
+  ["Гималай","AS",[[73,35.5],[77,34],[81,30.5],[86,28.2],[91,27.8],[95,28.5]]],
+  ["Каракорум","AS",[[74,36.5],[76.5,35.9],[78,35.3]]],
+  ["Хиндукуш","AS",[[67,35],[69.5,35.5],[72,36.3]]],
+  ["Памир","AS",[[71,38],[73,38.6],[75,39]]],
+  ["Кунь-Лунь","AS",[[76,37.5],[82,36.5],[90,36],[98,35.8]]],
+  ["Тянь-Шань","AS",[[70,42],[75,42.5],[80,42.2],[86,43.2],[90,43.5]]],
+  ["Алтай","AS",[[84,52],[87,50],[90,48.5],[95,47],[99,45.5]]],
+  ["Гоби-Алтай","AS",[[97,45.5],[100,44.8],[104,43.8]]],
+  ["Саян","AS",[[89,52.5],[94,52.8],[99,52.3],[103,51.8]]],
+  ["Хангай","AS",[[96,48.5],[99,47.5],[102,46.8]]],
+  ["Хэнтий","AS",[[107,47.8],[109,48.5],[110.5,49.5]]],
+  ["Их Хинган","AS",[[120,52],[121.5,48],[119.5,44]]],
+  ["Верхоянск","AS",[[128,70],[131,67],[134,64]]],
+  ["Сихотэ-Алинь","AS",[[134,43.5],[136.5,45.5],[139,48]]],
+  ["Загрос","AS",[[44,37],[47,34],[51,31],[55,28]]],
+  ["Эльбурс","AS",[[49,36.5],[52,36],[55,36.5]]],
+  ["Урал","EU AS",[[59,68],[60,64],[59,60],[58,56],[57,52]]],
+  ["Кавказ","EU AS",[[37,45],[41,43.5],[44,43],[47,42],[49.5,41.5]]],
+  ["Альп","EU",[[5.5,44],[7,45.8],[10,46.5],[13,47],[15.5,47.3]]],
+  ["Пиреней","EU",[[-1.8,43.2],[0.5,42.7],[3,42.4]]],
+  ["Карпат","EU",[[17,49.5],[20.5,49.3],[23.5,48.5],[25,47],[25.5,45.5],[23,45.3]]],
+  ["Скандинавын уулс","EU",[[6,59],[8,61.5],[12,64],[16,67],[20,69]]],
+  ["Апеннин","EU",[[8,44.5],[11,43.5],[13.5,42],[16,40]]],
+  ["Балканы уулс","EU",[[22.5,43],[25,42.8],[27.5,43]]],
+  ["Атлас","AF",[[-8,31],[-5,32.5],[-2,34],[2,35.5],[7,36.2]]],
+  ["Этиопын өндөрлөг","AF",[[37,9],[38.5,11.5],[39.5,13.5]]],
+  ["Дракенсберг","AF",[[27,-31.5],[29,-29.5],[30,-27.5]]],
+  ["Анд","SA",[[-73,10],[-78,2],[-78,-6],[-75,-13],[-69,-20],[-70,-30],[-71,-40],[-73,-50]]],
+  ["Бразилийн өндөрлөг","SA",[[-44,-14],[-45,-19],[-48,-23]]],
+  ["Хадат уулс","NA",[[-130,60],[-120,52],[-114,46],[-108,40],[-106,35]]],
+  ["Аппалачи","NA",[[-67,47],[-73,43],[-79,39],[-84,35]]],
+  ["Сьерра-Невада","NA",[[-122,40.5],[-119.5,37.5],[-118,36]]],
+  ["Каскад","NA",[[-121,49],[-121.5,46],[-122,43]]],
+  ["Сьерра-Мадре","NA",[[-109,30],[-106,25],[-104,21]]],
+  ["Их Усны хагалбарын нуруу","OC",[[145,-16],[148,-21],[150,-27],[150,-33],[147,-37]]],
+  ["Өмнөд Альп","OC",[[172,-42],[170,-43.8],[168,-45.5]]]];
+const MAP_KINDS = [["c", "🌍 Улс орон"], ["mt", "🏔️ Уул нуруу"]];
+let mkind = st.get("ge-mkind") || "c";
+const mapFeats = kind => kind === "mt" ? MAP_MT : [];
+const mapKey = (kind, sc, cn) => (kind === "c" ? "" : kind.toUpperCase()) + sc + "-" + cn;
 let MAPDATA = null, MAPCACHE = {}, MG = null, mscope = st.get("ge-mscope") || "W", mcount = st.get("ge-mcount") || "10";
 /* TopoJSON → GeoJSON (topojson-client-тэй ижил аргаар) */
 function topoFeatures(topo, name) {
@@ -1880,10 +1925,10 @@ function mapView(scope) {   // тухайн бүсийн SVG-г нэг удаа 
         const bb = path.bounds(best); targets[f.code] = { c: path.centroid(best), w: bb[1][0] - bb[0][0], h: bb[1][1] - bb[0][1] }; }
       else targets[f.code] = { c, w, h };
       if (!isFinite(targets[f.code].c[0])) delete targets[f.code]; } });
-  return MAPCACHE[scope] = { svg, targets, W, H };
+  return MAPCACHE[scope] = { svg, targets, W, H, proj };
 }
 const mapName = c => MAP_C[c][0];
-const mapLabel = (sc, cn) => MAP_SCOPES.find(s => s.v === sc).t + " · " + (cn === "all" ? "бүх улс" : cn + " асуулт");
+const mapLabel = (sc, cn, kind) => (kind && kind !== "c" ? MAP_KINDS.find(k => k[0] === kind)[1].slice(3) + " · " : "") + MAP_SCOPES.find(s => s.v === sc).t + " · " + (cn === "all" ? (kind && kind !== "c" ? "бүгд" : "бүх улс") : cn + " асуулт");
 /* оноо: 2 секундын дотор зөв = 100, дараа нь секунд тутам 7-оор буурна (доод тал нь 10), буруу = 0 */
 const MAP_SEC = 15, mapPts = sec => Math.max(10, Math.round(100 - Math.max(0, sec - 2) * 7));
 function renderMapTab(box) {
@@ -1891,19 +1936,28 @@ function renderMapTab(box) {
     b.onclick = () => { if (v === mmode) return; if (v !== "battle") btStop(); mmode = v; st.set("ge-mmode", v); renderPane(); }; seg.append(b); });
   box.append(seg);
   if (mmode === "battle") return renderBattle(box);
-  box.append(el("p", "note", "Газарзүйн зураг дээр тодорсон улсын нэрийг сонгоорой. Бүс нутгаа сонгоод эхлүүлнэ."));
+  box.append(el("p", "note", mkind === "c" ? "Газарзүйн зураг дээр тодорсон улсын нэрийг сонгоорой. Бүс нутгаа сонгоод эхлүүлнэ." : "Зураг дээр тодорсон уул нурууны нэрийг сонгоорой."));
+  box.append(pick("Төрөл", MAP_KINDS.map(([v, t]) => ({ v, t })), mkind, v => { mkind = v; st.set("ge-mkind", v); renderPane(); }));
   box.append(pick("Бүс нутаг", MAP_SCOPES.map(s => ({ v: s.v, t: s.t })), mscope, v => { mscope = v; st.set("ge-mscope", v); renderPane(); }));
-  box.append(pick("Асуулт", [["10", "10 асуулт"], ["20", "20 асуулт"], ["all", "Бүх улс"]].map(([v, t]) => ({ v, t })), mcount, v => { mcount = v; st.set("ge-mcount", v); renderPane(); }));
+  box.append(pick("Асуулт", [["10", "10 асуулт"], ["20", "20 асуулт"], ["all", mkind === "c" ? "Бүх улс" : "Бүгд"]].map(([v, t]) => ({ v, t })), mcount, v => { mcount = v; st.set("ge-mcount", v); renderPane(); }));
   const go = el("button", "btn wide", "Эхлүүлэх"); go.type = "button"; go.onclick = () => startMap(); box.append(go);
-  renderLB(box, "map", mscope + "-" + mcount, mapLabel(mscope, mcount));
+  renderLB(box, "map", mapKey(mkind, mscope, mcount), mapLabel(mscope, mcount, mkind));
 }
 async function startMap() {
   const box = $("pane"); box.innerHTML = ""; box.append(el("p", "empty", "Газарзүйн зураг ачаалж байна…"));
   try { await loadMap(); } catch (e) { box.innerHTML = ""; alertBox("Газарзүйн зургийг ачаалж чадсангүй. Интернэтээ шалгаад дахин оролдоно уу."); return; }
-  const V = mapView(mscope); let pool = Object.keys(V.targets);
+  const V = mapView(mscope);
+  if (mkind !== "c") {   // уул нуруу г.м. шугаман объектууд
+    let F = mapFeats(mkind).map((f, i) => i).filter(i => mscope === "W" || mapFeats(mkind)[i][1].split(" ").indexOf(mscope) >= 0);
+    if (F.length < 4) { alertBox("Энэ бүс нутагт хангалттай объект алга. «Дэлхий»-г сонгоно уу."); renderPane(); return; }
+    for (let i = F.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [F[i], F[j]] = [F[j], F[i]]; }
+    const n = mcount === "all" ? F.length : Math.min(+mcount, F.length);
+    MG = { kind: mkind, scope: mscope, V: mapView("W"), list: F.slice(0, n), all: F.slice(), i: 0, score: 0, right: 0, secs: 0, zoom: true, cnt: mcount };
+    drawFeatQ(); return; }
+  let pool = Object.keys(V.targets);
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [pool[i], pool[j]] = [pool[j], pool[i]]; }
   const n = mcount === "all" ? pool.length : Math.min(+mcount, pool.length);
-  MG = { scope: mscope, V, list: pool.slice(0, n), all: Object.keys(V.targets), i: 0, score: 0, right: 0, secs: 0, zoom: false, cnt: mcount };
+  MG = { kind: "c", scope: mscope, V, list: pool.slice(0, n), all: Object.keys(V.targets), i: 0, score: 0, right: 0, secs: 0, zoom: false, cnt: mcount };
   drawMapQ();
 }
 function mapOptions(code, G = MG) {
@@ -1937,9 +1991,47 @@ function drawMapQ() {
     opts.querySelectorAll(".opt").forEach((x, j) => { x.disabled = true; if (O[j] === code) x.classList.add("ok"); else if (O[j] === c) x.classList.add("no"); });
     box.querySelector(".mscore").textContent = "Оноо " + MG.score;
     const f = el("div", "mpts " + (ok ? "ok" : "no"), ok ? "+" + pts : c === null ? "Хугацаа дууслаа" : "0"); wrap.append(f);
-    setTimeout(() => { MG.lock = false; MG.i++; if (MG.i < MG.list.length) drawMapQ(); else mapDone(); }, ok ? 800 : 1600);
+    setTimeout(() => { if (!MG) return; MG.lock = false; MG.i++; if (MG.i < MG.list.length) drawMapQ(); else mapDone(); }, ok ? 800 : 1600);
   };
   O.forEach((c, k) => { const b = el("button", "opt"); b.type = "button"; b.dataset.nosnd = 1; b.innerHTML = "<kbd>" + "ABCD"[k] + "</kbd>"; b.append(el("span", "", mapName(c)));
+    b.onclick = () => answer(c); opts.append(b); });
+  box.append(opts);
+  clearTimeout(MG.to); MG.to = setTimeout(() => answer(null), MAP_SEC * 1000);
+}
+
+function featOptions(idx) {   // 3 буруу хариулт: эхлээд нэг тивийнхээс
+  const F = mapFeats(MG.kind), reg = F[idx][1].split(" ")[0];
+  const same = MG.all.filter(i => i !== idx && F[i][1].split(" ").indexOf(reg) >= 0).sort(() => Math.random() - .5);
+  const other = MG.all.filter(i => i !== idx && same.indexOf(i) < 0).sort(() => Math.random() - .5);
+  return same.slice(0, 3).concat(other).slice(0, 3).concat(idx).sort(() => Math.random() - .5);
+}
+function drawFeatQ() {
+  const box = $("pane"); box.innerHTML = ""; const idx = MG.list[MG.i], F = mapFeats(MG.kind), f = F[idx], V = MG.V;
+  const top = el("div", "mtop"); const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => { clearTimeout(MG.to); MG = null; renderPane(); };
+  top.append(back, el("span", "mprog", (MG.i + 1) + " / " + MG.list.length), el("span", "mscore", "Оноо " + MG.score)); box.append(top);
+  const bar = el("div", "bar"); const bi = el("i"); bi.style.width = (MG.i / MG.list.length * 100) + "%"; bar.append(bi); box.append(bar);
+  const path = d3.geoPath(V.proj).digits(1), geo = { type: "LineString", coordinates: f[2] }, d = path(geo), bb = path.bounds(geo);
+  const wrap = el("div", "mapbox");
+  wrap.innerHTML = '<svg viewBox="0 0 ' + V.W + " " + V.H + '" preserveAspectRatio="xMidYMid meet">' + V.svg + '<path class="mfeat ' + MG.kind + '" d="' + d + '"/></svg>';
+  const svg = wrap.firstChild;
+  const setZoom = () => { if (!MG.zoom) { svg.setAttribute("viewBox", "0 0 " + V.W + " " + V.H); return; }
+    const cx = (bb[0][0] + bb[1][0]) / 2, cy = (bb[0][1] + bb[1][1]) / 2, s = Math.max(bb[1][0] - bb[0][0], bb[1][1] - bb[0][1], 60) * 2.6, w = Math.min(V.W, Math.max(s, 200)), h = w * V.H / V.W;
+    svg.setAttribute("viewBox", (cx - w / 2).toFixed(1) + " " + (cy - h / 2).toFixed(1) + " " + w.toFixed(1) + " " + h.toFixed(1)); };
+  const zb = el("button", "mzoom", MG.zoom ? "－ Бүтнээр" : "＋ Томруулах"); zb.type = "button"; zb.onclick = () => { MG.zoom = !MG.zoom; zb.textContent = MG.zoom ? "－ Бүтнээр" : "＋ Томруулах"; setZoom(); };
+  wrap.append(zb); setZoom(); box.append(wrap);
+  box.append(el("p", "mq", MG.kind === "mt" ? "Тодорсон уул нуруу аль нь вэ?" : "Тодорсон объект аль нь вэ?"));
+  const tb = el("div", "mtime"); const ti = el("i"); ti.style.animationDuration = MAP_SEC + "s"; tb.append(ti); box.append(tb);
+  const opts = el("div", "mopts"), O = featOptions(idx), t0 = performance.now();
+  const answer = c => {
+    if (MG.lock) return; MG.lock = true; clearTimeout(MG.to); ti.style.animationPlayState = "paused";
+    const sec = (performance.now() - t0) / 1000, ok = c === idx, pts = ok ? mapPts(sec) : 0;
+    MG.score += pts; MG.secs += Math.min(sec, MAP_SEC); if (ok) MG.right++; play(ok ? "ok" : "no");
+    opts.querySelectorAll(".opt").forEach((x, j) => { x.disabled = true; if (O[j] === idx) x.classList.add("ok"); else if (O[j] === c) x.classList.add("no"); });
+    box.querySelector(".mscore").textContent = "Оноо " + MG.score;
+    const fl = el("div", "mpts " + (ok ? "ok" : "no"), ok ? "+" + pts : c === null ? "Хугацаа дууслаа" : "0"); wrap.append(fl);
+    setTimeout(() => { if (!MG) return; MG.lock = false; MG.i++; if (MG.i < MG.list.length) drawFeatQ(); else mapDone(); }, ok ? 800 : 1600);
+  };
+  O.forEach((c, k) => { const b = el("button", "opt"); b.type = "button"; b.dataset.nosnd = 1; b.innerHTML = "<kbd>" + "ABCD"[k] + "</kbd>"; b.append(el("span", "", F[c][0]));
     b.onclick = () => answer(c); opts.append(b); });
   box.append(opts);
   clearTimeout(MG.to); MG.to = setTimeout(() => answer(null), MAP_SEC * 1000);
@@ -1948,13 +2040,13 @@ function mapDone() {
   const box = $("pane"); box.innerHTML = ""; const n = MG.list.length, pct = n ? Math.round(MG.right / n * 100) : 0;
   play(pct >= 70 ? "up" : pct >= 50 ? "good" : "end");
   const sc = MAP_SCOPES.find(s => s.v === MG.scope).t;
-  const r = el("div", "mres"); r.append(el("div", "mpct", MG.score + " оноо"), el("p", "", sc + " · " + n + " улсаас " + MG.right + " нь зөв (" + pct + "%) · дунджаар " + (n ? (MG.secs / n).toFixed(1) : 0) + " секунд"),
+  const r = el("div", "mres"); r.append(el("div", "mpct", MG.score + " оноо"), el("p", "", sc + " · " + n + (MG.kind === "c" ? " улсаас " : " объектоос ") + MG.right + " нь зөв (" + pct + "%) · дунджаар " + (n ? (MG.secs / n).toFixed(1) : 0) + " секунд"),
     el("p", "lbn", pct >= 90 ? "Гайхалтай! Газарзүйч болох нь ээ!" : pct >= 70 ? "Сайн байна!" : pct >= 50 ? "Дунд зэрэг, дахин давтъя." : "Дахин давтвал сайжирна."));
-  const again = el("button", "btn wide", "Дахин тоглох"); again.type = "button"; again.onclick = () => startMap();
+  const again = el("button", "btn wide", "Дахин тоглох"); again.type = "button"; again.onclick = () => { mkind = MG.kind || "c"; startMap(); };
   const back = el("button", "btn ghost wide", "Буцах"); back.type = "button"; back.onclick = () => { MG = null; renderPane(); };
   r.append(again, back); box.append(r);
-  const lb = el("div", "lb mlb"); lb.append(el("div", "lbh", "🏆 Тэргүүлэгчид · " + mapLabel(MG.scope, MG.cnt))); const lbb = el("div", "lbb"); lbb.append(el("p", "lbn", "Ачаалж байна…")); lb.append(lbb); box.append(lb);
-  mapBoard(lbb, MG.scope + "-" + MG.cnt, MG.score);
+  const lb = el("div", "lb mlb"); lb.append(el("div", "lbh", "🏆 Тэргүүлэгчид · " + mapLabel(MG.scope, MG.cnt, MG.kind))); const lbb = el("div", "lbb"); lbb.append(el("p", "lbn", "Ачаалж байна…")); lb.append(lbb); box.append(lb);
+  mapBoard(lbb, mapKey(MG.kind, MG.scope, MG.cnt), MG.score);
 }
 async function mapBoard(body, cat, myScore) {   // эхний 5 сурагч + миний байр
   if (ONLINE && token) { try { await post({ action: "result", token, testId: "map:" + cat, score: myScore, total: (MG ? MG.list.length : 10) * 100, mode: "Газарзүйн зураг" }); } catch (e) {} }
