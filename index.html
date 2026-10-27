@@ -416,7 +416,7 @@ label.chk{display:flex;align-items:flex-start;gap:6px;font-size:13.5px;margin:8p
 .mapbox svg{display:block;width:100%;height:auto;max-height:62vh}
 .mapbox .mc{fill:#e9e5dc;stroke:#fff;stroke-width:.5;vector-effect:non-scaling-stroke}
 .mapbox .mc.t{fill:#d8d2c4;stroke:#9a9384}
-.mapbox .mc.hi{fill:#e5484d;stroke:#7a1013;stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(229,72,77,.9));animation:mhi 1.2s ease-in-out infinite}@keyframes mhi{50%{stroke:#ff6b70;filter:drop-shadow(0 0 9px rgba(229,72,77,1))}}
+.mapbox .mc.hi,.mapbox .mc.t.hi,:root:not([data-theme="light"]) .mapbox .mc.t.hi,:root[data-theme="dark"] .mapbox .mc.t.hi{fill:#e5484d!important;stroke:#7a1013;stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(229,72,77,.9));animation:mhi 1.2s ease-in-out infinite}@keyframes mhi{50%{fill:#ff5a60;stroke:#ff8a8e;filter:drop-shadow(0 0 9px rgba(229,72,77,1))}}
 .mapbox .mring{fill:none;stroke:#e5484d;stroke-width:2.5;vector-effect:non-scaling-stroke;animation:mring 1.2s ease-in-out infinite}
 @keyframes mring{50%{stroke-opacity:.25}}
 .mzoom{position:absolute;right:8px;bottom:8px;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);border-radius:10px;padding:6px 10px;font:700 12.5px var(--btn-font);cursor:pointer}
