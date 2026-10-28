@@ -2097,18 +2097,18 @@ function renderBattle(box) {
   box.append(j);
   // үүсгэх
   const cr = el("div", "bcreate"); cr.append(el("b", "", "Шинэ өрөө үүсгэх"));
-  let bmode = st.get("ge-bmode") || "1v1", bscope = st.get("ge-bscope") || "W", bn = st.get("ge-bn") || "10";
+  let bmode = st.get("ge-bmode") || "1v1", bkind = st.get("ge-bkind") || "c", bscope = st.get("ge-bscope") || "W", bn = st.get("ge-bn") || "10";
   const seg = el("div", "bseg"); [["1v1", "1 vs 1"], ["group", "Бүлгээр (10 хүртэл)"]].forEach(([v, t]) => { const b = el("button", v === bmode ? "on" : "", t); b.type = "button";
     b.onclick = () => { bmode = v; st.set("ge-bmode", v); seg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); }; seg.append(b); });
-  cr.append(seg, pick("Бүс нутаг", MAP_SCOPES.map(s => ({ v: s.v, t: s.t })), bscope, v => { bscope = v; st.set("ge-bscope", v); }),
+  cr.append(seg, pick("Төрөл", [["c", "🌍 Улс орон"], ["fl", "🚩 Туг"]].map(([v, t]) => ({ v, t })), bkind, v => { bkind = v; st.set("ge-bkind", v); }), pick("Бүс нутаг", MAP_SCOPES.map(s => ({ v: s.v, t: s.t })), bscope, v => { bscope = v; st.set("ge-bscope", v); }),
     pick("Асуулт", [["10", "10 асуулт"], ["15", "15 асуулт"], ["20", "20 асуулт"]].map(([v, t]) => ({ v, t })), bn, v => { bn = v; st.set("ge-bn", v); }));
   const mk = el("button", "btn wide", "⚔️ Өрөө үүсгэх"); mk.type = "button"; const me = el("p", "err");
   mk.onclick = async () => { mk.disabled = true; me.textContent = "Бэлдэж байна…";
     try { await loadMap(); } catch (e) { me.textContent = "Газарзүйн зургийг ачаалж чадсангүй."; mk.disabled = false; return; }
-    const V = mapView(bscope), all = Object.keys(V.targets), pool = all.slice();
+    const V = mapView(bscope), all = Object.keys(V.targets), pool = all.filter(c => bkind === "c" || MAP_A2[c]);
     for (let i = pool.length - 1; i > 0; i--) { const k = Math.random() * (i + 1) | 0; [pool[i], pool[k]] = [pool[k], pool[i]]; }
     const G = { V, all, scope: bscope }, qs = pool.slice(0, Math.min(+bn, pool.length)).map(c => ({ c, o: mapOptions(c, G) }));
-    const r = await api({ action: "battleCreate", mode: bmode, scope: bscope, qs }); mk.disabled = false;
+    const r = await api({ action: "battleCreate", mode: bmode, kind: bkind, scope: bscope, qs }); mk.disabled = false;
     if (!r.ok) { me.textContent = BT_ERR[r.error] || "Алдаа гарлаа."; return; } me.textContent = ""; btEnter(r.code); };
   cr.append(mk, me); box.append(cr);
   if (AUTO_B) { const c = AUTO_B; AUTO_B = null; setTimeout(() => btJoin(c, err), 0); }
@@ -2139,7 +2139,7 @@ function btScreen() {   // хүлээлгийн өрөө
   const back = el("button", "link", "← Гарах"); back.type = "button"; back.onclick = () => { btStop(); renderPane(); }; box.append(back);
   const h = el("div", "blobby");
   h.append(el("span", "tg st-open", b.mode === "group" ? "Бүлгээр · " + b.max + " хүртэл" : "1 vs 1"), el("div", "bcode", BT.code),
-    el("p", "", MAP_SCOPES.find(s => s.v === b.scope).t + " · " + b.n + " асуулт · асуулт бүр " + BT_SEC + " секунд"));
+    el("p", "", (b.kind === "fl" ? "🚩 Туг · " : "🌍 Улс орон · ") + MAP_SCOPES.find(s => s.v === b.scope).t + " · " + b.n + " асуулт · асуулт бүр " + BT_SEC + " секунд"));
   const link = location.origin + location.pathname + "?b=" + BT.code;
   const sh = el("button", "btn ghost", "🔗 Найзаа дуудах"); sh.type = "button";
   sh.onclick = async () => { try { if (navigator.share) await navigator.share({ title: "GeoExam Battle", text: "Газарзүйн зургийн Battle-д ороорой! Код: " + BT.code, url: link }); else { await navigator.clipboard.writeText(link); sh.textContent = "✓ Холбоос хуулагдлаа"; } } catch (e) {} };
@@ -2158,6 +2158,7 @@ function btCountdown() {
   const c = el("div", "bcount"); box.append(c);
   const tick = () => { const left = Math.ceil((BT.b.start - Date.now()) / 1000);
     if (left > 0) { c.textContent = left; play("tap"); } else { clearInterval(BT.cd); BT.phase = "play"; BT.i = 0; btQ(); } };
+  if (BT.b.kind === "fl") BT.b.qs.slice(0, 3).forEach(q => flagPre(q.c));
   loadMap().then(() => { tick(); BT.cd = setInterval(tick, 1000); }).catch(() => alertBox("Газарзүйн зургийг ачаалж чадсангүй."));
 }
 function btLive() {   // дээд талын оноо (бодит цагаар)
@@ -2169,14 +2170,17 @@ function btQ() {
   if (!BT) return; const b = BT.b, q = b.qs[BT.i], V = mapView(b.scope), T = V.targets[q.c], box = $("pane"); box.innerHTML = "";
   const live = el("div", "blive"); live.id = "blive"; box.append(live); btLive();
   const top = el("div", "mtop"); top.append(el("span", "mprog", (BT.i + 1) + " / " + b.n), el("span", "mscore", "Оноо " + BT.score)); box.append(top);
-  const wrap = el("div", "mapbox"); const r = T ? Math.max(10, Math.min(60, Math.max(T.w, T.h) / 2 + 8)) : 20;
-  wrap.innerHTML = '<svg viewBox="0 0 ' + V.W + " " + V.H + '" preserveAspectRatio="xMidYMid meet">' + V.svg + (T ? '<circle class="mring" cx="' + T.c[0].toFixed(1) + '" cy="' + T.c[1].toFixed(1) + '" r="' + r.toFixed(1) + '"/>' : "") + "</svg>";
+  const FL = b.kind === "fl"; let wrap;
+  if (FL) { b.qs.slice(BT.i + 1, BT.i + 3).forEach(x => flagPre(x.c));
+    wrap = el("div", "mflag"); const im = el("img"); im.alt = "Туг"; im.src = flagUrl(q.c, 640); im.onerror = () => im.replaceWith(el("span", "mflagemo", flagEmoji(q.c))); wrap.append(im); box.append(wrap); }
+  else { wrap = el("div", "mapbox"); if (T && Math.max(T.w, T.h) < 16) wrap.dataset.small = 1;
+  wrap.innerHTML = '<svg viewBox="0 0 ' + V.W + " " + V.H + '" preserveAspectRatio="xMidYMid meet">' + V.svg + "</svg>";
   wrap.firstChild.querySelectorAll('path[data-c="' + q.c + '"]').forEach(p => p.classList.add("hi"));
   let zoom = false; const svg = wrap.firstChild, zb = el("button", "mzoom", "＋ Томруулах"); zb.type = "button";
   zb.onclick = () => { zoom = !zoom; zb.textContent = zoom ? "－ Бүтнээр" : "＋ Томруулах";
     if (!zoom || !T) svg.setAttribute("viewBox", "0 0 " + V.W + " " + V.H); else { const w = Math.max(Math.max(T.w, T.h, 60) * 3.2, 160), h = w * V.H / V.W; svg.setAttribute("viewBox", (T.c[0] - w / 2) + " " + (T.c[1] - h / 2) + " " + w + " " + h); } };
-  wrap.append(zb); box.append(wrap);
-  box.append(el("p", "mq", "Тодорсон улс аль нь вэ?"));
+  wrap.append(zb); box.append(wrap); if (wrap.dataset.small) zb.onclick(); }
+  box.append(el("p", "mq", FL ? "Энэ аль улсын туг вэ?" : "Тодорсон улс аль нь вэ?"));
   const tb = el("div", "mtime"); const ti = el("i"); ti.style.animationDuration = BT_SEC + "s"; tb.append(ti); box.append(tb);
   const opts = el("div", "mopts"), t0 = performance.now(); let lock = false;
   const answer = c => { if (lock || !BT) return; lock = true; clearTimeout(BT.to); ti.style.animationPlayState = "paused";
@@ -2758,7 +2762,7 @@ H.battleCreate = async p => {
   const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
   let code; do { code = String(Math.floor(10000 + Math.random() * 90000)); } while ((await getDoc(D("battles", code))).exists());
   const mode = p.mode === "group" ? "group" : "1v1";
-  await setDoc(D("battles", code), { host: m.uid, hostName: m.name, mode, max: mode === "group" ? 10 : 2, scope: String(p.scope || "W"), n: (p.qs || []).length, qs: p.qs || [], status: "lobby", created: Timestamp.now() });
+  await setDoc(D("battles", code), { host: m.uid, hostName: m.name, mode, max: mode === "group" ? 10 : 2, scope: String(p.scope || "W"), kind: p.kind === "fl" ? "fl" : "c", n: (p.qs || []).length, qs: p.qs || [], status: "lobby", created: Timestamp.now() });
   await setDoc(D("battles", code, "players", m.uid), { name: m.name, score: 0, right: 0, i: 0, done: false, at: Timestamp.now() });
   return { ok: true, code };
 };
