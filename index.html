@@ -2544,22 +2544,22 @@ function linesToQs(lines) {
   const letIdx = (q, L) => { L = L.toUpperCase(); const k = q.lets.indexOf(L); if (k >= 0) return k; const a = "ABCDE".indexOf(L), b = "АБВГД".indexOf(L); return a >= 0 ? a : b >= 0 ? b : L === "Е" ? 4 : -1; };
   for (const ln of lines) {
     const t = ln.t.replace(/ /g, " ").trim(); if (!t) continue;
-    if (/^(хариу(лт)?ын\s+түлхүүр|зөв\s+хариу(нууд)?|хариу)\s*:?\s*$/i.test(t)) { inKey = true; cur = null; continue; }
+    if (/^(хариу(лт)?ын\s+түлхүүр|зөв\s+хариу(лт)?(нууд|ууд)?|хариу(лт)?(нууд|ууд)?|түлхүүр)\s*:?\s*$/i.test(t)) { inKey = true; cur = null; continue; }
     // хариултын түлхүүр: "1-B 2-C", "1.B, 2.C", "1) B"
-    const km = t.match(/(\d{1,3})\s*[-.)\s:]\s*([A-EА-Д])(?![A-Za-zА-Яа-яӨөҮү])/g);
-    if (km && !/^[*✓✔]?\s*[A-EА-Д]\s*[.)]/.test(t) && (inKey || km.length >= 5 && t.replace(/(\d{1,3})\s*[-.)\s:]\s*([A-EА-Д])/g, "").replace(/[\s,;|]/g, "").length < 4)) { km.forEach(s => { const m = s.match(/(\d{1,3})\s*[-.)\s:]\s*([A-EА-Д])/); key[+m[1]] = m[2]; }); continue; }
+    const km = t.match(/(\d{1,3})\s*[-.)\s:]\s*([A-Ea-eА-Да-д])(?![A-Za-zА-Яа-яӨөҮүЁё])/g);
+    if (km && !/^[*✓✔]?\s*[A-Ea-eА-Да-д]\s*[.)]/.test(t) && (inKey || km.length >= 5 && t.replace(/(\d{1,3})\s*[-.)\s:]\s*([A-Ea-eА-Да-д])/g, "").replace(/[\s,;|]/g, "").length < 4)) { km.forEach(s => { const m = s.match(/(\d{1,3})\s*[-.)\s:]\s*([A-Ea-eА-Да-д])/); key[+m[1]] = m[2]; }); continue; }
     let m;
     if ((m = t.match(/^(\d{1,3})\s*[.)]\s*(.+)$/)) && (!cur || cur.o.length >= 2 || (+m[1] === cur.n + 1 && /оноо|[?]\s*$|(уу|үү|вэ|бэ)\.?\s*$/i.test(m[2])))) {   // доторх «1. … 2. …» өгүүлбэрүүдийг асуулт гэж андуурахгүй
       let q = m[2], p = 1; const pm = q.match(/[/(]\s*(\d{1,2})\s*оноо\s*[/)]/i); if (pm) { p = +pm[1]; q = q.replace(pm[0], "").trim(); }
       cur = { n: +m[1], q, o: [], lets: [], a: -1, p, sol: "", topic, bold: [] }; Q.push(cur); inKey = false; continue; }
-    const head = t.length < 70 && !/^[*✓✔]?\s*[A-EА-Д]\s*[.)]/.test(t) && !/^\d+\s*[.)]/.test(t) && !/хариу|тайлбар/i.test(t) && (t === t.toUpperCase() && /[А-ЯӨҮA-Z]{3}/.test(t) || /^(дэд\s+)?сэдэв(\s|$)|^\d+\s+(даалгавар|асуулт)$|^(бүлэг|хэсэг)(\s|$)/i.test(t));
+    const head = t.length < 70 && !/^[*✓✔]?\s*[A-Ea-eА-Да-д]\s*[.)]/.test(t) && !/^\d+\s*[.)]/.test(t) && !/хариу|тайлбар/i.test(t) && (t === t.toUpperCase() && /[А-ЯӨҮA-Z]{3}/.test(t) || /^(дэд\s+)?сэдэв(\s|$)|^\d+\s+(даалгавар|асуулт)$|^(бүлэг|хэсэг)(\s|$)/i.test(t));
     if (head) { if (t === t.toUpperCase() && !/^\d/.test(t)) { const lo = t.toLowerCase(), hit = (typeof TOPIC_ORDER !== "undefined" ? TOPIC_ORDER : []).find(x => x.toLowerCase() === lo); topic = hit || t.charAt(0) + lo.slice(1); } cur = null; continue; }
     if (!cur) continue;
-    if ((m = t.match(/^[*✓✔]?\s*([A-EА-Д])\s*[.)]\s*(.*)$/)) && cur.o.length < 5) {
+    if ((m = t.match(/^[*✓✔]?\s*([A-Ea-eА-Да-д])\s*[.)]\s*(.*)$/)) && cur.o.length < 5) {
       let s = m[2], ok = /[✓✔]|\(\s*зөв\s*\)|\*\s*$/.test(s) || /^[*✓✔]/.test(t);
       s = s.replace(/[✓✔]/g, "").replace(/\(\s*зөв\s*\)/gi, "").replace(/\*+\s*$/, "").trim();
       cur.o.push(s); cur.lets.push(m[1].toUpperCase()); cur.bold.push(ln.b); if (ok) cur.a = cur.o.length - 1; continue; }
-    if ((m = t.match(/^(зөв\s+)?хариу(лт)?\s*[:：-]\s*([A-EА-Д])\b/i))) { const k = letIdx(cur, m[3]); if (k >= 0) cur.a = k; continue; }
+    if ((m = t.match(/^(зөв\s+)?хариу(лт)?\s*[:：-]\s*([A-Ea-eА-Да-д])(?![A-Za-zА-Яа-яӨөҮүЁё])/i))) { const k = letIdx(cur, m[3]); if (k >= 0) cur.a = k; continue; }
     if ((m = t.match(/^тайлбар\s*[:：-]\s*(.*)$/i))) { cur.sol = m[1]; continue; }
     if (cur.o.length === 0) cur.q += " " + t; else if (cur.sol) cur.sol += " " + t;
   }
@@ -2613,7 +2613,7 @@ function myImport() {
   box.append(el("p", "note", "Word (.docx), PDF, Excel (.xlsx, .csv) эсвэл текст файлаа сонгоход сайт асуулт, хариултын сонголт, зөв хариуг автоматаар таньна. Шалгаад «Хадгалах» дарна."));
   const fmt = el("details", "impfmt"); fmt.append(el("summary", "", "Файл ямар байх вэ? (жишээ)"));
   fmt.append(el("pre", "", "1. Дэлхийн хамгийн урт гол аль нь вэ?  /1 оноо/\nA. Амазон\nB. Миссисипи\nC. Нил  ✓\nD. Янцзы\nТайлбар: Нил — 6650 км\n\n2. Монгол улсын нийслэл?\nA. Дархан\nB. Улаанбаатар\nC. Эрдэнэт\nЗөв хариу: B"),
-    el("p", "lbn", "Зөв хариуг дараах аль нэгээр тэмдэглэнэ: сонголтын ард ✓ эсвэл *, «Зөв хариу: B» мөр, сонголтыг тод (bold) / өнгөөр ялгах, эсвэл файлын төгсгөлд «Хариу: 1-C 2-B 3-A …» түлхүүр."),
+    el("p", "lbn", "Зөв хариуг дараах аль нэгээр тэмдэглэнэ: сонголтын ард ✓ эсвэл *, «Зөв хариу: B» мөр (A B C D E эсвэл А Б В Г Д аль нь ч болно), сонголтыг тод (bold) / өнгөөр ялгах, эсвэл файлын төгсгөлд «Хариу: 1-C 2-B 3-A …» түлхүүр."),
     el("p", "lbn", "Excel: 1-р мөрөнд Асуулт | A | B | C | D | E | Хариу | Оноо | Тайлбар гэсэн гарчигтай, мөр бүр нэг асуулт."));
   const tpl = el("button", "link", "⬇ Excel загвар татах"); tpl.type = "button";
   tpl.onclick = () => { const rows = [["Асуулт", "A", "B", "C", "D", "E", "Хариу", "Оноо", "Тайлбар"], ["Дэлхийн хамгийн урт гол аль нь вэ?", "Амазон", "Миссисипи", "Нил", "Янцзы", "", "C", "1", "Нил — 6650 км"], ["Монгол улсын нийслэл?", "Дархан", "Улаанбаатар", "Эрдэнэт", "", "", "B", "1", ""]];
