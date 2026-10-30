@@ -732,6 +732,21 @@ body.omr-on{overflow:hidden}.omr{position:fixed;inset:0;z-index:9999;background:
 .impta{width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}.imphead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 8px}.imphead b{flex:1}.imphead select{font:inherit;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
 .imq{position:relative}.imq.miss{border:2px solid #f5a524!important}.imqt{display:flex;gap:8px;align-items:flex-start}.imqt b{flex:1}.imx{border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 4px}.imo{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:5px 9px;cursor:pointer}.imo.ok{background:rgba(34,197,94,.16);border-color:#22c55e;font-weight:700}
 .impai{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0;background:var(--surface)}.impai>b{display:block;margin-bottom:4px}.impai a.btn{text-decoration:none}.imq.aiq{border-color:#8b5cf6}.aib{display:block;color:#8b5cf6;font-weight:600;margin-top:4px}
+
+.bsec{border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:12px 0;background:var(--surface)}.bsech{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:16px}.bnum1{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--bg);display:grid;place-items:center;font-weight:800;font-size:14px}
+.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 12px}.bgrid .fld.full{grid-column:1/-1}@media(max-width:620px){.bgrid{grid-template-columns:1fr 1fr}.bgrid .fld:last-child{grid-column:1/-1}}
+.bsw{display:flex;align-items:center;gap:12px;padding:10px 2px;border-top:1px solid var(--line);cursor:pointer}.bswt{flex:1}.bswt b{display:block;font-size:14px}.bswt small{color:var(--muted);font-size:12px}.bsw input{position:absolute;opacity:0;pointer-events:none}.bswk{flex:none;width:44px;height:26px;border-radius:13px;background:var(--line);position:relative;transition:.2s}.bswk:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:.2s}.bsw input:checked+.bswk{background:#22c55e}.bsw input:checked+.bswk:after{left:21px}
+.bfilt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}@media(max-width:620px){.bfilt{grid-template-columns:1fr}}
+.msel{position:relative;display:block}.msel>summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:1px;border:1px solid var(--line);border-radius:12px;padding:8px 34px 8px 12px;background:var(--bg);position:relative}.msel>summary::-webkit-details-marker{display:none}.msel>summary:after{content:"▾";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.mslab{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}.msval{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.msel.on>summary{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.mspanel{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 4px);min-width:220px;max-height:320px;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.25);padding:6px}
+.msopt{display:flex;align-items:center;gap:10px;padding:8px 8px;border-radius:8px;cursor:pointer;font-size:14px}.msopt:hover{background:var(--bg)}.msopt input{width:18px;height:18px;accent-color:#22c55e;flex:none}
+.msft{position:sticky;bottom:-6px;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 6px 6px;background:var(--surface);border-top:1px solid var(--line);margin-top:4px}.msft .btn{min-height:32px;padding:4px 14px}
+.msel.ms1{border:1px solid var(--line);border-radius:12px;padding:6px 12px;background:var(--bg);display:flex;flex-direction:column;gap:1px}.msel.ms1 select{border:0;background:transparent;color:var(--fg);font:600 14px var(--font);padding:2px 0;outline:none;width:100%}
+.brnd{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0 6px;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px dashed var(--line)}.bnw{display:flex;align-items:center;gap:6px;font-size:14px}.bnw .bnum{width:70px}.brnd .beq{flex:1;min-width:150px;margin:0}
+.bfoot{position:sticky;bottom:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;margin:10px -4px 0;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.12)}.bfoot .bcnt{font-size:14px}
+.bgrid .fld{min-width:0}.bgrid .fld input{width:100%;min-width:0;box-sizing:border-box}@media(max-width:480px){.bgrid{grid-template-columns:1fr}}
+.mspanel{right:auto;width:max(100%,280px)}.bfilt .msel:last-child .mspanel{left:auto;right:0}
 </style>
 </head>
 <body>
@@ -1607,18 +1622,17 @@ async function contestBuilder() {
   box.innerHTML = ""; const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
   box.append(el("h3", "bh", user.admin ? "Шинэ шалгалт / олимпиад" : "Шинэ шалгалт"));
   const now = new Date(), p = n => String(n).padStart(2, "0"), loc = d => d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes());
-  const f = el("div", "bform");
-  const fld = (lab, inp) => { const l = el("label", "fld"); l.append(el("span", "", lab), inp); f.append(l); return inp; };
-  const nm = fld("Нэр", Object.assign(el("input"), { placeholder: "Жишээ: 10-р ангийн газарзүйн шалгалт", maxLength: 80 }));
-  const ds = fld("Тайлбар (заавал биш)", Object.assign(el("input"), { maxLength: 200 }));
+  const sec = (num, title) => { const c = el("section", "bsec"); const h = el("div", "bsech"); h.append(el("span", "bnum1", num), el("b", "", title)); c.append(h); box.append(c); return c; };
+  const S1 = sec("1", "Шалгалтын мэдээлэл"), f = el("div", "bform bgrid"); S1.append(f);
+  const fld = (lab, inp, cls) => { const l = el("label", "fld" + (cls ? " " + cls : "")); l.append(el("span", "", lab), inp); f.append(l); return inp; };
+  const nm = fld("Нэр", Object.assign(el("input"), { placeholder: "Жишээ: 10-р ангийн газарзүйн шалгалт", maxLength: 80 }), "full");
+  const ds = fld("Тайлбар (заавал биш)", Object.assign(el("input"), { maxLength: 200, placeholder: "Жишээ: 1-р улирлын явцын шалгалт" }), "full");
   const s1 = fld("Эхлэх", Object.assign(el("input"), { type: "datetime-local", value: loc(new Date(now.getTime() + 10 * 60e3)) }));
   const s2 = fld("Дуусах", Object.assign(el("input"), { type: "datetime-local", value: loc(new Date(now.getTime() + 2 * 3600e3)) }));
   const mn = fld("Хугацаа (минут)", Object.assign(el("input"), { type: "number", value: 30, min: 1, max: 600 }));
-  const rcl = el("label", "chk"); const rc = Object.assign(el("input"), { type: "checkbox", checked: false }); rc.id = "cRec";
-  rcl.append(rc, el("span", "", " Дэлгэцийн бичлэгтэй (зөвхөн компьютерээр оролцоно)")); f.append(rcl);
-  const ocl = el("label", "chk"); const oc = Object.assign(el("input"), { type: "checkbox", checked: !!user.admin }); oc.id = "cOlymp";
-  ocl.append(oc, el("span", "", " 🏆 Олимпиад болгох (бүх хэрэглэгчийн «Олимпиадууд» жагсаалтад харагдана)")); if (user.admin) f.append(ocl);
-  box.append(f);
+  const sw = (on, title, sub) => { const l = el("label", "bsw"), i = Object.assign(el("input"), { type: "checkbox", checked: on }), t = el("span", "bswt"); t.append(el("b", "", title), el("small", "", sub)); l.append(t, i, el("i", "bswk")); S1.append(l); return i; };
+  const rc = sw(false, "🎥 Дэлгэцийн бичлэгтэй", "Сурагч зөвхөн компьютерээр оролцоно, дэлгэц нь бичигдэнэ"); rc.id = "cRec";
+  const oc = user.admin ? sw(true, "🏆 Олимпиад болгох", "Бүх хэрэглэгчийн «Олимпиадууд» жагсаалтад харагдана") : Object.assign(el("input"), { type: "checkbox", checked: false }); oc.id = "cOlymp";
   // сонгогч
   const sel = new Set();
   // Ангилал → хувилбар/тест → бүлэг сэдвээр шүүгээд, хүссэн тоогоор санамсаргүй түүвэр авна
@@ -1628,30 +1642,35 @@ async function contestBuilder() {
   const opt = (txt, v) => Object.assign(el("option", "", txt), { value: v });
   // олон сонголттой шүүлтүүр: ангилал ба бүлгүүдийг чеклээд холино
   const selC = new Set(), selP = new Set();
-  const chips = (title, items, set, onCh) => { const w = el("div", "bchips"); w.append(el("small", "bchl", title));
-    const allb = el("button", "bchip on", "Бүгд"); allb.type = "button"; w.append(allb);
-    const bs = items.map(it => { const b = el("button", "bchip", it); b.type = "button";
-      b.onclick = () => { set.has(it) ? set.delete(it) : set.add(it); b.classList.toggle("on", set.has(it)); allb.classList.toggle("on", !set.size); onCh(); }; w.append(b); return b; });
-    allb.onclick = () => { set.clear(); bs.forEach(b => b.classList.remove("on")); allb.classList.add("on"); onCh(); };
-    return w; };
+  // ☑ олон сонголттой унжих цэс
+  const msel = (title, items, set, onCh) => { const d = el("details", "msel"), sm = el("summary"), lab = el("span", "mslab"), val = el("b", "msval"); sm.append(lab, val); d.append(sm);
+    lab.textContent = title; const panel = el("div", "mspanel"), boxes = [];
+    const show = () => { val.textContent = !set.size ? "Бүгд" : set.size === 1 ? [...set][0] : set.size + " сонгосон"; d.classList.toggle("on", !!set.size); };
+    items.forEach(it => { const l = el("label", "msopt"), c = Object.assign(el("input"), { type: "checkbox" }); c.onchange = () => { c.checked ? set.add(it) : set.delete(it); show(); onCh(); }; boxes.push(c); l.append(c, el("span", "", it)); panel.append(l); });
+    const ft = el("div", "msft"), cl = el("button", "link", "Бүгдийг арилгах"), ok = el("button", "btn", "Болсон"); cl.type = ok.type = "button";
+    cl.onclick = () => { set.clear(); boxes.forEach(c => c.checked = false); show(); onCh(); }; ok.onclick = () => d.open = false; ft.append(cl, ok); panel.append(ft); d.append(panel);
+    document.addEventListener("click", e => { if (d.open && !d.contains(e.target)) d.open = false; });
+    show(); return d; };
   const fT = el("select");
   const fillT = () => { const v = fT.value; fT.innerHTML = ""; fT.append(opt("Бүх тест", ""));
     r.tests.filter(t => !selC.size || selC.has(tcatOf[t.id])).forEach(t => fT.append(opt(t.name, t.id)));
     if ([...fT.options].some(o => o.value === v)) fT.value = v; };
   fillT();
-  box.append(chips("Ангилал (хэдийг ч сонгож болно)", BCATS, selC, () => { fillT(); draw(); }));
-  box.append(chips("Бүлэг сэдэв (хэдийг ч сонгож болно)", TOPIC_ORDER, selP, () => draw()));
-  const bar = el("div", "bbar"); bar.append(fT); box.append(bar);
+  const S2 = sec("2", "Даалгавар сонгох"), fl = el("div", "bfilt");
+  const tw = el("label", "msel ms1"); tw.append(el("span", "mslab", "Тест / хувилбар"), fT);
+  fl.append(msel("Ангилал", BCATS, selC, () => { fillT(); draw(); }), msel("Бүлэг сэдэв", TOPIC_ORDER, selP, () => draw()), tw); S2.append(fl);
   const cnt = el("b", "bcnt");
   const nIn = Object.assign(el("input"), { type: "number", value: 10, min: 1, max: 200, title: "Хэдэн даалгавар" }); nIn.className = "bnum";
   const rnd = el("button", "btn", "Санамсаргүй сонгох"); rnd.type = "button";
   const all = el("button", "btn ghost", "Харагдаж буйг бүгдийг"); all.type = "button";
   const clr = el("button", "btn ghost", "Цэвэрлэх"); clr.type = "button";
-  const eqL = el("label", "chk"); const eq = Object.assign(el("input"), { type: "checkbox", checked: true }); eqL.append(eq, el("span", "", " Сонгосон бүлэг бүрээс тэнцүү хувааж авах"));
-  const bar2 = el("div", "bbar"); bar2.append(nIn, rnd, all, clr); box.append(bar2, eqL);
-  const sum = el("div", "bsum"); box.append(cnt, sum);
-  box.append(el("p", "note", "Жишээ: «10-р анги», «11-р анги»-г чеклээд, «Гео орон зайн дүрслэл», «Хүн ам ба суурьшил» бүлгүүдийг чеклэнэ. 20 гэж бичээд «Санамсаргүй сонгох» дарвал бүлэг бүрээс 10-ыг холиод авна."));
-  const list = el("div", "blist"); box.append(list);
+  const eqL = el("label", "chk beq"); const eq = Object.assign(el("input"), { type: "checkbox", checked: true }); eqL.append(eq, el("span", "", " Сонгосон бүлэг бүрээс тэнцүү"));
+  rnd.textContent = "🎲 Санамсаргүй сонгох"; all.textContent = "Бүгдийг сонгох";
+  const rb = el("div", "brnd"), nw = el("label", "bnw"); nw.append(nIn, el("span", "", "даалгавар"));
+  rb.append(nw, eqL, rnd); S2.append(rb);
+  const bar2 = el("div", "bbar"); bar2.append(all, clr); S2.append(bar2);
+  const sum = el("div", "bsum"); S2.append(sum);
+  const list = el("div", "blist"); S2.append(list);
   const vis = () => r.questions.filter(q => (!selC.size || selC.has(tcatOf[q.test])) && (!fT.value || q.test === fT.value) && (!selP.size || selP.has(q.topic)));
   const upd = () => { const S = r.questions.filter(q => sel.has(q.id)); const pts = S.reduce((s, q) => s + (q.p || 1), 0);
     cnt.textContent = "Сонгосон: " + sel.size + " даалгавар · " + pts + " оноо";
@@ -1674,7 +1693,8 @@ async function contestBuilder() {
     } else pickN(V, n).forEach(q => sel.add(q.id));
     draw(); };
   draw();
-  const err = el("p", "err"); const mk = el("button", "btn wide", "Шалгалт үүсгэх"); mk.type = "button"; box.append(err, mk);
+  const err = el("p", "err"); const mk = el("button", "btn", "✓ Шалгалт үүсгэх"); mk.type = "button";
+  const foot = el("div", "bfoot"); foot.append(cnt, mk); box.append(err, foot);
   mk.onclick = async () => {
     err.textContent = ""; if (!nm.value.trim()) { err.textContent = "Нэр оруулна уу."; return; }
     const ids = r.questions.filter(q => sel.has(q.id)).map(q => q.id);
