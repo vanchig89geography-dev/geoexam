@@ -1570,11 +1570,11 @@ async function printExam(code, teacher) {
     + '.who{display:flex;gap:24px;border:1px solid #999;padding:8px 10px;margin:0 0 14px}.who span{flex:1}.q{break-inside:avoid;margin:0 0 12px}.q p{margin:0 0 4px}.pt{color:#666;font-size:11px}'
     + '.im img{max-width:420px;max-height:260px;margin:4px 0}.op{list-style:none;padding:0 0 0 14px;margin:0;columns:2}.op li{margin:2px 0;break-inside:avoid}.op li img{max-width:180px}.op li.ok{font-weight:700;color:#0a7a3e}'
     + '.sol{color:#555;font-size:12px;font-style:italic}.key{border-top:2px solid #111;margin-top:16px;padding-top:8px;columns:4;font-size:12px}.bar{position:sticky;top:0;background:#fff;padding:6px 0;margin:-6px 0 10px}'
-    + '.bar button{font-size:14px;padding:8px 14px;cursor:pointer}@media print{.bar{display:none}body{margin:12mm}}</style></head><body>'
+    + '.bar button{font-size:14px;padding:8px 14px;cursor:pointer}.omrpg{break-before:page;page-break-before:always;margin-top:24px}.omrpg svg{display:block;margin:0 auto;max-width:100%;height:auto}@media print{.bar{display:none}body{margin:12mm}.omrpg{margin-top:0}.omrpg svg{width:180mm;height:260mm}}</style></head><body>'
     + '<div class="bar"><button onclick="print()">🖨 Хэвлэх / PDF хадгалах</button></div>'
     + "<h1>" + esc(c.name) + (teacher ? " · Багшийн хувилбар" : "") + '</h1><p class="meta">' + r.questions.length + " даалгавар · " + tot + " оноо" + (c.minutes ? " · " + c.minutes + " минут" : "") + " · Код " + esc(c.code) + "</p>"
-    + (teacher ? "" : '<div class="who"><span>Нэр: ______________________</span><span>Анги: ________</span><span>Оноо: ______ / ' + tot + "</span></div>")
-    + html + (teacher ? '<div class="key"><b>Хариултын түлхүүр</b><br>' + key.join("<br>") + "</div>" : "") + '<p class="meta" style="margin-top:16px">GeoExam · geoexam.mn</p></body></html>');
+    + (teacher ? "" : '<div class="who"><span>Нэр: ______________________</span><span>Анги: ________</span><span>Оноо: ______ / ' + tot + "</span></div>" + (typeof omrSheetSVG === "function" ? '<p class="meta"><b>📄 Хариултаа сүүлийн хуудсанд (хариултын хуудас) дугуйлж будна.</b></p>' : ""))
+    + html + (teacher ? '<div class="key"><b>Хариултын түлхүүр</b><br>' + key.join("<br>") + "</div>" : "") + '<p class="meta" style="margin-top:16px">GeoExam · geoexam.mn</p>' + (!teacher && typeof omrSheetSVG === "function" ? '<div class="omrpg">' + omrSheetSVG(c, r.questions) + "</div>" : "") + "</body></html>");
   w.document.close();
 }
 async function contestBuilder() {
