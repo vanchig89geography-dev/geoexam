@@ -731,6 +731,7 @@ body.omr-on{overflow:hidden}.omr{position:fixed;inset:0;z-index:9999;background:
 .impdrop{display:flex;flex-direction:column;align-items:center;gap:4px;border:2px dashed var(--line);border-radius:16px;padding:22px 12px;cursor:pointer;text-align:center;margin:6px 0 10px}.impdrop b{font-size:18px}.impdrop span{font-size:13px;color:var(--muted)}.impdrop.on,.impdrop:hover{border-color:var(--accent);background:var(--surface)}
 .impta{width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}.imphead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 8px}.imphead b{flex:1}.imphead select{font:inherit;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
 .imq{position:relative}.imq.miss{border:2px solid #f5a524!important}.imqt{display:flex;gap:8px;align-items:flex-start}.imqt b{flex:1}.imx{border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 4px}.imo{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:5px 9px;cursor:pointer}.imo.ok{background:rgba(34,197,94,.16);border-color:#22c55e;font-weight:700}
+.impai{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0;background:var(--surface)}.impai>b{display:block;margin-bottom:4px}.impai a.btn{text-decoration:none}.imq.aiq{border-color:#8b5cf6}.aib{display:block;color:#8b5cf6;font-weight:600;margin-top:4px}
 </style>
 </head>
 <body>
@@ -2516,6 +2517,7 @@ async function xlsxRows(buf) {
   return rows;
 }
 function csvRows(t) {
+  t = t.replace(/^\ufeff/, "");
   const sep = (t.split("\n")[0].match(/;/g) || []).length > (t.split("\n")[0].match(/,/g) || []).length ? ";" : t.indexOf("\t") >= 0 && t.indexOf(",") < 0 ? "\t" : ",";
   const rows = []; let row = [], cur = "", q = false;
   for (let i = 0; i < t.length; i++) { const ch = t[i];
@@ -2559,7 +2561,7 @@ function linesToQs(lines) {
       let s = m[2], ok = /[✓✔]|\(\s*зөв\s*\)|\*\s*$/.test(s) || /^[*✓✔]/.test(t);
       s = s.replace(/[✓✔]/g, "").replace(/\(\s*зөв\s*\)/gi, "").replace(/\*+\s*$/, "").trim();
       cur.o.push(s); cur.lets.push(m[1].toUpperCase()); cur.bold.push(ln.b); if (ok) cur.a = cur.o.length - 1; continue; }
-    if ((m = t.match(/^(зөв\s+)?хариу(лт)?\s*[:：-]\s*([A-Ea-eА-Да-д])(?![A-Za-zА-Яа-яӨөҮүЁё])/i))) { const k = letIdx(cur, m[3]); if (k >= 0) cur.a = k; continue; }
+    if ((m = t.match(/^(зөв\s+)?хариу(лт)?\s*[:：-]\s*([A-Ea-eА-Да-д])(?![A-Za-zА-Яа-яӨөҮүЁё])/i))) { const k = letIdx(cur, m[3]); if (k >= 0) cur.a = k; if (/\(\s*AI\s*\)/i.test(t)) cur.ai = true; continue; }
     if ((m = t.match(/^тайлбар\s*[:：-]\s*(.*)$/i))) { cur.sol = m[1]; continue; }
     if (cur.o.length === 0) cur.q += " " + t; else if (cur.sol) cur.sol += " " + t;
   }
@@ -2595,16 +2597,69 @@ async function pdfLines(buf) {
   }
   return out.map(t => ({ t: t.replace(/\s+/g, " ").trim(), b: false })).filter(l => l.t);
 }
+let IMP_RAW = "";   // файлын түүхий текст (AI-д өгөхөд)
 async function importParse(file) {
+  try { IMP_RAW = await rawText(file); } catch (e) { IMP_RAW = ""; }
+  return importParse0(file);
+}
+async function rawText(file) {
+  const name = (file.name || "").toLowerCase(), buf = await file.arrayBuffer();
+  if (/\.docx$/.test(name)) return (await docxLines(buf)).map(l => l.t).join("\n");
+  if (/\.xlsx$/.test(name)) return (await xlsxRows(buf)).map(r => r.join(" | ")).join("\n");
+  if (/\.pdf$/.test(name)) return (await pdfLines(buf)).map(l => l.t).join("\n");
+  let t = new TextDecoder().decode(buf); if ((t.match(/\ufffd/g) || []).length > 3) t = new TextDecoder("windows-1251").decode(buf); return t;
+}
+const AI_PROMPT = "Доорх тестийн асуултуудыг ЯГ дараах хэлбэрт оруулж бич. Өөр юу ч бүү нэм, тайлбар бүү бич.\n\n1. Асуултын текст  /1 оноо/\nA. сонголт\nB. сонголт\nC. сонголт\nD. сонголт\nE. сонголт\nЗөв хариу: C\nТайлбар: (байвал)\n\nДүрэм: асуулт бүрийг дугаарлана; сонголтыг A B C D E латин үсгээр (А Б В Г Д байвал хөрвүүлнэ); зөв хариу файлд тэмдэглэгдсэн бол (тод, ✓, *, түлхүүр, «Хариу:») түүнийг «Зөв хариу:» мөрөнд бич; тэмдэглээгүй бол өөрөө газарзүйн мэдлэгээрээ шийдэж бичээд мөрийн төгсгөлд «(AI)» гэж нэм; нөхөх (сонголтгүй) даалгаврыг алгас.\n\nТЕСТ:\n";
+async function aiCopy(btn) {
+  const txt = AI_PROMPT + (IMP_RAW || "(энд тестээ хуулж тавина)").slice(0, 60000);
+  try { await navigator.clipboard.writeText(txt); btn.textContent = "✓ Хуулагдлаа — одоо AI-д буулгана уу"; }
+  catch (e) { const t = el("textarea", "impta"); t.value = txt; t.rows = 6; btn.after(t); t.select(); btn.textContent = "Доорх текстийг хуулж AI-д буулгана уу"; }
+}
+async function importParse0(file) {
   const name = (file.name || "").toLowerCase(), buf = await file.arrayBuffer();
   if (/\.docx$/.test(name)) return linesToQs(await docxLines(buf));
   if (/\.xlsx$/.test(name)) return rowsToQs(await xlsxRows(buf));
   if (/\.pdf$/.test(name)) { const L = await pdfLines(buf); if (L.length < 3) throw new Error("scan"); return linesToQs(L); }
-  const txt = new TextDecoder().decode(buf);
+  let txt = new TextDecoder().decode(buf); if ((txt.match(/\ufffd/g) || []).length > 3) txt = new TextDecoder("windows-1251").decode(buf);   // Excel-ийн хуучин кодчилол
   if (/\.csv$/.test(name)) return rowsToQs(csvRows(txt));
   return linesToQs(txt.split(/\r?\n/).map(t => ({ t, b: false })));
 }
 
+/* --- загвар файл үүсгэх (Excel .xlsx · Word .docx) — шахалтгүй zip --- */
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function zipMake(files) {   // {name: string}
+  const enc = new TextEncoder(), parts = [], cen = []; let off = 0;
+  Object.entries(files).forEach(([name, txt]) => { const d = enc.encode(txt), nm = enc.encode(name); let c = 0xffffffff; for (let i = 0; i < d.length; i++) c = CRC_T[(c ^ d[i]) & 255] ^ (c >>> 8); c = (c ^ 0xffffffff) >>> 0;
+    const h = new DataView(new ArrayBuffer(30)); h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint32(14, c, true); h.setUint32(18, d.length, true); h.setUint32(22, d.length, true); h.setUint16(26, nm.length, true);
+    const ce = new DataView(new ArrayBuffer(46)); ce.setUint32(0, 0x02014b50, true); ce.setUint16(4, 20, true); ce.setUint16(6, 20, true); ce.setUint16(8, 0x0800, true); ce.setUint32(16, c, true); ce.setUint32(20, d.length, true); ce.setUint32(24, d.length, true); ce.setUint16(28, nm.length, true); ce.setUint32(42, off, true);
+    parts.push(h.buffer, nm, d); cen.push(ce.buffer, nm); off += 30 + nm.length + d.length; });
+  const cs = cen.reduce((a, b) => a + (b.byteLength || b.length), 0), e = new DataView(new ArrayBuffer(22)); e.setUint32(0, 0x06054b50, true);
+  e.setUint16(8, cen.length / 2, true); e.setUint16(10, cen.length / 2, true); e.setUint32(12, cs, true); e.setUint32(16, off, true);
+  return new Blob(parts.concat(cen, [e.buffer]));
+}
+const xesc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const IMP_SAMPLE = [["Дэлхийн хамгийн урт гол аль нь вэ?", "Амазон", "Миссисипи", "Нил", "Янцзы", "", "C", "1", "Нил — 6650 км"], ["Монгол улсын нийслэл аль нь вэ?", "Дархан", "Улаанбаатар", "Эрдэнэт", "Чойбалсан", "", "B", "1", ""], ["Дэлхийн хамгийн өндөр оргил?", "Эверест", "К2", "Монблан", "Хүйтний оргил", "Аконкагуа", "A", "2", ""]];
+function xlsxTemplate() {
+  const R = [["Асуулт", "A", "B", "C", "D", "E", "Хариу", "Оноо", "Тайлбар"]].concat(IMP_SAMPLE), col = i => String.fromCharCode(65 + i);
+  const rows = R.map((r, i) => '<row r="' + (i + 1) + '">' + r.map((v, j) => /^\d+$/.test(v) && i ? '<c r="' + col(j) + (i + 1) + '"><v>' + v + "</v></c>" : '<c r="' + col(j) + (i + 1) + '" t="inlineStr"' + (i ? "" : ' s="1"') + "><is><t>" + xesc(v) + "</t></is></c>").join("") + "</row>").join("");
+  return zipMake({
+    "[Content_Types].xml": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>',
+    "_rels/.rels": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+    "xl/workbook.xml": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Асуултууд" sheetId="1" r:id="rId1"/></sheets></workbook>',
+    "xl/_rels/workbook.xml.rels": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+    "xl/styles.xml": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDDEFE4"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>',
+    "xl/worksheets/sheet1.xml": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="1" width="48" customWidth="1"/><col min="2" max="6" width="16" customWidth="1"/><col min="7" max="8" width="8" customWidth="1"/><col min="9" max="9" width="30" customWidth="1"/></cols><sheetData>' + rows + "</sheetData></worksheet>" });
+}
+function docxTemplate() {
+  const P = (t, b) => "<w:p><w:r>" + (b ? "<w:rPr><w:b/></w:rPr>" : "") + '<w:t xml:space="preserve">' + xesc(t) + "</w:t></w:r></w:p>", body = [P("GeoExam · Асуултын загвар (энэ мөрийг устгаж болно)", 1), P("")];
+  IMP_SAMPLE.forEach((q, i) => { body.push(P((i + 1) + ". " + q[0] + (q[7] !== "1" ? "  /" + q[7] + " оноо/" : ""), 1));
+    q.slice(1, 6).forEach((o, k) => { if (o) body.push(P("ABCDE"[k] + ". " + o)); }); body.push(P("Зөв хариу: " + q[6])); if (q[8]) body.push(P("Тайлбар: " + q[8])); body.push(P("")); });
+  return zipMake({
+    "[Content_Types].xml": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>',
+    "_rels/.rels": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
+    "word/document.xml": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + body.join("") + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/></w:sectPr></w:body></w:document>' });
+}
+const dlBlob = (b, name) => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = name; document.body.append(a); a.click(); setTimeout(() => { a.remove(); URL.revokeObjectURL(a.href); }, 800); };
 /* --- дэлгэц --- */
 function myImport() {
   const box = $("pane"); box.innerHTML = "";
@@ -2615,15 +2670,19 @@ function myImport() {
   fmt.append(el("pre", "", "1. Дэлхийн хамгийн урт гол аль нь вэ?  /1 оноо/\nA. Амазон\nB. Миссисипи\nC. Нил  ✓\nD. Янцзы\nТайлбар: Нил — 6650 км\n\n2. Монгол улсын нийслэл?\nA. Дархан\nB. Улаанбаатар\nC. Эрдэнэт\nЗөв хариу: B"),
     el("p", "lbn", "Зөв хариуг дараах аль нэгээр тэмдэглэнэ: сонголтын ард ✓ эсвэл *, «Зөв хариу: B» мөр (A B C D E эсвэл А Б В Г Д аль нь ч болно), сонголтыг тод (bold) / өнгөөр ялгах, эсвэл файлын төгсгөлд «Хариу: 1-C 2-B 3-A …» түлхүүр."),
     el("p", "lbn", "Excel: 1-р мөрөнд Асуулт | A | B | C | D | E | Хариу | Оноо | Тайлбар гэсэн гарчигтай, мөр бүр нэг асуулт."));
-  const tpl = el("button", "link", "⬇ Excel загвар татах"); tpl.type = "button";
-  tpl.onclick = () => { const rows = [["Асуулт", "A", "B", "C", "D", "E", "Хариу", "Оноо", "Тайлбар"], ["Дэлхийн хамгийн урт гол аль нь вэ?", "Амазон", "Миссисипи", "Нил", "Янцзы", "", "C", "1", "Нил — 6650 км"], ["Монгол улсын нийслэл?", "Дархан", "Улаанбаатар", "Эрдэнэт", "", "", "B", "1", ""]];
-    const txt = "﻿" + rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(",")).join("\r\n"), a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([txt], { type: "text/csv;charset=utf-8" })); a.download = "GeoExam-асуулт-загвар.csv"; document.body.append(a); a.click(); setTimeout(() => a.remove(), 500); };
-  fmt.append(tpl); box.append(fmt);
+  box.append(fmt);
+  const tw = el("div", "tbtns imptpl"), t1 = el("button", "btn ghost", "⬇ Word загвар татах"), t2 = el("button", "btn ghost", "⬇ Excel загвар татах"); t1.type = t2.type = "button";
+  t1.onclick = () => dlBlob(docxTemplate(), "GeoExam-zagvar.docx"); t2.onclick = () => dlBlob(xlsxTemplate(), "GeoExam-zagvar.xlsx");
+  tw.append(t1, t2); box.append(tw);
   const drop = el("label", "impdrop"), fi = el("input"); fi.type = "file"; fi.accept = ".docx,.pdf,.xlsx,.csv,.txt"; fi.hidden = true;
   drop.append(el("b", "", "📄 Файл сонгох"), el("span", "", "эсвэл энд чирж оруулна · Word, PDF, Excel, текст"), fi); box.append(drop);
   const ta = el("textarea", "impta"); ta.rows = 5; ta.placeholder = "Эсвэл асуултуудаа энд хуулж буулгана…"; const tb = el("button", "btn ghost", "Текстээс таних"); tb.type = "button";
   const tr = el("div", "tbtns"); tr.append(tb); box.append(ta, tr);
+  const ai = el("div", "impai"); ai.append(el("b", "", "🤖 Файл эмх замбараагүй, танигдахгүй байна уу? AI-аар эмхлүүлээрэй (үнэгүй)"),
+    el("p", "lbn", "1) Файлаа дээр сонгоно (танигдаагүй ч болно). 2) «Хуулах» дарна. 3) ChatGPT эсвэл Claude нээж буулгаад илгээнэ. 4) AI-ийн гаргасан хариуг дээрх цагаан нүдэнд буулгаад «Текстээс таних» дарна."));
+  const aw = el("div", "tbtns"), ac = el("button", "btn", "📋 AI-д өгөх текст хуулах"); ac.type = "button"; ac.onclick = () => aiCopy(ac);
+  const oc = Object.assign(el("a", "btn ghost", "ChatGPT нээх"), { href: "https://chatgpt.com/", target: "_blank", rel: "noopener" }), ol = Object.assign(el("a", "btn ghost", "Claude нээх"), { href: "https://claude.ai/new", target: "_blank", rel: "noopener" });
+  aw.append(ac, oc, ol); ai.append(aw); box.append(ai);
   const res = el("div", "impres"); box.append(res);
   const run = async f => { res.innerHTML = '<p class="empty">Уншиж байна…</p>'; let Q;
     try { Q = await f(); } catch (e) { res.innerHTML = ""; res.append(el("p", "err", e.message === "scan" ? "Энэ PDF зураг хэлбэртэй (скан хийсэн) тул текст танигдсангүй. Word эсвэл текстэн PDF оруулна уу." : e.message === "pdfjs" ? "PDF уншигчийг ачаалж чадсангүй. Интернэтээ шалгаад дахин оролдоно уу." : "Файлыг уншиж чадсангүй. Word файлыг .docx хэлбэрээр хадгалаад дахин оролдоно уу.")); return; }
@@ -2634,7 +2693,7 @@ function myImport() {
   tb.onclick = () => { if (ta.value.trim()) run(async () => { const t = ta.value; return /\t/.test(t.split("\n")[0]) ? rowsToQs(csvRows(t)) : linesToQs(t.split(/\r?\n/).map(x => ({ t: x, b: false }))); }); };
   function showQs(Q) {
     res.innerHTML = "";
-    if (!Q.length) { res.append(el("p", "err", "Асуулт танигдсангүй. Асуулт «1. …», сонголт «A. …» гэж эхэлсэн эсэхийг шалгана уу (дээрх жишээг харна уу).")); return; }
+    if (!Q.length) { res.append(el("p", "err", "Асуулт танигдсангүй. Доорх «🤖 AI-аар эмхлүүлэх» хэсгийг ашиглаарай — файлыг AI зөв хэлбэрт оруулж өгнө.")); return; }
     const L = "ABCDE", miss = () => Q.filter(q => q.a < 0).length;
     const head = el("div", "imphead"), sum = el("b", ""), tp = el("select");
     tp.append(Object.assign(el("option", "", "Сэдэв: файлд байгаагаар"), { value: "" })); TOPIC_ORDER.forEach(t => tp.append(Object.assign(el("option", "", t), { value: t })));
@@ -2647,7 +2706,7 @@ function myImport() {
       const del = el("button", "imx", "✕"); del.type = "button"; del.title = "Хасах"; del.onclick = () => { Q.splice(Q.indexOf(q), 1); c.remove(); upd(); }; top.append(del); c.append(top);
       const ol = el("div", "myqol"); q.o.forEach((o, k) => { const s = el("button", "imo" + (k === q.a ? " ok" : ""), L[k] + ". " + o); s.type = "button";
         s.onclick = () => { q.a = k; ol.querySelectorAll(".imo").forEach((x, j) => x.classList.toggle("ok", j === k)); c.classList.remove("miss"); upd(); }; ol.append(s); });
-      c.append(ol); if (q.sol) c.append(el("small", "lbn", "Тайлбар: " + q.sol)); if (q.p > 1) c.append(el("small", "lbn", q.p + " оноо"));
+      c.append(ol); if (q.ai) { c.classList.add("aiq"); c.append(el("small", "aib", "🤖 Зөв хариуг AI таамагласан — шалгаад зөв бол хэвээр үлдээнэ")); } if (q.sol) c.append(el("small", "lbn", "Тайлбар: " + q.sol)); if (q.p > 1) c.append(el("small", "lbn", q.p + " оноо"));
       list.append(c); });
     res.append(list, sv, msg); upd();
     sv.onclick = async () => { if (miss()) { msg.textContent = "Шар хүрээтэй асуултуудын зөв хариуг дарж сонгоно уу."; const f = list.querySelector(".miss"); if (f) f.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
