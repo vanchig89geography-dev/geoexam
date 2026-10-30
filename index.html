@@ -715,6 +715,17 @@ body.onhome #list{margin-top:16px}
 .mapbox .mfeat.pl{fill:rgba(120,90,160,.55);stroke:#5b3f8a;stroke-width:2;filter:drop-shadow(0 0 4px rgba(120,90,160,.9))}
 
 .mflag{position:relative;display:flex;align-items:center;justify-content:center;min-height:200px;margin:10px 0 6px;padding:22px;border-radius:14px;border:1px solid var(--line);background:var(--sunk)}.mflag img{display:block;max-width:100%;max-height:220px;border-radius:6px;box-shadow:0 4px 18px rgba(0,0,0,.18),0 0 0 1px rgba(0,0,0,.08)}.mflagemo{font-size:120px;line-height:1}
+
+.paperbox{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:8px 0 14px;background:var(--surface)}.paperbox>b{display:block;margin-bottom:2px}.rosterw textarea{width:100%;box-sizing:border-box;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line);margin:6px 0;background:var(--bg);color:var(--fg)}
+body.omr-on{overflow:hidden}.omr{position:fixed;inset:0;z-index:9999;background:#000;color:#fff;display:flex;flex-direction:column}.omrtop{display:flex;align-items:center;gap:10px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top))}.omrtop b{flex:1;text-align:center;font-size:15px}
+.omrx{background:#222;color:#fff;border:0;border-radius:10px;padding:8px 12px;font:inherit;cursor:pointer}.omrcnt{font-size:13px;color:#9be7b4}.omrstage{position:relative;flex:1;min-height:0}.omrstage video{width:100%;height:100%;object-fit:contain;display:block}.omrstage.off video{display:none}.omrcv{position:absolute;inset:0;pointer-events:none}
+.omrhint{margin:0;padding:10px 14px;text-align:center;font-size:14px;background:#111}.omrbot{display:flex;justify-content:center;padding:8px 12px max(12px,env(safe-area-inset-bottom));background:#111}.omrbot .btn{background:#222!important;color:#fff!important;border:1px solid #555!important}
+.omrres{position:absolute;inset:0;overflow:auto;background:var(--bg);color:var(--fg);padding:12px 14px max(16px,env(safe-area-inset-bottom))}.omrhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}.omrnum{display:flex;align-items:center;gap:6px;font-size:13px}.omrnum input{width:56px;font:700 20px var(--font);text-align:center;padding:6px;border-radius:10px;border:2px solid var(--accent);background:var(--surface);color:var(--fg)}
+.omrname{flex:1;font-weight:700;min-width:120px}.omrsc{font:800 26px var(--font);color:var(--accent)}.omrpic{width:100%;height:auto;border-radius:10px;display:block;margin-bottom:8px;max-height:55vh;object-fit:contain;background:#000}.omrwarn{color:var(--bad);font-size:13px;margin:4px 0}
+.omrgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:5px;margin:6px 0 10px}.omrc{font:600 13px var(--font);padding:7px 2px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}.omrc.ok{background:rgba(34,197,94,.15);border-color:#22c55e}.omrc.no{background:rgba(239,68,68,.13);border-color:#ef4444}.omrc.e{opacity:.7}
+
+.rrank{margin:8px auto 0;font-size:15px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;max-width:520px}.rrank b{color:var(--accent)}.lb td.esh{font-weight:800;color:var(--accent)}
+.res .big.esh small{font-size:11px;max-width:104px;text-align:center;line-height:1.25}
 </style>
 </head>
 <body>
@@ -1003,6 +1014,7 @@ function renderPane() {
     const grid = el("div", "tests"); groups[g].forEach(t => grid.append(testCard(t))); box.append(grid);
   });
   if (tab === "var") box.append(el("p", "note hint", "Дасгал — хариу шууд гарна · Шалгалт — ЭЕШ шиг цагтай, эцэст нь дүн гарна"));
+  if (tab === "var" && groups[vyear] && isEesh(groups[vyear][0].id)) { const v = groups[vyear][0]; renderLB(box, "eesh", v.id, v.name.replace(/^ЭЕШ /, "")); return; }
   renderLB(box, tab, tab === "own" ? ocat : "");
 }
 function testCard(t) {
@@ -1114,6 +1126,15 @@ function pick(label, items, cur, onChange) {
   const sel = el("select"); items.forEach(it => { const o = el("option", "", it.t); o.value = it.v; if (it.v === cur) o.selected = true; sel.append(o); });
   sel.onchange = () => onChange(sel.value); w.append(sel); return w;
 }
+/* ---------- 📊 ЭЕШ-ийн оноо (ойролцоо) ----------
+   Жинхэнэ ЭЕШ-ийн оноо 200–800, дундаж нь 500 орчим (норм-д суурилсан). Анхны оноог тухайн оны газарзүйн
+   дундаж анхны оноо (μ) болон тархалтаар (σ) хөрвүүлнэ: 500 + 100·(x − μ)/σ. Босго оноо 490. */
+const EESH_MU = { 2022: 47, 2023: 45, 2024: 44, 2025: 57 }, EESH_SD = 17, EESH_PASS = 490;
+const isEesh = id => /^\d{4}-[A-Z]$/.test(String(id || ""));
+function eeshScore(score, total, id) {
+  if (!total) return 200; const pct = score / total * 100, mu = EESH_MU[String(id).slice(0, 4)] || 48;
+  return Math.max(200, Math.min(800, Math.round(500 + 100 * (pct - mu) / EESH_SD)));
+}
 /* ---------- Шилдэг сурагчид ---------- */
 const LBC = {}; let lbPer = st.get("ge-lbp") || "month";
 const LB_PER = [["week", "7 хоног"], ["month", "Сар"], ["all", "Бүх цаг"]];
@@ -1128,18 +1149,19 @@ function renderLB(box, sec, cat, label) {
   const show = r => { body.innerHTML = "";
     if (!r || !r.ok) { body.append(el("p", "lbn", "Ачаалж чадсангүй.")); return; }
     if (!r.list.length) { body.append(el("p", "lbn", "Одоогоор дүн алга. Нэвтэрч тест өгсөн сурагчид энд гарна.")); return; }
-    const t = el("table"); const hr = el("tr"); ["#", "Нэр", "Оноо", "Тест", "%"].forEach(h => hr.append(el("th", "", h))); t.append(hr);
+    const ES = sec === "eesh";
+    const t = el("table"); const hr = el("tr"); (ES ? ["#", "Нэр", "ЭЕШ оноо", "Хувь"] : ["#", "Нэр", "Оноо", "Тест", "%"]).forEach(h => hr.append(el("th", "", h))); t.append(hr);
     let more = false;
     r.list.forEach((x, i) => { const tr = el("tr", (x.rank <= 3 ? "top" + x.rank : "") + (x.me ? " me" : "") + (i >= 3 ? " lbx" : ""));
-      [x.rank <= 3 ? ["🥇", "🥈", "🥉"][x.rank - 1] : x.rank, x.name, x.score, x.tests, x.pct + "%"].forEach(v => tr.append(el("td", "", v))); t.append(tr); if (i >= 3) more = true; });
+      (ES ? [x.rank <= 3 ? ["🥇", "🥈", "🥉"][x.rank - 1] : x.rank, x.name, eeshScore(x.score, x.total, cat), x.pct + "%"] : [x.rank <= 3 ? ["🥇", "🥈", "🥉"][x.rank - 1] : x.rank, x.name, x.score, x.tests, x.pct + "%"]).forEach((v, j) => { const td = el("td", ES && j === 2 ? "esh" : "", v); tr.append(td); }); t.append(tr); if (i >= 3) more = true; });
     const tw = el("div", "rank"); tw.append(t); body.append(tw);
     if (more) { const mb = el("button", "link", "Бүгдийг харах (" + r.list.length + ")"); mb.type = "button"; mb.onclick = () => { w.classList.add("open"); mb.remove(); }; body.append(mb); }
-    if (r.me && !r.list.some(x => x.me)) body.append(el("p", "lbme", "Таны байр: " + r.me.rank + " / " + r.count + " · " + r.me.score + " оноо"));
+    if (r.me && !r.list.some(x => x.me)) body.append(el("p", "lbme", "Таны байр: " + r.me.rank + " / " + r.count + " · " + (ES ? eeshScore(r.me.score, r.me.total, cat) + " ЭЕШ оноо" : r.me.score + " оноо")));
     else if (!token) body.append(el("p", "lbn", "Нэвтэрч тест өгвөл таны нэр энд гарна."));
-    body.append(el("p", "lbn", "Тест бүрийн хамгийн сайн оноог нэмж тооцно."));
+    if (!ES) body.append(el("p", "lbn", "Тест бүрийн хамгийн сайн оноог нэмж тооцно."));
   };
   if (hit && Date.now() - hit.t < 300e3) return show(hit.r);
-  if (!ONLINE) { const N = ["Тэмүүлэн", "Анужин", "Билгүүн", "Номин", "Хулан", "Эрдэнэ", "Мөнхжин"]; return show({ ok: true, count: 7, list: N.map((n, i) => ({ rank: i + 1, name: n + " (жишээ)", score: 420 - i * 37, tests: 6 - (i >> 1), pct: 92 - i * 4, me: false })) }); }
+  if (!ONLINE) { const N = ["Тэмүүлэн", "Анужин", "Билгүүн", "Номин", "Хулан", "Эрдэнэ", "Мөнхжин"]; return show({ ok: true, count: 7, list: N.map((n, i) => sec === "eesh" ? { rank: i + 1, name: n + " (жишээ)", score: 91 - i * 7, total: 100, tests: 1, pct: 91 - i * 7, me: false } : ({ rank: i + 1, name: n + " (жишээ)", score: 420 - i * 37, tests: 6 - (i >> 1), pct: 92 - i * 4, me: false })) }); }
   api({ action: "leaderboard", sec, cat: cat || "", period: lbPer, token: token || "" }).then(r => { if (r.ok) LBC[key] = { t: Date.now(), r }; show(r); }).catch(() => show(null));
 }
 
@@ -1300,12 +1322,19 @@ function finish(timeUp, leftSite) {
   const g = QS.reduce((s, q, k) => s + gotPts(q, ans[k]), 0), m = QS.reduce((s, q) => s + maxPts(q), 0);
   const right = QS.filter((q, k) => isRight(q, ans[k])).length, pct = m ? Math.round(g / m * 100) : 0;
   $("exam").hidden = true; $("result").hidden = false;
-  $("rName").textContent = T.name; $("rScore").innerHTML = pct + "%<small>" + g + " / " + m + " оноо</small>";
-  $("rScore").style.setProperty("--p", pct);
+  const ES = isEesh(T.id) && QS.length >= 40, esh = ES ? eeshScore(g, m, T.id) : 0;
+  $("rName").textContent = T.name; $("rScore").innerHTML = ES ? esh + "<small>ЭЕШ оноо · " + pct + "%</small>" : pct + "%<small>" + g + " / " + m + " оноо</small>";
+  $("rScore").style.setProperty("--p", ES ? Math.round((esh - 200) / 6) : pct); $("rScore").classList.toggle("esh", ES);
   play(pct >= 70 ? "up" : pct >= 50 ? "good" : "end");
   $("rTitle").textContent = (leftSite ? LEFT_MSG : timeUp ? "Хугацаа дууслаа. " : "") + (pct >= 90 ? "Гайхалтай!" : pct >= 70 ? "Сайн байна!" : pct >= 50 ? "Дунд зэрэг" : "Дахин давтъя");
   $("rText").textContent = QS.length + " даалгавраас " + right + " нь бүрэн зөв. Хариутай нь хараад алдаагаа засаарай.";
-  if (ONLINE && token) post({ action: "result", token, testId: T.id, score: g, total: m, mode: practice ? "Дасгал" : "Шалгалт" }).catch(() => {});
+  const rk = $("rRank"); if (rk) rk.remove();
+  if (ES) { const p = el("p", "rrank"); p.id = "rRank"; p.textContent = ONLINE && token ? "…" : ""; if (p.textContent) $("rText").after(p); }
+  if (ONLINE && token) post({ action: "result", token, testId: T.id, score: g, total: m, mode: practice ? "Дасгал" : "Шалгалт" }).then(() => {
+    if (!ES) return; Object.keys(LBC).forEach(k => delete LBC[k]);
+    return api({ action: "leaderboard", sec: "eesh", cat: T.id, period: "all", limit: 3, token }).then(r => { const p = $("rRank"); if (!p || !r || !r.ok) return;
+      const me = r.me || r.list.find(x => x.me), n = Math.max(r.count || 0, r.list.length); if (!me) { p.remove(); return; }
+      p.innerHTML = "🏆 <b>" + me.rank + "-р байр</b> / " + n; }); }).catch(() => {});
   recStop({ score: g, total: m, left: !!leftSite });
   Object.keys(LBC).forEach(k => delete LBC[k]);
   scrollTo({ top: $("result").offsetTop - 12, behavior: "smooth" });
@@ -1467,6 +1496,20 @@ async function teacherResults(code) {
     del.disabled = true; del.textContent = "Устгаж байна…"; const x = await api({ action: "contestDelete", code });
     if (x.ok) renderPane(); else { del.disabled = false; del.textContent = "🗑 Шалгалтыг устгах"; alertBox("Устгаж чадсангүй."); } };
   const tb = el("div", "tbtns"); tb.append(csv, pr1, pr2, del); box.append(tb);
+  // 📄 цаасан хариултын хуудас: хэвлэх → сурагчид будна → утсаар скан
+  const roster = (r.roster || []).slice(), pp = el("div", "paperbox");
+  pp.append(el("b", "", "📄 Цаасаар шалгах (утсаар скан хийж засна)"),
+    el("p", "note", "1) Хариултын хуудсыг хэвлэж сурагчдад тараана. 2) Сурагч жагсаалтын дугаараа болон хариултаа дугуйлж будна. 3) «Скан хийх» дараад утасныхаа камерыг хуудас руу барихад автоматаар засаж, дүнгийн хүснэгтэд нэмнэ."));
+  const pb = el("div", "tbtns"), ps = el("button", "btn ghost", "🖨 Хариултын хуудас"), sc = el("button", "btn", "📷 Скан хийх"), rb = el("button", "btn ghost", "👥 Ангийн жагсаалт (" + roster.length + ")");
+  ps.type = sc.type = rb.type = "button"; ps.onclick = () => printSheet(code);
+  sc.onclick = () => omrScan(code, roster, n => { if (n) teacherResults(code); });
+  const rw = el("div", "rosterw"); rw.hidden = true; const ta = el("textarea"); ta.rows = 8; ta.value = roster.join("\n"); ta.placeholder = "Бат-Эрдэнэ\nАнужин\nТэмүүлэн\n…";
+  const rs = el("button", "btn", "Хадгалах"), rm = el("p", "lbn"); rs.type = "button";
+  rs.onclick = async () => { const L = ta.value.split("\n").map(s => s.trim()).filter((s, i, a) => s || i < a.length - 1); rs.disabled = true;
+    const x = await api({ action: "contestRoster", code, list: L }); rs.disabled = false; if (x.ok) { roster.length = 0; L.forEach(s => roster.push(s)); rb.textContent = "👥 Ангийн жагсаалт (" + L.length + ")"; rm.textContent = "✓ Хадгалагдлаа."; } else rm.textContent = "Алдаа гарлаа."; };
+  rb.onclick = () => { rw.hidden = !rw.hidden; };
+  rw.append(el("small", "lbn", "Мөр бүрт нэг сурагч, ангийн жагсаалтын дарааллаар (1-р мөр = №01). Сурагч хуудсан дээр энэ дугаараа будна."), ta, rs, rm);
+  pb.append(ps, sc, rb); pp.append(pb, rw); box.append(pp);
   box.append(el("p", "note", "🖨 товч дарахад шалгалтын материал шинэ цонхонд нээгдэнэ. Тэндээс хэвлэх эсвэл «Save as PDF»-ээр PDF файл болгон хадгална."));
   box.append(rankTable(r.ranking, true));
 }
@@ -2214,6 +2257,200 @@ function btResults() {
   box.append(again);
 }
 
+/* ---------- 📄 Цаасан хариултын хуудас: хэвлэх + утасны камераар скан хийж засах (OMR) ---------- */
+/* Хуудасны координат мм-ээр (180×260). 4 буланд 10мм хар дөрвөлжин, зүүн дээд талд чиг заах жижиг дөрвөлжин. */
+const OMR = { W: 180, H: 260, mk: [[5, 5], [175, 5], [175, 255], [5, 255]], ori: [17.5, 5], blank: [90, 5], br: 3, rows: 20, max: 60 };
+function omrLayout(qs) {
+  const L = { num: [[], []], q: [] };
+  for (let r = 0; r < 2; r++) for (let d = 0; d < 10; d++) L.num[r].push([97 + d * 7.7, 31 + r * 8]);
+  qs.slice(0, OMR.max).forEach((q, i) => {
+    const c = Math.floor(i / OMR.rows), r = i % OMR.rows, x = 4 + c * 60, y = 66 + r * 9;
+    const n = q.slots ? 0 : Math.max(2, Math.min(5, Math.max((q.o || []).length, (q.optImg || []).length) || 5));
+    L.q.push({ i, x, y, o: Array.from({ length: n }, (_, k) => [x + 14 + k * 8.5, y]) });
+  });
+  return L;
+}
+/* --- хэвлэх хуудас (бүтэн SVG — хэвлэхэд дэвсгэр өнгө алга болдоггүй) --- */
+function omrSheetSVG(c, qs) {
+  const L = omrLayout(qs), esc = t => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  let s = '<svg class="sheet" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 260" width="180mm" height="260mm" font-family="Arial,sans-serif">';
+  OMR.mk.forEach(([x, y]) => s += '<rect x="' + (x - 5) + '" y="' + (y - 5) + '" width="10" height="10" fill="#000"/>');
+  s += '<rect x="15.5" y="3" width="4" height="4" fill="#000"/>';
+  s += '<text x="24" y="7.6" font-size="5" font-weight="700">GeoExam · Хариултын хуудас</text>';
+  s += '<text x="24" y="14" font-size="3.4" fill="#333">' + esc(c.name).slice(0, 70) + " · Код " + esc(c.code) + "</text>";
+  s += '<text x="2" y="27" font-size="3.6">Нэр: _______________________</text><text x="2" y="36" font-size="3.6">Анги: ____________</text><text x="2" y="45" font-size="3.6">Оноо: ________ / ' + qs.reduce((a, q) => a + (q.slots ? q.slots.reduce((x, y) => x + y.p, 0) : (q.p || 1)), 0) + "</text>";
+  s += '<text x="97" y="22" font-size="3.2" font-weight="700">Сурагчийн дугаар (жагсаалтаар)</text>';
+  ["Аравт", "Нэгж"].forEach((t, r) => { s += '<text x="81" y="' + (32.2 + r * 8) + '" font-size="2.9" fill="#333">' + t + "</text>";
+    L.num[r].forEach(([x, y], d) => { s += '<circle cx="' + x + '" cy="' + y + '" r="' + OMR.br + '" fill="#fff" stroke="#666" stroke-width=".3"/><text x="' + x + '" y="' + (y + 1.1) + '" font-size="3" fill="#aaa" text-anchor="middle">' + d + "</text>"; }); });
+  s += '<line x1="0" y1="50" x2="180" y2="50" stroke="#000" stroke-width=".3"/>';
+  s += '<text x="2" y="55" font-size="2.7" fill="#444">Зөв хариултынхаа дугуйг харандаа/хар үзгээр бүтэн будна ●. Засвар хийвэл арилгагчаар цэвэр арилгана. Хуудсыг нугалж, бохирдуулахгүй.</text>';
+  const cols = Math.ceil(L.q.length / OMR.rows);
+  for (let c2 = 0; c2 < cols; c2++) "ABCDE".split("").forEach((l, k) => s += '<text x="' + (4 + c2 * 60 + 14 + k * 8.5) + '" y="60.5" font-size="3.4" font-weight="700" text-anchor="middle">' + l + "</text>");
+  L.q.forEach(q => {
+    s += '<text x="' + (q.x + 8) + '" y="' + (q.y + 1.4) + '" font-size="4" font-weight="700" text-anchor="end">' + (q.i + 1) + "</text>";
+    if (!q.o.length) s += '<text x="' + (q.x + 10) + '" y="' + (q.y + 1.1) + '" font-size="2.7" fill="#777">✎ нөхөх — тусад нь бичнэ</text>';
+    q.o.forEach(([x, y], k) => s += '<circle cx="' + x + '" cy="' + y + '" r="' + OMR.br + '" fill="#fff" stroke="#666" stroke-width=".3"/><text x="' + x + '" y="' + (y + 1.1) + '" font-size="3.1" fill="#bbb" text-anchor="middle">' + "ABCDE"[k] + "</text>");
+  });
+  s += '<text x="90" y="257" font-size="2.6" fill="#666" text-anchor="middle">geoexam.mn · Багш утасныхаа камераар скан хийж засна</text></svg>';
+  return s;
+}
+async function printSheet(code) {
+  const w = window.open("", "_blank"); if (!w) { alertBox("Шинэ цонх нээгдсэнгүй. Хөтчийн popup хориглолтыг зөвшөөрнө үү."); return; }
+  w.document.write("<p style='font-family:sans-serif;padding:20px'>Бэлдэж байна…</p>");
+  const r = await api({ action: "contestExport", code }); if (!r.ok) { w.document.body.innerHTML = "<p>Алдаа гарлаа.</p>"; return; }
+  const big = r.questions.length > OMR.max ? '<p class="warn">Анхаар: хуудсанд эхний ' + OMR.max + " асуулт л багтана.</p>" : "";
+  w.document.open(); w.document.write('<!doctype html><html lang="mn"><head><meta charset="utf-8"><title>Хариултын хуудас — ' + r.contest.name.replace(/</g, "") + "</title><style>"
+    + "@page{size:A4;margin:12mm 15mm}body{margin:0;font-family:Arial,sans-serif}.bar{padding:10px;text-align:center;background:#f3f4f6}.bar button{font-size:15px;padding:9px 16px;cursor:pointer}.bar p{margin:6px 0 0;font-size:13px;color:#444}.warn{color:#b00}"
+    + ".sheet{display:block;margin:10px auto}@media print{.bar{display:none}.sheet{margin:0 auto}}</style></head><body>"
+    + '<div class="bar"><button onclick="print()">🖨 Хэвлэх</button><p>Нэг хуудсыг хэвлээд олшруулж болно. Хэвлэхдээ «Scale / Масштаб» 100% эсвэл «Fit to page» байхад болно.</p>' + big + "</div>"
+    + omrSheetSVG(r.contest, r.questions) + "</body></html>");
+  w.document.close();
+}
+
+/* --- зураг боловсруулалт --- */
+function omrGray(img) { const d = img.data, n = img.width * img.height, g = new Uint8Array(n); for (let i = 0, j = 0; i < n; i++, j += 4) g[i] = (d[j] * 77 + d[j + 1] * 150 + d[j + 2] * 29) >> 8; return { g, w: img.width, h: img.height }; }
+function omrHomog(src, dst) {   // src (мм) → dst (px) 3×3 хувиргалт
+  const A = [], b = [];
+  for (let i = 0; i < 4; i++) { const [X, Y] = src[i], [x, y] = dst[i];
+    A.push([X, Y, 1, 0, 0, 0, -x * X, -x * Y]); b.push(x); A.push([0, 0, 0, X, Y, 1, -y * X, -y * Y]); b.push(y); }
+  for (let c = 0; c < 8; c++) { let p = c; for (let r = c + 1; r < 8; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r;
+    [A[c], A[p]] = [A[p], A[c]]; [b[c], b[p]] = [b[p], b[c]]; if (Math.abs(A[c][c]) < 1e-12) return null;
+    for (let r = 0; r < 8; r++) if (r !== c) { const f = A[r][c] / A[c][c]; for (let k = c; k < 8; k++) A[r][k] -= f * A[c][k]; b[r] -= f * b[c]; } }
+  const h = b.map((v, i) => v / A[i][i]); return ([X, Y]) => { const z = h[6] * X + h[7] * Y + 1; return [(h[0] * X + h[1] * Y + h[2]) / z, (h[3] * X + h[4] * Y + h[5]) / z]; };
+}
+function omrSample(G, H, [X, Y], r) {   // мм-ийн тойрог доторх дундаж саарал (0 хар … 255 цагаан)
+  let s = 0, n = 0;
+  for (let i = -3; i <= 3; i++) for (let j = -3; j <= 3; j++) { if (i * i + j * j > 9) continue;
+    const [x, y] = H([X + i * r / 3, Y + j * r / 3]), xi = x | 0, yi = y | 0; if (xi < 0 || yi < 0 || xi >= G.w || yi >= G.h) continue; s += G.g[yi * G.w + xi]; n++; }
+  return n ? s / n : 255;
+}
+/* 4 булангийн тэмдгийг хайна (жижигрүүлсэн зураг дээр). Буцаах: [TL,TR,BR,BL] px эсвэл null */
+function omrFind(G) {
+  const { g, w, h } = G, W1 = w + 1, I = new Uint32Array(W1 * (h + 1));
+  for (let y = 0; y < h; y++) { let row = 0; for (let x = 0; x < w; x++) { row += g[y * w + x]; I[(y + 1) * W1 + x + 1] = I[y * W1 + x + 1] + row; } }
+  const R = Math.max(8, w >> 4), bin = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) { const y0 = Math.max(0, y - R), y1 = Math.min(h, y + R + 1);
+    for (let x = 0; x < w; x++) { const x0 = Math.max(0, x - R), x1 = Math.min(w, x + R + 1), A = (x1 - x0) * (y1 - y0);
+      const S = I[y1 * W1 + x1] - I[y0 * W1 + x1] - I[y1 * W1 + x0] + I[y0 * W1 + x0]; bin[y * w + x] = g[y * w + x] * A < S * 0.72 && g[y * w + x] < 150 ? 1 : 0; } }
+  const lab = new Int32Array(w * h), st = new Int32Array(w * h), C = [];
+  for (let p = 0; p < w * h; p++) { if (!bin[p] || lab[p]) continue;
+    let top = 0, n = 0, sx = 0, sy = 0, x0 = w, x1 = 0, y0 = h, y1 = 0; st[top++] = p; lab[p] = 1;
+    while (top) { const q = st[--top], x = q % w, y = (q / w) | 0; n++; sx += x; sy += y; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+      if (x > 0 && bin[q - 1] && !lab[q - 1]) { lab[q - 1] = 1; st[top++] = q - 1; } if (x < w - 1 && bin[q + 1] && !lab[q + 1]) { lab[q + 1] = 1; st[top++] = q + 1; }
+      if (y > 0 && bin[q - w] && !lab[q - w]) { lab[q - w] = 1; st[top++] = q - w; } if (y < h - 1 && bin[q + w] && !lab[q + w]) { lab[q + w] = 1; st[top++] = q + w; } }
+    const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+    if (n >= 25 && bw >= 5 && bh >= 5 && bw <= w / 4 && bh <= h / 4 && Math.max(bw, bh) / Math.min(bw, bh) <= 2.2 && n / (bw * bh) >= 0.55) C.push({ n, x: sx / n, y: sy / n }); }
+  C.sort((a, b) => b.n - a.n); const K = C.slice(0, 10); if (K.length < 4) return null;
+  let best = null, bs = 0;
+  for (let a = 0; a < K.length; a++) for (let b = a + 1; b < K.length; b++) for (let c = b + 1; c < K.length; c++) for (let d = c + 1; d < K.length; d++) {
+    const P = [K[a], K[b], K[c], K[d]]; if (P[3].n < P[0].n * 0.3) continue;
+    const cx = (P[0].x + P[1].x + P[2].x + P[3].x) / 4, cy = (P[0].y + P[1].y + P[2].y + P[3].y) / 4;
+    P.sort((u, v) => Math.atan2(u.y - cy, u.x - cx) - Math.atan2(v.y - cy, v.x - cx));
+    let conv = true; for (let i = 0; i < 4; i++) { const A = P[i], B = P[(i + 1) % 4], Cc = P[(i + 2) % 4]; if ((B.x - A.x) * (Cc.y - B.y) - (B.y - A.y) * (Cc.x - B.x) <= 0) conv = false; }
+    const len = (i, j) => Math.hypot(P[i].x - P[j].x, P[i].y - P[j].y), r1 = len(0, 1) / len(2, 3), r2 = len(1, 2) / len(3, 0);
+    if (!conv || r1 < 0.6 || r1 > 1.67 || r2 < 0.6 || r2 > 1.67) continue;
+    for (let rot = 0; rot < 4; rot++) { const Q = [0, 1, 2, 3].map(i => [P[(i + rot) % 4].x, P[(i + rot) % 4].y]), Hm = omrHomog(OMR.mk, Q); if (!Hm) continue;
+      const side = Math.hypot(Q[1][0] - Q[0][0], Q[1][1] - Q[0][1]), side2 = Math.hypot(Q[3][0] - Q[0][0], Q[3][1] - Q[0][1]);
+      if (side < w * 0.15 || side2 / side < 1.0 || side2 / side > 2.2) continue;   // хуудас босоо, хангалттай том
+      const wb = omrSample(G, Hm, OMR.blank, 1.6), ob = omrSample(G, Hm, OMR.ori, 1.2), sc = (wb - ob) / Math.max(wb, 1);
+      if (sc > bs) { bs = sc; best = Q; } } }
+  return bs > 0.35 ? best : null;
+}
+/* хариултыг унших: G — бүтэн хэмжээний саарал, Q — булангийн px */
+function omrRead(G, Q, qs) {
+  const L = omrLayout(qs), Hm = omrHomog(OMR.mk, Q), r = OMR.br * 0.62;
+  // дугуй бүрийг өөрийнх нь эргэн тойрны цаасны өнгөтэй харьцуулна (сүүдэр, гэрлийн ялгааг арилгана)
+  const white = ([X, Y]) => { const v = []; for (let a = 0; a < 12; a++) { const t = a * Math.PI / 6; v.push(omrSample(G, Hm, [X + Math.cos(t) * OMR.br * 1.4, Y + Math.sin(t) * OMR.br * 1.42], 0.35)); }
+    v.sort((x, y) => x - y); return v[8]; };
+  const fillOf = p => { const w = white(p); return Math.max(0, (w - omrSample(G, Hm, p, r)) / Math.max(w, 1)); };
+  const pickRow = pts => { const f = pts.map(fillOf), mx = Math.max(...f);
+    if (mx < 0.2) return { sel: [], f }; return { sel: f.map((x, k) => x >= Math.max(0.2, mx * 0.55) ? k : -1).filter(k => k >= 0), f }; };
+  const d = L.num.map(pickRow), num = d.every(x => x.sel.length === 1) ? d[0].sel[0] * 10 + d[1].sel[0] : null;
+  const ans = [], flag = [];
+  L.q.forEach(q => { if (!q.o.length) { ans[q.i] = {}; flag[q.i] = "fill"; return; }
+    const x = pickRow(q.o); ans[q.i] = x.sel.length === 1 ? x.sel[0] : null; flag[q.i] = x.sel.length > 1 ? "multi" : x.sel.length ? "" : "empty"; });
+  return { num, ans, flag, H: Hm, L };
+}
+
+/* --- скан хийх дэлгэц --- */
+async function omrScan(code, roster, onClose) {
+  const r = await api({ action: "contestExport", code }); if (!r.ok) return alertBox(CERR[r.error] || "Алдаа");
+  const qs = r.questions.slice(0, OMR.max), total = qs.reduce((a, q) => a + (q.slots ? q.slots.reduce((x, y) => x + y.p, 0) : (q.p || 1)), 0);
+  const ov = el("div", "omr"); document.body.append(ov); document.body.classList.add("omr-on");
+  const top = el("div", "omrtop"), x = el("button", "omrx", "✕ Хаах"); x.type = "button";
+  const cnt = el("span", "omrcnt", "Хадгалсан: 0"); top.append(x, el("b", "", "📷 Хариултын хуудас скан"), cnt); ov.append(top);
+  const stage = el("div", "omrstage"), vid = el("video"); vid.playsInline = true; vid.muted = true; vid.setAttribute("playsinline", ""); const cv = el("canvas", "omrcv");
+  stage.append(vid, cv); ov.append(stage);
+  const hint = el("p", "omrhint", "Хуудсаа бүтнээр нь, 4 булан дахь хар дөрвөлжин харагдахаар барина уу. Автоматаар уншина."); ov.append(hint);
+  const bot = el("div", "omrbot"), fi = el("input"); fi.type = "file"; fi.accept = "image/*"; fi.hidden = true;
+  const fb = el("button", "btn ghost", "🖼 Зургаас унших"); fb.type = "button"; fb.onclick = () => fi.click(); bot.append(fb, fi); ov.append(bot);
+  let stream = null, timer = 0, busy = false, prev = null, saved = 0, cool = 0, alive = true;
+  const small = document.createElement("canvas"), sctx = small.getContext("2d", { willReadFrequently: true });
+  const close = () => { alive = false; clearTimeout(timer); if (stream) stream.getTracks().forEach(t => t.stop()); ov.remove(); document.body.classList.remove("omr-on"); onClose && onClose(saved); };
+  x.onclick = close;
+  const drawQuad = (Q, sw, sh) => { const rc = vid.getBoundingClientRect(), s = Math.min(rc.width / sw, rc.height / sh), ox = (rc.width - sw * s) / 2, oy = (rc.height - sh * s) / 2;
+    cv.width = rc.width * devicePixelRatio; cv.height = rc.height * devicePixelRatio; cv.style.width = rc.width + "px"; cv.style.height = rc.height + "px";
+    const c = cv.getContext("2d"); c.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); c.clearRect(0, 0, rc.width, rc.height); if (!Q) return;
+    c.strokeStyle = "#22c55e"; c.lineWidth = 3; c.beginPath(); Q.forEach(([px, py], i) => c[i ? "lineTo" : "moveTo"](ox + px * s, oy + py * s)); c.closePath(); c.stroke(); };
+  const process = (src, sw, sh) => {   // src: video эсвэл зураг. Бүтэн хэмжээг 2000px хүртэл
+    const k = Math.min(1, 2000 / Math.max(sw, sh)), fw = Math.round(sw * k), fh = Math.round(sh * k), full = document.createElement("canvas"); full.width = fw; full.height = fh;
+    const fc = full.getContext("2d", { willReadFrequently: true }); fc.drawImage(src, 0, 0, fw, fh);
+    const ks = Math.min(1, 800 / Math.max(fw, fh)); small.width = Math.round(fw * ks); small.height = Math.round(fh * ks); sctx.drawImage(full, 0, 0, small.width, small.height);
+    const Qs = omrFind(omrGray(sctx.getImageData(0, 0, small.width, small.height))); if (!Qs) return null;
+    const Q = Qs.map(([a, b]) => [a / ks, b / ks]); return { full, Q, res: omrRead(omrGray(fc.getImageData(0, 0, fw, fh)), Q, qs) };
+  };
+  const tick = () => { if (!alive || busy) return; timer = setTimeout(tick, 220);
+    if (!vid.videoWidth) return; const sw = vid.videoWidth, sh = vid.videoHeight, ks = Math.min(1, 800 / Math.max(sw, sh));
+    small.width = Math.round(sw * ks); small.height = Math.round(sh * ks); sctx.drawImage(vid, 0, 0, small.width, small.height);
+    const Q = omrFind(omrGray(sctx.getImageData(0, 0, small.width, small.height))); drawQuad(Q && Q.map(([a, b]) => [a / ks, b / ks]), sw, sh);
+    if (!Q) { prev = null; cool = 0; hint.textContent = "Хуудсаа бүтнээр нь, 4 булан дахь хар дөрвөлжин харагдахаар барина уу."; return; }
+    if (cool && Date.now() < cool) { hint.textContent = "Дараагийн хуудсаа барина уу…"; prev = null; return; }
+    const still = prev && Q.every((p, i) => Math.hypot(p[0] - prev[i][0], p[1] - prev[i][1]) < small.width * 0.012); prev = Q;
+    hint.textContent = still ? "Уншиж байна…" : "Хөдөлгөөнгүй барина уу…"; if (!still) return;
+    const out = process(vid, sw, sh); if (out) { busy = true; showRes(out); } };
+  fi.onchange = () => { const f = fi.files[0]; if (!f) return; const im = new Image(); im.onload = () => { const out = process(im, im.naturalWidth, im.naturalHeight); URL.revokeObjectURL(im.src); fi.value = "";
+      if (!out) { hint.textContent = "Зураг дээрээс хуудсыг таньсангүй. 4 булан бүтэн, гэрэлтэй газар дахин авна уу."; return; } busy = true; showRes(out); }; im.src = URL.createObjectURL(f); };
+  function showRes(out) {
+    clearTimeout(timer); try { vid.pause(); } catch (e) {} play("tap");
+    const { res } = out, A = res.ans.slice(), pane = el("div", "omrres"); ov.append(pane);
+    // зөвхөн хуудасны хэсгийг тайрч харуулна
+    const xs = out.Q.map(q => q[0]), ys = out.Q.map(q => q[1]), pad = (Math.max(...xs) - Math.min(...xs)) * 0.05;
+    const bx = Math.max(0, Math.min(...xs) - pad), by = Math.max(0, Math.min(...ys) - pad), bw = Math.min(out.full.width, Math.max(...xs) + pad) - bx, bh = Math.min(out.full.height, Math.max(...ys) + pad) - by;
+    const pic = el("canvas", "omrpic"), pw = Math.round(Math.min(1000, bw)), ph = Math.round(bh * pw / bw); pic.width = pw; pic.height = ph;
+    const draw = () => { const c = pic.getContext("2d"), s = pw / bw; c.drawImage(out.full, bx, by, bw, bh, 0, 0, pw, ph); c.lineWidth = Math.max(1.5, pw / 400);
+      const ring = (p, col, fill) => { const [px, py] = res.H(p), [qx, qy] = res.H([p[0] + OMR.br, p[1]]); c.beginPath(); c.arc((px - bx) * s, (py - by) * s, Math.hypot(qx - px, qy - py) * s * 1.15, 0, 7); if (fill) { c.fillStyle = fill; c.fill(); } c.strokeStyle = col; c.stroke(); };
+      res.L.q.forEach(q => { const key = qs[q.i]; if (!q.o.length) return; q.o.forEach((p, k) => { const sel = A[q.i] === k;
+        if (k === key.a) ring(p, "#16a34a", sel ? "rgba(34,197,94,.45)" : null); else if (sel) ring(p, "#dc2626", "rgba(239,68,68,.45)"); }); });
+      res.L.num.forEach((row, rr) => row.forEach((p, dd) => { if (num != null && dd === (rr ? num % 10 : (num / 10) | 0)) ring(p, "#2563eb", "rgba(37,99,235,.35)"); })); };
+    let num = res.num;
+    const head = el("div", "omrhead"), ni = el("input"); ni.inputMode = "numeric"; ni.maxLength = 2; ni.value = num == null ? "" : String(num).padStart(2, "0"); ni.placeholder = "??";
+    const nm = el("span", "omrname"), sc = el("div", "omrsc");
+    const upd = () => { const n = parseInt(ni.value, 10); num = isNaN(n) ? null : n; nm.textContent = num == null ? "Дугаар уншигдсангүй — гараар бичнэ үү" : roster[num - 1] ? roster[num - 1] : "№" + String(num).padStart(2, "0") + (roster.length ? " (жагсаалтад алга)" : "");
+      let p = 0; qs.forEach((q, i) => { if (!q.slots && A[i] === q.a) p += q.p || 1; }); sc.textContent = p + " / " + total; draw(); };
+    ni.oninput = upd;
+    const lab = el("label", "omrnum"); lab.append(el("span", "", "Дугаар"), ni); head.append(lab, nm, sc); pane.append(head, pic);
+    const warn = res.flag.filter(f => f === "multi").length, empty = res.flag.filter(f => f === "empty").length, fills = res.flag.filter(f => f === "fill").length;
+    if (warn || empty || fills) pane.append(el("p", "omrwarn", [warn ? "⚠ " + warn + " асуултад давхар будсан (буруу тооцно)" : "", empty ? empty + " хоосон" : "", fills ? fills + " нөхөх даалгавар скан хийгдэхгүй (0 оноо)" : ""].filter(Boolean).join(" · ")));
+    const grid = el("div", "omrgrid");
+    qs.forEach((q, i) => { if (q.slots) return; const n = res.L.q[i].o.length, b = el("button", "omrc"); b.type = "button";
+      const set = () => { const ok = A[i] === q.a; b.className = "omrc " + (A[i] == null ? "e" : ok ? "ok" : "no"); b.textContent = (i + 1) + " " + (A[i] == null ? (res.flag[i] === "multi" ? "××" : "—") : "ABCDE"[A[i]]) + (A[i] != null && !ok ? "→" + "ABCDE"[q.a] : ""); };
+      b.onclick = () => { A[i] = A[i] == null ? 0 : A[i] + 1 >= n ? null : A[i] + 1; res.flag[i] = ""; set(); upd(); }; set(); grid.append(b); });
+    pane.append(el("small", "lbn", "Буруу уншсан бол тухайн асуултыг дарж засна (A→B→…→хоосон)."), grid);
+    const bt = el("div", "tbtns"), sv = el("button", "btn", "✓ Хадгалах"), ag = el("button", "btn ghost", "↻ Дахин скан"); sv.type = ag.type = "button"; const msg = el("p", "err");
+    const resume = () => { pane.remove(); busy = false; prev = null; cool = Date.now() + 2500; drawQuad(null, 1, 1); try { vid.play(); } catch (e) {} tick(); };
+    ag.onclick = () => { cool = 0; resume(); };
+    sv.onclick = async () => { if (num == null || num < 1) { msg.textContent = "Сурагчийн дугаарыг (01–99) бичнэ үү."; ni.focus(); return; }
+      sv.disabled = true; sv.textContent = "Хадгалж байна…";
+      const answers = qs.map((q, i) => q.slots ? {} : A[i]); let x; try { x = await api({ action: "paperSave", code, num, answers }); } catch (e) { x = { ok: false }; }
+      if (!x.ok) { sv.disabled = false; sv.textContent = "✓ Хадгалах"; msg.textContent = CERR[x.error] || "Хадгалж чадсангүй. Интернэтээ шалгана уу."; return; }
+      saved++; cnt.textContent = "Хадгалсан: " + saved; play("ok"); hint.textContent = "✓ " + nm.textContent + " — " + sc.textContent + " хадгалагдлаа. Дараагийн хуудсаа барина уу."; resume(); };
+    bt.append(sv, ag); pane.append(msg, bt); upd(); pane.scrollTop = 0;
+  }
+  try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+    if (!alive) { stream.getTracks().forEach(t => t.stop()); return; } vid.srcObject = stream; await vid.play(); tick(); }
+  catch (e) { stage.classList.add("off"); hint.textContent = "Камер нээгдсэнгүй (зөвшөөрөл өгөөгүй байж магадгүй). «Зургаас унших» товчоор утасны камераар зураг авч оруулж болно."; }
+}
+
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
 const IV = { DUR: 2.8, timers: [], on: false, loopT: null, nodes: [] };
 const IV_SCENES = [
@@ -2514,6 +2751,11 @@ H.result = async p => {
     b[key] = { s: score, t: total }; let S = 0, T = 0; Object.values(b).forEach(x => { S += x.s; T += x.t; });
     tx.set(ref, { name: m.name, best: b, score: S, total: T, tests: Object.keys(b).length, pct: T ? Math.round(S / T * 100) : 0, at: Timestamp.now() });
   }).catch(() => {})));
+  if (sec === "var") await Promise.all(Object.values(P).map(per => runTransaction(db, async tx => {   // 📊 ЭЕШ хувилбар тус бүрийн жагсаалт
+    const ref = D("boards", "eesh|" + tid, per, m.uid), s = await tx.get(ref);
+    if (s.exists() && s.data().score >= score) return;
+    tx.set(ref, { name: m.name, score, total, tests: 1, pct: Math.round(score / total * 100), at: Timestamp.now() });
+  }).catch(() => {})));
   return { ok: true };
 };
 H.leaderboard = async p => {
@@ -2535,11 +2777,11 @@ H.leaderboard = async p => {
 /* ---- тэмцээн ---- */
 const stat = c => { const now = Date.now(); return now < toD(c.start).getTime() ? "upcoming" : now <= toD(c.end).getTime() ? "open" : "done"; };
 const pubC = (code, c) => ({ code, name: c.name, start: toD(c.start).toISOString(), end: toD(c.end).toISOString(), minutes: c.minutes || 0, count: c.count || 0, desc: c.desc || "", rec: !!c.rec, type: c.type || "exam", status: stat(c) });
-async function ranking(code, key) {
+async function ranking(code, key, roster) {
   const s = await getDocs(C("contests", code, "subs")), Q = key.qs || [];
   const list = s.docs.map(d => { const x = d.data(); let A = []; try { A = JSON.parse(x.answers || "[]"); } catch (e) {}
     let sc = 0, tot = 0; Q.forEach((q, i) => { tot += maxP(q); sc += grade(q, A[i]); });
-    return { name: x.name || x.email, email: x.email, score: sc, total: tot, secs: x.secs || 0, uid: d.id, answers: A }; });
+    return { name: x.paper && roster && roster[x.num - 1] ? roster[x.num - 1] : x.name || x.email, email: x.email, score: sc, total: tot, secs: x.secs || 0, uid: d.id, answers: A }; });
   list.sort((a, b) => b.score - a.score || a.secs - b.secs); list.forEach((x, i) => x.rank = i + 1);
   return list;
 }
@@ -2551,7 +2793,7 @@ H.contest = async p => {
   if (pc.status === "open" && !sub.exists()) out.started = (await getDoc(D("contests", code, "starts", m.uid))).exists();
   if (pc.status === "open" && !sub.exists() && !out.started) out.questions = ((await getDoc(D("contestQs", code))).data() || {}).qs || [];
   if (pc.status === "done") {
-    const key = (await getDoc(D("contestKeys", code))).data() || {}, R = await ranking(code, key);
+    const key = (await getDoc(D("contestKeys", code))).data() || {}, R = await ranking(code, key, c.roster);
     out.ranking = R.map(x => ({ rank: x.rank, name: x.name, email: x.email, score: x.score, total: x.total, secs: x.secs }));
     const mine = R.find(x => x.uid === m.uid);
     if (mine) { out.questions = key.qs || []; out.answers = mine.answers; out.my = { score: mine.score, total: mine.total, secs: mine.secs }; }
@@ -2626,6 +2868,23 @@ H.contestExport = async p => {   // багш өөрийн шалгалтыг х�
   const key = (await getDoc(D("contestKeys", code))).data() || {};
   return { ok: true, contest: pubC(code, cs.data()), questions: key.qs || [] };
 };
+H.paperSave = async p => {   // 📄 цаасан хуудсыг скан хийсэн дүн (багш хадгална)
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
+  if (!m.admin && cs.data().owner !== m.email) return { ok: false, error: "teacher" };
+  const num = parseInt(p.num, 10); if (!(num >= 1 && num <= 99)) return { ok: false, error: "num" };
+  const nn = String(num).padStart(2, "0"), R = cs.data().roster || [];
+  await setDoc(D("contests", code, "subs", "paper-" + nn), { name: R[num - 1] || "№" + nn, email: "📄 цаасаар", answers: JSON.stringify(Array.isArray(p.answers) ? p.answers : []).slice(0, 45000), secs: 0, paper: true, num, at: Timestamp.now() });
+  return { ok: true };
+};
+H.contestRoster = async p => {   // ангийн жагсаалт: 1-р мөр = №01
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
+  if (!m.admin && cs.data().owner !== m.email) return { ok: false, error: "teacher" };
+  const L = (Array.isArray(p.list) ? p.list : []).map(s => String(s).trim().slice(0, 60)).slice(0, 99);
+  await setDoc(D("contests", code), { roster: L }, { merge: true });
+  return { ok: true };
+};
 H.olympiads = async () => {   // админы зарласан олимпиадууд: бүх хэрэглэгчид харагдана
   const s = await getDocs(query(C("contests"), where("type", "==", "olymp"), limit(30)));
   const now = Date.now(), L = s.docs.map(d => pubC(d.id, d.data())).filter(c => c.status !== "done" || now - new Date(c.end).getTime() < 30 * 864e5);
@@ -2653,8 +2912,8 @@ H.contestResults = async p => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
   const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
   if (!m.admin && cs.data().owner !== m.email) return { ok: false, error: "teacher" };
-  const key = (await getDoc(D("contestKeys", code))).data() || {}, R = await ranking(code, key);
-  return { ok: true, contest: pubC(code, cs.data()), ranking: R.map(x => ({ rank: x.rank, name: x.name, email: x.email, score: x.score, total: x.total, secs: x.secs })) };
+  const key = (await getDoc(D("contestKeys", code))).data() || {}, R = await ranking(code, key, cs.data().roster);
+  return { ok: true, contest: pubC(code, cs.data()), roster: cs.data().roster || [], ranking: R.map(x => ({ rank: x.rank, name: x.name, email: x.email, score: x.score, total: x.total, secs: x.secs })) };
 };
 
 /* ---- Багш / сурагч эрх ---- */
