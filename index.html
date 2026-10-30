@@ -727,6 +727,10 @@ body.omr-on{overflow:hidden}.omr{position:fixed;inset:0;z-index:9999;background:
 .rrank{margin:8px auto 0;font-size:15px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;max-width:520px}.rrank b{color:var(--accent)}.lb td.esh{font-weight:800;color:var(--accent)}
 .res .big.esh small{font-size:11px;max-width:104px;text-align:center;line-height:1.25}
 .rostw{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:12px;margin:8px 0}.rost{width:100%;border-collapse:collapse}.rost th{position:sticky;top:0;background:var(--surface);text-align:left;font-size:12px;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}.rost td{padding:3px 8px;border-bottom:1px solid var(--line)}.rost td.rno{width:74px;text-align:center;font:800 18px var(--font);color:var(--accent)}.rost input{width:100%;box-sizing:border-box;font:inherit;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--fg)}.rost input:focus{outline:none;border-color:var(--accent);background:var(--bg)}
+.impfmt{margin:6px 0 12px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--surface)}.impfmt summary{cursor:pointer;font-weight:700}.impfmt pre{white-space:pre-wrap;font-size:13px;background:var(--bg);border-radius:8px;padding:10px;margin:8px 0}
+.impdrop{display:flex;flex-direction:column;align-items:center;gap:4px;border:2px dashed var(--line);border-radius:16px;padding:22px 12px;cursor:pointer;text-align:center;margin:6px 0 10px}.impdrop b{font-size:18px}.impdrop span{font-size:13px;color:var(--muted)}.impdrop.on,.impdrop:hover{border-color:var(--accent);background:var(--surface)}
+.impta{width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}.imphead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 8px}.imphead b{flex:1}.imphead select{font:inherit;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.imq{position:relative}.imq.miss{border:2px solid #f5a524!important}.imqt{display:flex;gap:8px;align-items:flex-start}.imqt b{flex:1}.imx{border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 4px}.imo{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:5px 9px;cursor:pointer}.imo.ok{background:rgba(34,197,94,.16);border-color:#22c55e;font-weight:700}
 </style>
 </head>
 <body>
@@ -1537,10 +1541,11 @@ async function myQuestions() {
   const r = await api({ action: "myQs" }); box.innerHTML = "";
   const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
   box.append(el("h3", "bh", "✍️ Миний асуултууд"), el("p", "note", "Энд нэмсэн асуултууд зөвхөн танд харагдана. Шалгалт үүсгэхдээ «Миний асуултууд» ангиллаас сонгоно."));
+  const imb = el("button", "btn", "📥 Файлаас оруулах (Word, PDF, Excel)"); imb.type = "button"; imb.onclick = () => myImport(); const imw = el("div", "tbtns"); imw.append(imb); box.append(imw);
   const f = el("div", "bform myqf"); const fld = (lab, inp) => { const l = el("label", "fld"); l.append(el("span", "", lab), inp); f.append(l); return inp; };
   let editId = null;
   const q = fld("Асуулт", Object.assign(el("textarea"), { rows: 3, maxLength: 1200, placeholder: "Жишээ: Дэлхийн хамгийн урт гол аль нь вэ?" }));
-  const L = ["A", "B", "C", "D"], oIn = [], rad = el("div", "myqo");
+  const L = ["A", "B", "C", "D", "E"], oIn = [], rad = el("div", "myqo");
   L.forEach((l, k) => { const w = el("label", "myqopt"); const rb = Object.assign(el("input"), { type: "radio", name: "myqa", value: k }); if (k === 0) rb.checked = true;
     const t = Object.assign(el("input"), { placeholder: l + " хариулт" + (k > 1 ? " (заавал биш)" : ""), maxLength: 300 }); oIn.push([rb, t]); w.append(rb, el("b", "", l), t); rad.append(w); });
   f.append(el("small", "lbn", "Зөв хариултынхаа өмнөх дугуйг сонгоно ●"), rad);
@@ -2469,6 +2474,192 @@ async function omrScan(code, roster, onClose) {
   catch (e) { stage.classList.add("off"); hint.textContent = "Камер нээгдсэнгүй (зөвшөөрөл өгөөгүй байж магадгүй). «Зургаас унших» товчоор утасны камераар зураг авч оруулж болно."; }
 }
 
+/* ---------- 📥 Багшийн тестийг файлаас таньж оруулах (Word .docx · Excel .xlsx/.csv · текст) ---------- */
+/* zip задлагч: хөтчийн DecompressionStream ашиглана (нэмэлт сан хэрэггүй) */
+async function zipRead(buf, want) {
+  const u = new Uint8Array(buf), dv = new DataView(buf), out = {};
+  let e = u.length - 22; while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--; if (e < 0) throw new Error("zip");
+  let p = dv.getUint32(e + 16, true); const n = dv.getUint16(e + 10, true), td = new TextDecoder();
+  for (let i = 0; i < n; i++) {
+    const meth = dv.getUint16(p + 10, true), csz = dv.getUint32(p + 20, true), fl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    const name = td.decode(u.subarray(p + 46, p + 46 + fl)); p += 46 + fl + xl + cl;
+    if (!want(name)) continue;
+    const lo = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true), raw = u.subarray(lo, lo + csz);
+    if (meth === 0) out[name] = td.decode(raw);
+    else { const s = new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw")); out[name] = await new Response(s).text(); }
+  }
+  return out;
+}
+const xmlUn = s => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
+/* Word: догол мөр бүрийн текст + тодруулга (bold / өнгөт тэмдэглэгээ) */
+async function docxLines(buf) {
+  const z = await zipRead(buf, n => n === "word/document.xml"), x = z["word/document.xml"]; if (!x) throw new Error("docx");
+  return (x.match(/<w:p[ >][\s\S]*?<\/w:p>/g) || []).map(p => {
+    let t = "", bt = 0, all = 0;
+    (p.match(/<w:r[ >][\s\S]*?<\/w:r>/g) || []).forEach(r => { const pr = (r.match(/<w:rPr>[\s\S]*?<\/w:rPr>/) || [""])[0];
+      const s = xmlUn((r.match(/<w:t[^>]*>[^<]*<\/w:t>|<w:tab\/>|<w:br\/>/g) || []).map(k => k[1] === "w" && k.startsWith("<w:t") && k[4] !== "a" ? k.replace(/<[^>]+>/g, "") : " ").join(""));
+      const mark = /<w:b\/>|<w:b w:val="(1|true)"|<w:highlight|<w:u w:val="(?!none)|<w:color w:val="(?!000000|auto)/.test(pr);
+      t += s; const L = s.trim().length; all += L; if (mark) bt += L; });
+    return { t: t.replace(/\s+/g, " ").trim(), b: all > 0 && bt / all > 0.6 };
+  }).filter(l => l.t);
+}
+/* Excel: эхний хуудасны мөрүүд */
+async function xlsxRows(buf) {
+  const z = await zipRead(buf, n => n === "xl/sharedStrings.xml" || /^xl\/worksheets\/sheet1\.xml$/.test(n)), ss = [];
+  ((z["xl/sharedStrings.xml"] || "").match(/<si>[\s\S]*?<\/si>/g) || []).forEach(si => ss.push(xmlUn((si.match(/<t[^>]*>[^<]*<\/t>/g) || []).map(k => k.replace(/<[^>]+>/g, "")).join(""))));
+  const sh = z["xl/worksheets/sheet1.xml"] || "", rows = [];
+  (sh.match(/<row[\s\S]*?<\/row>/g) || []).forEach(r => { const row = [];
+    (r.match(/<c [^>]*?(?:\/>|>[\s\S]*?<\/c>)/g) || []).forEach(c => { const ref = (c.match(/ r="([A-Z]+)\d+"/) || [])[1] || "A", col = ref.split("").reduce((a, ch) => a * 26 + ch.charCodeAt(0) - 64, 0) - 1;
+      const v = (c.match(/<v>([^<]*)<\/v>/) || [])[1], is = (c.match(/<is>[\s\S]*?<\/is>/) || [""])[0];
+      row[col] = / t="s"/.test(c) ? ss[+v] || "" : is ? xmlUn(is.replace(/<[^>]+>/g, "")) : v != null ? xmlUn(v) : ""; });
+    rows.push(Array.from(row, x => (x || "").trim())); });
+  return rows;
+}
+function csvRows(t) {
+  const sep = (t.split("\n")[0].match(/;/g) || []).length > (t.split("\n")[0].match(/,/g) || []).length ? ";" : t.indexOf("\t") >= 0 && t.indexOf(",") < 0 ? "\t" : ",";
+  const rows = []; let row = [], cur = "", q = false;
+  for (let i = 0; i < t.length; i++) { const ch = t[i];
+    if (q) { if (ch === '"') { if (t[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+    else if (ch === '"') q = true; else if (ch === sep) { row.push(cur.trim()); cur = ""; } else if (ch === "\n") { row.push(cur.trim()); rows.push(row); row = []; cur = ""; } else if (ch !== "\r") cur += ch; }
+  if (cur || row.length) { row.push(cur.trim()); rows.push(row); }
+  return rows.filter(r => r.some(Boolean));
+}
+/* хүснэгт (Excel/CSV): Асуулт | A | B | C | D | E | Хариу | Оноо | Тайлбар | Сэдэв */
+function rowsToQs(rows) {
+  const h = rows[0].map(x => x.toLowerCase()), find = re => h.findIndex(x => re.test(x));
+  let iq = find(/асуулт|даалгавар|question/), ia = find(/^(зөв\s*)?хари?у(лт)?$|^answer|^key|зөв/), ip = find(/оноо|point/), is = find(/тайлбар|solution|explan/), it = find(/сэдэв|topic/);
+  let io = ["a", "b", "c", "d", "e"].map(l => h.findIndex(x => x === l || x === l + "." || x === l + ")" || x === "а б в г д".split(" ")["abcde".indexOf(l)]));
+  let start = 1;
+  if (iq < 0) { start = 0; iq = 0; io = [1, 2, 3, 4, 5]; ia = 6; ip = 7; is = 8; it = 9; }   // гарчиггүй бол байрлалаар
+  return rows.slice(start).map(r => {
+    const o = io.filter(k => k >= 0).map(k => r[k] || "").filter(Boolean), raw = (r[ia] || "").trim();
+    let a = -1; if (raw) { const L = raw.toUpperCase()[0], k = "ABCDE".indexOf(L) >= 0 ? "ABCDE".indexOf(L) : "АБВГД".indexOf(L); a = k >= 0 ? k : /^\d$/.test(raw) ? +raw - 1 : o.findIndex(x => x.toLowerCase() === raw.toLowerCase()); }
+    return { q: r[iq] || "", o, a, p: Math.max(1, parseInt(r[ip], 10) || 1), sol: r[is] || "", topic: r[it] || "" };
+  }).filter(x => x.q && x.o.length >= 2);
+}
+/* текст / Word-ийн мөрүүдээс асуулт таних */
+const IMP_LET = "ABCDEАБВГДЕ";
+function linesToQs(lines) {
+  const Q = [], key = {}; let cur = null, inKey = false, topic = "";
+  const letIdx = (q, L) => { L = L.toUpperCase(); const k = q.lets.indexOf(L); if (k >= 0) return k; const a = "ABCDE".indexOf(L), b = "АБВГД".indexOf(L); return a >= 0 ? a : b >= 0 ? b : L === "Е" ? 4 : -1; };
+  for (const ln of lines) {
+    const t = ln.t.replace(/ /g, " ").trim(); if (!t) continue;
+    if (/^(хариу(лт)?ын\s+түлхүүр|зөв\s+хариу(нууд)?|хариу)\s*:?\s*$/i.test(t)) { inKey = true; cur = null; continue; }
+    // хариултын түлхүүр: "1-B 2-C", "1.B, 2.C", "1) B"
+    const km = t.match(/(\d{1,3})\s*[-.)\s:]\s*([A-EА-Д])(?![A-Za-zА-Яа-яӨөҮү])/g);
+    if (km && !/^[*✓✔]?\s*[A-EА-Д]\s*[.)]/.test(t) && (inKey || km.length >= 5 && t.replace(/(\d{1,3})\s*[-.)\s:]\s*([A-EА-Д])/g, "").replace(/[\s,;|]/g, "").length < 4)) { km.forEach(s => { const m = s.match(/(\d{1,3})\s*[-.)\s:]\s*([A-EА-Д])/); key[+m[1]] = m[2]; }); continue; }
+    let m;
+    if ((m = t.match(/^(\d{1,3})\s*[.)]\s*(.+)$/)) && (!cur || cur.o.length >= 2 || (+m[1] === cur.n + 1 && /оноо|[?]\s*$|(уу|үү|вэ|бэ)\.?\s*$/i.test(m[2])))) {   // доторх «1. … 2. …» өгүүлбэрүүдийг асуулт гэж андуурахгүй
+      let q = m[2], p = 1; const pm = q.match(/[/(]\s*(\d{1,2})\s*оноо\s*[/)]/i); if (pm) { p = +pm[1]; q = q.replace(pm[0], "").trim(); }
+      cur = { n: +m[1], q, o: [], lets: [], a: -1, p, sol: "", topic, bold: [] }; Q.push(cur); inKey = false; continue; }
+    const head = t.length < 70 && !/^[*✓✔]?\s*[A-EА-Д]\s*[.)]/.test(t) && !/^\d+\s*[.)]/.test(t) && !/хариу|тайлбар/i.test(t) && (t === t.toUpperCase() && /[А-ЯӨҮA-Z]{3}/.test(t) || /^(дэд\s+)?сэдэв(\s|$)|^\d+\s+(даалгавар|асуулт)$|^(бүлэг|хэсэг)(\s|$)/i.test(t));
+    if (head) { if (t === t.toUpperCase() && !/^\d/.test(t)) { const lo = t.toLowerCase(), hit = (typeof TOPIC_ORDER !== "undefined" ? TOPIC_ORDER : []).find(x => x.toLowerCase() === lo); topic = hit || t.charAt(0) + lo.slice(1); } cur = null; continue; }
+    if (!cur) continue;
+    if ((m = t.match(/^[*✓✔]?\s*([A-EА-Д])\s*[.)]\s*(.*)$/)) && cur.o.length < 5) {
+      let s = m[2], ok = /[✓✔]|\(\s*зөв\s*\)|\*\s*$/.test(s) || /^[*✓✔]/.test(t);
+      s = s.replace(/[✓✔]/g, "").replace(/\(\s*зөв\s*\)/gi, "").replace(/\*+\s*$/, "").trim();
+      cur.o.push(s); cur.lets.push(m[1].toUpperCase()); cur.bold.push(ln.b); if (ok) cur.a = cur.o.length - 1; continue; }
+    if ((m = t.match(/^(зөв\s+)?хариу(лт)?\s*[:：-]\s*([A-EА-Д])\b/i))) { const k = letIdx(cur, m[3]); if (k >= 0) cur.a = k; continue; }
+    if ((m = t.match(/^тайлбар\s*[:：-]\s*(.*)$/i))) { cur.sol = m[1]; continue; }
+    if (cur.o.length === 0) cur.q += " " + t; else if (cur.sol) cur.sol += " " + t;
+  }
+  Q.forEach(q => {
+    const pm = q.q.match(/[/(]\s*(\d{1,2})\s*оноо\s*[/)]/i); if (pm) { q.p = +pm[1]; q.q = q.q.replace(pm[0], "").trim(); }
+    if (q.a < 0 && key[q.n]) q.a = letIdx(q, key[q.n]);
+    if (q.a < 0) { const bs = q.bold.filter(Boolean).length; if (bs === 1) q.a = q.bold.indexOf(true); }   // ганц тодруулсан хариулт
+    delete q.lets; delete q.bold;
+  });
+  return Q.filter(q => q.q.trim().length >= 3 && q.o.length >= 2);
+}
+/* PDF: pdf.js-ийг хэрэгтэй үед нь л CDN-ээс ачаална */
+const PDFJS_V = "6.2.108", PDFJS_CDN = ["https://cdn.jsdelivr.net/npm/pdfjs-dist@" + PDFJS_V + "/legacy/build/", "https://unpkg.com/pdfjs-dist@" + PDFJS_V + "/legacy/build/"];
+let PDFJS = null;
+async function pdfLib() {
+  if (PDFJS) return PDFJS;
+  for (const base of PDFJS_CDN) { try {
+    const lib = await import(base + "pdf.min.mjs"), wt = await (await fetch(base + "pdf.worker.min.mjs")).text();
+    lib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([wt], { type: "text/javascript" }));   // ижил домэйн дээрх worker
+    return PDFJS = lib; } catch (e) {} }
+  throw new Error("pdfjs");
+}
+async function pdfLines(buf) {
+  const lib = await pdfLib(), doc = await lib.getDocument({ data: new Uint8Array(buf) }).promise, out = [];
+  for (let pn = 1; pn <= doc.numPages; pn++) {
+    const tc = await (await doc.getPage(pn)).getTextContent(); let cur = null, lastY = null, lastX = 0;
+    tc.items.forEach(it => { if (!("str" in it)) return; const y = it.transform[5], x = it.transform[4], h = Math.abs(it.transform[3]) || it.height || 10;
+      if (cur === null || Math.abs(y - lastY) > h * 0.55) { if (cur !== null) out.push(cur); cur = ""; lastX = x; }
+      else if (it.str && !/\s$/.test(cur) && x - lastX > h * 0.15) cur += " ";
+      cur += it.str; lastY = y; lastX = x + (it.width || 0);
+      if (it.hasEOL) { out.push(cur); cur = null; } });
+    if (cur !== null) out.push(cur);
+  }
+  return out.map(t => ({ t: t.replace(/\s+/g, " ").trim(), b: false })).filter(l => l.t);
+}
+async function importParse(file) {
+  const name = (file.name || "").toLowerCase(), buf = await file.arrayBuffer();
+  if (/\.docx$/.test(name)) return linesToQs(await docxLines(buf));
+  if (/\.xlsx$/.test(name)) return rowsToQs(await xlsxRows(buf));
+  if (/\.pdf$/.test(name)) { const L = await pdfLines(buf); if (L.length < 3) throw new Error("scan"); return linesToQs(L); }
+  const txt = new TextDecoder().decode(buf);
+  if (/\.csv$/.test(name)) return rowsToQs(csvRows(txt));
+  return linesToQs(txt.split(/\r?\n/).map(t => ({ t, b: false })));
+}
+
+/* --- дэлгэц --- */
+function myImport() {
+  const box = $("pane"); box.innerHTML = "";
+  const back = el("button", "link", "← Миний асуултууд"); back.type = "button"; back.onclick = () => myQuestions(); box.append(back);
+  box.append(el("h3", "bh", "📥 Файлаас асуулт оруулах"));
+  box.append(el("p", "note", "Word (.docx), PDF, Excel (.xlsx, .csv) эсвэл текст файлаа сонгоход сайт асуулт, хариултын сонголт, зөв хариуг автоматаар таньна. Шалгаад «Хадгалах» дарна."));
+  const fmt = el("details", "impfmt"); fmt.append(el("summary", "", "Файл ямар байх вэ? (жишээ)"));
+  fmt.append(el("pre", "", "1. Дэлхийн хамгийн урт гол аль нь вэ?  /1 оноо/\nA. Амазон\nB. Миссисипи\nC. Нил  ✓\nD. Янцзы\nТайлбар: Нил — 6650 км\n\n2. Монгол улсын нийслэл?\nA. Дархан\nB. Улаанбаатар\nC. Эрдэнэт\nЗөв хариу: B"),
+    el("p", "lbn", "Зөв хариуг дараах аль нэгээр тэмдэглэнэ: сонголтын ард ✓ эсвэл *, «Зөв хариу: B» мөр, сонголтыг тод (bold) / өнгөөр ялгах, эсвэл файлын төгсгөлд «Хариу: 1-C 2-B 3-A …» түлхүүр."),
+    el("p", "lbn", "Excel: 1-р мөрөнд Асуулт | A | B | C | D | E | Хариу | Оноо | Тайлбар гэсэн гарчигтай, мөр бүр нэг асуулт."));
+  const tpl = el("button", "link", "⬇ Excel загвар татах"); tpl.type = "button";
+  tpl.onclick = () => { const rows = [["Асуулт", "A", "B", "C", "D", "E", "Хариу", "Оноо", "Тайлбар"], ["Дэлхийн хамгийн урт гол аль нь вэ?", "Амазон", "Миссисипи", "Нил", "Янцзы", "", "C", "1", "Нил — 6650 км"], ["Монгол улсын нийслэл?", "Дархан", "Улаанбаатар", "Эрдэнэт", "", "", "B", "1", ""]];
+    const txt = "﻿" + rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(",")).join("\r\n"), a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([txt], { type: "text/csv;charset=utf-8" })); a.download = "GeoExam-асуулт-загвар.csv"; document.body.append(a); a.click(); setTimeout(() => a.remove(), 500); };
+  fmt.append(tpl); box.append(fmt);
+  const drop = el("label", "impdrop"), fi = el("input"); fi.type = "file"; fi.accept = ".docx,.pdf,.xlsx,.csv,.txt"; fi.hidden = true;
+  drop.append(el("b", "", "📄 Файл сонгох"), el("span", "", "эсвэл энд чирж оруулна · Word, PDF, Excel, текст"), fi); box.append(drop);
+  const ta = el("textarea", "impta"); ta.rows = 5; ta.placeholder = "Эсвэл асуултуудаа энд хуулж буулгана…"; const tb = el("button", "btn ghost", "Текстээс таних"); tb.type = "button";
+  const tr = el("div", "tbtns"); tr.append(tb); box.append(ta, tr);
+  const res = el("div", "impres"); box.append(res);
+  const run = async f => { res.innerHTML = '<p class="empty">Уншиж байна…</p>'; let Q;
+    try { Q = await f(); } catch (e) { res.innerHTML = ""; res.append(el("p", "err", e.message === "scan" ? "Энэ PDF зураг хэлбэртэй (скан хийсэн) тул текст танигдсангүй. Word эсвэл текстэн PDF оруулна уу." : e.message === "pdfjs" ? "PDF уншигчийг ачаалж чадсангүй. Интернэтээ шалгаад дахин оролдоно уу." : "Файлыг уншиж чадсангүй. Word файлыг .docx хэлбэрээр хадгалаад дахин оролдоно уу.")); return; }
+    showQs(Q); };
+  fi.onchange = () => { const f = fi.files[0]; if (f) run(() => importParse(f)); fi.value = ""; };
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add("on"); }; drop.ondragleave = () => drop.classList.remove("on");
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove("on"); const f = e.dataTransfer.files[0]; if (f) run(() => importParse(f)); };
+  tb.onclick = () => { if (ta.value.trim()) run(async () => { const t = ta.value; return /\t/.test(t.split("\n")[0]) ? rowsToQs(csvRows(t)) : linesToQs(t.split(/\r?\n/).map(x => ({ t: x, b: false }))); }); };
+  function showQs(Q) {
+    res.innerHTML = "";
+    if (!Q.length) { res.append(el("p", "err", "Асуулт танигдсангүй. Асуулт «1. …», сонголт «A. …» гэж эхэлсэн эсэхийг шалгана уу (дээрх жишээг харна уу).")); return; }
+    const L = "ABCDE", miss = () => Q.filter(q => q.a < 0).length;
+    const head = el("div", "imphead"), sum = el("b", ""), tp = el("select");
+    tp.append(Object.assign(el("option", "", "Сэдэв: файлд байгаагаар"), { value: "" })); TOPIC_ORDER.forEach(t => tp.append(Object.assign(el("option", "", t), { value: t })));
+    const upd = () => { const m = miss(); sum.textContent = Q.length + " асуулт танигдлаа" + (m ? " · ⚠ " + m + " асуултын зөв хариуг сонгоно уу" : " ✓"); sv.textContent = "💾 " + Q.length + " асуултыг хадгалах"; };
+    const sv = el("button", "btn", ""); sv.type = "button"; const msg = el("p", "lbn");
+    head.append(sum, tp); res.append(head);
+    const list = el("div", "impl");
+    Q.forEach((q, i) => { const c = el("div", "revc imq" + (q.a < 0 ? " miss" : ""));
+      const top = el("div", "imqt"); top.append(el("b", "", (i + 1) + ". " + q.q.trim()));
+      const del = el("button", "imx", "✕"); del.type = "button"; del.title = "Хасах"; del.onclick = () => { Q.splice(Q.indexOf(q), 1); c.remove(); upd(); }; top.append(del); c.append(top);
+      const ol = el("div", "myqol"); q.o.forEach((o, k) => { const s = el("button", "imo" + (k === q.a ? " ok" : ""), L[k] + ". " + o); s.type = "button";
+        s.onclick = () => { q.a = k; ol.querySelectorAll(".imo").forEach((x, j) => x.classList.toggle("ok", j === k)); c.classList.remove("miss"); upd(); }; ol.append(s); });
+      c.append(ol); if (q.sol) c.append(el("small", "lbn", "Тайлбар: " + q.sol)); if (q.p > 1) c.append(el("small", "lbn", q.p + " оноо"));
+      list.append(c); });
+    res.append(list, sv, msg); upd();
+    sv.onclick = async () => { if (miss()) { msg.textContent = "Шар хүрээтэй асуултуудын зөв хариуг дарж сонгоно уу."; const f = list.querySelector(".miss"); if (f) f.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+      sv.disabled = true; let done = 0;
+      for (let i = 0; i < Q.length; i += 100) { sv.textContent = "Хадгалж байна… " + done + "/" + Q.length;
+        const part = Q.slice(i, i + 100).map(q => ({ q: q.q.trim(), o: q.o, a: q.a, p: q.p, sol: q.sol, topic: tp.value || q.topic || "" }));
+        let x; try { x = await api({ action: "myQImport", list: part }); } catch (e) { x = { ok: false }; }
+        if (!x.ok) { sv.disabled = false; upd(); msg.textContent = CERR[x.error] || "Хадгалж чадсангүй (" + done + " нь хадгалагдсан)."; return; } done += x.n || part.length; }
+      play("ok"); msg.textContent = "✓ " + done + " асуулт «Миний асуултууд»-д нэмэгдлээ. Шалгалт үүсгэхдээ сонгоно."; sv.textContent = "✓ Хадгалагдлаа"; setTimeout(() => myQuestions(), 1500); };
+  }
+}
+
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
 const IV = { DUR: 2.8, timers: [], on: false, loopT: null, nodes: [] };
 const IV_SCENES = [
@@ -2973,6 +3164,14 @@ H.myQSave = async p => {
   const id = p.id ? String(p.id) : (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
   if (p.id) { const old = await getDoc(D("teacherQs", id)); if (!old.exists() || old.data().owner !== m.email) return { ok: false, error: "teacher" }; }
   await setDoc(D("teacherQs", id), data); return { ok: true, id };
+};
+H.myQImport = async p => {   // 📥 файлаас таньсан асуултуудыг нэг дор хадгална (дээд тал нь 100)
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const L = (Array.isArray(p.list) ? p.list : []).slice(0, 100), b = writeBatch(db); let n = 0;
+  L.forEach((x, i) => { const o = (Array.isArray(x.o) ? x.o : []).map(v => String(v || "").trim().slice(0, 300)).filter(Boolean).slice(0, 5), q = String(x.q || "").trim().slice(0, 1200), a = Math.round(+x.a);
+    if (q.length < 3 || o.length < 2 || !(a >= 0 && a < o.length)) return;
+    b.set(D("teacherQs", Date.now().toString(36) + i.toString(36) + Math.random().toString(36).slice(2, 6)), { owner: m.email, q, o, a, p: Math.max(1, Math.min(10, Math.round(+x.p || 1))), topic: String(x.topic || "").slice(0, 80), sol: String(x.sol || "").slice(0, 600), img: [], at: Timestamp.now() }); n++; });
+  if (n) await b.commit(); return { ok: true, n };
 };
 H.myQDel = async p => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
