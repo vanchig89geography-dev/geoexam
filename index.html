@@ -747,6 +747,9 @@ body.omr-on{overflow:hidden}.omr{position:fixed;inset:0;z-index:9999;background:
 .bfoot{position:sticky;bottom:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;margin:10px -4px 0;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.12)}.bfoot .bcnt{font-size:14px}
 .bgrid .fld{min-width:0}.bgrid .fld input{width:100%;min-width:0;box-sizing:border-box}@media(max-width:480px){.bgrid{grid-template-columns:1fr}}
 .mspanel{right:auto;width:max(100%,280px)}.bfilt .msel:last-child .mspanel{left:auto;right:0}
+select option,select optgroup{background:var(--surface);color:var(--fg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) select option{background:#1f2023;color:#f2f2f2}}:root[data-theme="dark"] select option{background:#1f2023;color:#f2f2f2}
+:root[data-theme="light"] select option{background:#fff;color:#111}
 </style>
 </head>
 <body>
