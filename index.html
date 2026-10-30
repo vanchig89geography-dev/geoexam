@@ -726,6 +726,7 @@ body.omr-on{overflow:hidden}.omr{position:fixed;inset:0;z-index:9999;background:
 
 .rrank{margin:8px auto 0;font-size:15px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;max-width:520px}.rrank b{color:var(--accent)}.lb td.esh{font-weight:800;color:var(--accent)}
 .res .big.esh small{font-size:11px;max-width:104px;text-align:center;line-height:1.25}
+.rostw{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:12px;margin:8px 0}.rost{width:100%;border-collapse:collapse}.rost th{position:sticky;top:0;background:var(--surface);text-align:left;font-size:12px;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}.rost td{padding:3px 8px;border-bottom:1px solid var(--line)}.rost td.rno{width:74px;text-align:center;font:800 18px var(--font);color:var(--accent)}.rost input{width:100%;box-sizing:border-box;font:inherit;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--fg)}.rost input:focus{outline:none;border-color:var(--accent);background:var(--bg)}
 </style>
 </head>
 <body>
@@ -1503,12 +1504,29 @@ async function teacherResults(code) {
   const pb = el("div", "tbtns"), ps = el("button", "btn ghost", "🖨 Хариултын хуудас"), sc = el("button", "btn", "📷 Скан хийх"), rb = el("button", "btn ghost", "👥 Ангийн жагсаалт (" + roster.length + ")");
   ps.type = sc.type = rb.type = "button"; ps.onclick = () => printSheet(code);
   sc.onclick = () => omrScan(code, roster, n => { if (n) teacherResults(code); });
-  const rw = el("div", "rosterw"); rw.hidden = true; const ta = el("textarea"); ta.rows = 8; ta.value = roster.join("\n"); ta.placeholder = "Бат-Эрдэнэ\nАнужин\nТэмүүлэн\n…";
-  const rs = el("button", "btn", "Хадгалах"), rm = el("p", "lbn"); rs.type = "button";
-  rs.onclick = async () => { const L = ta.value.split("\n").map(s => s.trim()).filter((s, i, a) => s || i < a.length - 1); rs.disabled = true;
-    const x = await api({ action: "contestRoster", code, list: L }); rs.disabled = false; if (x.ok) { roster.length = 0; L.forEach(s => roster.push(s)); rb.textContent = "👥 Ангийн жагсаалт (" + L.length + ")"; rm.textContent = "✓ Хадгалагдлаа."; } else rm.textContent = "Алдаа гарлаа."; };
+  // 👥 ангийн жагсаалт: дугаар + нэрийн хүснэгт (сурагч хуудсан дээр дугаараа будна)
+  const rw = el("div", "rosterw"); rw.hidden = true;
+  const tb2 = el("table", "rost"), thd = el("tr"); ["Дугаар", "Сурагчийн нэр"].forEach(h => thd.append(el("th", "", h))); tb2.append(thd);
+  const rows = [];
+  const addRow = v => { const i = rows.length; if (i >= 99) return null; const tr = el("tr"), inp = el("input"); inp.value = v || ""; inp.placeholder = "Нэр"; inp.maxLength = 60;
+    inp.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); (rows[i + 1] || addRow("")).focus(); } };
+    inp.onpaste = e => { const t = (e.clipboardData || window.clipboardData).getData("text"); if (!/\n/.test(t)) return; e.preventDefault();   // Excel-ээс олон мөр буулгахад
+      t.split(/\r?\n/).map(x => x.split("\t").filter(Boolean).pop() || "").map(x => x.trim()).filter((x, k, A) => x || k < A.length - 1).forEach((x, k) => { const r2 = rows[i + k] || addRow(""); if (r2) r2.value = x; }); };
+    const td = el("td"); td.append(inp); tr.append(el("td", "rno", String(i + 1).padStart(2, "0")), td); tb2.append(tr); rows.push(inp); return inp; };
+  (roster.length ? roster : []).forEach(n => addRow(n)); while (rows.length < Math.max(5, roster.length + 3)) addRow("");
+  const more = el("button", "btn ghost", "+ 5 мөр нэмэх"), rs = el("button", "btn", "Хадгалах"), rpr = el("button", "btn ghost", "🖨 Жагсаалт хэвлэх"), rm = el("p", "lbn");
+  more.type = rs.type = rpr.type = "button"; more.onclick = () => { for (let k = 0; k < 5; k++) addRow(""); };
+  const cur = () => { const L = rows.map(x => x.value.trim()); while (L.length && !L[L.length - 1]) L.pop(); return L; };
+  rs.onclick = async () => { const L = cur(); rs.disabled = true;
+    const x = await api({ action: "contestRoster", code, list: L }); rs.disabled = false; if (x.ok) { roster.length = 0; L.forEach(v => roster.push(v)); rb.textContent = "👥 Ангийн жагсаалт (" + L.filter(Boolean).length + ")"; rm.textContent = "✓ Хадгалагдлаа."; play("ok"); } else rm.textContent = "Алдаа гарлаа."; };
+  rpr.onclick = () => { const L = cur(), w = window.open("", "_blank"); if (!w) return; const esc = t => String(t).replace(/</g, "&lt;");
+    w.document.write('<!doctype html><html lang="mn"><head><meta charset="utf-8"><title>Ангийн жагсаалт</title><style>body{font-family:Arial,sans-serif;margin:24px}h1{font-size:18px;margin:0 0 4px}p{color:#555;margin:0 0 12px}table{border-collapse:collapse;width:100%;max-width:520px}td,th{border:1px solid #999;padding:7px 10px;font-size:15px;text-align:left}td:first-child,th:first-child{width:90px;text-align:center;font-weight:700;font-size:17px}button{font-size:15px;padding:8px 14px;margin-bottom:12px}@media print{button{display:none}}</style></head><body>'
+      + '<button onclick="print()">🖨 Хэвлэх</button><h1>' + esc(r.contest.name) + ' · Ангийн жагсаалт</h1><p>Хариултын хуудсан дээр өөрийн дугаарыг (аравт, нэгж) будна.</p><table><tr><th>Дугаар</th><th>Нэр</th></tr>'
+      + L.map((n, k) => n ? "<tr><td>" + String(k + 1).padStart(2, "0") + "</td><td>" + esc(n) + "</td></tr>" : "").join("") + "</table></body></html>"); w.document.close(); };
   rb.onclick = () => { rw.hidden = !rw.hidden; };
-  rw.append(el("small", "lbn", "Мөр бүрт нэг сурагч, ангийн жагсаалтын дарааллаар (1-р мөр = №01). Сурагч хуудсан дээр энэ дугаараа будна."), ta, rs, rm);
+  const tw2 = el("div", "rostw"); tw2.append(tb2);
+  const bb = el("div", "tbtns"); bb.append(rs, more, rpr);
+  rw.append(el("small", "lbn", "Нэрийг дарааллаар нь бичнэ (Enter — дараагийн мөр). Excel-ээс нэрсээ хуулж эхний нүдэнд буулгаж болно. Сурагч хуудсан дээр зүүн талын дугаараа будна."), tw2, bb, rm);
   pb.append(ps, sc, rb); pp.append(pb, rw); box.append(pp);
   box.append(el("p", "note", "🖨 товч дарахад шалгалтын материал шинэ цонхонд нээгдэнэ. Тэндээс хэвлэх эсвэл «Save as PDF»-ээр PDF файл болгон хадгална."));
   box.append(rankTable(r.ranking, true));
@@ -2259,7 +2277,7 @@ function btResults() {
 
 /* ---------- 📄 Цаасан хариултын хуудас: хэвлэх + утасны камераар скан хийж засах (OMR) ---------- */
 /* Хуудасны координат мм-ээр (180×260). 4 буланд 10мм хар дөрвөлжин, зүүн дээд талд чиг заах жижиг дөрвөлжин. */
-const OMR = { W: 180, H: 260, mk: [[5, 5], [175, 5], [175, 255], [5, 255]], ori: [17.5, 5], blank: [90, 5], br: 3, rows: 20, max: 60 };
+const OMR = { W: 180, H: 260, mk: [[5, 5], [175, 5], [175, 255], [5, 255]], ori: [17.5, 5], blank: [17.5, 13], br: 3, rows: 20, max: 60 };
 function omrLayout(qs) {
   const L = { num: [[], []], q: [] };
   for (let r = 0; r < 2; r++) for (let d = 0; d < 10; d++) L.num[r].push([97 + d * 7.7, 31 + r * 8]);
@@ -2276,8 +2294,8 @@ function omrSheetSVG(c, qs) {
   let s = '<svg class="sheet" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 260" width="180mm" height="260mm" font-family="Arial,sans-serif">';
   OMR.mk.forEach(([x, y]) => s += '<rect x="' + (x - 5) + '" y="' + (y - 5) + '" width="10" height="10" fill="#000"/>');
   s += '<rect x="15.5" y="3" width="4" height="4" fill="#000"/>';
-  s += '<text x="24" y="7.6" font-size="5" font-weight="700">GeoExam · Хариултын хуудас</text>';
-  s += '<text x="24" y="14" font-size="3.4" fill="#333">' + esc(c.name).slice(0, 70) + " · Код " + esc(c.code) + "</text>";
+  s += '<text x="90" y="8.6" font-size="6" font-weight="700" text-anchor="middle">GeoExam · Хариултын хуудас</text>';
+  s += '<text x="90" y="15" font-size="3.4" fill="#333" text-anchor="middle">' + esc(c.name).slice(0, 70) + " · Код " + esc(c.code) + "</text>";
   s += '<text x="2" y="27" font-size="3.6">Нэр: _______________________</text><text x="2" y="36" font-size="3.6">Анги: ____________</text><text x="2" y="45" font-size="3.6">Оноо: ________ / ' + qs.reduce((a, q) => a + (q.slots ? q.slots.reduce((x, y) => x + y.p, 0) : (q.p || 1)), 0) + "</text>";
   s += '<text x="97" y="22" font-size="3.2" font-weight="700">Сурагчийн дугаар (жагсаалтаар)</text>';
   ["Аравт", "Нэгж"].forEach((t, r) => { s += '<text x="81" y="' + (32.2 + r * 8) + '" font-size="2.9" fill="#333">' + t + "</text>";
