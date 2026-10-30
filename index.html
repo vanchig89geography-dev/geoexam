@@ -2858,18 +2858,7 @@ function renderLanding() {
   const stats = el("div", "lstats");
   [[nQ ? nQ.toLocaleString("en-US") + "+" : "1,300+", "даалгавар"], [nE || 5, "ЭЕШ хувилбар"], ["190+", "улсын газарзүйн зураг"], ["0₮", "үнэгүй эхлэх"]].forEach(([n, t]) => { const d = el("div"); d.append(el("b", "", String(n)), el("span", "", t)); stats.append(d); });
   L.append(stats);
-  // 💬 сэтгэгдлүүд
-  const rv = el("div", "lrevs card"); F.append(rv);
-  const rh = el("div", "lrvh"); rh.append(el("h3", "lh", "💬 Сэтгэгдлүүд")); const wb = el("button", "btn ghost", "Сэтгэгдэл үлдээх"); wb.type = "button"; wb.onclick = () => goSection("rev"); rh.append(wb); rv.append(rh);
-  const rl = el("div", "lrlist"); rl.append(el("p", "lbn", "Ачаалж байна…")); rv.append(rl);
-  if (!ONLINE) { rl.innerHTML = ""; rl.append(el("p", "lbn", "Сэтгэгдэл сайт дээр харагдана.")); return; }
-  api({ action: "reviews" }).then(r => { rl.innerHTML = "";
-    if (!r || !r.ok || !r.list.length) { rl.append(el("p", "lbn", "Одоогоор сэтгэгдэл алга. Анхны сэтгэгдлийг та үлдээгээрэй!")); return; }
-    const n = r.list.length, avg = r.list.reduce((a, x) => a + x.stars, 0) / n;
-    const top = el("div", "revh"); top.append(el("div", "revavg", avg.toFixed(1)), Object.assign(el("div", "revs"), { textContent: starStr(Math.round(avg)) }), el("small", "", n + " сэтгэгдэл")); rl.append(top);
-    r.list.slice(0, 6).forEach(x => { const c = el("div", "revc"); const tp = el("div", "revct"); const nm = el("div");
-      nm.append(el("b", "", x.name), el("span", "revs", starStr(x.stars))); tp.append(el("span", "bav", (x.name || "?").charAt(0).toUpperCase()), nm, el("small", "", x.at)); c.append(tp, el("p", "", x.text)); rl.append(c); });
-  }).catch(() => { rl.innerHTML = ""; });
+  // 💬 сэтгэгдлүүдийг нүүрээс хассан (Firebase уншилт хэмнэх)
 }
 /* ---------- 💬 Сэтгэгдэл ---------- */
 const starStr = n => "★".repeat(n) + "☆".repeat(5 - n);
