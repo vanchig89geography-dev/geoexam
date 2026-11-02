@@ -779,6 +779,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .lsquiz.off{border-color:var(--line);background:var(--sunk)}.lsquiz .lbn{margin:0}
 .lvprev{display:flex;gap:10px;align-items:center}.lvprev img{width:120px;border-radius:8px}.lvprev[hidden]{display:none}
 .drwsep{height:1px;background:var(--line);margin:8px 12px}
+.taimg{display:grid;gap:8px;justify-items:start}.taimgs{display:flex;flex-wrap:wrap;gap:8px}.taimgs:empty{display:none}.taim{position:relative}.taim img{display:block;max-width:160px;max-height:120px;border-radius:8px;border:1px solid var(--line);background:#fff}.taim button{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:0;background:var(--bad,#e11d48);color:#fff;font-size:12px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -2833,12 +2834,12 @@ async function testEdit(id, all, mode) {
   const tpS = fld("Бүлэг сэдэв (асуултуудын үндсэн)", sel([["", "— сонгох —"]].concat(TOPIC_ORDER.map(t => [t, t])), (Q.find(q => q.topic) || {}).topic || ""));
   const lcS = fld("Ангилал", sel(TA_LCATS.map(g => [g, g]), TA_LCATS.find(g => String(T.group || "").replace(/^Сургалт · /, "") === g) || "10-р анги"));
   const unI = fld("Бүлэг / хэсэг (заавал биш)", Object.assign(el("input"), { value: T.unit || "", maxLength: 80, placeholder: "Жишээ: 1-р бүлэг · Гео орон зайн дүрслэл" }));
-  const vI = fld("🎬 Видео бичлэгийн холбоос (YouTube)", Object.assign(el("input"), { value: V.vid, maxLength: 300, placeholder: "https://youtu.be/…  эсвэл  https://www.youtube.com/watch?v=…" }), true);
+  const vI = fld("🎬 Видео бичлэгийн холбоос (YouTube)", Object.assign(el("input"), { value: V.vid, maxLength: 300, placeholder: "YouTube холбоос эсвэл embed код (<iframe …>)" }), true);
   const vP = el("div", "lvprev full"); f.append(vP);
   const bI = fld("📒 Хичээлийн тэмдэглэл (заавал биш)", Object.assign(el("textarea"), { value: V.body, rows: 5, maxLength: 8000, placeholder: "Гол ойлголт, томьёо, даалгавар…" }), true);
   const orI = fld("Дараалал (жагсаалтад хэддүгээрт)", Object.assign(el("input"), { type: "number", min: 0, max: 999, value: T.order || 0 }));
   const gtL = el("label", "chk tafree"), gtI = Object.assign(el("input"), { type: "checkbox", checked: T.gate !== false }); gtI.onchange = mark; gtL.append(gtI, el("span", "", " 🔒 Бичлэгийг бүрэн үзсэний дараа тест нээгдэнэ")); f.append(gtL);
-  const vprev = () => { vP.innerHTML = ""; const v = vI.value.trim(); if (!v) return; const y = ytId(v);
+  const vprev = () => { vP.innerHTML = ""; const v = vidNorm(vI.value); if (!v) return; const y = ytId(v);
     if (y) { const im = el("img"); im.src = "https://i.ytimg.com/vi/" + y + "/mqdefault.jpg"; im.alt = ""; vP.append(im, el("small", "lbn", "✓ YouTube бичлэг танигдлаа. Сурагч хэр үзсэнийг сайт хянана.")); }
     else vP.append(el("small", "lbn", /^https?:\/\//.test(v) ? "⚠ YouTube биш холбоос: бичлэг харагдана, гэхдээ үзэж дууссаныг хянах боломжгүй (сурагч «Үзэж дууслаа» дарна)." : "⚠ Холбоос буруу байна.")); };
   vI.addEventListener("input", vprev); vprev();
@@ -2885,14 +2886,21 @@ async function testEdit(id, all, mode) {
       O.push([rb, t]); w.append(rb, el("b", "", L5[k]), t); rw.append(w); }
     c.append(el("small", "lbn full", "Зөв хариултын өмнөх дугуйг сонгоно ●"), rw);
     const pI = Object.assign(el("input"), { type: "number", min: 1, max: 10, value: q ? q.p || 1 : 1 }), tS = sel([["", "— тестийн үндсэн сэдэв —"]].concat(TOPIC_ORDER.map(t => [t, t])), q ? q.topic || "" : "");
-    const iI = Object.assign(el("input"), { value: q && (q.img || [])[0] && /^https?:/.test(q.img[0]) ? q.img[0] : "", placeholder: "https://…/zurag.png" }), sI = Object.assign(el("input"), { value: q ? q.sol || "" : "" });
-    [["Оноо", pI], ["Сэдэв", tS], ["Зургийн холбоос (заавал биш)", iI], ["Тайлбар (заавал биш)", sI]].forEach(([lb, inp]) => { const l = el("label", "fld"); l.append(el("span", "", lb), inp); c.append(l); });
-    if (q && (q.img || []).some(x => !/^https?:/.test(x))) c.append(el("small", "lbn full", "🖼 Энэ асуулт сайтын зурагтай — хэвээр хадгалагдана."));
+    sI = Object.assign(el("input"), { value: q ? q.sol || "" : "" });
+    [["Оноо", pI], ["Сэдэв", tS], ["Тайлбар (заавал биш)", sI]].forEach(([lb, inp]) => { const l = el("label", "fld"); l.append(el("span", "", lb), inp); c.append(l); });
+    /* 🖼 зураг: файлаас сонгох эсвэл Ctrl+V-ээр буулгах (автоматаар жижгэрүүлнэ) */
+    let IM = q ? (q.img || []).slice() : []; const iw = el("div", "fld full taimg"), ib = el("div", "taimgs"), ifi = Object.assign(el("input"), { type: "file", accept: "image/*", multiple: true, hidden: true });
+    const iadd = el("button", "btn ghost", "🖼 Зураг нэмэх"); iadd.type = "button"; iadd.onclick = () => ifi.click(); const imsg = el("small", "lbn", "Утасны зураг, дэлгэцийн зураг (Ctrl+V) — автоматаар жижгэрүүлнэ. Дээд тал нь 3.");
+    const idraw = () => { ib.innerHTML = ""; IM.forEach((src, k) => { const w = el("span", "taim"), im = el("img"); setImg(im, src); const x = el("button", "", "✕"); x.type = "button"; x.title = "Зургийг хасах"; x.onclick = () => { IM.splice(k, 1); idraw(); }; w.append(im, x); ib.append(w); }); iadd.hidden = IM.length >= 3; };
+    const iput = async files => { for (const f of files) { if (IM.length >= 3) break; if (!/^image\//.test(f.type)) continue; imsg.textContent = "Зургийг бэлдэж байна…"; try { IM.push(await shrinkImg(f)); } catch (e) { imsg.textContent = "Зургийг уншиж чадсангүй."; } } imsg.textContent = "✓ Зураг нэмэгдлээ."; idraw(); };
+    ifi.onchange = () => { iput([...ifi.files]); ifi.value = ""; };
+    c.addEventListener("paste", e => { const fs = [...(e.clipboardData || {}).files || []].filter(f => /^image\//.test(f.type)); if (fs.length) { e.preventDefault(); iput(fs); } });
+    iw.append(el("span", "", "Зураг (заавал биш)"), ib, iadd, ifi, imsg); c.append(iw); idraw();
     const msg = el("p", "err full"), ok = el("button", "btn", idx == null ? "Нэмэх" : "Шинэчлэх"), cn = el("button", "btn ghost", "Болих"); ok.type = cn.type = "button";
     cn.onclick = () => { formW.innerHTML = ""; };
     ok.onclick = () => { const opts = O.map(([, t]) => t.value.trim()), ai = O.findIndex(([r]) => r.checked);
       if (qt.value.trim().length < 2 || opts.filter(Boolean).length < 2 || !opts[ai]) { msg.textContent = "Асуулт, дор хаяж 2 хариулт бичээд зөв хариултаа сонгоно уу."; return; }
-      const keepImg = q ? (q.img || []).filter(x => !/^https?:/.test(x)) : [], nq = Object.assign({}, q || {}, { q: qt.value.trim(), o: opts, a: ai, p: Math.max(1, +pI.value || 1), topic: tS.value, sol: sI.value.trim(), img: keepImg.concat(iI.value.trim() ? [iI.value.trim()] : []) });
+      const nq = Object.assign({}, q || {}, { q: qt.value.trim(), o: opts, a: ai, p: Math.max(1, +pI.value || 1), topic: tS.value, sol: sI.value.trim(), img: IM.slice() });
       if (idx == null) Q.push(nq); else Q[idx] = nq; mark(); formW.innerHTML = ""; draw(); play && play("ok"); };
     const br = el("div", "tbtns full"); br.append(ok, cn); c.append(msg, br); c.scrollIntoView({ behavior: "smooth", block: "center" }); qt.focus();
   }
@@ -2918,11 +2926,12 @@ async function testEdit(id, all, mode) {
     if (!nI.value.trim()) { err.textContent = "Тестийн нэр бичнэ үү."; return; }
     if (!isL && !Q.length) { err.textContent = "Дор хаяж 1 асуулт нэмнэ үү."; return; }
     if (isL && !vI.value.trim() && !bI.value.trim()) { err.textContent = "Видео бичлэгийн холбоос эсвэл тэмдэглэл оруулна уу."; vI.focus(); return; }
+    if (JSON.stringify(Q).length > 900000) { err.textContent = "Зураг хэт олон байна (нэг тестэд ~900KB хүртэл). Зарим зургийг хасах эсвэл тестийг хоёр хуваана уу."; return; }
     if (Q.some(q => !q.slots && !(q.a >= 0))) { err.textContent = "Шар хүрээтэй асуултуудын зөв хариуг сонгоно уу."; list.querySelector(".miss").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
     if (s === "topic" && !tpS.value && Q.some(q => !q.topic)) { err.textContent = "Сэдвийн шалгалтад бүлэг сэдвээ сонгоно уу (асуултууд сэдвээрээ ангилагдана)."; tpS.focus(); return; }
     if (isL) { const lid = id || "L" + Date.now().toString(36), qs = Q.map((q, i) => Object.assign({}, q, { n: i + 1 }));
       sv.disabled = true; sv.textContent = "Хадгалж байна…"; let x;
-      try { x = await api({ action: "lessonSave", id: lid, meta: { name: nI.value.trim(), cat: lcS.value, unit: unI.value.trim(), free: frI.checked, desc: dI.value.trim(), gate: gtI.checked, order: +orI.value || 0 }, q: qs, vid: vI.value.trim(), body: bI.value.trim() }); } catch (e) { x = { ok: false, error: e.message }; }
+      try { x = await api({ action: "lessonSave", id: lid, meta: { name: nI.value.trim(), cat: lcS.value, unit: unI.value.trim(), free: frI.checked, desc: dI.value.trim(), gate: gtI.checked, order: +orI.value || 0 }, q: qs, vid: vidNorm(vI.value), body: bI.value.trim() }); } catch (e) { x = { ok: false, error: e.message }; }
       sv.disabled = false; sv.textContent = "💾 Хичээлийг хадгалах";
       if (!x.ok) { err.textContent = "Хадгалж чадсангүй" + (x.error ? " (" + x.error + ")" : "") + "."; return; }
       dirty = false; play && play("ok"); st.set("ge-tests", null); st.set("ge-q-" + lid, null); try { await loadTests(); } catch (e) {} alert("✓ Хичээл хадгалагдлаа. «Сургалт» цэсэнд шууд гарлаа."); testManager("learn"); return; }
@@ -2969,9 +2978,22 @@ function renderAdmin(box) {
   box.append(g);
 }
 
+/* 🖼 зургийг 1000px, WebP/JPEG болгон шахна (Firestore-д шууд хадгалагдана) */
+async function shrinkImg(file) {
+  const url = URL.createObjectURL(file); try {
+    const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const enc = (mx, ql) => { const k = Math.min(1, mx / Math.max(im.naturalWidth, im.naturalHeight)), cv = document.createElement("canvas");
+      cv.width = Math.max(1, Math.round(im.naturalWidth * k)); cv.height = Math.max(1, Math.round(im.naturalHeight * k)); const x = cv.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, cv.width, cv.height); x.drawImage(im, 0, 0, cv.width, cv.height);
+      let d = cv.toDataURL("image/webp", ql); if (!/^data:image\/webp/.test(d)) d = cv.toDataURL("image/jpeg", ql); return d; };
+    let d = enc(1000, .75); if (d.length > 140000) d = enc(800, .6); if (d.length > 140000) d = enc(640, .5); return d;
+  } finally { URL.revokeObjectURL(url); }
+}
+
 /* ---------- 🎓 Сургалт: видео хичээл → хичээлийн дараах тест ---------- */
 const LCATS = ["ЭЕШ бэлтгэл", "9-р анги", "10-р анги", "11-р анги", "Сонгон", "Бусад"];
 let lcat = st.get("ge-lcat") || "";
+/* embed код (<iframe src="…">) өгвөл src-ийг нь авна; YouTube бол ID-г нь */
+function vidNorm(v) { v = String(v || "").trim(); const m = /<iframe[^>]*\ssrc\s*=\s*["']([^"']+)["']/i.exec(v); if (m) v = m[1].replace(/&amp;/g, "&"); if (/^\/\//.test(v)) v = "https:" + v; const y = ytId(v); return y ? "https://youtu.be/" + y : v; }
 function ytId(u) { u = String(u || "").trim(); if (/^[\w-]{11}$/.test(u)) return u;
   const m = /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([\w-]{11})/.exec(u); return m ? m[1] : ""; }
 const lwGet = id => { try { return JSON.parse(st.get("ge-lw-" + id) || "null") || {}; } catch (e) { return {}; } };
@@ -3036,8 +3058,9 @@ async function openLesson(l) {
           if (e.data === 0 && dur && maxT / dur >= .9) unlock(); } } });
     }).catch(() => { host.replaceWith(Object.assign(el("iframe"), { src: "https://www.youtube.com/embed/" + yid + "?rel=0", allow: "fullscreen; picture-in-picture", allowFullscreen: true })); bar.remove(); if (!done) addDoneBtn(); });
   } else if (r.vid) {
-    let src = r.vid; const gd = /drive\.google\.com\/file\/d\/([\w-]+)/.exec(src); if (gd) src = "https://drive.google.com/file/d/" + gd[1] + "/preview";
-    vw.append(Object.assign(el("iframe"), { src, allow: "fullscreen; picture-in-picture", allowFullscreen: true })); if (!done) addDoneBtn();
+    let src = vidNorm(r.vid); const gd = /drive\.google\.com\/file\/d\/([\w-]+)/.exec(src); if (gd) src = "https://drive.google.com/file/d/" + gd[1] + "/preview";
+    if (/^https:\/\//.test(src)) { vw.append(Object.assign(el("iframe"), { src, allow: "fullscreen; picture-in-picture", allowFullscreen: true })); if (!done) addDoneBtn(); }
+    else { vw.remove(); done = true; }
   } else vw.remove();
   function addDoneBtn() { const b = el("button", "btn ghost", "✓ Бичлэгийг үзэж дууслаа"); b.type = "button"; b.onclick = () => { b.remove(); unlock(); }; vw.after(b); }
   /* тэмдэглэл */
