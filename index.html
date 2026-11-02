@@ -755,6 +755,30 @@ body.omr-on{overflow:hidden}.omr{position:fixed;inset:0;z-index:9999;background:
 select option,select optgroup{background:var(--surface);color:var(--fg)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) select option{background:#1f2023;color:#f2f2f2}}:root[data-theme="dark"] select option{background:#1f2023;color:#f2f2f2}
 :root[data-theme="light"] select option{background:#fff;color:#111}
+.tagrid{grid-template-columns:1fr 1fr}.tagrid .full{grid-column:1/-1}.tagrid .fld[hidden]{display:none}.tagrid select,.tagrid textarea{border:1px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--fg);font:16px var(--font);padding:10px 12px;min-height:46px;width:100%;box-sizing:border-box}.tafree{grid-column:1/-1;display:flex;gap:10px;align-items:center;font-weight:600;cursor:pointer}.tagrid .tafree input{width:22px;height:22px;min-height:0;padding:0;flex:none;accent-color:var(--accent,#0f9d8a)}.tahead{margin:16px 0 6px;font-size:15px}.taq{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;background:var(--surface)}@media(max-width:480px){.tagrid{grid-template-columns:1fr}}
+/* ⚙️ админ цэс + 🎓 сургалт */
+.admgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:10px}
+.admcard,.lscard{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px;border-radius:var(--r-md,14px);border:1px solid var(--line);background:var(--sunk);color:var(--fg);text-align:left;font:inherit;cursor:pointer;transition:border-color .15s,transform .15s}
+.admcard{grid-template-columns:auto minmax(0,1fr)}
+.admcard:hover,.lscard:hover{border-color:var(--accent-line,var(--accent));transform:translateY(-1px)}
+.admcard .ic{font-size:26px;line-height:1}.admcard .tx,.lscard .tx{display:grid;gap:3px;min-width:0}
+.admcard small,.lscard small{color:var(--muted);font-size:13px;line-height:1.35}
+.lsgrid{display:grid;gap:8px;margin:8px 0 14px}
+.lsn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--accent-soft);color:var(--accent)}
+.lscard.done .lsn{background:var(--good-bg);color:var(--good)}
+.lscard .tg{font:600 11px/1.3 var(--font);padding:2px 8px;border-radius:6px;background:var(--good-bg);color:var(--good);white-space:nowrap}
+.lscard .tg.pay{background:color-mix(in srgb,var(--blue) 14%,var(--surface));color:var(--blue)}
+.lscard.locked{opacity:.85}.lscard.locked .tg{background:var(--lock-bg);color:var(--lock)}
+.lsh{margin-top:6px}
+.lsvid{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000;margin:10px 0}
+.lsvid iframe,.lsvid>div{position:absolute;inset:0;width:100%;height:100%;border:0}
+.lsprog{display:flex;align-items:center;gap:10px;margin:4px 0 12px}.lsprog>span{flex:1;height:8px;border-radius:9px;background:var(--line);overflow:hidden}
+.lsprog i{display:block;height:100%;width:0;background:var(--good);transition:width .4s}.lsprog small{color:var(--muted);font-weight:600;white-space:nowrap}
+.lsbody{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;background:var(--surface)}.lsbody p{white-space:pre-line;margin:8px 0 0;line-height:1.6}
+.lsquiz{display:grid;gap:8px;justify-items:start;border:1.5px solid var(--good);border-radius:14px;padding:14px;margin:12px 0;background:var(--good-bg)}
+.lsquiz.off{border-color:var(--line);background:var(--sunk)}.lsquiz .lbn{margin:0}
+.lvprev{display:flex;gap:10px;align-items:center}.lvprev img{width:120px;border-radius:8px}.lvprev[hidden]{display:none}
+.drwsep{height:1px;background:var(--line);margin:8px 12px}
 </style>
 </head>
 <body>
@@ -789,9 +813,9 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
       <button type="button" role="tab" data-t="var" aria-selected="true">ЭЕШ</button>
       <button type="button" role="tab" data-t="topic" aria-selected="false">Сэдвийн шалгалт</button>
       <button type="button" role="tab" data-t="own" aria-selected="false">Мультимедиа</button>
+      <button type="button" role="tab" data-t="learn" aria-selected="false">Сургалт</button>
       <button type="button" role="tab" data-t="map" aria-selected="false">Газарзүйн зураг</button>
       <button type="button" role="tab" data-t="contest" aria-selected="false">Шалгалт · Олимпиад</button>
-      <button type="button" role="tab" data-t="rev" aria-selected="false">Сэтгэгдэл</button>
     </div>
     <div id="pane"><p class="empty">Ачаалж байна...</p></div>
   </section>
@@ -934,7 +958,7 @@ async function recStop(extra) {
 }
 const ctKey = () => "gx-ct-" + (T && T.contest);
 function saveCt() { if (!T || !T.contest) return; try { localStorage.setItem(ctKey(), JSON.stringify({ a: QS.map((q, k) => ans[k]), s: ctStart })); } catch (e) {} }
-let token = USE_FB ? null : st.get("ge-token"), user = null, cfg = {}, tests = [], topics = [], tab = st.get("ge-tab") || "var";
+let token = USE_FB ? null : st.get("ge-token"), user = null, cfg = {}, tests = [], lessons = [], topics = [], tab = (st.get("ge-tab") || "var").replace(/^(rev|admin)$/, "var");
 let T = null, QS = [], ans = [], done = [], cur = 0, reviewMode = false, practice = true, timer = null, left = 0;
 
 /* demo data (сервергүй үед) */
@@ -957,6 +981,10 @@ function navLabels() {   // багш/админд «Шалгалт үүсгэх�
   const lab = user && user.teacher ? "Шалгалт үүсгэх" : "Шалгалт · Олимпиад";
   const tb = document.querySelector('#tabs [data-t="contest"]'); if (tb) tb.textContent = lab;
   const n = NAV.find(x => x[0] === "contest"); if (n) { n[1] = lab; n[2] = user && user.teacher ? "Олимпиад, шалгалт үүсгэх · дүн, хэвлэх" : "Олимпиадууд · багшийн шалгалтад кодоор нэгдэх"; }
+  const adm = !!(user && user.admin), ai = NAV.findIndex(x => x[0] === "admin");
+  if (adm && ai < 0) NAV.push(["admin", "Админы тохиргоо", "Тест, сургалт, үнэ, данс, эрх", '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>']);
+  if (!adm && ai >= 0) NAV.splice(ai, 1);
+  if (!adm && tab === "admin") tab = "var";
   if (typeof secTitle === "function" && $("secT")) secTitle();
 }
 function renderAcct() {
@@ -969,15 +997,15 @@ function renderAcct() {
 /* ---------- catalogue ---------- */
 async function loadTests() {
   let cached = null; try { cached = JSON.parse(st.get("ge-tests") || "null"); } catch (e) {}
-  if (ONLINE && cached && cached.tests) { tests = cached.tests; topics = cached.topics || []; if (cached.cfg) cfg = cached.cfg; renderPane(); }
+  if (ONLINE && cached && cached.tests) { tests = cached.tests; lessons = cached.lessons || []; topics = cached.topics || []; if (cached.cfg) cfg = cached.cfg; renderPane(); }
   else $("pane").innerHTML = '<p class="empty">Ачаалж байна...</p>';
   if (!ONLINE) { tests = DEMO.tests; topics = DEMO.topics; cfg = DEMO.cfg; $("demo").hidden = false; renderPane(); return; }
   try {
     const [r, c] = await Promise.all([api({ action: "tests", token: token || "" }), Object.keys(cfg).length ? null : api({ action: "config" })]);
     if (c && c.ok) cfg = c.config;
     if (!r.ok && r.error) throw new Error(r.error);
-    tests = r.tests || []; topics = r.topics || []; user = r.user; if (USE_FB) token = user ? user.uid : null; else if (!user && token) { token = null; st.set("ge-token", null); }
-    st.set("ge-tests", JSON.stringify({ tests, topics, cfg }));
+    tests = r.tests || []; lessons = r.lessons || []; topics = r.topics || []; user = r.user; if (USE_FB) token = user ? user.uid : null; else if (!user && token) { token = null; st.set("ge-token", null); }
+    st.set("ge-tests", JSON.stringify({ tests, lessons, topics, cfg }));
     renderAcct(); renderPane();
   } catch (e) { if (cached && cached.tests) return; $("pane").innerHTML = '<p class="empty">Ачаалж чадсангүй. Интернэтээ шалгаад хуудсаа дахин ачаална уу.</p>'; }
 }
@@ -990,14 +1018,14 @@ let vyear = st.get("ge-year") || "";
 const OWN_CATS = ["IGEO", "Улсын олимпиад", "Шинэ"];
 const ownCat = t => { const g = (t.group || "").toUpperCase(); return g.indexOf("IGEO") === 0 ? "IGEO" : /^УЛСЫН ОЛИМПИАД/.test(g) ? "Улсын олимпиад" : "Шинэ"; };
 let ocat = OWN_CATS.indexOf(st.get("ge-ocat")) >= 0 ? st.get("ge-ocat") : null;
-function setTab(t) { if (t !== "map" && typeof btStop === "function") btStop(); tab = t; st.set("ge-tab", t); document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t)); secTitle(); renderPane(); }
+function setTab(t) { if (typeof lessonStop === "function") lessonStop(); if (t !== "map" && typeof btStop === "function") btStop(); tab = t; st.set("ge-tab", t); document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t)); secTitle(); renderPane(); }
 /* ---------- утасны цэс: ☰ дарахад хажуугаас гарна ---------- */
 const NAV = [
   ["var", "ЭЕШ", "2022–2026 оны хувилбарууд", '<path d="M9 3h6l1 2h3v16H5V5h3z"/><path d="M9 12l2 2 4-4"/>'],
   ["topic", "Сэдвийн шалгалт", "9, 10, 11-р анги, Сонгон", '<path d="M4 19.5V5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2zm0 0A2 2 0 0 0 6 22h13v-4"/>'],
   ["own", "Мультимедиа", "IGEO, Улсын олимпиад", '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>'],
+  ["learn", "Сургалт", "Видео хичээл · хичээлийн дараах тест", '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M10 8l5 2.5-5 2.5z"/><path d="M8 21h8M12 17v4"/>'],
   ["map", "Газарзүйн зураг", "🎯 Solo ба ⚔️ Battle", '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>'],
-  ["rev", "Сэтгэгдэл", "⭐ Үнэлгээ, сэтгэгдэл үлдээх", '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>'],
   ["contest", "Шалгалт · Олимпиад", "Олимпиадууд · багшийн шалгалтад кодоор нэгдэх", '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>']];
 const navSvg = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + d + "</svg>";
 function secTitle() { let h = $("secT"); if (!h) { h = el("button", "secT"); h.id = "secT"; h.type = "button"; h.onclick = () => openNav(); $("tabs").before(h); }
@@ -1007,7 +1035,7 @@ function openNav() {
   const hd = el("div", "drwh"); hd.append(el("b", "", "Цэс")); const x = el("button", "drwx", "✕"); x.type = "button"; hd.append(x); pn.append(hd);
   const hb = el("button", "drwi" + (!$("landing").hidden ? " on" : "")); hb.type = "button"; hb.innerHTML = '<span class="ic">' + navSvg('<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>') + '</span><span class="tx"><b>Нүүр</b><small>Танилцуулга</small></span>';
   hb.onclick = () => { close(); showLanding(); }; pn.append(hb);
-  NAV.forEach(([t, name, sub, ic]) => { const b = el("button", "drwi" + (t === tab ? " on" : "")); b.type = "button";
+  NAV.forEach(([t, name, sub, ic]) => { if (t === "admin") pn.append(el("div", "drwsep")); const b = el("button", "drwi" + (t === tab ? " on" : "")); b.type = "button";
     b.innerHTML = '<span class="ic">' + navSvg(ic) + "</span>"; const tx = el("span", "tx"); tx.append(el("b", "", name), el("small", "", sub)); b.append(tx);
     b.onclick = () => { close(); goSection(t); }; pn.append(b); });
   const close = () => { ov.classList.remove("open"); setTimeout(() => ov.remove(), 220); document.body.style.overflow = ""; };
@@ -1017,12 +1045,14 @@ function openNav() {
 $("hamb").onclick = () => openNav();
 $("tabs").onclick = e => { const b = e.target.closest("button"); if (b) setTab(b.dataset.t); };
 function renderPane() {
+  if (tab === "learn" && typeof LOPEN !== "undefined" && LOPEN) return;   // хичээл нээлттэй бол бичлэгийг тасалдуулахгүй
   if ($("landing") && !$("landing").hidden) renderLanding();
   const box = $("pane"); box.innerHTML = "";
   if (tab === "topic") return renderTopics(box);
   if (tab === "contest") return renderContest(box);
   if (tab === "map") return renderMapTab(box);
-  if (tab === "rev") return renderReviews(box);
+  if (tab === "learn") return renderLearn(box);
+  if (tab === "admin") return renderAdmin(box);
   let list = tests.filter(t => !isTopicOnly(t) && (tab === "own" ? isOwn(t) : !isOwn(t)));
   if (tab === "own") {   // Мультимедиа: IGEO · Улсын олимпиад · Шинэ
     if (!ocat) ocat = OWN_CATS.find(c => list.some(t => ownCat(t) === c)) || OWN_CATS[0];
@@ -1357,6 +1387,7 @@ function finish(timeUp, leftSite) {
   play(pct >= 70 ? "up" : pct >= 50 ? "good" : "end");
   $("rTitle").textContent = (leftSite ? LEFT_MSG : timeUp ? "Хугацаа дууслаа. " : "") + (pct >= 90 ? "Гайхалтай!" : pct >= 70 ? "Сайн байна!" : pct >= 50 ? "Дунд зэрэг" : "Дахин давтъя");
   $("rText").textContent = QS.length + " даалгавраас " + right + " нь бүрэн зөв. Хариутай нь хараад алдаагаа засаарай.";
+  if (typeof LQ !== "undefined" && LQ && LQ === T.id) { const w = lwGet(LQ); if (w.q == null || pct > w.q) lwSet(LQ, { q: pct }); }
   const rk = $("rRank"); if (rk) rk.remove();
   if (ES) { const p = el("p", "rrank"); p.id = "rRank"; p.textContent = ONLINE && token ? "…" : ""; if (p.textContent) $("rText").after(p); }
   if (ONLINE && token) post({ action: "result", token, testId: T.id, score: g, total: m, mode: practice ? "Дасгал" : "Шалгалт" }).then(() => {
@@ -1777,7 +1808,7 @@ function openAcct(wantPay) {
     if (USE_FB && !user.admin) { const ch = el("button", "link", user.role === "teacher" ? "Би сурагч" : "Би багш — шалгалт үүсгэх эрх авах"); ch.type = "button";
       ch.onclick = async () => { const r = await api({ action: "setRole", role: user.role === "teacher" ? "student" : "teacher" }); if (r.ok) { user = r.user; renderAcct(); openAcct(false); loadTests(); } };
       $("payBox").append(ch); }
-    if (USE_FB && user.admin) $("payBox").append(adminPanel());
+    if (USE_FB && user.admin) { const ab = el("button", "btn", "⚙️ Админы тохиргоо руу →"); ab.type = "button"; ab.onclick = () => { closeAcct(); goSection("admin"); }; $("payBox").append(ab); }
   }
 }
 function closeAcct() { $("ov").hidden = true; const extra = $("f1").querySelector(".pay"); if (extra) extra.remove(); }
@@ -1810,8 +1841,9 @@ if (USE_FB) $("gSign").onclick = async () => {
   if (!r.ok && r.error !== "cancel") $("e1").textContent = r.error === "auth/unauthorized-domain" ? "Энэ хаягаас нэвтрэх зөвшөөрөлгүй байна (Firebase → Authorized domains)." : "Нэвтэрч чадсангүй. Дахин оролдоно уу. (" + r.error + ")";
 };
 /* ---------- Багшийн самбар (Firebase) ---------- */
-function adminPanel() {
-  const w = el("div", "adm"); w.append(el("h4", "", "Багшийн самбар"));
+function adminPanel(only) {
+  const w = el("div", "adm"); 
+  if (!only || only === "grant") {
   // 1. Эрх олгох
   const g = el("div", "admb"); g.append(el("b", "", "Төлбөртэй эрх олгох"));
   const em = Object.assign(el("input"), { type: "email", placeholder: "сурагчийн Google майл", id: "admEmail" });
@@ -1824,6 +1856,8 @@ function adminPanel() {
   gb.onclick = async () => { gb.disabled = true; gm.textContent = "Хадгалж байна…"; const r = await api({ action: "grant", email: em.value, months: mo.value }); gb.disabled = false;
     gm.textContent = r.ok ? (r.until ? r.email + " · " + r.until + " хүртэл эрхтэй боллоо" : r.email + " · эрх цуцлагдлаа") : (r.error === "email" ? "Майл хаяг буруу байна." : "Алдаа гарлаа."); if (r.ok) { em.value = ""; loadList(); } };
   const row = el("div", "admrowf"); row.append(em, mo, gb); g.append(row, gm, list); w.append(g); loadList();
+  }
+  if (!only || only === "price") {
   // 0. Тестийн үнэ: Үнэгүй / Төлбөртэй
   const fr = el("div", "admb"); fr.append(el("b", "", "💰 Тестүүдийн үнэ"), el("p", "lbn", "Тест бүрийн хажуугийн товчоор Үнэгүй ↔ Төлбөртэй болгоно. Шууд хадгалагдана."));
   const fl = el("div", "frlist"); const fm = el("p", "lbn");
@@ -1842,6 +1876,8 @@ function adminPanel() {
           if (x.ok) { t.free = v; sw.className = "frsw " + (v ? "free" : "paid"); sw.textContent = v ? "🆓 Үнэгүй" : "💰 Төлбөртэй"; sm.textContent = g + " · " + G[g].filter(z => z.free).length + "/" + G[g].length + " үнэгүй"; st.set("ge-tests", null); loadTests(); } else fm.textContent = "Алдаа гарлаа."; };
         row.append(sw); d.append(row); }); fl.append(d); }); };
   fr.append(fl, fm); w.append(fr); loadF();
+  }
+  if (!only || only === "teach") {
   // 1а. Багшийн эрх
   const tg = el("div", "admb"); tg.append(el("b", "", "👩‍🏫 Багшийн эрх олгох"), el("p", "lbn", "Багш төлбөрөө төлсний дараа майлыг нь бичээд хугацаа сонгож «Хадгалах» дарна. Тэгвэл шалгалт үүсгэх эрх нээгдэнэ."));
   const te = Object.assign(el("input"), { type: "email", placeholder: "багшийн Google майл", id: "tEmail" });
@@ -1855,6 +1891,8 @@ function adminPanel() {
   tb.onclick = async () => { tb.disabled = true; const r = await api({ action: "teacherGrant", email: te.value, months: tmo.value }); tb.disabled = false;
     tm.textContent = r.ok ? (r.until ? r.email + " · " + r.until + " хүртэл багшийн эрхтэй боллоо" : r.email + " · багшийн эрх цуцлагдлаа") : (r.error === "email" ? "Майл хаяг буруу байна." : "Алдаа гарлаа."); if (r.ok) { te.value = ""; loadT(); } };
   const trow = el("div", "admrowf"); trow.append(te, tmo, tb); tg.append(trow, tm, tl); w.append(tg); loadT();
+  }
+  if (!only || only === "dev") {
   // 1б. Төхөөрөмж (нэг хэрэглэгч дээд тал нь 2)
   const dv = el("div", "admb"); dv.append(el("b", "", "Сурагчийн төхөөрөмж (дээд тал нь 2)"), el("p", "lbn", "Сурагч утас, компьютероо сольсон бол майлыг нь бичээд «Цэвэрлэх» дарна. Дараа нь шинэ төхөөрөмжөөсөө нэвтэрч чадна."));
   const de = Object.assign(el("input"), { type: "email", placeholder: "сурагчийн Google майл", id: "devEmail" });
@@ -1864,6 +1902,8 @@ function adminPanel() {
   dclr.onclick = async () => { dm.textContent = "Цэвэрлэж байна…"; const r = await api({ action: "resetDevices", email: de.value });
     dm.textContent = r.ok ? r.email + " · төхөөрөмжийн жагсаалт цэвэрлэгдлээ." : (r.error === "email" ? "Майл хаяг буруу байна." : "Алдаа гарлаа."); };
   const drow = el("div", "admrowf"); drow.append(de, dsee, dclr); dv.append(drow, dm); w.append(dv);
+  }
+  if (!only || only === "rec") {
   // 1в. Дэлгэцийн бичлэг
   const rv = el("div", "admb"); rv.append(el("b", "", "Дэлгэцийн бичлэг"));
   const rel = el("label", "chk"); const rex = Object.assign(el("input"), { type: "checkbox" }); rex.id = "recExam";
@@ -1879,16 +1919,8 @@ function adminPanel() {
       vb.onclick = () => recView(x.id); db.onclick = async () => { if (!confirm("Энэ бичлэгийг устгах уу?")) return; await api({ action: "recDelete", id: x.id }); d.remove(); };
       const bt = el("div", "recbtn"); bt.append(vb, db); d.append(info, sm, bt); rl.append(d); }); };
   rr.onclick = loadRec; rv.append(rr, rm, rl); w.append(rv);
-  // 1г. Сэтгэгдэл хянах
-  const rvw = el("div", "admb"); rvw.append(el("b", "", "Сэтгэгдэл хянах"), el("p", "lbn", "Зөвшөөрсөн сэтгэгдэл л «Сэтгэгдэл» хэсэгт бусдад харагдана."));
-  const rvl = el("div", "admlist"); const rvb = el("button", "btn ghost", "Шинэ сэтгэгдлүүд"); rvb.type = "button";
-  rvb.onclick = async () => { rvl.innerHTML = ""; rvl.append(el("p", "lbn", "Уншиж байна…")); const r = await api({ action: "reviewPending" }); rvl.innerHTML = "";
-    if (!r.ok) { rvl.append(el("p", "lbn", "Алдаа гарлаа.")); return; } if (!r.list.length) { rvl.append(el("p", "lbn", "Хянах сэтгэгдэл алга.")); return; }
-    r.list.forEach(x => { const d = el("div", "admrow rec"); d.append(el("span", "", "★".repeat(x.stars) + " · " + x.name), el("small", "", x.at), el("p", "revt", x.text));
-      const ok = el("button", "btn ghost", "✓ Зөвшөөрөх"), no = el("button", "btn ghost", "Устгах"); ok.type = no.type = "button";
-      ok.onclick = async () => { await api({ action: "reviewMod", uid: x.uid, op: "ok" }); d.remove(); }; no.onclick = async () => { if (!confirm("Устгах уу?")) return; await api({ action: "reviewMod", uid: x.uid, op: "del" }); d.remove(); };
-      const bt = el("div", "recbtn"); bt.append(ok, no); d.append(bt); rvl.append(d); }); };
-  rvw.append(rvb, rvl); w.append(rvw);
+  }
+  if (!only || only === "pay") {
   // 2. Төлбөрийн мэдээлэл
   const c = el("div", "admb"); c.append(el("b", "", "Төлбөрийн мэдээлэл"));
   const F = [["tprice", "Багшийн эрхийн үнэ"], ["price", "Үнэ"], ["bank", "Банк"], ["account", "Данс"], ["holder", "Данс эзэмшигч"], ["note", "Гүйлгээний утга"], ["contact", "Холбоо барих"]], ins = {};
@@ -1896,6 +1928,8 @@ function adminPanel() {
   const cb = el("button", "btn ghost", "Хадгалах"); cb.type = "button"; const cm = el("p", "lbn");
   cb.onclick = async () => { const p = { action: "saveConfig" }; Object.keys(ins).forEach(k => p[k] = ins[k].value.trim()); const r = await api(p); cm.textContent = r.ok ? "Хадгаллаа." : "Алдаа гарлаа."; if (r.ok) { F.forEach(([k, lab]) => cfg[lab] = ins[k].value.trim()); } };
   c.append(cb, cm); w.append(c);
+  }
+  if (!only || only === "seed") {
   // 3. Өгөгдөл оруулах
   const s = el("div", "admb"); s.append(el("b", "", "Тест, даалгавар оруулах (seed.json)"), el("p", "lbn", "Шинэ тест нэмэх эсвэл засах бүрт Claude-оос авсан seed.json файлыг энд сонгоно. Байгаа тестүүд шинэчлэгдэнэ."));
   const fi = el("input"); fi.type = "file"; fi.accept = ".json,application/json"; fi.id = "seedFile"; const sm = el("p", "lbn");
@@ -1904,6 +1938,7 @@ function adminPanel() {
     const r = await (await FB).call({ action: "importSeed", seed, progress: (a, b) => sm.textContent = "Оруулж байна… " + a + " / " + b + " тест" });
     sm.textContent = r.ok ? "Боллоо: " + r.tests + " тест, " + r.questions + " даалгавар орлоо." : "Алдаа гарлаа (" + r.error + ")."; if (r.ok) { st.set("ge-tests", null); loadTests(); } };
   s.append(fi, sm); w.append(s);
+  }
   return w;
 }
 async function recView(id) {
@@ -2747,6 +2782,279 @@ function myImport() {
   }
 }
 
+/* ---------- 📝 Админ: тест нэмэх, засах, устгах (HTML засахгүйгээр) ---------- */
+const TA_SECS = [["eesh", "🎯 ЭЕШ хувилбар"], ["topic", "📚 Сэдвийн шалгалт"], ["own", "🎬 Мультимедиа"]], TA_LEARN = [["learn", "🎓 Сургалт"]];
+const TA_LCATS = ["ЭЕШ бэлтгэл", "9-р анги", "10-р анги", "11-р анги", "Сонгон", "Бусад"];
+const TA_GRADES = ["9-р анги", "10-р анги", "11-р анги", "Сонгон"];
+const TA_OWN = ["IGEO", "Улсын олимпиад", "Шинэ"];
+const taSecOf = t => t.lesson ? "learn" : /^ЭЕШ/.test(t.group || "") ? "eesh" : TA_GRADES.some(g => (t.group || "").indexOf(g) === 0) ? "topic" : "own";
+
+async function testManager(mode) {
+  const LM = mode === "learn";
+  const box = $("pane"); box.innerHTML = '<p class="empty">Ачаалж байна…</p>'; hideLanding && hideLanding();
+  let r; try { r = await api({ action: "adminTests" }); } catch (e) { r = { ok: false }; }
+  box.innerHTML = ""; if (!r.ok) return alertBox("Зөвхөн админ нэвтэрнэ.");
+  const back = el("button", "link", "← Админы тохиргоо"); back.type = "button"; back.onclick = () => { if (tab === "admin") renderPane(); else goSection("admin"); }; box.append(back);
+  box.append(el("h3", "bh", LM ? "🎓 Сургалт: видео хичээл нэмэх, засах" : "📝 Тест нэмэх, засах"), el("p", "note", LM ? "Хичээл бүрт YouTube бичлэг, тэмдэглэл, хичээлийн дараах тест нэмнэ. Сурагч бичлэгийг үзэж дуусмагц тест нээгдэнэ." : "Шинэ тест нэмэх, байгаа тестийн асуултыг засах, устгах. Хадгалмагц сайтад шууд гарна."));
+  const nb = el("button", "btn", LM ? "+ Шинэ хичээл нэмэх" : "+ Шинэ тест нэмэх"); nb.type = "button"; nb.onclick = () => testEdit(null, r.tests, mode); const tb = el("div", "tbtns"); tb.append(nb); box.append(tb);
+  (LM ? TA_LEARN : TA_SECS).forEach(([sk, sn]) => {
+    const L = r.tests.filter(t => taSecOf(t) === sk).sort((a, b) => (a.order || 0) - (b.order || 0)); box.append(el("div", "grp", sn + " · " + L.length + (LM ? " хичээл" : " тест")));
+    const G = {}; L.forEach(t => (G[t.group] = G[t.group] || []).push(t));
+    Object.keys(G).sort().forEach(g => { const d = el("details", "frg"); d.append(el("summary", "", g.replace(/^Сургалт · /, "") + " · " + G[g].length + (LM ? " хичээл" : " тест")));
+      G[g].forEach(t => { const row = el("div", "frrow"); row.append(el("span", "", (LM && t.unit ? t.unit + " · " : "") + t.name), el("small", "", (LM ? "▶ · " : "") + t.count + (LM ? " асуулт · " : " даалгавар · ") + (t.free ? "🆓" : "💰")));
+        const ed = el("button", "btn ghost", "Засах"), dl = el("button", "btn ghost danger", "Устгах"); ed.type = dl.type = "button";
+        ed.onclick = () => testEdit(t.id, r.tests, mode);
+        dl.onclick = async () => { if (!confirm("«" + t.name + "» тестийг бүх асуулттай нь устгах уу? Буцаах боломжгүй.")) return; dl.disabled = true;
+          const x = await api({ action: "testDelete", id: t.id }); if (x.ok) { st.set("ge-tests", null); try { await loadTests(); } catch (e) {} testManager(mode); } else { dl.disabled = false; alert("Устгаж чадсангүй."); } };
+        row.append(ed, dl); d.append(row); }); box.append(d); });
+    if (!L.length) box.append(el("p", "lbn", LM ? "Одоогоор хичээл алга. «+ Шинэ хичээл нэмэх» дарна уу." : "Одоогоор тест алга."));
+  });
+  scrollTo({ top: 0 });
+}
+
+async function testEdit(id, all, mode) {
+  const box = $("pane"); box.innerHTML = '<p class="empty">Ачаалж байна…</p>';
+  let T = { name: "", group: "", free: true, minutes: 0, desc: "" }, Q = [], V = { vid: "", body: "" };
+  if (id) { const r = await api({ action: "adminTest", id }); if (!r.ok) { box.innerHTML = ""; return alertBox("Тест ачаалж чадсангүй."); } T = r.test; Q = r.q.map(q => Object.assign({}, q)); V = { vid: r.vid || "", body: r.body || "" }; }
+  const isL = mode === "learn" || !!T.lesson, MODE = isL ? "learn" : undefined;
+  box.innerHTML = ""; const back = el("button", "link", "← Тестүүд"); back.type = "button"; back.onclick = () => { if (dirty && !confirm("Хадгалаагүй өөрчлөлт алга болно. Гарах уу?")) return; testManager(MODE); }; box.append(back);
+  back.textContent = isL ? "← Хичээлүүд" : "← Тестүүд"; box.append(el("h3", "bh", isL ? (id ? "✏️ Хичээл засах" : "➕ Шинэ хичээл") : (id ? "✏️ Тест засах" : "➕ Шинэ тест")));
+  let dirty = false; const mark = () => { dirty = true; };
+  /* --- 1. тестийн мэдээлэл --- */
+  const f = el("div", "bform tagrid"), fld = (lab, inp, full) => { const l = el("label", "fld" + (full ? " full" : "")); l.append(el("span", "", lab), inp); f.append(l); inp.addEventListener("input", mark); inp.addEventListener("change", mark); return inp; };
+  const sel = (items, v) => { const s = el("select"); items.forEach(([k, t]) => s.append(Object.assign(el("option", "", t), { value: k, selected: k === v }))); return s; };
+  const sec0 = isL ? "learn" : id ? taSecOf(T) : "eesh";
+  const secS = fld("Хаана гарах", sel(isL ? TA_LEARN : TA_SECS, sec0)); if (isL) secS.parentNode.hidden = true;
+  const yr = new Date().getFullYear(), m0 = /^ЭЕШ (\d{4})/.exec(T.group || ""), vm = /·\s*([A-D]) хувилбар/.exec(T.name || "");
+  const yI = fld("Он", Object.assign(el("input"), { type: "number", min: 2000, max: 2100, value: m0 ? m0[1] : yr }));
+  const vS = fld("Хувилбар", sel(["A", "B", "C", "D"].map(x => [x, x + " хувилбар"]), vm ? vm[1] : "A"));
+  const gS = fld("Анги", sel(TA_GRADES.map(g => [g, g]), TA_GRADES.find(g => (T.group || "").indexOf(g) === 0) || "10-р анги"));
+  const oS = fld("Ангилал", sel(TA_OWN.map(g => [g, g]), TA_OWN.find(g => (T.group || "").toUpperCase().indexOf(g.toUpperCase()) === 0) || "Шинэ"));
+  const tpS = fld("Бүлэг сэдэв (асуултуудын үндсэн)", sel([["", "— сонгох —"]].concat(TOPIC_ORDER.map(t => [t, t])), (Q.find(q => q.topic) || {}).topic || ""));
+  const lcS = fld("Ангилал", sel(TA_LCATS.map(g => [g, g]), TA_LCATS.find(g => String(T.group || "").replace(/^Сургалт · /, "") === g) || "10-р анги"));
+  const unI = fld("Бүлэг / хэсэг (заавал биш)", Object.assign(el("input"), { value: T.unit || "", maxLength: 80, placeholder: "Жишээ: 1-р бүлэг · Гео орон зайн дүрслэл" }));
+  const vI = fld("🎬 Видео бичлэгийн холбоос (YouTube)", Object.assign(el("input"), { value: V.vid, maxLength: 300, placeholder: "https://youtu.be/…  эсвэл  https://www.youtube.com/watch?v=…" }), true);
+  const vP = el("div", "lvprev full"); f.append(vP);
+  const bI = fld("📒 Хичээлийн тэмдэглэл (заавал биш)", Object.assign(el("textarea"), { value: V.body, rows: 5, maxLength: 8000, placeholder: "Гол ойлголт, томьёо, даалгавар…" }), true);
+  const orI = fld("Дараалал (жагсаалтад хэддүгээрт)", Object.assign(el("input"), { type: "number", min: 0, max: 999, value: T.order || 0 }));
+  const gtL = el("label", "chk tafree"), gtI = Object.assign(el("input"), { type: "checkbox", checked: T.gate !== false }); gtI.onchange = mark; gtL.append(gtI, el("span", "", " 🔒 Бичлэгийг бүрэн үзсэний дараа тест нээгдэнэ")); f.append(gtL);
+  const vprev = () => { vP.innerHTML = ""; const v = vI.value.trim(); if (!v) return; const y = ytId(v);
+    if (y) { const im = el("img"); im.src = "https://i.ytimg.com/vi/" + y + "/mqdefault.jpg"; im.alt = ""; vP.append(im, el("small", "lbn", "✓ YouTube бичлэг танигдлаа. Сурагч хэр үзсэнийг сайт хянана.")); }
+    else vP.append(el("small", "lbn", /^https?:\/\//.test(v) ? "⚠ YouTube биш холбоос: бичлэг харагдана, гэхдээ үзэж дууссаныг хянах боломжгүй (сурагч «Үзэж дууслаа» дарна)." : "⚠ Холбоос буруу байна.")); };
+  vI.addEventListener("input", vprev); vprev();
+  const nI = fld(isL ? "Хичээлийн нэр" : "Тестийн нэр", Object.assign(el("input"), { value: T.name || "", maxLength: 120, placeholder: isL ? "Жишээ: Газрын зургийн масштаб" : "Автоматаар бөглөгдөнө, засаж болно" }), true);
+  const dI = fld("Тайлбар (заавал биш)", Object.assign(el("input"), { value: T.desc || "", maxLength: 200 }), true);
+  const mI = fld("Хугацаа (минут, 0 = хугацаагүй)", Object.assign(el("input"), { type: "number", min: 0, max: 300, value: T.minutes || 0 }));
+  const frL = el("label", "chk tafree"), frI = Object.assign(el("input"), { type: "checkbox", checked: T.free !== false }); frI.onchange = mark; frL.append(frI, el("span", "", " 🆓 Үнэгүй (хүн бүр өгнө)")); f.append(frL);
+  const show = () => { const s = secS.value; yI.parentNode.hidden = vS.parentNode.hidden = s !== "eesh"; gS.parentNode.hidden = tpS.parentNode.hidden = s !== "topic"; oS.parentNode.hidden = s !== "own";
+    [lcS, unI, vI, bI, orI].forEach(x => x.parentNode.hidden = !isL); vP.hidden = gtL.hidden = !isL; mI.parentNode.hidden = isL; if (isL) return;
+    if (!nI.dataset.touched && (!id || (s === "eesh" && /^ЭЕШ \d{4} · [A-D] хувилбар$/.test(nI.value)))) nI.value = s === "eesh" ? "ЭЕШ " + yI.value + " · " + vS.value + " хувилбар" : s === "topic" ? gS.value + " · тест · " + (tpS.value || "сэдэв") : oS.value + " · тест";
+    if (!id && s === "eesh" && !mI.dataset.touched) mI.value = 90; };
+  nI.addEventListener("input", () => nI.dataset.touched = 1); mI.addEventListener("input", () => mI.dataset.touched = 1);
+  [secS, yI, vS, gS, oS, tpS].forEach(x => x.addEventListener("change", show)); yI.addEventListener("input", show); show();
+  box.append(f);
+
+  /* --- 2. асуултууд --- */
+  const head = el("div", "tahead"), cnt = el("b"); head.append(cnt); box.append(head);
+  const list = el("div", "myql"); box.append(list);
+  const L5 = "ABCDE";
+  function draw() {
+    list.innerHTML = ""; const miss = Q.filter(q => !q.slots && !(q.a >= 0)).length;
+    cnt.textContent = (isL ? "📝 Хичээлийн дараах тест · " + Q.length + " асуулт" : "Асуултууд (" + Q.length + ")") + (miss ? " · ⚠ " + miss + " асуултын зөв хариуг сонгоно уу" : "");
+    if (!Q.length) list.append(el("p", "empty", "Асуулт алга. Доороос нэмнэ эсвэл файлаас оруулна."));
+    Q.forEach((q, i) => { const c = el("div", "revc imq" + (!q.slots && !(q.a >= 0) ? " miss" : ""));
+      const top = el("div", "imqt"); top.append(el("b", "", (i + 1) + ". " + String(q.q || "").slice(0, 400)));
+      const x = el("button", "imx", "✕"); x.type = "button"; x.title = "Устгах"; x.onclick = () => { if (!confirm((i + 1) + "-р асуултыг устгах уу?")) return; Q.splice(i, 1); mark(); draw(); }; top.append(x); c.append(top);
+      if (q.slots) c.append(el("small", "lbn", "✎ Нөхөх даалгавар · " + q.slots.map(s => s.k + "=" + s.a).join(", ") + " (энд засагдахгүй, хэвээр хадгалагдана)"));
+      else { const ol = el("div", "myqol"); (q.o || []).forEach((o, k) => { if (!o && !(q.optImg || [])[k]) return; const b = el("button", "imo" + (k === q.a ? " ok" : ""), L5[k] + ". " + (o || "🖼 зураг")); b.type = "button";
+          b.onclick = () => { q.a = k; mark(); draw(); }; ol.append(b); }); c.append(ol); }
+      const meta = [q.topic, (q.p || 1) + " оноо", (q.img || []).length ? "🖼 зурагтай" : "", q.sol ? "тайлбартай" : ""].filter(Boolean).join(" · ");
+      c.append(el("small", "lbn", meta));
+      const bt = el("div", "recbtn"), e = el("button", "btn ghost", "Засах"), up = el("button", "btn ghost", "↑"); e.type = up.type = "button";
+      e.onclick = () => qForm(i); up.onclick = () => { if (!i) return; [Q[i - 1], Q[i]] = [Q[i], Q[i - 1]]; mark(); draw(); };
+      if (!q.slots) bt.append(e); bt.append(up); c.append(bt); list.append(c); });
+  }
+  /* нэг асуулт нэмэх / засах */
+  const formW = el("div"); box.append(formW);
+  function qForm(idx) {
+    const q = idx == null ? null : Q[idx]; formW.innerHTML = ""; const c = el("div", "bform tagrid taq"); formW.append(c);
+    c.append(el("b", "full", idx == null ? "➕ Шинэ асуулт" : "✏️ " + (idx + 1) + "-р асуулт"));
+    const qt = Object.assign(el("textarea"), { rows: 3, value: q ? q.q : "", placeholder: "Асуулт…" }); const l1 = el("label", "fld full"); l1.append(el("span", "", "Асуулт"), qt); c.append(l1);
+    const O = [], rw = el("div", "myqo full"), nm = "taa" + Date.now();
+    for (let k = 0; k < 5; k++) { const w = el("label", "myqopt"), rb = Object.assign(el("input"), { type: "radio", name: nm, checked: q ? q.a === k : k === 0 }), t = Object.assign(el("input"), { value: q && q.o ? q.o[k] || "" : "", placeholder: L5[k] + " хариулт" + (k > 1 ? " (заавал биш)" : "") });
+      O.push([rb, t]); w.append(rb, el("b", "", L5[k]), t); rw.append(w); }
+    c.append(el("small", "lbn full", "Зөв хариултын өмнөх дугуйг сонгоно ●"), rw);
+    const pI = Object.assign(el("input"), { type: "number", min: 1, max: 10, value: q ? q.p || 1 : 1 }), tS = sel([["", "— тестийн үндсэн сэдэв —"]].concat(TOPIC_ORDER.map(t => [t, t])), q ? q.topic || "" : "");
+    const iI = Object.assign(el("input"), { value: q && (q.img || [])[0] && /^https?:/.test(q.img[0]) ? q.img[0] : "", placeholder: "https://…/zurag.png" }), sI = Object.assign(el("input"), { value: q ? q.sol || "" : "" });
+    [["Оноо", pI], ["Сэдэв", tS], ["Зургийн холбоос (заавал биш)", iI], ["Тайлбар (заавал биш)", sI]].forEach(([lb, inp]) => { const l = el("label", "fld"); l.append(el("span", "", lb), inp); c.append(l); });
+    if (q && (q.img || []).some(x => !/^https?:/.test(x))) c.append(el("small", "lbn full", "🖼 Энэ асуулт сайтын зурагтай — хэвээр хадгалагдана."));
+    const msg = el("p", "err full"), ok = el("button", "btn", idx == null ? "Нэмэх" : "Шинэчлэх"), cn = el("button", "btn ghost", "Болих"); ok.type = cn.type = "button";
+    cn.onclick = () => { formW.innerHTML = ""; };
+    ok.onclick = () => { const opts = O.map(([, t]) => t.value.trim()), ai = O.findIndex(([r]) => r.checked);
+      if (qt.value.trim().length < 2 || opts.filter(Boolean).length < 2 || !opts[ai]) { msg.textContent = "Асуулт, дор хаяж 2 хариулт бичээд зөв хариултаа сонгоно уу."; return; }
+      const keepImg = q ? (q.img || []).filter(x => !/^https?:/.test(x)) : [], nq = Object.assign({}, q || {}, { q: qt.value.trim(), o: opts, a: ai, p: Math.max(1, +pI.value || 1), topic: tS.value, sol: sI.value.trim(), img: keepImg.concat(iI.value.trim() ? [iI.value.trim()] : []) });
+      if (idx == null) Q.push(nq); else Q[idx] = nq; mark(); formW.innerHTML = ""; draw(); play && play("ok"); };
+    const br = el("div", "tbtns full"); br.append(ok, cn); c.append(msg, br); c.scrollIntoView({ behavior: "smooth", block: "center" }); qt.focus();
+  }
+  /* файлаас / текстээс бөөнөөр */
+  const imp = el("details", "impfmt"); imp.append(el("summary", "", "📥 Олон асуултыг файлаас (Word, PDF, Excel) эсвэл текстээс нэг дор оруулах"));
+  const fi = el("input"); fi.type = "file"; fi.accept = ".docx,.pdf,.xlsx,.csv,.txt"; const ta = Object.assign(el("textarea", "impta"), { rows: 6, placeholder: "1. Асуулт?\nA. …\nB. …\nC. …\nЗөв хариу: B" });
+  const im = el("p", "lbn"), tb2 = el("button", "btn ghost", "Текстээс таних"); tb2.type = "button";
+  const addMany = P => { if (!P.length) { im.textContent = "Асуулт танигдсангүй. Жишээ хэлбэрийг шалгана уу (1. Асуулт / A. … / Зөв хариу: B)."; return; }
+    const miss = P.filter(q => q.a < 0).length; P.forEach(q => Q.push({ q: q.q.trim(), o: q.o.slice(0, 5), a: q.a, p: q.p || 1, sol: q.sol || "", topic: q.topic && TOPIC_ORDER.indexOf(q.topic) >= 0 ? q.topic : "", img: [], optImg: [] }));
+    mark(); draw(); im.textContent = "✓ " + P.length + " асуулт нэмэгдлээ" + (miss ? " · ⚠ " + miss + "-д зөв хариу олдсонгүй — шар хүрээтэйг дарж сонгоно уу" : ""); };
+  fi.onchange = async () => { const fl = fi.files[0]; if (!fl) return; im.textContent = "Уншиж байна…"; try { addMany(await importParse(fl)); } catch (e) { im.textContent = e.message === "scan" ? "Скан хийсэн PDF уншигдахгүй." : "Файлыг уншиж чадсангүй."; } fi.value = ""; };
+  tb2.onclick = () => { if (ta.value.trim()) { addMany(linesToQs(ta.value.split(/\r?\n/).map(t => ({ t, b: false })))); ta.value = ""; } };
+  imp.append(el("p", "lbn", "Word/PDF-д асуулт «1. …», сонголт «A. …» (эсвэл А Б В Г Д), зөв хариу «Зөв хариу: B» эсвэл ✓ тэмдэгтэй байна."), fi, ta, tb2, im);
+  const ab = el("button", "btn", "+ Асуулт нэмэх"); ab.type = "button"; ab.onclick = () => qForm(null);
+  const qb = el("div", "tbtns"); qb.append(ab); box.append(qb, imp);
+  draw();
+  /* --- 3. хадгалах --- */
+  const err = el("p", "err"), sv = el("button", "btn", isL ? "💾 Хичээлийг хадгалах" : "💾 Тестийг хадгалах"); sv.type = "button"; const foot = el("div", "bfoot"); foot.append(cnt.cloneNode(), sv);
+  const updFoot = () => { foot.firstChild.textContent = Q.length + " асуулт · " + Q.reduce((s, q) => s + (q.slots ? q.slots.reduce((x, y) => x + y.p, 0) : q.p || 1), 0) + " оноо"; };
+  const _draw = draw; draw = () => { _draw(); updFoot(); }; updFoot();
+  sv.onclick = async () => {
+    err.textContent = ""; const s = secS.value;
+    if (!nI.value.trim()) { err.textContent = "Тестийн нэр бичнэ үү."; return; }
+    if (!isL && !Q.length) { err.textContent = "Дор хаяж 1 асуулт нэмнэ үү."; return; }
+    if (isL && !vI.value.trim() && !bI.value.trim()) { err.textContent = "Видео бичлэгийн холбоос эсвэл тэмдэглэл оруулна уу."; vI.focus(); return; }
+    if (Q.some(q => !q.slots && !(q.a >= 0))) { err.textContent = "Шар хүрээтэй асуултуудын зөв хариуг сонгоно уу."; list.querySelector(".miss").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    if (s === "topic" && !tpS.value && Q.some(q => !q.topic)) { err.textContent = "Сэдвийн шалгалтад бүлэг сэдвээ сонгоно уу (асуултууд сэдвээрээ ангилагдана)."; tpS.focus(); return; }
+    if (isL) { const lid = id || "L" + Date.now().toString(36), qs = Q.map((q, i) => Object.assign({}, q, { n: i + 1 }));
+      sv.disabled = true; sv.textContent = "Хадгалж байна…"; let x;
+      try { x = await api({ action: "lessonSave", id: lid, meta: { name: nI.value.trim(), cat: lcS.value, unit: unI.value.trim(), free: frI.checked, desc: dI.value.trim(), gate: gtI.checked, order: +orI.value || 0 }, q: qs, vid: vI.value.trim(), body: bI.value.trim() }); } catch (e) { x = { ok: false, error: e.message }; }
+      sv.disabled = false; sv.textContent = "💾 Хичээлийг хадгалах";
+      if (!x.ok) { err.textContent = "Хадгалж чадсангүй" + (x.error ? " (" + x.error + ")" : "") + "."; return; }
+      dirty = false; play && play("ok"); st.set("ge-tests", null); st.set("ge-q-" + lid, null); try { await loadTests(); } catch (e) {} alert("✓ Хичээл хадгалагдлаа. «Сургалт» цэсэнд шууд гарлаа."); testManager("learn"); return; }
+    const group = s === "eesh" ? "ЭЕШ " + yI.value : s === "topic" ? gS.value : oS.value;
+    const wasE = !!id && /^\d{4}-[A-Z]$/.test(id);
+    let nid = id;
+    if (s === "eesh") nid = yI.value + "-" + vS.value;                       // он/хувилбар өөрчлөгдвөл ID шинэчлэгдэнэ
+    else if (!id || wasE) nid = (s === "topic" ? "T" : "M") + Date.now().toString(36);
+    if (nid !== id && (all || []).some(t => t.id === nid)) { err.textContent = "«" + nid + "» аль хэдийн байна. Өөр он/хувилбар сонгоно уу эсвэл тэр тестийг засна уу."; return; }
+    if (id && nid !== id && !confirm("Тестийн байршил/он/хувилбар өөрчлөгдөнө. Хуучин тестийн шилдэг сурагчдын жагсаалт шинэд шилжихгүй. Үргэлжлүүлэх үү?")) return;
+    const qs = Q.map((q, i) => Object.assign({}, q, { n: i + 1, topic: q.topic || tpS.value || "" }));
+    sv.disabled = true; sv.textContent = "Хадгалж байна…";
+    let x; try { x = await api({ action: "testSave", id: nid, meta: { name: nI.value.trim(), group, free: frI.checked, minutes: Math.max(0, +mI.value || 0), desc: dI.value.trim() }, q: qs }); } catch (e) { x = { ok: false, error: e.message }; }
+    sv.disabled = false; sv.textContent = "💾 Тестийг хадгалах";
+    if (!x.ok) { err.textContent = "Хадгалж чадсангүй" + (x.error ? " (" + x.error + ")" : "") + "."; return; }
+    if (id && nid !== id) { try { await api({ action: "testDelete", id }); } catch (e) {} st.set("ge-q-" + id, null); id = nid; }
+    dirty = false; play && play("ok"); st.set("ge-tests", null); st.set("ge-q-" + nid, null); try { await loadTests(); } catch (e) {} alert("✓ Хадгалагдлаа: " + x.count + " асуулт. Сайтад шууд гарлаа."); testManager();
+  };
+  box.append(err, foot);
+}
+
+/* ---------- ⚙️ Админы тохиргоо (цэс) ---------- */
+const ADM_CARDS = [
+  ["test", "📝", "Тестүүд", "ЭЕШ, сэдвийн шалгалт, мультимедиа тест нэмэх, засах, устгах"],
+  ["learn", "🎓", "Сургалт", "Видео хичээл, хичээлийн дараах тест нэмэх, засах"],
+  ["price", "💰", "Үнэгүй / Төлбөртэй", "Тест, хичээл бүрийг үнэгүй эсвэл төлбөртэй болгох"],
+  ["pay", "💳", "Төлбөр, данс", "Үнэ, банк, дансны дугаар, холбоо барих"],
+  ["grant", "🔑", "Сурагчийн эрх", "Төлбөр төлсөн сурагчид эрх олгох, цуцлах"],
+  ["teach", "👩‍🏫", "Багшийн эрх", "Багшид шалгалт үүсгэх эрх олгох"],
+  ["dev", "📱", "Төхөөрөмж", "Сурагчийн утас, компьютерийн жагсаалт цэвэрлэх"],
+  ["rec", "🎥", "Дэлгэцийн бичлэг", "Шалгалтын бичлэг шаардах, үзэх"],
+  ["seed", "📦", "seed.json оруулах", "Олон тестийг файлаар нэг дор оруулах"]];
+let admSub = "";
+function renderAdmin(box) {
+  if (!user || !user.admin) { box.append(el("p", "empty", "Зөвхөн админ нэвтэрнэ.")); return; }
+  if (admSub === "test" || admSub === "learn") { const m = admSub; admSub = ""; return testManager(m === "learn" ? "learn" : undefined); }
+  if (admSub) { const k = admSub, c = ADM_CARDS.find(x => x[0] === k) || ADM_CARDS[0];
+    const back = el("button", "link", "← Админы тохиргоо"); back.type = "button"; back.onclick = () => { admSub = ""; renderPane(); scrollTo({ top: 0 }); };
+    box.append(back, el("h3", "bh", c[1] + " " + c[2]), adminPanel(k)); return; }
+  box.append(el("h3", "bh", "⚙️ Админы тохиргоо"), el("p", "note", "Энэ хэсэг зөвхөн танд (админд) харагдана."));
+  const g = el("div", "admgrid");
+  ADM_CARDS.forEach(([k, ic, t, d]) => { const b = el("button", "admcard"); b.type = "button"; b.append(el("span", "ic", ic)); const tx = el("span", "tx"); tx.append(el("b", "", t), el("small", "", d)); b.append(tx);
+    b.onclick = () => { admSub = k; renderPane(); scrollTo({ top: $("list").offsetTop - 10 }); }; g.append(b); });
+  box.append(g);
+}
+
+/* ---------- 🎓 Сургалт: видео хичээл → хичээлийн дараах тест ---------- */
+const LCATS = ["ЭЕШ бэлтгэл", "9-р анги", "10-р анги", "11-р анги", "Сонгон", "Бусад"];
+let lcat = st.get("ge-lcat") || "";
+function ytId(u) { u = String(u || "").trim(); if (/^[\w-]{11}$/.test(u)) return u;
+  const m = /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([\w-]{11})/.exec(u); return m ? m[1] : ""; }
+const lwGet = id => { try { return JSON.parse(st.get("ge-lw-" + id) || "null") || {}; } catch (e) { return {}; } };
+const lwSet = (id, o) => st.set("ge-lw-" + id, JSON.stringify(Object.assign(lwGet(id), o)));
+
+function renderLearn(box) {
+  if (!lessons.length) { box.append(el("p", "empty", "🎓 Видео хичээлүүд удахгүй нэмэгдэнэ.")); return; }
+  const have = LCATS.filter(c => lessons.some(l => l.cat === c)).concat([...new Set(lessons.map(l => l.cat))].filter(c => LCATS.indexOf(c) < 0));
+  if (have.indexOf(lcat) < 0) lcat = have[0];
+  if (have.length > 1) box.append(pick("Ангилал", have.map(c => ({ v: c, t: c + " · " + lessons.filter(l => l.cat === c).length })), lcat, v => { lcat = v; st.set("ge-lcat", v); renderPane(); }));
+  box.append(el("p", "note hint", "▶ Бичлэгийг үзэж дуусмагц хичээлийн дараах тест нээгдэнэ."));
+  const L = lessons.filter(l => l.cat === lcat).sort((a, b) => (a.order || 0) - (b.order || 0) || (a.id < b.id ? -1 : 1));
+  const U = {}; L.forEach(l => (U[l.unit || ""] = U[l.unit || ""] || []).push(l));
+  Object.keys(U).forEach(u => {
+    if (u) box.append(el("div", "grp", u));
+    const g = el("div", "lsgrid");
+    U[u].forEach((l, i) => { const w = lwGet(l.id), c = el("button", "lscard" + (l.locked ? " locked" : "") + (w.q != null ? " done" : "")); c.type = "button";
+      const n = el("span", "lsn", w.q != null ? "✓" : String(i + 1)); const tx = el("span", "tx");
+      tx.append(el("b", "", l.name), el("small", "", (l.count ? "▶ Бичлэг · " + l.count + " асуулттай тест" : "▶ Бичлэг") + (w.q != null ? " · " + w.q + "%" : w.done ? " · үзсэн" : w.p ? " · " + w.p + "% үзсэн" : "")));
+      const tg = el("span", "tg" + (l.free ? "" : " pay"), l.free ? "Үнэгүй" : l.locked ? "🔒 Төлбөртэй" : "Төлбөртэй");
+      c.append(n, tx, tg); c.onclick = () => l.locked ? openAcct(true) : openLesson(l); g.append(c); });
+    box.append(g);
+  });
+  renderLB(box, "learn", "", "Сургалт");
+}
+
+let YTP = null, ytTick = null;
+function ytApi() { if (window.YT && YT.Player) return Promise.resolve();
+  return new Promise((res, rej) => { const prev = window.onYouTubeIframeAPIReady; window.onYouTubeIframeAPIReady = () => { prev && prev(); res(); };
+    if (!document.getElementById("ytapi")) { const s = document.createElement("script"); s.id = "ytapi"; s.src = "https://www.youtube.com/iframe_api"; s.onerror = rej; document.head.append(s); }
+    setTimeout(() => rej(new Error("yt")), 15000); }); }
+var LOPEN = null;
+function lessonStop() { LOPEN = null; clearInterval(ytTick); ytTick = null; try { YTP && YTP.destroy(); } catch (e) {} YTP = null; }
+
+async function openLesson(l) {
+  lessonStop(); hideLanding && hideLanding();
+  const box = $("pane"); box.innerHTML = '<p class="empty">Ачаалж байна…</p>'; LOPEN = l.id;
+  let r; try { r = await api({ action: "lesson", id: l.id }); } catch (e) { r = { ok: false }; }
+  box.innerHTML = "";
+  const back = el("button", "link", "← Хичээлүүд"); back.type = "button"; back.onclick = () => { lessonStop(); renderPane(); }; box.append(back);
+  if (!r.ok) { if (r.error === "locked") { box.append(el("p", "empty", "🔒 Энэ хичээл төлбөртэй.")); openAcct(true); } else box.append(el("p", "empty", "Хичээлийг ачаалж чадсангүй.")); return; }
+  const L = r.lesson; box.append(el("h3", "bh lsh", L.name)); if (L.unit || L.desc) box.append(el("p", "note", [L.unit, L.desc].filter(Boolean).join(" · ")));
+  const W = lwGet(L.id); let done = !!W.done || !L.gate || !r.count;
+  /* бичлэг */
+  const vw = el("div", "lsvid"), yid = ytId(r.vid); box.append(vw);
+  const bar = el("div", "lsprog"), bi = el("i"), bt = el("small"); bar.append(el("span", "", ""), bt); bar.firstChild.append(bi);
+  const quiz = el("div", "lsquiz");
+  const paint = p => { bi.style.width = Math.min(100, p) + "%"; bt.textContent = done ? "✓ Бичлэгийг үзсэн" : "Үзсэн: " + p + "%"; drawQuiz(); };
+  const unlock = () => { if (done) return; done = true; lwSet(L.id, { done: true, p: 100 }); play && play("ok"); paint(100); };
+  if (yid) {
+    const host = el("div"); host.id = "ytp" + Date.now(); vw.append(host); if (L.gate && r.count) box.append(bar);
+    let maxT = +W.m || 0, dur = 0;
+    ytApi().then(() => {
+      YTP = new YT.Player(host.id, { videoId: yid, playerVars: { rel: 0, modestbranding: 1, playsinline: 1 }, events: {
+        onReady: e => { dur = e.target.getDuration() || 0; paint(dur ? Math.round(maxT / dur * 100) : 0); },
+        onStateChange: e => { if (e.data === 1 && !ytTick) ytTick = setInterval(() => {   // тоглож байхад 1 сек тутам
+            if (!YTP || !YTP.getCurrentTime) return; const t = YTP.getCurrentTime(); dur = YTP.getDuration() || dur;
+            if (t > maxT && t - maxT <= 3.5) maxT = t;   // гүйлгэж алгасвал тооцохгүй
+            const p = dur ? Math.round(maxT / dur * 100) : 0; lwSet(L.id, { m: Math.round(maxT), p });
+            if (p >= 92) unlock(); else if (!done) paint(p); }, 1000);
+          if (e.data !== 1) { clearInterval(ytTick); ytTick = null; }
+          if (e.data === 0 && dur && maxT / dur >= .9) unlock(); } } });
+    }).catch(() => { host.replaceWith(Object.assign(el("iframe"), { src: "https://www.youtube.com/embed/" + yid + "?rel=0", allow: "fullscreen; picture-in-picture", allowFullscreen: true })); bar.remove(); if (!done) addDoneBtn(); });
+  } else if (r.vid) {
+    let src = r.vid; const gd = /drive\.google\.com\/file\/d\/([\w-]+)/.exec(src); if (gd) src = "https://drive.google.com/file/d/" + gd[1] + "/preview";
+    vw.append(Object.assign(el("iframe"), { src, allow: "fullscreen; picture-in-picture", allowFullscreen: true })); if (!done) addDoneBtn();
+  } else vw.remove();
+  function addDoneBtn() { const b = el("button", "btn ghost", "✓ Бичлэгийг үзэж дууслаа"); b.type = "button"; b.onclick = () => { b.remove(); unlock(); }; vw.after(b); }
+  /* тэмдэглэл */
+  if (r.body) { const n = el("div", "lsbody"); n.append(el("b", "", "📒 Хичээлийн тэмдэглэл"), el("p", "", r.body)); box.append(n); }
+  /* хичээлийн дараах тест */
+  box.append(quiz);
+  function drawQuiz() { quiz.innerHTML = ""; if (!r.count) return; const w = lwGet(L.id);
+    quiz.append(el("b", "", "📝 Хичээлийн дараах тест · " + r.count + " асуулт"));
+    if (!done) { quiz.classList.add("off"); quiz.append(el("p", "lbn", "🔒 Бичлэгийг бүрэн үзсэний дараа тест нээгдэнэ.")); return; }
+    quiz.classList.remove("off"); if (w.q != null) quiz.append(el("p", "lbn", "Таны өмнөх дүн: " + w.q + "%"));
+    const b = el("button", "btn", w.q != null ? "Дахин өгөх" : "Тест өгөх →"); b.type = "button";
+    b.onclick = () => { lessonStop(); LQ = L.id; startTest({ id: L.id, name: L.name, minutes: 0, free: L.free, group: L.group, count: r.count }, true); };
+    quiz.append(b); }
+  paint(+W.p || 0); scrollTo({ top: $("list").offsetTop - 10 });
+}
+var LQ = null;   // дуусгасан хичээлийн тестийн хувийг хадгална
+
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
 const IV = { DUR: 2.8, timers: [], on: false, loopT: null, nodes: [] };
 const IV_SCENES = [
@@ -2991,17 +3299,18 @@ H.me = async () => { const m = await meInfo(); return m ? { ok: true, user: m } 
 H.tests = async p => {
   const m = await meInfo(), L = await allTests(!!(p && p.action === "tests"));
   const paid = !!(m && (m.paid || m.teacher)), topics = {};
-  const tests = L.map(t => {
+  const lessons = L.filter(t => t.lesson).map(t => ({ id: t.id, name: t.name, free: !!t.free, desc: t.desc || "", cat: String(t.group || "").replace(/^Сургалт · /, "") || "Бусад", unit: t.unit || "", count: t.count || 0, gate: t.gate !== false, order: t.order || 0, locked: !t.free && !paid, minutes: 0, group: t.group || "" }));
+  const tests = L.filter(t => !t.lesson).map(t => {
     const locked = !t.free && !paid;
     const cat = catOfGroup(t.group);
     Object.keys(t.topics || {}).forEach(tp => { const n = t.topics[tp], k = cat + "|" + tp;
       const x = topics[k] || (topics[k] = { name: tp, cat, total: 0, open: 0, free: 0 }); x.total += n; if (!locked) x.open += n; if (t.free) x.free += n; });
     return { id: t.id, name: t.name, free: !!t.free, minutes: t.minutes || 0, desc: t.desc || "", group: t.group || "Бусад", count: t.count || 0, locked, cat };
   });
-  return { ok: true, tests, topics: Object.values(topics), user: m };
+  return { ok: true, tests, lessons, topics: Object.values(topics), user: m };
 };
 H.test = async p => {
-  const L = (await H.tests()).tests, t = L.find(x => x.id === String(p.id));   // жагсаалтыг кэшээс авна
+  const R = await H.tests(), L = R.tests.concat(R.lessons), t = L.find(x => x.id === String(p.id));   // жагсаалтыг кэшээс авна
   if (!t) return { ok: false, error: "not_found" };
   if (t.locked) return { ok: false, error: "locked" };
   return { ok: true, test: t, questions: await qsOf(t.id) };
@@ -3014,6 +3323,12 @@ H.topic = async p => {
   return { ok: true, topic: p.name, questions: qs };
 };
 
+H.lesson = async p => {   // 🎓 хичээл: бичлэг, тайлбар (төлбөртэй бол эрхтэй хүнд л)
+  const t = (await H.tests()).lessons.find(x => x.id === String(p.id)); if (!t) return { ok: false, error: "not_found" };
+  if (t.locked) return { ok: false, error: "locked", lesson: t };
+  const d = (await getDoc(D("qs", t.id))).data() || {}; QCACHE[t.id] = d.q || [];
+  return { ok: true, lesson: t, vid: d.vid || "", body: d.body || "", count: (d.q || []).length };
+};
 /* дүн → шилдэг сурагчдын самбар */
 function periods(d) {
   const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day);
@@ -3028,7 +3343,7 @@ H.result = async p => {
   const mp = /^map:([A-Z]+-(?:10|20|all))$/.exec(tid);
   if (mp) { sec = "map"; cat = mp[1]; key = mp[1]; }
   else if (mm) { sec = "topic"; const i = mm[1].indexOf(" · "); cat = i > 0 && TOPIC_CATS.indexOf(mm[1].slice(0, i)) >= 0 ? mm[1].slice(0, i) : "ЭЕШ"; key = cat + "|" + (i > 0 && cat === mm[1].slice(0, i) ? mm[1].slice(i + 3) : mm[1]); }
-  else { const t = (await allTests()).find(x => x.id === tid); if (!t) return { ok: true }; sec = secOf(t); cat = sec === "own" ? ownCat(t.group) : sec === "topic" ? catOfGroup(t.group) : ""; }
+  else { const t = (await allTests()).find(x => x.id === tid); if (!t) return { ok: true }; sec = t.lesson ? "learn" : secOf(t); cat = sec === "own" ? ownCat(t.group) : sec === "topic" ? catOfGroup(t.group) : ""; }
   const board = sec + "|" + cat, P = periods(new Date());
   await Promise.all(Object.values(P).map(per => runTransaction(db, async tx => {
     const ref = D("boards", board, per, m.uid), s = await tx.get(ref), d = s.exists() ? s.data() : { best: {} };
@@ -3402,7 +3717,42 @@ H.setFree = async p => {   // тестүүдийг үнэгүй/төлбөртэ
 };
 H.adminTests = async () => {
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
-  const L = await allTests(true); return { ok: true, tests: L.map(t => ({ id: t.id, name: t.name, group: t.group || "Бусад", free: !!t.free, count: t.count || 0 })) };
+  const L = await allTests(true); return { ok: true, tests: L.map(t => ({ id: t.id, name: t.name, group: t.group || "Бусад", free: !!t.free, count: t.count || 0, lesson: !!t.lesson, order: t.order || 0, unit: t.unit || "" })) };
+};
+H.adminTest = async p => {   // 📝 нэг тестийг асуулттай нь (засахад)
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const id = String(p.id || ""), t = await getDoc(D("tests", id)); if (!t.exists()) return { ok: false, error: "not_found" };
+  const q = (await getDoc(D("qs", id))).data() || {}; return { ok: true, test: Object.assign({ id }, t.data()), q: q.q || [], vid: q.vid || "", body: q.body || "" };
+};
+function normQs(arr) { const topics = {};
+  const qs = (Array.isArray(arr) ? arr : []).slice(0, 300).map((x, i) => {
+    const q = Object.assign({}, x); q.n = i + 1; q.q = String(q.q || "").slice(0, 3000); q.topic = String(q.topic || "").slice(0, 80); q.sol = String(q.sol || "").slice(0, 2000);
+    q.img = (Array.isArray(q.img) ? q.img : []).map(String).slice(0, 6); q.optImg = (Array.isArray(q.optImg) ? q.optImg : []).map(String).slice(0, 5);
+    if (!q.slots) { q.o = (Array.isArray(q.o) ? q.o : []).map(v => String(v || "").slice(0, 500)).slice(0, 5); if (!q.optImg.length) while (q.o.length && !q.o[q.o.length - 1]) q.o.pop(); q.a = Math.round(+q.a); q.p = Math.max(1, Math.min(10, Math.round(+q.p || 1))); }
+    if (q.topic) topics[q.topic] = (topics[q.topic] || 0) + 1; return q; }).filter(q => q.slots || (q.q && q.o.length >= 2 && q.a >= 0 && q.a < q.o.length));
+  return { qs, topics }; }
+H.testSave = async p => {   // 📝 тест нэмэх/засах: {id, meta:{name,group,free,minutes,desc}, q:[...]}
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const id = String(p.id || "").replace(/[^\w\-]/g, "").slice(0, 40); if (!id) return { ok: false, error: "id" };
+  const M = p.meta || {}, { qs, topics } = normQs(p.q);
+  if (!qs.length) return { ok: false, error: "no_q" };
+  const meta = { name: String(M.name || id).slice(0, 100), group: String(M.group || "Шинэ").slice(0, 60), free: M.free === true, minutes: Math.max(0, Math.min(300, Math.round(+M.minutes || 0))), desc: String(M.desc || "").slice(0, 200), count: qs.length, topics };
+  const b = writeBatch(db); b.set(D("tests", id), meta, { merge: true }); b.set(D("qs", id), { q: qs }); await b.commit();
+  TESTS = null; delete QCACHE[id]; await rebuildMeta(); return { ok: true, id, count: qs.length };
+};
+H.lessonSave = async p => {   // 🎓 хичээл: {id, meta:{name,cat,unit,free,desc,gate,order}, q:[...], vid, body}
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const id = String(p.id || "").replace(/[^\w\-]/g, "").slice(0, 40); if (!id) return { ok: false, error: "id" };
+  const M = p.meta || {}, { qs, topics } = normQs(p.q);
+  const meta = { name: String(M.name || "Хичээл").slice(0, 120), group: "Сургалт · " + String(M.cat || "Бусад").slice(0, 40), free: M.free === true, minutes: 0, desc: String(M.desc || "").slice(0, 200),
+    count: qs.length, topics, lesson: true, unit: String(M.unit || "").slice(0, 80), gate: M.gate !== false, order: Math.round(+M.order || 0) };
+  const b = writeBatch(db); b.set(D("tests", id), meta); b.set(D("qs", id), { q: qs, vid: String(p.vid || "").slice(0, 300), body: String(p.body || "").slice(0, 8000) }); await b.commit();
+  TESTS = null; delete QCACHE[id]; await rebuildMeta(); return { ok: true, id, count: qs.length };
+};
+H.testDelete = async p => {
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const id = String(p.id || ""); if (!id) return { ok: false };
+  await deleteDoc(D("qs", id)).catch(() => {}); await deleteDoc(D("tests", id)); TESTS = null; delete QCACHE[id]; await rebuildMeta(); return { ok: true };
 };
 H.saveConfig = async p => {
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
