@@ -896,6 +896,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .pubbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 14px;border-radius:14px;margin:4px 0 10px}
 .pubbar.off{background:color-mix(in srgb,#F59E0B 14%,var(--surface))}.pubbar.off b{color:#B45309}.pubbar.on{background:var(--good-bg)}.pubbar.on b{color:var(--good)}
 .revwait{display:block;margin:8px 0;line-height:1.5}
+.qzhint{text-align:center;color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
@@ -3368,7 +3369,7 @@ function quizCard(q, adm) {
   /* миний төлөв: зөвхөн товч / богино тэмдэг */
   const edit = () => { const b = el("button", "link qzedit", "✏️ Засах"); b.type = "button"; b.onclick = () => quizRegForm(q); return b; };
   const st = el("div", "qzst2");
-  if (!user) { const b = el("button", "btn wide", "📝 Нэгдэх хүсэлт илгээх"); b.type = "button"; b.onclick = () => openAcct(false); st.append(b); }
+  if (!user) { const b = el("button", "btn wide", "🔑 Нэвтэрч нэгдэх"); b.type = "button"; b.onclick = () => openAcct(false); st.append(b, el("small", "qzhint", "Нэгдэхийн тулд эхлээд Google акаунтаараа нэвтэрнэ үү")); }
   else if (!me && adm) { }
   else if (!me && q.regOpen) { const b = el("button", "btn wide", "📝 Нэгдэх хүсэлт илгээх"); b.type = "button"; b.onclick = () => quizRegForm(q); st.append(b); }
   else if (!me) { }
@@ -3924,7 +3925,9 @@ async function quizGate(c, m) {   // тойрогт оролцох эрх: бү�
 H.quizList = async () => {
   const m = await meInfo(), s = await getDocs(query(C("quiz"), orderBy("created", "desc"), limit(20))), out = [];
   for (const d of s.docs) { const x = d.data(); if (x.hidden && !(m && m.admin)) continue;
-    const rounds = (await Promise.all((x.rounds || []).map(code => getDoc(D("contests", code))))).filter(c => c.exists()).map(c => { const pc = pubC(c.id, c.data()); pc.ready = Array.isArray(c.data().res); return pc; });
+    let rounds;   // нэвтрээгүй хүнд: GeoQuiz баримтад хадгалсан хуваарь (шалгалтын баримтыг унших эрхгүй)
+    try { if (!m) throw 0; rounds = (await Promise.all((x.rounds || []).map(code => getDoc(D("contests", code))))).filter(c => c.exists()).map(c => { const pc = pubC(c.id, c.data()); pc.ready = Array.isArray(c.data().res); return pc; }); }
+    catch (e) { rounds = (x.rinfo || []).map(r => Object.assign({}, r, { status: stat(r) })); }
     rounds.sort((a, b) => a.start < b.start ? -1 : 1);
     let n = 0, paid = 0; try { n = (await getCountFromServer(C("quiz", d.id, "reg"))).data().count; if (+x.fee > 0 || x.approve !== false) paid = (await getCountFromServer(query(C("quiz", d.id, "reg"), where("paid", "==", true)))).data().count; } catch (e) {}
     let me = null; if (m) { const r = await getDoc(D("quiz", d.id, "reg", m.uid)); if (r.exists()) { const y = r.data(); me = { paid: y.paid === true }; QZ_FIELDS.forEach(k => me[k] = y[k] || ""); } }
@@ -3948,8 +3951,9 @@ H.quizSave = async p => {   // админ: GeoQuiz үүсгэх/засах
   const id = String(p.id || "") || ("q" + Date.now().toString(36)), ref = D("quiz", id), old = await getDoc(ref);
   const rounds = (Array.isArray(p.rounds) ? p.rounds : []).map(String).filter(x => /^\d{6}$/.test(x)).slice(0, 20);
   const was = old.exists() ? (old.data().rounds || []) : [];
+  const rinfo = (await Promise.all(rounds.map(c => getDoc(D("contests", c))))).filter(c => c.exists()).map(c => { const y = c.data(); return { code: c.id, name: y.name || "", start: toD(y.start).toISOString(), end: toD(y.end).toISOString(), minutes: y.minutes || 0, count: y.count || 0 }; });
   await setDoc(ref, { title: String(p.title || "GeoQuiz").slice(0, 100), desc: String(p.desc || "").slice(0, 1000), prize: String(p.prize || "").slice(0, 300), fee: Math.max(0, Math.round(+p.fee || 0)), approve: p.approve !== false,
-    regOpen: p.regOpen !== false, hidden: p.hidden === true, rounds, rules: String(p.rules || "").slice(0, 6000),
+    regOpen: p.regOpen !== false, hidden: p.hidden === true, rounds, rinfo, rules: String(p.rules || "").slice(0, 6000),
     regEnd: p.regEnd && !isNaN(new Date(p.regEnd)) ? Timestamp.fromDate(new Date(p.regEnd)) : null, created: old.exists() && old.data().created ? old.data().created : Timestamp.now() });
   const b = writeBatch(db); rounds.forEach(c => b.set(D("contests", c), { quiz: id, review: true }, { merge: true })); was.filter(c => rounds.indexOf(c) < 0).forEach(c => b.set(D("contests", c), { quiz: "" }, { merge: true }));
   await b.commit().catch(() => {}); return { ok: true, id };
@@ -4217,6 +4221,9 @@ H.contestUpdate = async p => {   // ✏️ багш өөрийн шалгалт�
   const start = new Date(p.start), end = new Date(p.end); if (isNaN(start) || isNaN(end) || end <= start) return { ok: false, error: "time" };
   await setDoc(D("contests", code), { name: String(p.name || cs.data().name || "Тэмцээн").slice(0, 80), desc: String(p.desc || "").slice(0, 200), start: Timestamp.fromDate(start), end: Timestamp.fromDate(end), minutes: Math.max(0, Math.min(+p.minutes || 0, 600)), res: null,
     cert: Math.max(0, Math.min(100, Math.round(+p.cert || 0))), review: p.review === true, certBy: String(p.certBy || "").slice(0, 60) }, { merge: true });
+  const qz = cs.data().quiz; if (qz) { try { const q = await getDoc(D("quiz", qz)); if (q.exists()) {   // GeoQuiz-ийн хуваарийг шинэчилнэ (нэвтрээгүй хүнд харагдах)
+    const ri = (q.data().rinfo || []).map(r => r.code === code ? Object.assign({}, r, { name: String(p.name || r.name), start: start.toISOString(), end: end.toISOString(), minutes: Math.max(0, Math.min(+p.minutes || 0, 600)) }) : r);
+    await setDoc(D("quiz", qz), { rinfo: ri }, { merge: true }); } } catch (e) {} }
   return { ok: true };
 };
 H.contestDelete = async p => {   // багш өөрийн шалгалтыг бүх дүнтэй нь устгах
