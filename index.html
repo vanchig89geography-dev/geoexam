@@ -854,6 +854,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .camwarn.show{transform:translate(-50%,0)}
 .camshots{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.camshots figure{margin:0;width:160px}.camshots img{width:160px;border-radius:8px;display:block}.camshots figcaption{font-size:12px;color:var(--muted)}
 .rsb{min-height:32px!important;padding:4px 10px!important;font-size:12.5px!important;white-space:nowrap}
+.rsbw{white-space:nowrap}.rsbw .rsb+.rsb{margin-left:4px}
 </style>
 </head>
 <body>
@@ -1479,7 +1480,8 @@ function finish(timeUp, leftSite) {
 }
 $("review").onclick = () => { if (T && T.contest) return; reviewMode = true; cur = 0; $("result").hidden = true; $("exam").hidden = false; $("submit").hidden = true; $("back").hidden = false; $("timer").hidden = true; renderQ(); };
 const toList = () => { clearInterval(timer); setGuard(false); recStop({ left: true }); hideLanding(); $("exam").hidden = true; $("result").hidden = true; $("list").hidden = false; renderPane(); };
-$("toList").onclick = toList; $("back").onclick = toList;
+let REVBACK = null;   // багш сурагчийн хариуг үзээд буцахад дүнгийн хуудас руу
+$("toList").onclick = toList; $("back").onclick = () => { if (reviewMode && REVBACK) { const f = REVBACK; REVBACK = null; $("exam").hidden = true; $("list").hidden = false; f(); return; } toList(); };
 $("home").onclick = e => { e.preventDefault();
   if (guard && !$("exam").hidden) { if (confirm("Шалгалтаас гарвал шалгалт дуусч, дахин орох боломжгүй. Дуусгах уу?")) finish(false); return; }
   if (!$("exam").hidden && !reviewMode && QS.some((q, k) => answered(q, ans[k])) && !confirm("Тестээс гарах уу? Хариултууд хадгалагдахгүй.")) return;
@@ -1588,7 +1590,8 @@ function rankTable(list, full, onReset) {
   const t = el("table"); const h = el("tr"); ["#", "Нэр", "Оноо", "Хугацаа"].concat(full ? ["Майл"] : []).concat(onReset ? [""] : []).forEach(x => h.append(el("th", "", x))); t.append(h);
   list.forEach(x => { const tr = el("tr", x.rank <= 3 ? "top" + x.rank : (user && x.email === user.email ? "me" : ""));
     [x.rank <= 3 ? ["🥇", "🥈", "🥉"][x.rank - 1] : x.rank, x.name, x.score + " / " + x.total, fmtS(x.secs)].concat(full ? [x.email] : []).forEach(v => tr.append(el("td", "", v)));
-    if (onReset && x.uid) { const td = el("td"), b = el("button", "btn ghost rsb", "↺ Дахин"); b.type = "button"; b.title = "Энэ сурагчийг дахин өгүүлэх"; b.onclick = () => onReset([x]); td.append(b); tr.append(td); }
+    if (onReset && x.uid) { const td = el("td", "rsbw"), v = el("button", "btn ghost rsb", "👁 Хариу"), b = el("button", "btn ghost rsb", "↺ Дахин"); v.type = b.type = "button";
+      v.title = "Асуулт бүрт зөв/буруу хариулсныг харах"; b.title = "Энэ сурагчийг дахин өгүүлэх"; v.onclick = () => onReset([x], "view"); b.onclick = () => onReset([x]); td.append(v, b); tr.append(td); }
     t.append(tr); });
   w.append(t); return w;
 }
@@ -1728,7 +1731,9 @@ async function teacherResults(code) {
   rw.append(el("small", "lbn", "Нэрийг дарааллаар нь бичнэ (Enter — дараагийн мөр). Excel-ээс нэрсээ хуулж эхний нүдэнд буулгаж болно. Сурагч хуудсан дээр зүүн талын дугаараа будна."), tw2, bb, rm);
   pb.append(ps, sc, rb); pp.append(pb, rw); box.append(pp);
   box.append(el("p", "note", "🖨 товч дарахад шалгалтын материал шинэ цонхонд нээгдэнэ. Тэндээс хэвлэх эсвэл «Save as PDF»-ээр PDF файл болгон хадгална."));
-  const reset = async L => {   // ↺ дахин өгүүлэх
+  const reset = async (L, mode) => {   // ↺ дахин өгүүлэх · 👁 хариу харах
+    if (mode === "view") { const a = await api({ action: "contestAnswer", code, uid: L[0].uid }); if (!a.ok) return alertBox("Хариу олдсонгүй.");
+      a.contest = Object.assign({}, a.contest, { name: a.contest.name + " · " + a.name }); REVBACK = () => teacherResults(code); contestReview(a); return; }
     if (!confirm((L.length === 1 ? "«" + L[0].name + "»" : L.length + " сурагч") + "-ийн хариулт, оноог устгаад дахин өгөх эрх нээх үү?" + (r.contest.status === "done" ? "\n\n⚠ Шалгалтын хугацаа дууссан байна. «✏️ Засах»-аар дуусах цагийг сунгахгүй бол сурагч орж чадахгүй." : ""))) return;
     const x = await api({ action: "contestReset", code, uids: L.map(z => z.uid) }); if (x.ok) teacherResults(code); else alertBox("Чадсангүй."); };
   box.append(rankTable(r.ranking, true, reset));
@@ -4043,6 +4048,15 @@ H.contestResults = async p => {
   if (stat(cs.data()) === "done") await saveRes(code, R);
   let flags = []; if (cs.data().cam) { try { flags = (await getDocs(C("contests", code, "flags"))).docs.map(d => { const x = d.data(); return { uid: x.uid, name: x.name, email: x.email, type: x.type, n: x.n, img: x.img || "", at: x.at ? toD(x.at).toTimeString().slice(0, 8) : "" }; }); } catch (e) {} }
   return { ok: true, flags, contest: pubC(code, cs.data()), roster: cs.data().roster || [], ranking: R.map(x => ({ rank: x.rank, name: x.name, email: x.email, score: x.score, total: x.total, secs: x.secs, uid: x.uid })) };
+};
+H.contestAnswer = async p => {   // 👁 багш: нэг сурагчийн асуулт бүрийн хариу (зөв/буруу)
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
+  if (!m.admin && cs.data().owner !== m.email) return { ok: false, error: "teacher" };
+  const [k, sub] = await Promise.all([getDoc(D("contestKeys", code)), getDoc(D("contests", code, "subs", String(p.uid)))]); if (!sub.exists()) return { ok: false, error: "none" };
+  const Q = (k.data() || {}).qs || [], x = sub.data(); let A = []; try { A = JSON.parse(x.answers || "[]"); } catch (e) {}
+  let sc = 0, tot = 0; Q.forEach((q, i) => { tot += maxP(q); sc += grade(q, A[i]); });
+  return { ok: true, contest: pubC(code, cs.data()), questions: Q, answers: A, my: { score: sc, total: tot, secs: x.secs || 0 }, name: x.name || x.email || "" };
 };
 H.contestReset = async p => {   // ↺ сонгосон сурагчийг дахин өгүүлэх: хариулт, эхэлсэн тэмдгийг устгана
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
