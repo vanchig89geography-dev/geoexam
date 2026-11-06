@@ -3335,7 +3335,7 @@ async function openLesson(l) {
 var LQ = null;   // дуусгасан хичээлийн тестийн хувийг хадгална
 
 /* ---------- 🏆 GeoQuiz: бүртгэл → төлбөр → тойрог → нийт жагсаалт ---------- */
-const QZ_GRADES = ["5-р анги", "6-р анги", "7-р анги", "8-р анги", "9-р анги", "10-р анги", "11-р анги", "12-р анги", "Их, дээд сургууль", "Багш", "Бусад"];
+const QZ_GRADES = ["Газарзүйн багш"];
 const QZ_LOC = ["УБ · Багануур", "УБ · Багахангай", "УБ · Баянгол", "УБ · Баянзүрх", "УБ · Налайх", "УБ · Сонгинохайрхан", "УБ · Сүхбаатар", "УБ · Хан-Уул", "УБ · Чингэлтэй",
   "Архангай", "Баян-Өлгий", "Баянхонгор", "Булган", "Говь-Алтай", "Говьсүмбэр", "Дархан-Уул", "Дорноговь", "Дорнод", "Дундговь", "Завхан", "Орхон", "Өвөрхангай", "Өмнөговь",
   "Сүхбаатар", "Сэлэнгэ", "Төв", "Увс", "Ховд", "Хөвсгөл", "Хэнтий", "Гадаад улс"];
@@ -3402,7 +3402,7 @@ function quizRegForm(q) {
   const sel = (arr, v, ph) => { const s = el("select"); s.append(Object.assign(el("option", "", ph), { value: "" })); arr.forEach(x => s.append(Object.assign(el("option", "", x), { value: x, selected: x === v }))); return s; };
   const nm = fld("Овог, нэр *", Object.assign(el("input"), { value: me.name || (user && user.name) || "", maxLength: 60, placeholder: "Жишээ: Батын Тэмүүлэн" }), true);
   const ph = fld("Утасны дугаар *", Object.assign(el("input"), { value: me.phone || "", maxLength: 15, inputMode: "tel", placeholder: "99112233" }));
-  const gr = fld("Анги", sel(QZ_GRADES, me.grade, "— сонгох —"));
+  const gr = fld("Төрөл", sel(q.cats && q.cats.length ? q.cats : QZ_GRADES, me.grade, "— сонгох —"));
   const sc = fld("Сургууль", Object.assign(el("input"), { value: me.school || "", maxLength: 80, placeholder: "Жишээ: 1-р сургууль" }), true);
   const lc = fld("Аймаг / дүүрэг", sel(QZ_LOC, me.loc, "— сонгох —"), true);
   box.append(f);
@@ -3443,6 +3443,7 @@ async function quizAdmin(q) {
   const locI = d => { if (!d) return ""; const t = new Date(d), p = n => String(n).padStart(2, "0"); return t.getFullYear() + "-" + p(t.getMonth() + 1) + "-" + p(t.getDate()) + "T" + p(t.getHours()) + ":" + p(t.getMinutes()); };
   const re = fld("📝 Бүртгэл дуусах хугацаа (хоосон = хязгааргүй)", Object.assign(el("input"), { type: "datetime-local", value: q ? locI(q.regEnd) : "" }), true);
   const ru = fld("📜 Тэмцээний журам (бүртгүүлэхээс өмнө уншиж зөвшөөрнө)", Object.assign(el("textarea"), { value: q ? q.rules || "" : "", rows: 8, maxLength: 6000, placeholder: "1. Тэмцээнд 5–12-р ангийн сурагчид оролцоно.\n2. Нэг хүн нэг акаунтаар оролцоно.\n3. …" }), true);
+  const ct = fld("👥 Бүртгэлийн «Төрөл» сонголтууд (мөр бүрт нэг)", Object.assign(el("textarea"), { value: q && q.cats && q.cats.length ? q.cats.join("\n") : "Газарзүйн багш", rows: 4, maxLength: 1500, placeholder: "Газарзүйн багш\n10-р анги\n11-р анги" }), true);
   const ro = chk("📝 Бүртгэл нээлттэй", q ? q.regOn !== false : true), hd = chk("🙈 Нууц (зөвхөн надад харагдана — бэлдэж байх үед)", q ? q.hidden : true);
   box.append(f);
   box.append(el("div", "grp", "Тойргууд"), el("p", "note", "Шалгалт үүсгэх хэсэгт үүсгэсэн шалгалтуудаасаа сонгоно. Сонгосон шалгалтад зөвхөн бүртгэлтэй" + " (хураамжтай бол төлсөн) хүн орно."));
@@ -3452,7 +3453,7 @@ async function quizAdmin(q) {
   if (!rl.children.length) rl.append(el("p", "lbn", "Шалгалт алга. Эхлээд «Шалгалт үүсгэх» хэсэгт тойргийн шалгалтаа үүсгэнэ."));
   box.append(rl);
   const er = el("p", "err"), sv = el("button", "btn", "💾 Хадгалах"), dl = el("button", "btn ghost danger", "🗑 Устгах"); sv.type = dl.type = "button";
-  sv.onclick = async () => { sv.disabled = true; const x = await api({ action: "quizSave", id: q ? q.id : "", title: ti.value, desc: "", prize: "", rules: ru.value, regEnd: re.value ? new Date(re.value).toISOString() : "", fee: paidMode ? Math.max(0, +fe.value || 0) : 0, approve: paidMode || ap.checked, regOpen: ro.checked, hidden: hd.checked, rounds: [...rl.querySelectorAll("input:checked")].map(i => i.value) });
+  sv.onclick = async () => { sv.disabled = true; const x = await api({ action: "quizSave", id: q ? q.id : "", title: ti.value, desc: "", prize: "", cats: ct.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean), rules: ru.value, regEnd: re.value ? new Date(re.value).toISOString() : "", fee: paidMode ? Math.max(0, +fe.value || 0) : 0, approve: paidMode || ap.checked, regOpen: ro.checked, hidden: hd.checked, rounds: [...rl.querySelectorAll("input:checked")].map(i => i.value) });
     sv.disabled = false; if (!x.ok) { er.textContent = "Хадгалж чадсангүй."; return; } play && play("ok"); tab = "quiz"; renderPane(); };
   dl.onclick = async () => { if (!confirm("Энэ GeoQuiz-ийг бүх бүртгэлтэй нь устгах уу? (Шалгалтууд өөрсдөө үлдэнэ)")) return; await api({ action: "quizDelete", id: q.id }); tab = "quiz"; renderPane(); };
   const bt = el("div", "tbtns"); bt.append(sv); if (q) bt.append(dl); box.append(er, bt);
@@ -3469,7 +3470,7 @@ async function quizAdmin(q) {
     const r = await api({ action: "quizPaid", id: q.id, uids: U.map(x => x.uid), paid: true }); all.disabled = false; if (r.ok) { U.forEach(x => x.paid = true); draw(); } };
   fw.append(csv, cpE, gm); if (need) fw.append(all); box.append(fw, tw);
   const draw = () => { rhT(); tw.innerHTML = ""; const V = view(); if (!V.length) { tw.append(el("p", "empty", "Бүртгэл алга.")); return; }
-    const t = el("table"), h = el("tr"); ["#", "Нэр", "Утас", "Сургууль · анги", "Байршил"].concat(need ? [q.fee ? "Төлбөр" : "Төлөв"] : []).forEach(x => h.append(el("th", "", x))); t.append(h);
+    const t = el("table"), h = el("tr"); ["#", "Нэр", "Утас", "Сургууль · төрөл", "Байршил"].concat(need ? [q.fee ? "Төлбөр" : "Төлөв"] : []).forEach(x => h.append(el("th", "", x))); t.append(h);
     V.forEach((x, i) => { const tr = el("tr"); [i + 1, x.name + "\n" + x.email, x.phone, [x.school, x.grade].filter(Boolean).join(" · "), x.loc].forEach(v => tr.append(el("td", "", v)));
       if (need) { const td = el("td"), b = el("button", "frsw " + (x.paid ? "free" : "paid"), x.paid ? okW : noW); b.type = "button";
         b.onclick = async () => { b.disabled = true; const r = await api({ action: "quizPaid", id: q.id, uid: x.uid, paid: !x.paid }); b.disabled = false; if (r.ok) { x.paid = !x.paid; draw(); } };
@@ -3477,7 +3478,7 @@ async function quizAdmin(q) {
       t.append(tr); });
     tw.append(t); };
   draw();
-  csv.onclick = () => { const rows = [["#", "Нэр", "Майл", "Утас", "Сургууль", "Анги", "Байршил", "Төлбөр", "Бүртгүүлсэн"]].concat(view().map((x, i) => [i + 1, x.name, x.email, x.phone, x.school, x.grade, x.loc, x.paid ? (q.fee ? "Төлсөн" : "Баталгаажсан") : (need ? (q.fee ? "Төлөөгүй" : "Хүлээгдэж буй") : "Үнэгүй"), x.at]));
+  csv.onclick = () => { const rows = [["#", "Нэр", "Майл", "Утас", "Сургууль", "Төрөл", "Байршил", "Төлбөр", "Бүртгүүлсэн"]].concat(view().map((x, i) => [i + 1, x.name, x.email, x.phone, x.school, x.grade, x.loc, x.paid ? (q.fee ? "Төлсөн" : "Баталгаажсан") : (need ? (q.fee ? "Төлөөгүй" : "Хүлээгдэж буй") : "Үнэгүй"), x.at]));
     const txt = "﻿" + rows.map(r => r.map(v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"').join(",")).join("\r\n");
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "text/csv;charset=utf-8" })); a.download = q.title.replace(/[\\/:*?"<>|]/g, "") + " - бүртгэл.csv"; document.body.append(a); a.click(); setTimeout(() => a.remove(), 500); };
   const emails = () => view().map(x => x.email).filter(Boolean);
@@ -3932,7 +3933,7 @@ H.quizList = async () => {
     let n = 0, paid = 0; try { n = (await getCountFromServer(C("quiz", d.id, "reg"))).data().count; if (+x.fee > 0 || x.approve !== false) paid = (await getCountFromServer(query(C("quiz", d.id, "reg"), where("paid", "==", true)))).data().count; } catch (e) {}
     let me = null; if (m) { const r = await getDoc(D("quiz", d.id, "reg", m.uid)); if (r.exists()) { const y = r.data(); me = { paid: y.paid === true }; QZ_FIELDS.forEach(k => me[k] = y[k] || ""); } }
     const regEnd = x.regEnd ? toD(x.regEnd).toISOString() : "", regOpen = x.regOpen !== false && (!regEnd || Date.now() <= new Date(regEnd).getTime());
-    out.push({ id: d.id, title: x.title || "GeoQuiz", desc: x.desc || "", prize: x.prize || "", rules: x.rules || "", regEnd, regOn: x.regOpen !== false, fee: +x.fee || 0, approve: x.approve !== false, regOpen, hidden: !!x.hidden, rounds, n, paid, me }); }
+    out.push({ id: d.id, title: x.title || "GeoQuiz", desc: x.desc || "", prize: x.prize || "", rules: x.rules || "", cats: Array.isArray(x.cats) ? x.cats : [], regEnd, regOn: x.regOpen !== false, fee: +x.fee || 0, approve: x.approve !== false, regOpen, hidden: !!x.hidden, rounds, n, paid, me }); }
   return { ok: true, list: out, user: m };
 };
 H.quizReg = async p => {   // өөрийн бүртгэл (нэр, утас, сургууль…)
@@ -3953,7 +3954,7 @@ H.quizSave = async p => {   // админ: GeoQuiz үүсгэх/засах
   const was = old.exists() ? (old.data().rounds || []) : [];
   const rinfo = (await Promise.all(rounds.map(c => getDoc(D("contests", c))))).filter(c => c.exists()).map(c => { const y = c.data(); return { code: c.id, name: y.name || "", start: toD(y.start).toISOString(), end: toD(y.end).toISOString(), minutes: y.minutes || 0, count: y.count || 0 }; });
   await setDoc(ref, { title: String(p.title || "GeoQuiz").slice(0, 100), desc: String(p.desc || "").slice(0, 1000), prize: String(p.prize || "").slice(0, 300), fee: Math.max(0, Math.round(+p.fee || 0)), approve: p.approve !== false,
-    regOpen: p.regOpen !== false, hidden: p.hidden === true, rounds, rinfo, rules: String(p.rules || "").slice(0, 6000),
+    regOpen: p.regOpen !== false, hidden: p.hidden === true, rounds, rinfo, rules: String(p.rules || "").slice(0, 6000), cats: (Array.isArray(p.cats) ? p.cats : []).map(x => String(x).slice(0, 60)).filter(Boolean).slice(0, 40),
     regEnd: p.regEnd && !isNaN(new Date(p.regEnd)) ? Timestamp.fromDate(new Date(p.regEnd)) : null, created: old.exists() && old.data().created ? old.data().created : Timestamp.now() });
   const b = writeBatch(db); rounds.forEach(c => b.set(D("contests", c), { quiz: id, review: true }, { merge: true })); was.filter(c => rounds.indexOf(c) < 0).forEach(c => b.set(D("contests", c), { quiz: "" }, { merge: true }));
   await b.commit().catch(() => {}); return { ok: true, id };
