@@ -2049,7 +2049,7 @@ function openAcct(wantPay) {
     if (USE_FB && user.admin) { const ab = el("button", "btn", "⚙️ Админы тохиргоо руу →"); ab.type = "button"; ab.onclick = () => { closeAcct(); goSection("admin"); }; $("payBox").append(ab); }
   }
 }
-function closeAcct() { $("ov").hidden = true; const extra = $("f1").querySelector(".pay"); if (extra) extra.remove(); }
+function closeAcct() { devMsg = ""; $("ov").hidden = true; const extra = $("f1").querySelector(".pay"); if (extra) extra.remove(); }
 $("acct").onclick = () => openAcct(false); $("mClose").onclick = closeAcct;
 $("ov").addEventListener("click", e => { if (e.target === $("ov")) closeAcct(); });
 const ERR = { email: "Майл хаяг буруу байна.", wait: "Код саяхан илгээсэн. 1 минутын дараа дахин оролдоно уу.", code: "Код буруу байна.", expired: "Кодын хугацаа дууссан. Шинэ код аваарай.", server: "Серверт алдаа гарлаа. Дахин оролдоно уу." };
