@@ -1556,7 +1556,30 @@ async function teacherResults(code) {
   del.onclick = async () => { if (!confirm("«" + r.contest.name + "» шалгалтыг бүх дүнтэй нь устгах уу? Буцааж сэргээх боломжгүй.")) return;
     del.disabled = true; del.textContent = "Устгаж байна…"; const x = await api({ action: "contestDelete", code });
     if (x.ok) renderPane(); else { del.disabled = false; del.textContent = "🗑 Шалгалтыг устгах"; alertBox("Устгаж чадсангүй."); } };
-  const tb = el("div", "tbtns"); tb.append(csv, pr1, pr2, del); box.append(tb);
+  const edb = el("button", "btn", "✏️ Засах (хугацаа, нэр)"); edb.type = "button";
+  const tb = el("div", "tbtns"); tb.append(edb, csv, pr1, pr2, del); box.append(tb);
+  // ✏️ шалгалтын нэр, эхлэх/дуусах цаг, хугацааг засах
+  const ef = el("div", "bform tagrid taq"); ef.hidden = true; box.append(ef);
+  edb.onclick = () => { ef.hidden = !ef.hidden; if (!ef.hidden) ef.scrollIntoView({ behavior: "smooth", block: "center" }); };
+  { const c = r.contest, loc = d => { const p = n => String(n).padStart(2, "0"); return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes()); };
+    const fl = (lab, inp, full) => { const l = el("label", "fld" + (full ? " full" : "")); l.append(el("span", "", lab), inp); ef.append(l); return inp; };
+    ef.append(el("b", "full", "✏️ Шалгалтыг засах"));
+    const nm = fl("Нэр", Object.assign(el("input"), { value: c.name, maxLength: 80 }), true), ds = fl("Тайлбар", Object.assign(el("input"), { value: c.desc || "", maxLength: 200 }), true);
+    const s1 = fl("Эхлэх", Object.assign(el("input"), { type: "datetime-local", value: loc(new Date(c.start)) })), s2 = fl("Дуусах", Object.assign(el("input"), { type: "datetime-local", value: loc(new Date(c.end)) }));
+    const mn = fl("Сурагч бүрийн хугацаа (минут, 0 = хязгааргүй)", Object.assign(el("input"), { type: "number", min: 0, max: 600, value: c.minutes || 0 }), true);
+    const qk = el("div", "tbtns full"); qk.append(el("small", "lbn", "Дуусах цагийг сунгах:"));
+    [["+15 мин", 15], ["+30 мин", 30], ["+1 цаг", 60], ["+1 өдөр", 1440]].forEach(([t, m]) => { const b = el("button", "btn ghost", t); b.type = "button";
+      b.onclick = () => { const base = Math.max(new Date(s2.value).getTime() || 0, Date.now()); s2.value = loc(new Date(base + m * 60e3)); }; qk.append(b); });
+    ef.append(qk);
+    const em = el("p", "err full"), sv = el("button", "btn", "💾 Хадгалах"); sv.type = "button";
+    sv.onclick = async () => { em.textContent = ""; const a = new Date(s1.value), b = new Date(s2.value);
+      if (isNaN(a) || isNaN(b) || b <= a) { em.textContent = "Дуусах цаг эхлэх цагаас хойш байх ёстой."; return; }
+      if (c.status === "open" && (a.getTime() > Date.now() || b.getTime() < Date.now()) && !confirm("⚠ Шалгалт одоо явагдаж байна. " + (a.getTime() > Date.now() ? "Эхлэх цагийг ирээдүйд" : "Дуусах цагийг өнгөрсөн цагт") + " тавибал одоо өгч буй сурагчид хариугаа илгээж чадахгүй болно. Үргэлжлүүлэх үү?")) return;
+      sv.disabled = true; sv.textContent = "Хадгалж байна…"; let x; try { x = await api({ action: "contestUpdate", code, name: nm.value.trim(), desc: ds.value.trim(), start: a.toISOString(), end: b.toISOString(), minutes: +mn.value || 0 }); } catch (e) { x = { ok: false }; }
+      sv.disabled = false; sv.textContent = "💾 Хадгалах";
+      if (!x.ok) { em.textContent = x.error === "time" ? "Хугацаа буруу байна." : "Хадгалж чадсангүй."; return; }
+      play && play("ok"); teacherResults(code); };
+    const br = el("div", "tbtns full"); br.append(sv); ef.append(em, br); }
   // 📄 цаасан хариултын хуудас: хэвлэх → сурагчид будна → утсаар скан
   const roster = (r.roster || []).slice(), pp = el("div", "paperbox");
   pp.append(el("b", "", "📄 Цаасаар шалгах (утсаар скан хийж засна)"),
@@ -3513,6 +3536,14 @@ H.olympiads = async () => {   // админы зарласан олимпиад�
   const now = Date.now(), L = s.docs.map(d => pubC(d.id, d.data())).filter(c => c.status !== "done" || now - new Date(c.end).getTime() < 30 * 864e5);
   L.sort((a, b) => (a.status === "done") - (b.status === "done") || (a.start < b.start ? -1 : 1));
   return { ok: true, list: L };
+};
+H.contestUpdate = async p => {   // ✏️ багш өөрийн шалгалтын нэр, хугацааг засна (асуулт өөрчлөгдөхгүй)
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
+  if (!m.admin && cs.data().owner !== m.email) return { ok: false, error: "teacher" };
+  const start = new Date(p.start), end = new Date(p.end); if (isNaN(start) || isNaN(end) || end <= start) return { ok: false, error: "time" };
+  await setDoc(D("contests", code), { name: String(p.name || cs.data().name || "Тэмцээн").slice(0, 80), desc: String(p.desc || "").slice(0, 200), start: Timestamp.fromDate(start), end: Timestamp.fromDate(end), minutes: Math.max(0, Math.min(+p.minutes || 0, 600)) }, { merge: true });
+  return { ok: true };
 };
 H.contestDelete = async p => {   // багш өөрийн шалгалтыг бүх дүнтэй нь устгах
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
