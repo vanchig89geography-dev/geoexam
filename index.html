@@ -897,6 +897,26 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .pubbar.off{background:color-mix(in srgb,#F59E0B 14%,var(--surface))}.pubbar.off b{color:#B45309}.pubbar.on{background:var(--good-bg)}.pubbar.on b{color:var(--good)}
 .revwait{display:block;margin:8px 0;line-height:1.5}
 .qzhint{text-align:center;color:var(--muted);font-size:13px}
+/* 🔔 Мэдэгдэл */
+.ntcb{position:relative}
+.ntcb svg{width:20px;height:20px}
+.ntcb i{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font:700 11px/18px Inter,sans-serif;font-style:normal;text-align:center;box-shadow:0 0 0 2px #fff}
+.ntcb i[hidden]{display:none}
+.ntcbox{max-width:460px;max-height:86vh;overflow:auto}
+.ntctag{display:inline-block;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:linear-gradient(90deg,#FFD500,#38BDF8);color:#0b2a55;margin-bottom:10px}
+.ntccard{border:1px solid var(--line,#e5e7eb);border-radius:14px;padding:12px;margin:10px 0;display:flex;flex-direction:column;gap:6px;background:var(--card,#fff)}
+.ntccard.new{border-color:#38BDF8;box-shadow:0 0 0 2px rgba(56,189,248,.25)}
+.ntccard img{width:100%;border-radius:10px;display:block}
+.ntccard b{font-size:16px}.ntccard.big b{font-size:19px}
+.ntccard p{margin:0;white-space:pre-line;line-height:1.45}
+.ntccard .btn.sm{align-self:flex-start;padding:6px 14px;font-size:13px}
+.ntccard .link.danger{align-self:flex-start;color:#ef4444}
+.ntcform{display:flex;flex-direction:column;gap:12px;max-width:560px}
+.ntcform .fld{display:flex;flex-direction:column;gap:6px}
+.ntcform .fld>span{font-size:13px;font-weight:600;opacity:.8}
+.ntcform input,.ntcform textarea,.ntcmail textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#d1d5db);font:inherit;background:var(--card,#fff);color:inherit;box-sizing:border-box}
+.ntcprev img{max-width:220px;border-radius:10px;display:block;margin:8px 0 4px}
+.ntclist{max-width:560px}.ntcmail{max-width:560px}
 </style>
 </head>
 <body>
@@ -1109,6 +1129,7 @@ function renderAcct() {
   try { navLabels(); } catch (e) {}
   $("acI").textContent = user ? (user.name || user.email).charAt(0).toUpperCase() : "?";
   $("acN").textContent = user ? (user.name || user.email) : "Нэвтрэх";
+  try { noticeCheck(); } catch (e) {}
   $("acS").hidden = !user; if (user) { $("acS").textContent = user.admin ? "Админ" : user.teacher ? "Багш" : user.paid ? "Төлбөртэй" : "Үнэгүй"; $("acS").classList.toggle("paid", !!(user.paid || user.teacher)); }
 }
 
@@ -3204,6 +3225,7 @@ const ADM_CARDS = [
   ["teach", "👩‍🏫", "Багшийн эрх", "Багшид шалгалт үүсгэх эрх олгох"],
   ["dev", "📱", "Төхөөрөмж", "Сурагчийн утас, компьютерийн жагсаалт цэвэрлэх"],
   ["rec", "🎥", "Дэлгэцийн бичлэг", "Шалгалтын бичлэг шаардах, үзэх"],
+  ["notice", "🔔", "Мэдэгдэл", "Багш нарт тэмцээний зар, мэдэгдэл илгээх"],
   ["cert", "🎓", "Өргөмжлөлийн загвар", "Өөрийн загвар зургаа оруулж, нэрийн байрлалыг тохируулах"],
   ["seed", "📦", "seed.json оруулах", "Олон тестийг файлаар нэг дор оруулах"]];
 let admSub = "";
@@ -3212,7 +3234,7 @@ function renderAdmin(box) {
   if (admSub === "test" || admSub === "learn") { const m = admSub; admSub = ""; return testManager(m === "learn" ? "learn" : undefined); }
   if (admSub) { const k = admSub, c = ADM_CARDS.find(x => x[0] === k) || ADM_CARDS[0];
     const back = el("button", "link", "← Админы тохиргоо"); back.type = "button"; back.onclick = () => { admSub = ""; renderPane(); scrollTo({ top: 0 }); };
-    box.append(back, el("h3", "bh", c[1] + " " + c[2])); if (k === "cert") { certAdmin(box); return; } box.append(adminPanel(k)); return; }
+    box.append(back, el("h3", "bh", c[1] + " " + c[2])); if (k === "cert") { certAdmin(box); return; } if (k === "notice") { noticeAdmin(box); return; } box.append(adminPanel(k)); return; }
   box.append(el("h3", "bh", "⚙️ Админы тохиргоо"), el("p", "note", "Энэ хэсэг зөвхөн танд (админд) харагдана."));
   const g = el("div", "admgrid");
   ADM_CARDS.forEach(([k, ic, t, d]) => { const b = el("button", "admcard"); b.type = "button"; b.append(el("span", "ic", ic)); const tx = el("span", "tx"); tx.append(el("b", "", t), el("small", "", d)); b.append(tx);
@@ -3672,6 +3694,117 @@ async function certAdmin(box) {
     msg.textContent = x.ok ? "✓ Хадгалагдлаа. Бүх тэмцээний өргөмжлөлд энэ загвар хэрэглэгдэнэ." : "Хадгалж чадсангүй" + (x.error === "big" ? " (зураг хэт том)." : "."); if (x.ok) { CERT_TPL = null; play && play("ok"); } };
   rs.onclick = async () => { if (!confirm("Өөрийн загварыг устгаж, анхны загвар руу буцах уу?")) return; img = ""; imgEl = null; await api({ action: "certTplSave", img: "" }); CERT_TPL = null; draw(); msg.textContent = "Анхны загвар руу буцлаа."; };
   const br = el("div", "tbtns"); br.append(sv, rs); box.append(br); draw();
+}
+
+/* ---------- 🔔 Мэдэгдэл: зөвхөн багшаар бүртгүүлсэн хүмүүст (тэмцээний зар гэх мэт) ---------- */
+const isTeacherUser = u => !!u && (u.role === "teacher" || u.teacher || u.admin);
+let NTC = { uid: "", list: [] };
+const ntcSeen = () => { try { return +(localStorage.getItem("gx-ntc-" + (user && user.uid)) || 0); } catch (e) { return 0; } };
+const ntcMark = at => { try { localStorage.setItem("gx-ntc-" + (user && user.uid), String(at)); } catch (e) {} };
+function ntcBell() {
+  let b = $("ntcBtn");
+  if (!isTeacherUser(user)) { if (b) b.remove(); return; }
+  if (!b) { b = el("button", "snd ntcb"); b.id = "ntcBtn"; b.type = "button"; b.setAttribute("aria-label", "Мэдэгдэл"); b.title = "Мэдэгдэл";
+    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><i></i>';
+    b.onclick = () => ntcOpen(); $("sndBtn").before(b); }
+  const n = NTC.list.filter(x => x.at > ntcSeen()).length; const i = b.querySelector("i"); i.textContent = n > 9 ? "9+" : n || ""; i.hidden = !n;
+}
+async function noticeCheck() {
+  if (!isTeacherUser(user)) { NTC = { uid: "", list: [] }; ntcBell(); return; }
+  if (NTC.uid === user.uid) { ntcBell(); return; }
+  NTC = { uid: user.uid, list: [] }; ntcBell();
+  let r; try { r = await api({ action: "noticeGet" }); } catch (e) { return; }
+  if (!r || !r.ok) return; NTC.list = r.list || []; ntcBell();
+  const fresh = NTC.list.find(x => x.at > ntcSeen());
+  if (fresh && !document.querySelector(".recov")) ntcShow(fresh, true);
+}
+function ntcGo(x) { if (!x.link) return; if (x.link === "quiz") { goSection("quiz"); scrollTo({ top: $("list").offsetTop - 10 }); } else if (/^https?:\/\//.test(x.link)) open(x.link, "_blank", "noopener"); }
+function ntcCard(x, big) {
+  const c = el("div", "ntccard" + (big ? " big" : ""));
+  if (x.img) { const im = el("img"); im.src = x.img; im.alt = ""; c.append(im); }
+  c.append(el("b", "", x.title || "Мэдэгдэл"));
+  if (x.body) c.append(el("p", "", x.body));
+  c.append(el("small", "lbn", "📅 " + (d => d.getFullYear() + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0"))(new Date(x.at))));
+  return c;
+}
+/* шинэ мэдэгдлийг нэг удаа том цонхоор харуулна */
+function ntcShow(x, auto) {
+  const z = el("div", "recov"), b = el("div", "recbox ntcbox"); z.append(b); document.body.append(z);
+  b.append(el("div", "ntctag", "🔔 Багш нарт зориулсан мэдэгдэл"), ntcCard(x, true));
+  const row = el("div", "recrow"), cl = el("button", "btn ghost", "Хаах"); cl.type = "button"; row.append(cl);
+  const done = () => { z.remove(); ntcMark(Math.max(ntcSeen(), ...NTC.list.map(y => y.at))); ntcBell(); };
+  cl.onclick = done; z.onclick = e => { if (e.target === z) done(); };
+  if (x.link) { const go = el("button", "btn", x.btn || "Дэлгэрэнгүй →"); go.type = "button"; go.onclick = () => { done(); ntcGo(x); }; row.append(go); }
+  b.append(row);
+}
+/* 🔔 товч: бүх мэдэгдлийн жагсаалт */
+function ntcOpen() {
+  const z = el("div", "recov"), b = el("div", "recbox ntcbox"); z.append(b); document.body.append(z);
+  b.append(el("h4", "", "🔔 Мэдэгдэл"));
+  if (!NTC.list.length) b.append(el("p", "lbn", "Одоогоор мэдэгдэл алга."));
+  const seen = ntcSeen();
+  NTC.list.forEach(x => { const c = ntcCard(x); if (x.at > seen) c.classList.add("new");
+    if (x.link) { const go = el("button", "btn sm", x.btn || "Дэлгэрэнгүй →"); go.type = "button"; go.onclick = () => { close(); ntcGo(x); }; c.append(go); }
+    b.append(c); });
+  const row = el("div", "recrow"), cl = el("button", "btn ghost", "Хаах"); cl.type = "button"; row.append(cl); b.append(row);
+  const close = () => { z.remove(); ntcBell(); };
+  cl.onclick = close; z.onclick = e => { if (e.target === z) close(); };
+  if (NTC.list.length) ntcMark(Math.max(...NTC.list.map(y => y.at)));
+}
+
+/* ---------- ⚙️ Админ: мэдэгдэл бичих ---------- */
+async function noticeAdmin(box) {
+  box.append(el("p", "note", "Мэдэгдэл зөвхөн «Багш» гэж бүртгүүлсэн хүмүүст харагдана. Сайтад нэвтрэхэд нь нэг удаа гарч ирээд, дараа нь 🔔 товчноос үзэж болно."));
+  const f = el("div", "ntcform"); box.append(f);
+  const inp = (lab, ph, area) => { const w = el("label", "fld"); w.append(el("span", "", lab)); const i = el(area ? "textarea" : "input"); i.placeholder = ph; if (area) i.rows = 5; w.append(i); f.append(w); return i; };
+  const tI = inp("Гарчиг *", "Жишээ: GeoQuiz №1 тэмцээнд бүртгэл эхэллээ!");
+  const bI = inp("Текст", "Тэмцээний огноо, бүртгэлийн хугацаа, дэлгэрэнгүй…", true);
+  /* зураг (зар, постер) */
+  let IMG = ""; const iw = el("div", "ntcimg"), ib = el("button", "btn ghost", "🖼 Зураг (постер) нэмэх"), prev = el("div", "ntcprev"); ib.type = "button";
+  const fi = Object.assign(el("input"), { type: "file", accept: "image/*" }); fi.hidden = true;
+  const paintImg = () => { prev.innerHTML = ""; if (!IMG) return; const im = el("img"); im.src = IMG; const x = el("button", "link", "✕ Зургийг хасах"); x.type = "button"; x.onclick = () => { IMG = ""; paintImg(); }; prev.append(im, x); };
+  ib.onclick = () => fi.click();
+  fi.onchange = async () => { const fl = fi.files[0]; if (!fl) return; ib.disabled = true; ib.textContent = "Шахаж байна…"; const u = URL.createObjectURL(fl);
+    try { IMG = await shrinkTo(u, 140000); } catch (e) { alert("Зургийг уншиж чадсангүй."); } URL.revokeObjectURL(u); fi.value = ""; ib.disabled = false; ib.textContent = "🖼 Зураг (постер) нэмэх"; paintImg(); };
+  iw.append(ib, fi, prev); f.append(iw);
+  /* товч / холбоос */
+  let LINK = "quiz"; const lw = el("div", "fld"); lw.append(el("span", "", "Товч дарахад"));
+  const urlI = Object.assign(el("input"), { placeholder: "https://…" }); urlI.hidden = true;
+  const sg = el("div", "bseg"); [["quiz", "🏆 GeoQuiz руу"], ["url", "🔗 Холбоос"], ["", "Товчгүй"]].forEach(([v, t]) => { const b = el("button", "", t); b.type = "button"; b.dataset.v = v;
+    b.onclick = () => { LINK = v; urlI.hidden = v !== "url"; btI.parentNode.hidden = !v; sg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x.dataset.v === v)); }; sg.append(b); });
+  lw.append(sg, urlI); f.append(lw);
+  const btI = inp("Товчны бичиг", "Бүртгүүлэх →"); btI.value = "Бүртгүүлэх →";
+  sg.querySelector('[data-v="quiz"]').classList.add("on");
+  const msg = el("p", "lbn"), send = el("button", "btn", "📢 Багш нарт илгээх"); send.type = "button"; f.append(msg, send);
+  send.onclick = async () => {
+    const title = tI.value.trim(); if (!title) { msg.textContent = "Гарчгаа бичнэ үү."; return; }
+    const link = LINK === "url" ? urlI.value.trim() : LINK; if (LINK === "url" && !/^https?:\/\//.test(link)) { msg.textContent = "Холбоос https:// -ээр эхлэх ёстой."; return; }
+    send.disabled = true; msg.textContent = "Илгээж байна…";
+    const r = await api({ action: "noticeSave", item: { title, body: bI.value.trim(), img: IMG, link, btn: link ? (btI.value.trim() || "Дэлгэрэнгүй →") : "" } }).catch(() => ({ ok: false }));
+    send.disabled = false;
+    if (!r.ok) { msg.textContent = r.error === "size" ? "Зураг хэт том байна. Жижиг зураг сонгоно уу." : "Илгээж чадсангүй."; return; }
+    play && play("ok"); NTC.uid = ""; tI.value = bI.value = ""; IMG = ""; paintImg(); msg.textContent = "✓ Илгээгдлээ. Багш нар сайтад орох үедээ харна."; drawList();
+  };
+  /* илгээсэн мэдэгдлүүд */
+  const lst = el("div", "ntclist"); box.append(el("div", "grp", "Илгээсэн мэдэгдлүүд"), lst);
+  async function drawList() { lst.innerHTML = '<p class="lbn">Ачаалж байна…</p>'; const r = await api({ action: "noticeGet", all: true }).catch(() => ({ ok: false })); lst.innerHTML = "";
+    const L = (r && r.list) || []; if (!L.length) { lst.append(el("p", "lbn", "Одоогоор мэдэгдэл алга.")); return; }
+    L.forEach(x => { const c = ntcCard(x); const d = el("button", "link danger", "🗑 Устгах"); d.type = "button";
+      d.onclick = async () => { if (!confirm("«" + x.title + "» мэдэгдлийг устгах уу?")) return; await api({ action: "noticeDel", id: x.id }).catch(() => {}); NTC.uid = ""; drawList(); };
+      c.append(d); lst.append(c); }); }
+  drawList();
+  /* имэйлээр давхар хүргэх */
+  const mw = el("div", "ntcmail"); box.append(el("div", "grp", "📧 Имэйлээр давхар илгээх"), mw);
+  mw.append(el("p", "note", "Сайтад орохгүй байгаа багш нарт зарыг Gmail-ээр явуулж болно. Хаягуудыг BCC-д хуулж тавина."));
+  const mb = el("button", "btn ghost", "Багш нарын имэйл хаягийг ачаалах"); mb.type = "button"; mw.append(mb);
+  mb.onclick = async () => { mb.disabled = true; mb.textContent = "Ачаалж байна…"; const r = await api({ action: "teacherEmails" }).catch(() => ({ ok: false })); mb.remove();
+    if (!r.ok) { mw.append(el("p", "lbn", "Ачаалж чадсангүй.")); return; }
+    const E = r.emails || []; mw.append(el("p", "lbn", "Нийт " + E.length + " багш."));
+    const ta = el("textarea"); ta.readOnly = true; ta.rows = 4; ta.value = E.join(", "); mw.append(ta);
+    const row = el("div", "recrow"), cp = el("button", "btn ghost", "📋 Хуулах"), gm = el("button", "btn", "✉️ Gmail нээх"); cp.type = gm.type = "button";
+    cp.onclick = () => { ta.select(); navigator.clipboard.writeText(ta.value).then(() => cp.textContent = "✓ Хуулагдлаа").catch(() => document.execCommand("copy")); };
+    gm.onclick = () => open("https://mail.google.com/mail/?view=cm&fs=1&bcc=" + encodeURIComponent(E.join(",")) + "&su=" + encodeURIComponent(tI.value || "GeoQuiz тэмцээн"), "_blank", "noopener");
+    row.append(cp, gm); mw.append(row); };
 }
 
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
@@ -4296,6 +4429,32 @@ H.teacherGrant = async p => {   // багшийн эрх олгох / цуцла
   const un = new Date(base); un.setMonth(un.getMonth() + (+p.months));
   await setDoc(D("teachers", e), { until: Timestamp.fromDate(un), by: m.email, at: Timestamp.now() });
   return { ok: true, email: e, until: ymd(un) };
+};
+/* ---- 🔔 Мэдэгдэл (зөвхөн багшаар бүртгүүлсэн хүмүүст): notice/teacher нэг баримтад сүүлийн 10 ---- */
+H.noticeGet = async p => {
+  const m = await meInfo(); if (!m || !(m.role === "teacher" || m.teacher || m.admin)) return { ok: true, list: [] };
+  const s = await getDoc(D("notice", "teacher")); return { ok: true, list: s.exists() ? (s.data().list || []) : [] };
+};
+H.noticeSave = async p => {
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const x = p.item || {}; if (!x.title) return { ok: false, error: "title" };
+  const s = await getDoc(D("notice", "teacher")); let L = s.exists() ? (s.data().list || []) : [];
+  const it = { id: "n" + Date.now().toString(36), title: String(x.title).slice(0, 120), body: String(x.body || "").slice(0, 2000), img: String(x.img || ""), link: String(x.link || ""), btn: String(x.btn || "").slice(0, 40), at: Date.now(), by: m.email };
+  L = [it].concat(L);
+  while (L.length > 1 && JSON.stringify(L).length > 900000) L.pop();
+  L = L.slice(0, 10); if (JSON.stringify(L).length > 900000) return { ok: false, error: "size" };
+  await setDoc(D("notice", "teacher"), { list: L, at: Timestamp.now() }); return { ok: true, id: it.id };
+};
+H.noticeDel = async p => {
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const s = await getDoc(D("notice", "teacher")); const L = (s.exists() ? (s.data().list || []) : []).filter(x => x.id !== p.id);
+  await setDoc(D("notice", "teacher"), { list: L, at: Timestamp.now() }); return { ok: true };
+};
+H.teacherEmails = async () => {   // «Багш» гэж бүртгүүлсэн + багшийн эрхтэй хүмүүсийн имэйл
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const [t, u] = await Promise.all([getDocs(C("teachers")), getDocs(query(C("users"), where("role", "==", "teacher"), limit(1000)))]);
+  const E = new Set(); t.docs.forEach(d => E.add(d.id)); u.docs.forEach(d => { const e = d.data().email; if (e) E.add(low(e)); });
+  return { ok: true, emails: [...E].sort() };
 };
 H.teacherList = async () => {   // эрхтэй багш нар + хүсэлт гаргасан хүмүүс
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
