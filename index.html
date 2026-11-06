@@ -853,6 +853,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .camwarn{position:fixed;left:50%;top:12px;transform:translate(-50%,-140%);z-index:70;max-width:92vw;padding:12px 16px;border-radius:14px;background:#DC2626;color:#fff;font:700 14px var(--font);box-shadow:0 10px 30px rgba(220,38,38,.4);transition:transform .25s}
 .camwarn.show{transform:translate(-50%,0)}
 .camshots{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.camshots figure{margin:0;width:160px}.camshots img{width:160px;border-radius:8px;display:block}.camshots figcaption{font-size:12px;color:var(--muted)}
+.rsb{min-height:32px!important;padding:4px 10px!important;font-size:12.5px!important;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1498,7 +1499,7 @@ document.addEventListener("keydown", e => {
 let CT = null, ctStart = 0;
 const fmtD = s => { const d = new Date(s); const p = n => String(n).padStart(2, "0"); return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes()); };
 const fmtS = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-const CERR = { noreg: "Энэ бол GeoQuiz-ийн тойрог. Эхлээд GeoQuiz цэсэнд бүртгүүлнэ үү.", unpaid: "GeoQuiz-ийн хураамж тань баталгаажаагүй байна.", big: "Зурагтай асуулт хэт олон байна (нэг шалгалт ~950KB хүртэл). Асуултын тоог цөөлөх эсвэл хоёр тойрог болгоно уу.", auth: "Эхлээд нэвтэрнэ үү.", no_contest: "Ийм кодтой шалгалт олдсонгүй.", closed: "Шалгалт дууссан тул хариулт хүлээн авах боломжгүй.", already: "Та энэ шалгалтад аль хэдийн хариулт илгээсэн.", not_started: "Шалгалт хараахан эхлээгүй.", left: "Та энэ шалгалтыг эхлүүлээд гарсан тул дахин орох боломжгүй.", teacher: "Зөвхөн багш үүсгэнэ.", no_q: "Даалгавар сонгоогүй байна.", time: "Эхлэх, дуусах цагаа шалгана уу." };
+const CERR = { noreg: "Энэ бол GeoQuiz-ийн тойрог. Эхлээд GeoQuiz цэсэнд бүртгүүлнэ үү.", unpaid: "GeoQuiz-ийн хураамж тань баталгаажаагүй байна.", wait: "GeoQuiz-ийн хүсэлт тань баталгаажаагүй байна.", big: "Зурагтай асуулт хэт олон байна (нэг шалгалт ~950KB хүртэл). Асуултын тоог цөөлөх эсвэл хоёр тойрог болгоно уу.", auth: "Эхлээд нэвтэрнэ үү.", no_contest: "Ийм кодтой шалгалт олдсонгүй.", closed: "Шалгалт дууссан тул хариулт хүлээн авах боломжгүй.", already: "Та энэ шалгалтад аль хэдийн хариулт илгээсэн.", not_started: "Шалгалт хараахан эхлээгүй.", left: "Та энэ шалгалтыг эхлүүлээд гарсан тул дахин орох боломжгүй.", teacher: "Зөвхөн багш үүсгэнэ.", no_q: "Даалгавар сонгоогүй байна.", time: "Эхлэх, дуусах цагаа шалгана уу." };
 const STAT = { upcoming: ["Удахгүй", "up"], open: ["Явагдаж байна", "open"], done: ["Дууссан", "done"] };
 function renderContest(box) {
   box.append(el("p", "note", "🏆 Олимпиадад шууд, багшийн шалгалтад 6 оронтой кодоор нэгдэнэ. Нэг л удаа оролцоно. Дүн, зөв хариу дууссаны дараа гарна."));
@@ -1548,7 +1549,7 @@ async function openContest(code, errEl) {
   head.append(el("p", "cmeta", "Код " + c.code + " · " + c.count + " даалгавар" + (c.minutes ? " · " + c.minutes + " минут" : "") + "\n" + fmtD(c.start) + " – " + fmtD(c.end)));
   box.append(head);
   if (r.quizBlock) { const qb = r.quizBlock, w = el("div", "qzst wait");   // 🏆 GeoQuiz: бүртгэлгүй / төлөөгүй
-    w.append(el("b", "", qb.why === "unpaid" ? "⏳ Таны хураамж баталгаажаагүй байна" : "📝 Энэ бол «" + qb.title + "» тэмцээний тойрог"), el("p", "", qb.why === "unpaid" ? "Төлбөр баталгаажмагц оролцох эрх нээгдэнэ." : "Оролцохын тулд эхлээд GeoQuiz цэсэнд бүртгүүлнэ."));
+    w.append(el("b", "", qb.why === "unpaid" ? "⏳ Таны хураамж баталгаажаагүй байна" : qb.why === "wait" ? "⏳ Таны хүсэлт баталгаажаагүй байна" : "📝 Энэ бол «" + qb.title + "» тэмцээний тойрог"), el("p", "", qb.why === "noreg" ? "Оролцохын тулд эхлээд GeoQuiz цэсэнд нэгдэх хүсэлт илгээнэ." : "Зохион байгуулагч баталгаажуулмагц оролцох эрх нээгдэнэ."));
     const b = el("button", "btn", "🏆 GeoQuiz руу"); b.type = "button"; b.onclick = () => goSection("quiz"); w.append(b); box.append(w); return; }
   if (c.status === "upcoming") { box.append(el("p", "cinfo", "Шалгалт " + fmtD(c.start) + "-д эхэлнэ. Тэр үед энэ хуудсаа дахин нээгээрэй."));
     if (c.cam) { const cb = el("button", "btn ghost", "📷 Камераа урьдчилан шалгах"); cb.type = "button"; cb.onclick = () => camGate(c, true); box.append(el("p", "cinfo", "📷 Камертай хяналттай тэмцээн. Эхлэхээс өмнө камераа шалгаарай — AI загвар урьдчилан татагдаж, эхлэх үед хүлээхгүй."), cb); } }
@@ -1581,12 +1582,14 @@ async function openContest(code, errEl) {
     else box.append(rankTable(r.ranking, false));
   }
 }
-function rankTable(list, full) {
+function rankTable(list, full, onReset) {
   const w = el("div", "rank"); w.append(el("div", "grp", "Байр эзэлсэн дараалал"));
   if (!list.length) { w.append(el("p", "empty", "Оролцогч алга.")); return w; }
-  const t = el("table"); const h = el("tr"); ["#", "Нэр", "Оноо", "Хугацаа"].concat(full ? ["Майл"] : []).forEach(x => h.append(el("th", "", x))); t.append(h);
+  const t = el("table"); const h = el("tr"); ["#", "Нэр", "Оноо", "Хугацаа"].concat(full ? ["Майл"] : []).concat(onReset ? [""] : []).forEach(x => h.append(el("th", "", x))); t.append(h);
   list.forEach(x => { const tr = el("tr", x.rank <= 3 ? "top" + x.rank : (user && x.email === user.email ? "me" : ""));
-    [x.rank <= 3 ? ["🥇", "🥈", "🥉"][x.rank - 1] : x.rank, x.name, x.score + " / " + x.total, fmtS(x.secs)].concat(full ? [x.email] : []).forEach(v => tr.append(el("td", "", v))); t.append(tr); });
+    [x.rank <= 3 ? ["🥇", "🥈", "🥉"][x.rank - 1] : x.rank, x.name, x.score + " / " + x.total, fmtS(x.secs)].concat(full ? [x.email] : []).forEach(v => tr.append(el("td", "", v)));
+    if (onReset && x.uid) { const td = el("td"), b = el("button", "btn ghost rsb", "↺ Дахин"); b.type = "button"; b.title = "Энэ сурагчийг дахин өгүүлэх"; b.onclick = () => onReset([x]); td.append(b); tr.append(td); }
+    t.append(tr); });
   w.append(t); return w;
 }
 /* 🔀 асуулт, хариултын дарааллыг хүн бүрт өөр болгоно (хажуугийнхаасаа «3-р асуулт B» гэж хуулахгүй) */
@@ -1725,7 +1728,12 @@ async function teacherResults(code) {
   rw.append(el("small", "lbn", "Нэрийг дарааллаар нь бичнэ (Enter — дараагийн мөр). Excel-ээс нэрсээ хуулж эхний нүдэнд буулгаж болно. Сурагч хуудсан дээр зүүн талын дугаараа будна."), tw2, bb, rm);
   pb.append(ps, sc, rb); pp.append(pb, rw); box.append(pp);
   box.append(el("p", "note", "🖨 товч дарахад шалгалтын материал шинэ цонхонд нээгдэнэ. Тэндээс хэвлэх эсвэл «Save as PDF»-ээр PDF файл болгон хадгална."));
-  box.append(rankTable(r.ranking, true)); if (r.flags && r.flags.length) box.append(camFlagsBox(r.flags));
+  const reset = async L => {   // ↺ дахин өгүүлэх
+    if (!confirm((L.length === 1 ? "«" + L[0].name + "»" : L.length + " сурагч") + "-ийн хариулт, оноог устгаад дахин өгөх эрх нээх үү?" + (r.contest.status === "done" ? "\n\n⚠ Шалгалтын хугацаа дууссан байна. «✏️ Засах»-аар дуусах цагийг сунгахгүй бол сурагч орж чадахгүй." : ""))) return;
+    const x = await api({ action: "contestReset", code, uids: L.map(z => z.uid) }); if (x.ok) teacherResults(code); else alertBox("Чадсангүй."); };
+  box.append(rankTable(r.ranking, true, reset));
+  if (r.ranking.length > 1) { const ra = el("button", "btn ghost", "↺ Бүгдийг дахин өгүүлэх (" + r.ranking.length + ")"); ra.type = "button"; ra.onclick = () => reset(r.ranking); box.append(ra); }
+  if (r.flags && r.flags.length) box.append(camFlagsBox(r.flags));
 }
 /* багшийн өөрийн асуултууд */
 async function myQuestions() {
@@ -3263,9 +3271,10 @@ async function renderQuiz(box) {
   r.list.forEach(q => box.append(quizCard(q, adm)));
 }
 function quizCard(q, adm) {
-  const c = el("div", "qzcard"), me = q.me, ok = adm || (me && (q.fee === 0 || me.paid));
+  const need = q.fee > 0 || q.approve !== false;   // ✋ баталгаажуулалт шаардах эсэх
+  const c = el("div", "qzcard"), me = q.me, ok = adm || (me && (!need || me.paid));
   const top = el("div", "qztop"); top.append(el("span", "qzic", "🏆")); const tt = el("div"); tt.append(el("h3", "", q.title));
-  const tags = el("div", "qztags"); tags.append(el("span", "tg" + (q.fee ? " pay" : ""), q.fee ? "Хураамж " + money(q.fee) : "Үнэгүй"), el("span", "qzn", "👥 " + q.n + " бүртгүүлсэн" + (adm && q.fee ? " · " + q.paid + " төлсөн" : "")));
+  const tags = el("div", "qztags"); tags.append(el("span", "tg" + (q.fee ? " pay" : ""), q.fee ? "Хураамж " + money(q.fee) : "Үнэгүй"), el("span", "qzn", "👥 " + q.n + " бүртгүүлсэн" + (adm && need ? " · " + q.paid + " баталгаажсан" : "")));
   if (q.hidden) tags.append(el("span", "qzn", "🙈 нууц")); if (!q.regOpen) tags.append(el("span", "qzn", "Бүртгэл хаагдсан"));
   tt.append(tags); top.append(tt); c.append(top);
   if (q.desc) c.append(el("p", "qzdesc", q.desc)); if (q.prize) c.append(el("p", "qzprize", "🎁 " + q.prize));
@@ -3274,12 +3283,13 @@ function quizCard(q, adm) {
   const edit = () => { const b = el("button", "link", "✏️ Мэдээллээ засах"); b.type = "button"; b.onclick = () => quizRegForm(q); return b; };
   if (!user) { st.append(el("p", "", "Оролцохын тулд эхлээд нэвтэрч бүртгүүлнэ.")); const b = el("button", "btn", "Нэвтрэх"); b.type = "button"; b.onclick = () => openAcct(false); st.append(b); }
   else if (!me && adm) st.append(el("p", "", "Та админ тул бүртгэлгүйгээр бүх тойрогт орж шалгана."));
-  else if (!me && q.regOpen) { st.append(el("p", "", "Нэр, утас, сургуулиа бөглөөд бүртгүүлнэ." + (q.fee ? " Дараа нь хураамжаа шилжүүлэхэд оролцох эрх нээгдэнэ." : ""))); const b = el("button", "btn wide", "📝 Бүртгүүлэх"); b.type = "button"; b.onclick = () => quizRegForm(q); st.append(b); }
+  else if (!me && q.regOpen) { st.append(el("p", "", "Нэр, утас, сургуулиа бөглөөд нэгдэх хүсэлт илгээнэ." + (q.fee ? " Дараа нь хураамжаа шилжүүлэхэд зохион байгуулагч баталгаажуулна." : need ? " Зохион байгуулагч баталгаажуулмагц оролцох эрх нээгдэнэ." : ""))); const b = el("button", "btn wide", "📝 Нэгдэх хүсэлт илгээх"); b.type = "button"; b.onclick = () => quizRegForm(q); st.append(b); }
   else if (!me) st.append(el("p", "", "Бүртгэл хаагдсан байна."));
+  else if (need && !q.fee && !me.paid) { st.classList.add("wait"); st.append(el("b", "", "⏳ Хүсэлт илгээгдлээ · баталгаажуулалт хүлээгдэж байна"), el("small", "lbn", "Зохион байгуулагч баталгаажуулмагц оролцох эрх автоматаар нээгдэнэ." + (cfg["Холбоо барих"] ? " Холбоо барих: " + cfg["Холбоо барих"] : "")), edit()); }
   else if (q.fee && !me.paid) { st.classList.add("wait"); st.append(el("b", "", "⏳ Бүртгэгдлээ · хураамж хүлээгдэж байна"));
     const pay = el("div", "qzpay"); [["Дүн", money(q.fee)], ["Банк", cfg["Банк"]], ["Данс", cfg["Данс"]], ["Хүлээн авагч", cfg["Данс эзэмшигч"]], ["Гүйлгээний утга", "GeoQuiz " + me.phone]].forEach(([k, v]) => { if (!v) return; const d = el("div"); d.append(el("span", "", k), el("b", "", v)); pay.append(d); });
     st.append(pay, el("small", "lbn", "Төлбөр баталгаажмагц оролцох эрх автоматаар нээгдэнэ." + (cfg["Холбоо барих"] ? " Холбоо барих: " + cfg["Холбоо барих"] : "")), edit()); }
-  else { st.classList.add("ok"); st.append(el("b", "", "✓ Та бүртгэгдсэн" + (q.fee ? " · хураамж төлсөн" : "")), el("small", "lbn", "Тойрог эхлэх цагт доор «▶ Эхлэх» товч гарна."), edit()); }
+  else { st.classList.add("ok"); st.append(el("b", "", "✓ Баталгаажсан · та оролцох эрхтэй" + (q.fee ? " (хураамж төлсөн)" : "")), el("small", "lbn", "Тойрог эхлэх цагт доор «▶ Эхлэх» товч гарна."), edit()); }
   c.append(st);
   /* тойргууд */
   if (q.rounds.length) { c.append(el("div", "grp", "Тойргууд"));
@@ -3340,10 +3350,11 @@ async function quizAdmin(q) {
   const segL = el("div", "fld full"), seg = el("div", "bseg"), bF = el("button", "", "🆓 Үнэгүй"), bP = el("button", "", "💰 Хураамжтай"); bF.type = bP.type = "button"; seg.append(bF, bP);
   segL.append(el("span", "", "Оролцох нөхцөл"), seg); f.append(segL);
   const fe = fld("Хураамжийн дүн (₮)", Object.assign(el("input"), { type: "number", min: 500, step: 500, value: q && q.fee ? q.fee : 10000 }));
-  let paidMode = !!(q && q.fee);
-  const segDraw = () => { bF.className = paidMode ? "" : "on"; bP.className = paidMode ? "on" : ""; fe.parentNode.hidden = !paidMode; };
+  let paidMode = !!(q && q.fee), apEl = null;
+  const segDraw = () => { bF.className = paidMode ? "" : "on"; bP.className = paidMode ? "on" : ""; fe.parentNode.hidden = !paidMode; if (apEl) apEl.parentNode.hidden = paidMode; };
   bF.onclick = () => { paidMode = false; segDraw(); }; bP.onclick = () => { paidMode = true; segDraw(); fe.focus(); }; segDraw();
   const chk = (txt, v) => { const l = el("label", "chk tafree"), i = Object.assign(el("input"), { type: "checkbox", checked: v }); l.append(i, el("span", "", " " + txt)); f.append(l); return i; };
+  const ap = chk("✋ Оролцогч бүрийг би баталгаажуулна (үнэгүй ч гэсэн)", q ? q.approve !== false : true); apEl = ap; segDraw();
   const ro = chk("📝 Бүртгэл нээлттэй", q ? q.regOpen : true), hd = chk("🙈 Нууц (зөвхөн надад харагдана — бэлдэж байх үед)", q ? q.hidden : true);
   box.append(f);
   box.append(el("div", "grp", "Тойргууд"), el("p", "note", "Шалгалт үүсгэх хэсэгт үүсгэсэн шалгалтуудаасаа сонгоно. Сонгосон шалгалтад зөвхөн бүртгэлтэй" + " (хураамжтай бол төлсөн) хүн орно."));
@@ -3353,29 +3364,32 @@ async function quizAdmin(q) {
   if (!rl.children.length) rl.append(el("p", "lbn", "Шалгалт алга. Эхлээд «Шалгалт үүсгэх» хэсэгт тойргийн шалгалтаа үүсгэнэ."));
   box.append(rl);
   const er = el("p", "err"), sv = el("button", "btn", "💾 Хадгалах"), dl = el("button", "btn ghost danger", "🗑 Устгах"); sv.type = dl.type = "button";
-  sv.onclick = async () => { sv.disabled = true; const x = await api({ action: "quizSave", id: q ? q.id : "", title: ti.value, desc: de.value, prize: pr.value, fee: paidMode ? Math.max(0, +fe.value || 0) : 0, regOpen: ro.checked, hidden: hd.checked, rounds: [...rl.querySelectorAll("input:checked")].map(i => i.value) });
+  sv.onclick = async () => { sv.disabled = true; const x = await api({ action: "quizSave", id: q ? q.id : "", title: ti.value, desc: de.value, prize: pr.value, fee: paidMode ? Math.max(0, +fe.value || 0) : 0, approve: paidMode || ap.checked, regOpen: ro.checked, hidden: hd.checked, rounds: [...rl.querySelectorAll("input:checked")].map(i => i.value) });
     sv.disabled = false; if (!x.ok) { er.textContent = "Хадгалж чадсангүй."; return; } play && play("ok"); tab = "quiz"; renderPane(); };
   dl.onclick = async () => { if (!confirm("Энэ GeoQuiz-ийг бүх бүртгэлтэй нь устгах уу? (Шалгалтууд өөрсдөө үлдэнэ)")) return; await api({ action: "quizDelete", id: q.id }); tab = "quiz"; renderPane(); };
   const bt = el("div", "tbtns"); bt.append(sv); if (q) bt.append(dl); box.append(er, bt);
   if (!q) return;
   /* 2. бүртгэл, төлбөр */
-  const L = regs.ok ? regs.list : [];
-  box.append(el("div", "grp", "Бүртгэлтэй хүмүүс · " + L.length + (q.fee ? " · " + L.filter(x => x.paid).length + " төлсөн" : "")));
+  const L = regs.ok ? regs.list : [], need = q.fee > 0 || q.approve !== false, okW = q.fee ? "✓ Төлсөн" : "✓ Баталгаажсан", noW = q.fee ? "Төлөөгүй" : "Баталгаажуулах";
+  const rh = el("div", "grp"), rhT = () => rh.textContent = "Бүртгэлтэй хүмүүс · " + L.length + (need ? " · " + L.filter(x => x.paid).length + (q.fee ? " төлсөн" : " баталгаажсан") : ""); rhT(); box.append(rh);
   let flt = "all"; const fw = el("div", "tbtns"), tw = el("div", "rank qzregs");
   const csv = el("button", "btn ghost", "⬇ Excel (CSV)"), cpE = el("button", "btn ghost", "📋 Майлуудыг хуулах"), gm = el("button", "btn ghost", "📧 Gmail-ээр мэдэгдэх"); csv.type = cpE.type = gm.type = "button";
   const view = () => L.filter(x => flt === "all" || (flt === "paid") === x.paid);
-  if (q.fee) { const s = el("select"); [["all", "Бүгд"], ["paid", "Төлсөн"], ["unpaid", "Төлөөгүй"]].forEach(([v, t]) => s.append(Object.assign(el("option", "", t), { value: v }))); s.onchange = () => { flt = s.value; draw(); }; fw.append(s); }
-  fw.append(csv, cpE, gm); box.append(fw, tw);
-  const draw = () => { tw.innerHTML = ""; const V = view(); if (!V.length) { tw.append(el("p", "empty", "Бүртгэл алга.")); return; }
-    const t = el("table"), h = el("tr"); ["#", "Нэр", "Утас", "Сургууль · анги", "Байршил"].concat(q.fee ? ["Төлбөр"] : []).forEach(x => h.append(el("th", "", x))); t.append(h);
+  if (need) { const s = el("select"); [["all", "Бүгд"], ["paid", q.fee ? "Төлсөн" : "Баталгаажсан"], ["unpaid", q.fee ? "Төлөөгүй" : "Хүлээгдэж буй"]].forEach(([v, t]) => s.append(Object.assign(el("option", "", t), { value: v }))); s.onchange = () => { flt = s.value; draw(); }; fw.append(s); }
+  const all = el("button", "btn ghost", "✓ Харагдаж буйг бүгдийг баталгаажуулах"); all.type = "button";
+  all.onclick = async () => { const U = view().filter(x => !x.paid); if (!U.length || !confirm(U.length + " хүнийг баталгаажуулах уу?")) return; all.disabled = true;
+    const r = await api({ action: "quizPaid", id: q.id, uids: U.map(x => x.uid), paid: true }); all.disabled = false; if (r.ok) { U.forEach(x => x.paid = true); draw(); } };
+  fw.append(csv, cpE, gm); if (need) fw.append(all); box.append(fw, tw);
+  const draw = () => { rhT(); tw.innerHTML = ""; const V = view(); if (!V.length) { tw.append(el("p", "empty", "Бүртгэл алга.")); return; }
+    const t = el("table"), h = el("tr"); ["#", "Нэр", "Утас", "Сургууль · анги", "Байршил"].concat(need ? [q.fee ? "Төлбөр" : "Төлөв"] : []).forEach(x => h.append(el("th", "", x))); t.append(h);
     V.forEach((x, i) => { const tr = el("tr"); [i + 1, x.name + "\n" + x.email, x.phone, [x.school, x.grade].filter(Boolean).join(" · "), x.loc].forEach(v => tr.append(el("td", "", v)));
-      if (q.fee) { const td = el("td"), b = el("button", "frsw " + (x.paid ? "free" : "paid"), x.paid ? "✓ Төлсөн" : "Төлөөгүй"); b.type = "button";
+      if (need) { const td = el("td"), b = el("button", "frsw " + (x.paid ? "free" : "paid"), x.paid ? okW : noW); b.type = "button";
         b.onclick = async () => { b.disabled = true; const r = await api({ action: "quizPaid", id: q.id, uid: x.uid, paid: !x.paid }); b.disabled = false; if (r.ok) { x.paid = !x.paid; draw(); } };
         td.append(b); tr.append(td); }
       t.append(tr); });
     tw.append(t); };
   draw();
-  csv.onclick = () => { const rows = [["#", "Нэр", "Майл", "Утас", "Сургууль", "Анги", "Байршил", "Төлбөр", "Бүртгүүлсэн"]].concat(view().map((x, i) => [i + 1, x.name, x.email, x.phone, x.school, x.grade, x.loc, x.paid ? "Төлсөн" : (q.fee ? "Төлөөгүй" : "Үнэгүй"), x.at]));
+  csv.onclick = () => { const rows = [["#", "Нэр", "Майл", "Утас", "Сургууль", "Анги", "Байршил", "Төлбөр", "Бүртгүүлсэн"]].concat(view().map((x, i) => [i + 1, x.name, x.email, x.phone, x.school, x.grade, x.loc, x.paid ? (q.fee ? "Төлсөн" : "Баталгаажсан") : (need ? (q.fee ? "Төлөөгүй" : "Хүлээгдэж буй") : "Үнэгүй"), x.at]));
     const txt = "﻿" + rows.map(r => r.map(v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"').join(",")).join("\r\n");
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "text/csv;charset=utf-8" })); a.download = q.title.replace(/[\\/:*?"<>|]/g, "") + " - бүртгэл.csv"; document.body.append(a); a.click(); setTimeout(() => a.remove(), 500); };
   const emails = () => view().map(x => x.email).filter(Boolean);
@@ -3709,10 +3723,10 @@ const H = {};
 const QZ_FIELDS = ["name", "phone", "school", "grade", "loc"];
 async function quizGate(c, m) {   // тойрогт оролцох эрх: бүртгэлтэй + (үнэгүй эсвэл төлсөн)
   if (!c.quiz) return null; if (m.admin || c.owner === m.email) return null;
-  const q = await getDoc(D("quiz", c.quiz)); if (!q.exists()) return null; const fee = +q.data().fee || 0;
+  const q = await getDoc(D("quiz", c.quiz)); if (!q.exists()) return null; const fee = +q.data().fee || 0, need = fee > 0 || q.data().approve !== false;
   const r = await getDoc(D("quiz", c.quiz, "reg", m.uid));
   if (!r.exists()) return { id: c.quiz, title: q.data().title || "GeoQuiz", why: "noreg" };
-  if (fee > 0 && r.data().paid !== true) return { id: c.quiz, title: q.data().title || "GeoQuiz", why: "unpaid" };
+  if (need && r.data().paid !== true) return { id: c.quiz, title: q.data().title || "GeoQuiz", why: fee > 0 ? "unpaid" : "wait" };
   return null;
 }
 H.quizList = async () => {
@@ -3720,9 +3734,9 @@ H.quizList = async () => {
   for (const d of s.docs) { const x = d.data(); if (x.hidden && !(m && m.admin)) continue;
     const rounds = (await Promise.all((x.rounds || []).map(code => getDoc(D("contests", code))))).filter(c => c.exists()).map(c => { const pc = pubC(c.id, c.data()); pc.ready = Array.isArray(c.data().res); return pc; });
     rounds.sort((a, b) => a.start < b.start ? -1 : 1);
-    let n = 0, paid = 0; try { n = (await getCountFromServer(C("quiz", d.id, "reg"))).data().count; if (+x.fee > 0) paid = (await getCountFromServer(query(C("quiz", d.id, "reg"), where("paid", "==", true)))).data().count; } catch (e) {}
+    let n = 0, paid = 0; try { n = (await getCountFromServer(C("quiz", d.id, "reg"))).data().count; if (+x.fee > 0 || x.approve !== false) paid = (await getCountFromServer(query(C("quiz", d.id, "reg"), where("paid", "==", true)))).data().count; } catch (e) {}
     let me = null; if (m) { const r = await getDoc(D("quiz", d.id, "reg", m.uid)); if (r.exists()) { const y = r.data(); me = { paid: y.paid === true }; QZ_FIELDS.forEach(k => me[k] = y[k] || ""); } }
-    out.push({ id: d.id, title: x.title || "GeoQuiz", desc: x.desc || "", prize: x.prize || "", fee: +x.fee || 0, regOpen: x.regOpen !== false, hidden: !!x.hidden, rounds, n, paid, me }); }
+    out.push({ id: d.id, title: x.title || "GeoQuiz", desc: x.desc || "", prize: x.prize || "", fee: +x.fee || 0, approve: x.approve !== false, regOpen: x.regOpen !== false, hidden: !!x.hidden, rounds, n, paid, me }); }
   return { ok: true, list: out, user: m };
 };
 H.quizReg = async p => {   // өөрийн бүртгэл (нэр, утас, сургууль…)
@@ -3741,7 +3755,7 @@ H.quizSave = async p => {   // админ: GeoQuiz үүсгэх/засах
   const id = String(p.id || "") || ("q" + Date.now().toString(36)), ref = D("quiz", id), old = await getDoc(ref);
   const rounds = (Array.isArray(p.rounds) ? p.rounds : []).map(String).filter(x => /^\d{6}$/.test(x)).slice(0, 20);
   const was = old.exists() ? (old.data().rounds || []) : [];
-  await setDoc(ref, { title: String(p.title || "GeoQuiz").slice(0, 100), desc: String(p.desc || "").slice(0, 1000), prize: String(p.prize || "").slice(0, 300), fee: Math.max(0, Math.round(+p.fee || 0)),
+  await setDoc(ref, { title: String(p.title || "GeoQuiz").slice(0, 100), desc: String(p.desc || "").slice(0, 1000), prize: String(p.prize || "").slice(0, 300), fee: Math.max(0, Math.round(+p.fee || 0)), approve: p.approve !== false,
     regOpen: p.regOpen !== false, hidden: p.hidden === true, rounds, created: old.exists() && old.data().created ? old.data().created : Timestamp.now() });
   const b = writeBatch(db); rounds.forEach(c => b.set(D("contests", c), { quiz: id }, { merge: true })); was.filter(c => rounds.indexOf(c) < 0).forEach(c => b.set(D("contests", c), { quiz: "" }, { merge: true }));
   await b.commit().catch(() => {}); return { ok: true, id };
@@ -3906,7 +3920,7 @@ H.contestStart = async p => {   // тэмцээнийг нэг л удаа эх�
   const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
   const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
   const st = stat(cs.data()); if (st === "upcoming") return { ok: false, error: "not_started" }; if (st === "done") return { ok: false, error: "closed" };
-  if (cs.data().quiz) { const g = await quizGate(cs.data(), m); if (g) return { ok: false, error: g.why === "unpaid" ? "unpaid" : "noreg" }; }
+  if (cs.data().quiz) { const g = await quizGate(cs.data(), m); if (g) return { ok: false, error: g.why }; }
   const ref = D("contests", code, "starts", m.uid);
   if ((await getDoc(ref)).exists()) return { ok: false, error: "left" };
   await setDoc(ref, { name: m.name, email: m.email, at: Timestamp.now(), dev: devId(), devName: devName() });
@@ -4028,7 +4042,17 @@ H.contestResults = async p => {
   const key = (await getDoc(D("contestKeys", code))).data() || {}, R = await ranking(code, key, cs.data().roster);
   if (stat(cs.data()) === "done") await saveRes(code, R);
   let flags = []; if (cs.data().cam) { try { flags = (await getDocs(C("contests", code, "flags"))).docs.map(d => { const x = d.data(); return { uid: x.uid, name: x.name, email: x.email, type: x.type, n: x.n, img: x.img || "", at: x.at ? toD(x.at).toTimeString().slice(0, 8) : "" }; }); } catch (e) {} }
-  return { ok: true, flags, contest: pubC(code, cs.data()), roster: cs.data().roster || [], ranking: R.map(x => ({ rank: x.rank, name: x.name, email: x.email, score: x.score, total: x.total, secs: x.secs })) };
+  return { ok: true, flags, contest: pubC(code, cs.data()), roster: cs.data().roster || [], ranking: R.map(x => ({ rank: x.rank, name: x.name, email: x.email, score: x.score, total: x.total, secs: x.secs, uid: x.uid })) };
+};
+H.contestReset = async p => {   // ↺ сонгосон сурагчийг дахин өгүүлэх: хариулт, эхэлсэн тэмдгийг устгана
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
+  if (!m.admin && cs.data().owner !== m.email) return { ok: false, error: "teacher" };
+  const uids = (Array.isArray(p.uids) ? p.uids : [p.uid]).map(String).filter(Boolean).slice(0, 400);
+  for (let i = 0; i < uids.length; i += 150) { const b = writeBatch(db); uids.slice(i, i + 150).forEach(u => { b.delete(D("contests", code, "subs", u)); b.delete(D("contests", code, "starts", u)); }); await b.commit(); }
+  if (cs.data().cam) { try { const F = (await getDocs(C("contests", code, "flags"))).docs.filter(d => uids.indexOf(d.data().uid) >= 0); for (const d of F) await deleteDoc(d.ref); } catch (e) {} }
+  await setDoc(D("contests", code), { res: null }, { merge: true });
+  return { ok: true, n: uids.length };
 };
 
 /* ---- Багш / сурагч эрх ---- */
