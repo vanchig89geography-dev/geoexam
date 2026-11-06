@@ -1688,7 +1688,15 @@ async function myQuestions() {
     const t = Object.assign(el("input"), { placeholder: l + " хариулт" + (k > 1 ? " (заавал биш)" : ""), maxLength: 300 }); oIn.push([rb, t]); w.append(rb, el("b", "", l), t); rad.append(w); });
   f.append(el("small", "lbn", "Зөв хариултынхаа өмнөх дугуйг сонгоно ●"), rad);
   const tp = el("select"); tp.append(Object.assign(el("option", "", "Бүлэг сэдэв (заавал биш)"), { value: "" })); TOPIC_ORDER.forEach(t => tp.append(Object.assign(el("option", "", t), { value: t }))); fld("Сэдэв", tp);
-  const img = fld("Зургийн холбоос (заавал биш, https://…)", Object.assign(el("input"), { placeholder: "https://…/zurag.jpg" }));
+  /* 🖼 зураг: файлаас сонгох эсвэл Ctrl+V (автоматаар ~25KB болгож шахна) */
+  const img = { _v: "", get value() { return this._v; }, set value(v) { this._v = v || ""; idraw(); } };
+  const iw = el("div", "fld taimg"), ib = el("div", "taimgs"), ifi = Object.assign(el("input"), { type: "file", accept: "image/*", hidden: true }), imsg = el("small", "lbn", "Утасны зураг, дэлгэцийн зураг (Ctrl+V). Автоматаар жижгэрнэ.");
+  const iadd = el("button", "btn ghost", "🖼 Зураг нэмэх"); iadd.type = "button"; iadd.onclick = () => ifi.click();
+  function idraw() { ib.innerHTML = ""; if (img._v) { const w = el("span", "taim"), im = el("img"); setImg(im, img._v); const x = el("button", "", "✕"); x.type = "button"; x.title = "Зургийг хасах"; x.onclick = () => { img.value = ""; }; w.append(im, x); ib.append(w); } iadd.textContent = img._v ? "🖼 Зураг солих" : "🖼 Зураг нэмэх"; }
+  const iput = async fl => { if (!fl || !/^image\//.test(fl.type)) return; imsg.textContent = "Зургийг бэлдэж байна…"; const u = URL.createObjectURL(fl); try { img.value = await shrinkTo(u, 26000); imsg.textContent = "✓ Зураг нэмэгдлээ."; } catch (e) { imsg.textContent = "Зургийг уншиж чадсангүй."; } finally { URL.revokeObjectURL(u); } };
+  ifi.onchange = () => { iput(ifi.files[0]); ifi.value = ""; };
+  f.addEventListener("paste", e => { const fl = [...((e.clipboardData || {}).files || [])].find(x => /^image\//.test(x.type)); if (fl) { e.preventDefault(); iput(fl); } });
+  iw.append(el("span", "", "Зураг (заавал биш)"), ib, iadd, ifi, imsg); f.append(iw); idraw();
   const sol = fld("Тайлбар (заавал биш)", Object.assign(el("input"), { maxLength: 600 }));
   const sv = el("button", "btn", "Хадгалах"); sv.type = "button"; const cl = el("button", "btn ghost", "Цэвэрлэх"); cl.type = "button"; const msg = el("p", "lbn");
   const reset = () => { editId = null; q.value = ""; oIn.forEach(([rb, t], k) => { t.value = ""; rb.checked = k === 0; }); tp.value = ""; img.value = ""; sol.value = ""; sv.textContent = "Хадгалах"; };
@@ -3003,14 +3011,16 @@ async function testEdit(id, all, mode) {
   draw();
   /* --- 3. хадгалах --- */
   const err = el("p", "err"), sv = el("button", "btn", isL ? "💾 Хичээлийг хадгалах" : "💾 Тестийг хадгалах"); sv.type = "button"; const foot = el("div", "bfoot"); foot.append(cnt.cloneNode(), sv);
-  const updFoot = () => { foot.firstChild.textContent = Q.length + " асуулт · " + Q.reduce((s, q) => s + (q.slots ? q.slots.reduce((x, y) => x + y.p, 0) : q.p || 1), 0) + " оноо"; };
+  const updFoot = () => { const kb = Math.round(JSON.stringify(Q).length / 1024), ni = Q.reduce((a, q) => a + (q.img || []).length + (q.optImg || []).length, 0);
+    foot.firstChild.textContent = Q.length + " асуулт · " + Q.reduce((s, q) => s + (q.slots ? q.slots.reduce((x, y) => x + y.p, 0) : q.p || 1), 0) + " оноо" + (ni ? " · 🖼 " + ni + " зураг (" + kb + " KB)" : ""); };
   const _draw = draw; draw = () => { _draw(); updFoot(); }; updFoot();
   sv.onclick = async () => {
     err.textContent = ""; const s = secS.value;
     if (!nI.value.trim()) { err.textContent = "Тестийн нэр бичнэ үү."; return; }
     if (!isL && !Q.length) { err.textContent = "Дор хаяж 1 асуулт нэмнэ үү."; return; }
     if (isL && !vI.value.trim() && !bI.value.trim()) { err.textContent = "Видео бичлэгийн холбоос эсвэл тэмдэглэл оруулна уу."; vI.focus(); return; }
-    if (JSON.stringify(Q).length > 900000) { err.textContent = "Зураг хэт олон байна (нэг тестэд ~900KB хүртэл). Зарим зургийг хасах эсвэл тестийг хоёр хуваана уу."; return; }
+    if (JSON.stringify(Q).length > IMG_LIMIT) { err.textContent = "🖼 Зургуудыг багтаахаар шахаж байна…"; sv.disabled = true; const okFit = await fitImages(Q); sv.disabled = false; draw(); err.textContent = "";
+      if (!okFit) { err.textContent = "Зураг хэт олон байна. Тестийг хоёр хуваана уу."; return; } }
     if (Q.some(q => !q.slots && !(q.a >= 0))) { err.textContent = "Шар хүрээтэй асуултуудын зөв хариуг сонгоно уу."; list.querySelector(".miss").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
     if (s === "topic" && !tpS.value && Q.some(q => !q.topic)) { err.textContent = "Сэдвийн шалгалтад бүлэг сэдвээ сонгоно уу (асуултууд сэдвээрээ ангилагдана)."; tpS.focus(); return; }
     if (isL) { const lid = id || "L" + Date.now().toString(36), qs = Q.map((q, i) => Object.assign({}, q, { n: i + 1 }));
@@ -3063,14 +3073,28 @@ function renderAdmin(box) {
 }
 
 /* 🖼 зургийг 1000px, WebP/JPEG болгон шахна (Firestore-д шууд хадгалагдана) */
-async function shrinkImg(file) {
-  const url = URL.createObjectURL(file); try {
-    const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
-    const enc = (mx, ql) => { const k = Math.min(1, mx / Math.max(im.naturalWidth, im.naturalHeight)), cv = document.createElement("canvas");
-      cv.width = Math.max(1, Math.round(im.naturalWidth * k)); cv.height = Math.max(1, Math.round(im.naturalHeight * k)); const x = cv.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, cv.width, cv.height); x.drawImage(im, 0, 0, cv.width, cv.height);
-      let d = cv.toDataURL("image/webp", ql); if (!/^data:image\/webp/.test(d)) d = cv.toDataURL("image/jpeg", ql); return d; };
-    let d = enc(900, .72); if (d.length > 90000) d = enc(760, .6); if (d.length > 90000) d = enc(620, .5); if (d.length > 90000) d = enc(520, .45); return d;
-  } finally { URL.revokeObjectURL(url); }
+/* 🖼 зургийг WebP болгон шахна. maxLen = data URL-ийн дээд урт (тэмдэгт) */
+async function shrinkTo(src, maxLen) {
+  const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+  const enc = (mx, ql) => { const k = Math.min(1, mx / Math.max(im.naturalWidth, im.naturalHeight)), cv = document.createElement("canvas");
+    cv.width = Math.max(1, Math.round(im.naturalWidth * k)); cv.height = Math.max(1, Math.round(im.naturalHeight * k)); const x = cv.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, cv.width, cv.height); x.drawImage(im, 0, 0, cv.width, cv.height);
+    let d = cv.toDataURL("image/webp", ql); if (!/^data:image\/webp/.test(d)) d = cv.toDataURL("image/jpeg", ql); return d; };
+  let d = ""; for (const [m, q] of [[900, .72], [800, .64], [700, .58], [620, .52], [540, .48], [470, .44], [400, .4], [340, .38]]) { d = enc(m, q); if (d.length <= maxLen) break; }
+  return d;
+}
+async function shrinkImg(file) { const url = URL.createObjectURL(file); try { return await shrinkTo(url, 90000); } finally { URL.revokeObjectURL(url); } }
+/* 30+ зурагтай тест 1 баримтад (~1MB) багтахын тулд бүх зургийг тэнцүү хэмжээнд автоматаар шахна */
+const IMG_LIMIT = 820000;
+async function fitImages(Q, limit = IMG_LIMIT) {
+  let tot = JSON.stringify(Q).length; if (tot <= limit) return true;
+  const refs = []; Q.forEach(q => ["img", "optImg"].forEach(k => (q[k] || []).forEach((v, i) => { if (/^data:image/.test(v)) refs.push([q, k, i]); })));
+  if (!refs.length) return false;
+  for (let round = 0; round < 3 && tot > limit; round++) {
+    const imgLen = refs.reduce((a, [q, k, i]) => a + q[k][i].length, 0), per = Math.floor((limit - (tot - imgLen)) / refs.length * (round ? .85 : 1));
+    if (per < 5000) return false;
+    for (const [q, k, i] of refs) if (q[k][i].length > per) { try { q[k][i] = await shrinkTo(q[k][i], per); } catch (e) {} }
+    tot = JSON.stringify(Q).length; }
+  return tot <= limit;
 }
 
 /* ---------- 🎓 Сургалт: видео хичээл → хичээлийн дараах тест ---------- */
@@ -3691,7 +3715,7 @@ H.myQSave = async p => {
   const o = (Array.isArray(p.o) ? p.o : []).map(x => String(x || "").trim().slice(0, 300)).filter(Boolean);
   const q = String(p.q || "").trim().slice(0, 1200), a = Math.round(+p.a);
   if (q.length < 3 || o.length < 2 || !(a >= 0 && a < o.length)) return { ok: false, error: "form" };
-  const img = String(p.img || "").trim(); const data = { owner: m.email, q, o, a, p: Math.max(1, Math.min(10, Math.round(+p.p || 1))), topic: String(p.topic || "").slice(0, 80), sol: String(p.sol || "").slice(0, 600), img: /^https:\/\//.test(img) ? [img] : [], at: Timestamp.now() };
+  const img = String(p.img || "").trim(); const data = { owner: m.email, q, o, a, p: Math.max(1, Math.min(10, Math.round(+p.p || 1))), topic: String(p.topic || "").slice(0, 80), sol: String(p.sol || "").slice(0, 600), img: /^https:\/\//.test(img) || (/^data:image\/(webp|jpeg|png);base64,/.test(img) && img.length < 200000) ? [img] : [], at: Timestamp.now() };
   const id = p.id ? String(p.id) : (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
   if (p.id) { const old = await getDoc(D("teacherQs", id)); if (!old.exists() || old.data().owner !== m.email) return { ok: false, error: "teacher" }; }
   await setDoc(D("teacherQs", id), data); return { ok: true, id };
