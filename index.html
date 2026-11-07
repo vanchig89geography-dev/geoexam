@@ -918,6 +918,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .ntcprev img{max-width:220px;border-radius:10px;display:block;margin:8px 0 4px}
 .ntclist{max-width:560px}.ntcmail{max-width:560px}
 .ntccard b,.ntccard p{color:var(--fg)}.ntccard p{opacity:.85}
+.ntcact{display:flex;gap:16px}.ntcact .link{align-self:auto}
 </style>
 </head>
 <body>
@@ -3776,23 +3777,31 @@ async function noticeAdmin(box) {
   lw.append(sg, urlI); f.append(lw);
   const btI = inp("Товчны бичиг", "Бүртгүүлэх →"); btI.value = "Бүртгүүлэх →";
   sg.querySelector('[data-v="quiz"]').classList.add("on");
-  const msg = el("p", "lbn"), send = el("button", "btn", "📢 Багш нарт илгээх"); send.type = "button"; f.append(msg, send);
+  const msg = el("p", "lbn"), send = el("button", "btn", "📢 Багш нарт илгээх"), cancel = el("button", "btn ghost", "Болих"); send.type = cancel.type = "button"; cancel.hidden = true;
+  const brow = el("div", "recrow"); brow.style.justifyContent = "flex-start"; brow.append(send, cancel); f.append(msg, brow);
+  let EDIT = "";
+  const setLink = v => { LINK = v; urlI.hidden = v !== "url"; btI.parentNode.hidden = !v; sg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x.dataset.v === v)); };
+  const reset = () => { EDIT = ""; tI.value = bI.value = ""; IMG = ""; paintImg(); urlI.value = ""; btI.value = "Бүртгүүлэх →"; setLink("quiz"); send.textContent = "📢 Багш нарт илгээх"; cancel.hidden = true; };
+  cancel.onclick = () => { reset(); msg.textContent = ""; };
+  const edit = x => { EDIT = x.id; tI.value = x.title || ""; bI.value = x.body || ""; IMG = x.img || ""; paintImg();
+    const v = !x.link ? "" : x.link === "quiz" ? "quiz" : "url"; urlI.value = v === "url" ? x.link : ""; btI.value = x.btn || "Бүртгүүлэх →"; setLink(v);
+    send.textContent = "💾 Өөрчлөлтийг хадгалах"; cancel.hidden = false; msg.textContent = "✏️ «" + x.title + "» мэдэгдлийг засаж байна."; f.scrollIntoView({ behavior: "smooth", block: "start" }); };
   send.onclick = async () => {
     const title = tI.value.trim(); if (!title) { msg.textContent = "Гарчгаа бичнэ үү."; return; }
     const link = LINK === "url" ? urlI.value.trim() : LINK; if (LINK === "url" && !/^https?:\/\//.test(link)) { msg.textContent = "Холбоос https:// -ээр эхлэх ёстой."; return; }
     send.disabled = true; msg.textContent = "Илгээж байна…";
-    const r = await api({ action: "noticeSave", item: { title, body: bI.value.trim(), img: IMG, link, btn: link ? (btI.value.trim() || "Дэлгэрэнгүй →") : "" } }).catch(() => ({ ok: false }));
+    const r = await api({ action: "noticeSave", id: EDIT, item: { title, body: bI.value.trim(), img: IMG, link, btn: link ? (btI.value.trim() || "Дэлгэрэнгүй →") : "" } }).catch(() => ({ ok: false }));
     send.disabled = false;
     if (!r.ok) { msg.textContent = r.error === "size" ? "Зураг хэт том байна. Жижиг зураг сонгоно уу." : "Илгээж чадсангүй."; return; }
-    play && play("ok"); NTC.uid = ""; tI.value = bI.value = ""; IMG = ""; paintImg(); msg.textContent = "✓ Илгээгдлээ. Багш нар сайтад орох үедээ харна."; drawList();
+    play && play("ok"); NTC.uid = ""; const wasEdit = !!EDIT; reset(); msg.textContent = wasEdit ? "✓ Засвар хадгалагдлаа." : "✓ Илгээгдлээ. Багш нар сайтад орох үедээ харна."; drawList();
   };
   /* илгээсэн мэдэгдлүүд */
   const lst = el("div", "ntclist"); box.append(el("div", "grp", "Илгээсэн мэдэгдлүүд"), lst);
   async function drawList() { lst.innerHTML = '<p class="lbn">Ачаалж байна…</p>'; const r = await api({ action: "noticeGet", all: true }).catch(() => ({ ok: false })); lst.innerHTML = "";
     const L = (r && r.list) || []; if (!L.length) { lst.append(el("p", "lbn", "Одоогоор мэдэгдэл алга.")); return; }
-    L.forEach(x => { const c = ntcCard(x); const d = el("button", "link danger", "🗑 Устгах"); d.type = "button";
+    L.forEach(x => { const c = ntcCard(x); const ed = el("button", "link", "✏️ Засах"); ed.type = "button"; ed.onclick = () => edit(x); const d = el("button", "link danger", "🗑 Устгах"); d.type = "button";
       d.onclick = async () => { if (!confirm("«" + x.title + "» мэдэгдлийг устгах уу?")) return; await api({ action: "noticeDel", id: x.id }).catch(() => {}); NTC.uid = ""; drawList(); };
-      c.append(d); lst.append(c); }); }
+      const ar = el("div", "ntcact"); ar.append(ed, d); c.append(ar); lst.append(c); }); }
   drawList();
   /* имэйлээр давхар хүргэх */
   const mw = el("div", "ntcmail"); box.append(el("div", "grp", "📧 Имэйлээр давхар илгээх"), mw);
@@ -4441,7 +4450,8 @@ H.noticeSave = async p => {
   const x = p.item || {}; if (!x.title) return { ok: false, error: "title" };
   const s = await getDoc(D("notice", "teacher")); let L = s.exists() ? (s.data().list || []) : [];
   const it = { id: "n" + Date.now().toString(36), title: String(x.title).slice(0, 120), body: String(x.body || "").slice(0, 2000), img: String(x.img || ""), link: String(x.link || ""), btn: String(x.btn || "").slice(0, 40), at: Date.now(), by: m.email };
-  L = [it].concat(L);
+  const ix = p.id ? L.findIndex(y => y.id === p.id) : -1;
+  if (ix >= 0) { it.id = L[ix].id; it.at = L[ix].at; L[ix] = it; } else L = [it].concat(L);   // засвар: огноо хэвээр, дахин гарч ирэхгүй
   while (L.length > 1 && JSON.stringify(L).length > 900000) L.pop();
   L = L.slice(0, 10); if (JSON.stringify(L).length > 900000) return { ok: false, error: "size" };
   await setDoc(D("notice", "teacher"), { list: L, at: Timestamp.now() }); return { ok: true, id: it.id };
