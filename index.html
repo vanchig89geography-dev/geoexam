@@ -900,11 +900,11 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 /* 🔔 Мэдэгдэл */
 .ntcb{position:relative}
 .ntcb svg{width:20px;height:20px}
-.ntcb i{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font:700 11px/18px Inter,sans-serif;font-style:normal;text-align:center;box-shadow:0 0 0 2px #fff}
+.ntcb i{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font:700 11px/18px Inter,sans-serif;font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--surface)}
 .ntcb i[hidden]{display:none}
 .ntcbox{max-width:460px;max-height:86vh;overflow:auto}
 .ntctag{display:inline-block;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:linear-gradient(90deg,#FFD500,#38BDF8);color:#0b2a55;margin-bottom:10px}
-.ntccard{border:1px solid var(--line,#e5e7eb);border-radius:14px;padding:12px;margin:10px 0;display:flex;flex-direction:column;gap:6px;background:var(--card,#fff)}
+.ntccard{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;display:flex;flex-direction:column;gap:6px;background:var(--sunk);color:var(--fg)}
 .ntccard.new{border-color:#38BDF8;box-shadow:0 0 0 2px rgba(56,189,248,.25)}
 .ntccard img{width:100%;border-radius:10px;display:block}
 .ntccard b{font-size:16px}.ntccard.big b{font-size:19px}
@@ -914,9 +914,10 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .ntcform{display:flex;flex-direction:column;gap:12px;max-width:560px}
 .ntcform .fld{display:flex;flex-direction:column;gap:6px}
 .ntcform .fld>span{font-size:13px;font-weight:600;opacity:.8}
-.ntcform input,.ntcform textarea,.ntcmail textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#d1d5db);font:inherit;background:var(--card,#fff);color:inherit;box-sizing:border-box}
+.ntcform input,.ntcform textarea,.ntcmail textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line-2);font:inherit;background:var(--surface);color:var(--fg);box-sizing:border-box}
 .ntcprev img{max-width:220px;border-radius:10px;display:block;margin:8px 0 4px}
 .ntclist{max-width:560px}.ntcmail{max-width:560px}
+.ntccard b,.ntccard p{color:var(--fg)}.ntccard p{opacity:.85}
 </style>
 </head>
 <body>
