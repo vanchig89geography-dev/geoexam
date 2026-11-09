@@ -3046,7 +3046,7 @@ function myImport() {
 
 /* ---------- 📝 Админ: тест нэмэх, засах, устгах (HTML засахгүйгээр) ---------- */
 const TA_SECS = [["eesh", "🎯 ЭЕШ хувилбар"], ["topic", "📚 Сэдвийн шалгалт"], ["own", "🎬 Мультимедиа"]], TA_LEARN = [["learn", "🎓 Сургалт"]];
-const TA_LCATS = ["ЭЕШ бэлтгэл", "9-р анги", "10-р анги", "11-р анги", "Сонгон", "Бусад"];
+const TA_LCATS = ["ЭЕШ бэлтгэл", "9-р анги", "10-р анги", "11-р анги", "Сонгон", "Олимпиад"];
 const TA_GRADES = ["9-р анги", "10-р анги", "11-р анги", "Сонгон"];
 const TA_OWN = ["IGEO", "Улсын олимпиад", "Шинэ"];
 const taSecOf = t => t.lesson ? "learn" : /^ЭЕШ/.test(t.group || "") ? "eesh" : TA_GRADES.some(g => (t.group || "").indexOf(g) === 0) ? "topic" : "own";
@@ -3093,7 +3093,7 @@ async function testEdit(id, all, mode) {
   const gS = fld("Анги", sel(TA_GRADES.map(g => [g, g]), TA_GRADES.find(g => (T.group || "").indexOf(g) === 0) || "10-р анги"));
   const oS = fld("Ангилал", sel(TA_OWN.map(g => [g, g]), TA_OWN.find(g => (T.group || "").toUpperCase().indexOf(g.toUpperCase()) === 0) || "Шинэ"));
   const tpS = fld("Бүлэг сэдэв (асуултуудын үндсэн)", sel([["", "— сонгох —"]].concat(TOPIC_ORDER.map(t => [t, t])), (Q.find(q => q.topic) || {}).topic || ""));
-  const lcS = fld("Ангилал", sel(TA_LCATS.map(g => [g, g]), TA_LCATS.find(g => String(T.group || "").replace(/^Сургалт · /, "") === g) || "10-р анги"));
+  const lcS = fld("Ангилал", sel(TA_LCATS.map(g => [g, g]), TA_LCATS.find(g => String(T.group || "").replace(/^Сургалт · /, "").replace(/^Бусад$/, "Олимпиад") === g) || "10-р анги"));
   const unI = fld("Бүлэг / хэсэг (заавал биш)", Object.assign(el("input"), { value: T.unit || "", maxLength: 80, placeholder: "Жишээ: 1-р бүлэг · Гео орон зайн дүрслэл" }));
   const vI = fld("🎬 Видео бичлэг (YouTube холбоос эсвэл videos/нэр.mp4)", Object.assign(el("input"), { value: V.vid, maxLength: 300, placeholder: "YouTube холбоос, embed код эсвэл videos/hicheel1.mp4" }), true);
   const vP = el("div", "lvprev full"); f.append(vP);
@@ -3273,7 +3273,7 @@ async function fitImages(Q, limit = IMG_LIMIT) {
 }
 
 /* ---------- 🎓 Сургалт: видео хичээл → хичээлийн дараах тест ---------- */
-const LCATS = ["ЭЕШ бэлтгэл", "9-р анги", "10-р анги", "11-р анги", "Сонгон", "Бусад"];
+const LCATS = ["ЭЕШ бэлтгэл", "9-р анги", "10-р анги", "11-р анги", "Сонгон", "Олимпиад"];
 let lcat = st.get("ge-lcat") || "";
 /* embed код (<iframe src="…">) өгвөл src-ийг нь авна; YouTube бол ID-г нь */
 function vidNorm(v) { v = String(v || "").trim(); const m = /<iframe[^>]*\ssrc\s*=\s*["']([^"']+)["']/i.exec(v); if (m) v = m[1].replace(/&amp;/g, "&"); if (/^\/\//.test(v)) v = "https:" + v; const y = ytId(v); return y ? "https://youtu.be/" + y : v; }
@@ -4142,7 +4142,7 @@ H.me = async () => { const m = await meInfo(); return m ? { ok: true, user: m } 
 H.tests = async p => {
   const m = await meInfo(), L = await allTests(!!(p && p.action === "tests"));
   const paid = !!(m && (m.paid || m.teacher)), topics = {};
-  const lessons = L.filter(t => t.lesson).map(t => ({ id: t.id, name: t.name, free: !!t.free, desc: t.desc || "", cat: String(t.group || "").replace(/^Сургалт · /, "") || "Бусад", unit: t.unit || "", count: t.count || 0, gate: t.gate !== false, order: t.order || 0, locked: !t.free && !paid, minutes: 0, group: t.group || "" }));
+  const lessons = L.filter(t => t.lesson).map(t => ({ id: t.id, name: t.name, free: !!t.free, desc: t.desc || "", cat: ((c => c === "Бусад" ? "Олимпиад" : c)(String(t.group || "").replace(/^Сургалт · /, "")) || "Олимпиад"), unit: t.unit || "", count: t.count || 0, gate: t.gate !== false, order: t.order || 0, locked: !t.free && !paid, minutes: 0, group: t.group || "" }));
   const tests = L.filter(t => !t.lesson && !t.hidden).map(t => {
     const locked = !t.free && !paid;
     const cat = catOfGroup(t.group);
@@ -4694,7 +4694,7 @@ H.lessonSave = async p => {   // 🎓 хичээл: {id, meta:{name,cat,unit,fre
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
   const id = String(p.id || "").replace(/[^\w\-]/g, "").slice(0, 40); if (!id) return { ok: false, error: "id" };
   const M = p.meta || {}, { qs, topics } = normQs(p.q);
-  const meta = { name: String(M.name || "Хичээл").slice(0, 120), group: "Сургалт · " + String(M.cat || "Бусад").slice(0, 40), free: M.free === true, minutes: 0, desc: String(M.desc || "").slice(0, 200),
+  const meta = { name: String(M.name || "Хичээл").slice(0, 120), group: "Сургалт · " + String(M.cat || "Олимпиад").slice(0, 40), free: M.free === true, minutes: 0, desc: String(M.desc || "").slice(0, 200),
     count: qs.length, topics, lesson: true, unit: String(M.unit || "").slice(0, 80), gate: M.gate !== false, order: Math.round(+M.order || 0) };
   const b = writeBatch(db); b.set(D("tests", id), meta); b.set(D("qs", id), { q: qs, vid: String(p.vid || "").slice(0, 300), body: String(p.body || "").slice(0, 8000) }); await b.commit();
   TESTS = null; delete QCACHE[id]; await rebuildMeta(); return { ok: true, id, count: qs.length };
