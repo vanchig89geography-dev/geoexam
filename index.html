@@ -920,6 +920,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .ntccard b,.ntccard p{color:var(--fg)}.ntccard p{opacity:.85}
 .ntcact{display:flex;gap:16px}.ntcact .link{align-self:auto}
 .lsvid video{position:absolute;inset:0;width:100%;height:100%;background:#000}
+.lsquiz{border:0!important;background:none!important;padding:0!important;margin:12px 0 4px}.lsquiz .lsqbtn{width:100%;padding:16px;font-size:17px}.lsquiz .lsqbtn:disabled{opacity:.45;cursor:not-allowed}.lsquiz .lbn{text-align:center;margin:8px 0 0}
 </style>
 </head>
 <body>
@@ -2066,7 +2067,9 @@ function openAcct(wantPay) {
     if (user.teacher) $("uStatus").className = "status paid";
     $("payBox").innerHTML = "";
     if (USE_FB && user.role === "teacher" && !user.teacher) $("payBox").append(teacherPayHTML());
-    else if (!user.paid && !user.teacher) $("payBox").append(payHTML());
+    else if (!user.paid && !user.teacher && tests.some(t => t.locked)) $("payBox").append(payHTML());   // төлбөртэй тест үлдсэн үед л
+    if (USE_FB && !user.admin) { const ls = el("p", "status" + (user.learn ? " paid" : ""), user.learn ? "🎬 Сургалт · " + user.lUntil + " хүртэл · бүх видео хичээл нээлттэй" : "🎬 Сургалт · эрхгүй (төлбөртэй хичээлүүд 🔒)");
+      $("payBox").append(ls); if (!user.learn && lessons.some(l => !l.free)) $("payBox").append(learnPayHTML()); }
     if (USE_FB && !user.admin) { const ch = el("button", "link", user.role === "teacher" ? "Би сурагч" : "Би багш — шалгалт үүсгэх эрх авах"); ch.type = "button";
       ch.onclick = async () => { const r = await api({ action: "setRole", role: user.role === "teacher" ? "student" : "teacher" }); if (r.ok) { user = r.user; renderAcct(); openAcct(false); loadTests(); } };
       $("payBox").append(ch); }
@@ -3114,7 +3117,7 @@ async function testEdit(id, all, mode) {
   const hdL = el("label", "chk tafree"), hdI = Object.assign(el("input"), { type: "checkbox", checked: T.hidden === true }); hdL.append(hdI, el("span", "", " 🔒 Нууц тест — зөвхөн тэмцээнд (GeoQuiz) ашиглана, сайтад харагдахгүй")); f.append(hdL);
   const hdSync = () => { if (hdI.checked) frI.checked = false; frI.disabled = hdI.checked; }; hdI.onchange = () => { mark(); hdSync(); }; hdSync();
   const show = () => { const s = secS.value; yI.parentNode.hidden = vS.parentNode.hidden = s !== "eesh"; gS.parentNode.hidden = tpS.parentNode.hidden = s !== "topic"; oS.parentNode.hidden = s !== "own";
-    [lcS, unI, vI, bI, orI].forEach(x => x.parentNode.hidden = !isL); vP.hidden = gtL.hidden = !isL; mI.parentNode.hidden = isL; hdL.hidden = isL || s !== "own"; if (s !== "own" && hdI.checked) { hdI.checked = false; hdSync(); } if (isL) return;
+    [lcS, unI, vI, orI].forEach(x => x.parentNode.hidden = !isL); bI.parentNode.hidden = true; vP.hidden = gtL.hidden = !isL; mI.parentNode.hidden = isL; hdL.hidden = isL || s !== "own"; if (s !== "own" && hdI.checked) { hdI.checked = false; hdSync(); } if (isL) return;
     if (!nI.dataset.touched && (!id || (s === "eesh" && /^ЭЕШ \d{4} · [A-D] хувилбар$/.test(nI.value)))) nI.value = s === "eesh" ? "ЭЕШ " + yI.value + " · " + vS.value + " хувилбар" : s === "topic" ? gS.value + " · тест · " + (tpS.value || "сэдэв") : oS.value + " · тест";
     if (!id && s === "eesh" && !mI.dataset.touched) mI.value = 90; };
   nI.addEventListener("input", () => nI.dataset.touched = 1); mI.addEventListener("input", () => mI.dataset.touched = 1);
@@ -3363,32 +3366,35 @@ async function openLesson(l) {
   } else vw.remove();
   function addDoneBtn() { const b = el("button", "btn ghost", "✓ Бичлэгийг үзэж дууслаа"); b.type = "button"; b.onclick = () => { b.remove(); unlock(); }; vw.after(b); }
   /* тэмдэглэл */
-  if (r.body) { const n = el("div", "lsbody"); n.append(el("b", "", "📒 Хичээлийн тэмдэглэл"), el("p", "", r.body)); box.append(n); }
+  /* 📒 тэмдэглэлийг харуулахгүй (багшийн хүсэлтээр) */
   /* хичээлийн дараах тест */
   box.append(quiz);
   function drawQuiz() { quiz.innerHTML = ""; if (!r.count) return; const w = lwGet(L.id);
-    quiz.append(el("b", "", "📝 Хичээлийн дараах тест · " + r.count + " асуулт"));
-    if (!done) { quiz.classList.add("off"); quiz.append(el("p", "lbn", "🔒 Бичлэгийг бүрэн үзсэний дараа тест нээгдэнэ.")); return; }
-    quiz.classList.remove("off"); if (w.q != null) quiz.append(el("p", "lbn", "Таны өмнөх дүн: " + w.q + "%"));
-    const b = el("button", "btn", w.q != null ? "Дахин өгөх" : "Тест өгөх →"); b.type = "button";
+    const b = el("button", "btn lsqbtn", w.q != null ? "🔁 Бататгах тест дахин өгөх" : "📝 Бататгах тест"); b.type = "button";
+    if (!done) { b.disabled = true; quiz.append(b, el("p", "lbn", "🔒 Бичлэгийг бүрэн үзэж дуусмагц тест нээгдэнэ.")); return; }
+    if (w.q != null) quiz.append(el("p", "lbn", "Таны өмнөх дүн: " + w.q + "%"));
     b.onclick = () => { lessonStop(); LQ = L.id; startTest({ id: L.id, name: L.name, minutes: 0, free: L.free, group: L.group, count: r.count }, true); };
-    quiz.append(b); }
+    quiz.prepend(b); }
   paint(+W.p || 0); scrollTo({ top: $("list").offsetTop - 10 });
 }
 var LQ = null;   // дуусгасан хичээлийн тестийн хувийг хадгална
 
+/* 🎬 Сургалтын төлбөрийн мэдээлэл (хичээл дээр дарахад + Миний бүртгэлд) */
+function learnPayHTML() {
+  const box = el("div", "pay"), price = cfg["Сургалтын үнэ"] || cfg["Үнэ"] || "";
+  const h = el("b", "", "🎬 Сургалтын бүх хичээл" + (price ? " · " + price : "")); h.style.textAlign = "left"; box.append(h);
+  ["Банк", "Данс", "Данс эзэмшигч", "Гүйлгээний утга", "Холбоо барих"].forEach(k => { const v = k === "Гүйлгээний утга" ? user.email : cfg[k]; if (!v) return;
+    const d = el("div"); d.append(el("span", "", k), el("b", "", v)); box.append(d); });
+  const p = el("p", "", "Төлбөр шалгагдмагц Сургалтын эрх нээгдэнэ. Дараа нь хуудсаа refresh хийнэ үү."); p.style.margin = "4px 0 0"; box.append(p);
+  return box;
+}
 /* 🔒 төлбөртэй хичээл: Сургалтын төлбөрийн мэдээлэл */
 function learnPay(l) {
   if (!user) { openAcct(true); return; }
   const z = el("div", "recov"), b = el("div", "recbox"); z.append(b); document.body.append(z);
   b.append(el("h4", "", "🔒 Төлбөртэй хичээл"));
   if (l && l.name) b.append(el("p", "lbn", "«" + l.name + "» хичээлийг үзэхийн тулд Сургалтын эрх авна уу."));
-  const box = el("div", "pay"), price = cfg["Сургалтын үнэ"] || cfg["Үнэ"] || "";
-  const h = el("b", "", "🎬 Сургалтын бүх хичээл" + (price ? " · " + price : "")); h.style.textAlign = "left"; box.append(h);
-  ["Банк", "Данс", "Данс эзэмшигч", "Гүйлгээний утга", "Холбоо барих"].forEach(k => { const v = k === "Гүйлгээний утга" ? user.email : cfg[k]; if (!v) return;
-    const d = el("div"); d.append(el("span", "", k), el("b", "", v)); box.append(d); });
-  const p = el("p", "", "Төлбөр шалгагдмагц Сургалтын эрх нээгдэнэ. Дараа нь хуудсаа refresh хийнэ үү."); p.style.margin = "4px 0 0"; box.append(p);
-  b.append(box);
+  b.append(learnPayHTML());
   const row = el("div", "recrow"), cl = el("button", "btn", "Ойлголоо"); cl.type = "button"; cl.onclick = () => z.remove(); row.append(cl); b.append(row);
   z.onclick = e => { if (e.target === z) z.remove(); };
 }
