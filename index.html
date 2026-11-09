@@ -2105,17 +2105,19 @@ if (USE_FB) $("gSign").onclick = async () => {
 /* ---------- Багшийн самбар (Firebase) ---------- */
 function adminPanel(only) {
   const w = el("div", "adm"); 
-  if (!only || only === "grant") {
-  // 1. Эрх олгох
-  const g = el("div", "admb"); g.append(el("b", "", "Төлбөртэй эрх олгох"));
+  if (!only || only === "grant" || only === "lgrant") {
+  // 1. Эрх олгох (lgrant → 🎬 Сургалтын эрх)
+  const KIND = only === "lgrant" ? "learn" : "";
+  const g = el("div", "admb"); g.append(el("b", "", KIND ? "🎬 Сургалтын (видео хичээл) эрх олгох" : "Төлбөртэй эрх олгох"));
+  if (KIND) g.append(el("p", "lbn", "Сургалтын төлбөртэй хичээлүүдийг зөвхөн энд эрх олгосон хүмүүс үзнэ. Тестийн эрх, багшийн эрх үүнд хамаарахгүй."));
   const em = Object.assign(el("input"), { type: "email", placeholder: "сурагчийн Google майл", id: "admEmail" });
   const mo = el("select"); mo.id = "admMonths"; [["1", "1 сар"], ["3", "3 сар"], ["6", "6 сар"], ["12", "1 жил"], ["0", "Эрхийг цуцлах"]].forEach(([v, t]) => { const o = el("option", "", t); o.value = v; if (v === "12") o.selected = true; mo.append(o); });
   const gb = el("button", "btn", "Хадгалах"); gb.type = "button"; const gm = el("p", "lbn");
   const list = el("div", "admlist");
-  const loadList = async () => { const r = await api({ action: "grants" }); list.innerHTML = ""; if (!r.ok) return;
+  const loadList = async () => { const r = await api({ action: "grants", kind: KIND }); list.innerHTML = ""; if (!r.ok) return;
     if (!r.list.length) list.append(el("p", "lbn", "Одоогоор эрхтэй хэрэглэгч алга."));
     r.list.forEach(x => { const d = el("div", "admrow" + (x.active ? "" : " off")); d.append(el("span", "", x.email), el("small", "", x.until + (x.active ? "" : " · дууссан"))); list.append(d); }); };
-  gb.onclick = async () => { gb.disabled = true; gm.textContent = "Хадгалж байна…"; const r = await api({ action: "grant", email: em.value, months: mo.value }); gb.disabled = false;
+  gb.onclick = async () => { gb.disabled = true; gm.textContent = "Хадгалж байна…"; const r = await api({ action: "grant", email: em.value, months: mo.value, kind: KIND }); gb.disabled = false;
     gm.textContent = r.ok ? (r.until ? r.email + " · " + r.until + " хүртэл эрхтэй боллоо" : r.email + " · эрх цуцлагдлаа") : (r.error === "email" ? "Майл хаяг буруу байна." : "Алдаа гарлаа."); if (r.ok) { em.value = ""; loadList(); } };
   const row = el("div", "admrowf"); row.append(em, mo, gb); g.append(row, gm, list); w.append(g); loadList();
   }
@@ -2125,7 +2127,7 @@ function adminPanel(only) {
   const fl = el("div", "frlist"); const fm = el("p", "lbn");
   const loadF = async () => { fl.innerHTML = ""; fl.append(el("p", "lbn", "Ачаалж байна…")); const r = await api({ action: "adminTests" }); fl.innerHTML = ""; if (!r.ok) { fl.append(el("p", "lbn", "Алдаа гарлаа.")); return; }
     const all = el("div", "tbtns"); const a1 = el("button", "btn ghost", "Бүгдийг үнэгүй"), a2 = el("button", "btn ghost", "Бүгдийг төлбөртэй"); a1.type = a2.type = "button";
-    const setAll = async v => { if (!confirm(v ? "Бүх тестийг үнэгүй болгох уу?" : "Бүх тестийг төлбөртэй болгох уу?")) return; fm.textContent = "Хадгалж байна…"; const x = await api({ action: "setFree", ids: r.tests.map(t => t.id), free: v }); fm.textContent = x.ok ? "✓ Хадгалагдлаа." : "Алдаа гарлаа."; st.set("ge-tests", null); loadTests(); loadF(); };
+    const setAll = async v => { if (!confirm(v ? "Бүх тестийг үнэгүй болгох уу? (Сургалтын хичээлүүд өөрчлөгдөхгүй)" : "Бүх тестийг төлбөртэй болгох уу? (Сургалтын хичээлүүд өөрчлөгдөхгүй)")) return; fm.textContent = "Хадгалж байна…"; const x = await api({ action: "setFree", ids: r.tests.filter(t => !t.lesson).map(t => t.id), free: v });   /* 🎬 Сургалтын хичээлд хамаарахгүй */ fm.textContent = x.ok ? "✓ Хадгалагдлаа." : "Алдаа гарлаа."; st.set("ge-tests", null); loadTests(); loadF(); };
     a1.onclick = () => setAll(true); a2.onclick = () => setAll(false); all.append(a1, a2); fl.append(all);
     const G = {}; r.tests.forEach(t => (G[t.group] = G[t.group] || []).push(t));
     Object.keys(G).forEach(g => { const d = el("details", "frg"); const sm = el("summary", "", g + " · " + G[g].filter(t => t.free).length + "/" + G[g].length + " үнэгүй"); d.append(sm);
@@ -2185,7 +2187,7 @@ function adminPanel(only) {
   if (!only || only === "pay") {
   // 2. Төлбөрийн мэдээлэл
   const c = el("div", "admb"); c.append(el("b", "", "Төлбөрийн мэдээлэл"));
-  const F = [["tprice", "Багшийн эрхийн үнэ"], ["price", "Үнэ"], ["bank", "Банк"], ["account", "Данс"], ["holder", "Данс эзэмшигч"], ["note", "Гүйлгээний утга"], ["contact", "Холбоо барих"]], ins = {};
+  const F = [["tprice", "Багшийн эрхийн үнэ"], ["price", "Үнэ"], ["lprice", "Сургалтын үнэ"], ["bank", "Банк"], ["account", "Данс"], ["holder", "Данс эзэмшигч"], ["note", "Гүйлгээний утга"], ["contact", "Холбоо барих"]], ins = {};
   F.forEach(([k, lab]) => { const l = el("label", "fld"); l.append(el("span", "", lab)); const i = el("input"); i.id = "cfg_" + k; i.value = cfg[lab] || ""; ins[k] = i; l.append(i); c.append(l); });
   const cb = el("button", "btn ghost", "Хадгалах"); cb.type = "button"; const cm = el("p", "lbn");
   cb.onclick = async () => { const p = { action: "saveConfig" }; Object.keys(ins).forEach(k => p[k] = ins[k].value.trim()); const r = await api(p); cm.textContent = r.ok ? "Хадгаллаа." : "Алдаа гарлаа."; if (r.ok) { F.forEach(([k, lab]) => cfg[lab] = ins[k].value.trim()); } };
@@ -3226,6 +3228,7 @@ const ADM_CARDS = [
   ["learn", "🎓", "Сургалт", "Видео хичээл, хичээлийн дараах тест нэмэх, засах"],
   ["price", "💰", "Үнэгүй / Төлбөртэй", "Тест, хичээл бүрийг үнэгүй эсвэл төлбөртэй болгох"],
   ["pay", "💳", "Төлбөр, данс", "Үнэ, банк, дансны дугаар, холбоо барих"],
+  ["lgrant", "🎬", "Сургалтын эрх", "Сургалтын төлбөр төлсөн хүнд видео хичээл үзэх эрх олгох"],
   ["grant", "🔑", "Сурагчийн эрх", "Төлбөр төлсөн сурагчид эрх олгох, цуцлах"],
   ["teach", "👩‍🏫", "Багшийн эрх", "Багшид шалгалт үүсгэх эрх олгох"],
   ["dev", "📱", "Төхөөрөмж", "Сурагчийн утас, компьютерийн жагсаалт цэвэрлэх"],
@@ -3298,7 +3301,7 @@ function renderLearn(box) {
       const n = el("span", "lsn", w.q != null ? "✓" : String(i + 1)); const tx = el("span", "tx");
       tx.append(el("b", "", l.name), el("small", "", (l.count ? "▶ Бичлэг · " + l.count + " асуулттай тест" : "▶ Бичлэг") + (w.q != null ? " · " + w.q + "%" : w.done ? " · үзсэн" : w.p ? " · " + w.p + "% үзсэн" : "")));
       const tg = el("span", "tg" + (l.free ? "" : " pay"), l.free ? "Үнэгүй" : l.locked ? "🔒 Төлбөртэй" : "Төлбөртэй");
-      c.append(n, tx, tg); c.onclick = () => l.locked ? openAcct(true) : openLesson(l); g.append(c); });
+      c.append(n, tx, tg); c.onclick = () => l.locked ? learnPay(l) : openLesson(l); g.append(c); });
     box.append(g);
   });
   renderLB(box, "learn", "", "Сургалт");
@@ -3318,7 +3321,7 @@ async function openLesson(l) {
   let r; try { r = await api({ action: "lesson", id: l.id }); } catch (e) { r = { ok: false }; }
   box.innerHTML = "";
   const back = el("button", "link", "← Хичээлүүд"); back.type = "button"; back.onclick = () => { lessonStop(); renderPane(); }; box.append(back);
-  if (!r.ok) { if (r.error === "locked") { box.append(el("p", "empty", "🔒 Энэ хичээл төлбөртэй.")); openAcct(true); } else box.append(el("p", "empty", "Хичээлийг ачаалж чадсангүй.")); return; }
+  if (!r.ok) { if (r.error === "locked") { box.append(el("p", "empty", "🔒 Энэ хичээл төлбөртэй.")); learnPay(l); } else box.append(el("p", "empty", "Хичээлийг ачаалж чадсангүй.")); return; }
   const L = r.lesson; box.append(el("h3", "bh lsh", L.name)); if (L.unit || L.desc) box.append(el("p", "note", [L.unit, L.desc].filter(Boolean).join(" · ")));
   const W = lwGet(L.id); let done = !!W.done || !L.gate || !r.count;
   /* бичлэг */
@@ -3373,6 +3376,22 @@ async function openLesson(l) {
   paint(+W.p || 0); scrollTo({ top: $("list").offsetTop - 10 });
 }
 var LQ = null;   // дуусгасан хичээлийн тестийн хувийг хадгална
+
+/* 🔒 төлбөртэй хичээл: Сургалтын төлбөрийн мэдээлэл */
+function learnPay(l) {
+  if (!user) { openAcct(true); return; }
+  const z = el("div", "recov"), b = el("div", "recbox"); z.append(b); document.body.append(z);
+  b.append(el("h4", "", "🔒 Төлбөртэй хичээл"));
+  if (l && l.name) b.append(el("p", "lbn", "«" + l.name + "» хичээлийг үзэхийн тулд Сургалтын эрх авна уу."));
+  const box = el("div", "pay"), price = cfg["Сургалтын үнэ"] || cfg["Үнэ"] || "";
+  const h = el("b", "", "🎬 Сургалтын бүх хичээл" + (price ? " · " + price : "")); h.style.textAlign = "left"; box.append(h);
+  ["Банк", "Данс", "Данс эзэмшигч", "Гүйлгээний утга", "Холбоо барих"].forEach(k => { const v = k === "Гүйлгээний утга" ? user.email : cfg[k]; if (!v) return;
+    const d = el("div"); d.append(el("span", "", k), el("b", "", v)); box.append(d); });
+  const p = el("p", "", "Төлбөр шалгагдмагц Сургалтын эрх нээгдэнэ. Дараа нь хуудсаа refresh хийнэ үү."); p.style.margin = "4px 0 0"; box.append(p);
+  b.append(box);
+  const row = el("div", "recrow"), cl = el("button", "btn", "Ойлголоо"); cl.type = "button"; cl.onclick = () => z.remove(); row.append(cl); b.append(row);
+  z.onclick = e => { if (e.target === z) z.remove(); };
+}
 
 /* ---------- 🏆 GeoQuiz: бүртгэл → төлбөр → тойрог → нийт жагсаалт ---------- */
 const QZ_GRADES = ["Газарзүйн багш"];
@@ -4014,7 +4033,7 @@ const maxP = q => q.slots ? q.slots.reduce((s, x) => s + x.p, 0) : (q.p || 1);
 const grade = (q, a) => q.slots ? q.slots.reduce((s, x) => s + (a && nv(a[x.k]) !== "" && nv(a[x.k]) === nv(x.a) ? x.p : 0), 0) : (a === q.a ? (q.p || 1) : 0);
 const toD = v => v && v.toDate ? v.toDate() : new Date(v);
 const ymd = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-const CFG_KEYS = { tprice: "Багшийн эрхийн үнэ", price: "Үнэ", bank: "Банк", account: "Данс", holder: "Данс эзэмшигч", note: "Гүйлгээний утга", contact: "Холбоо барих" };
+const CFG_KEYS = { tprice: "Багшийн эрхийн үнэ", price: "Үнэ", lprice: "Сургалтын үнэ", bank: "Банк", account: "Данс", holder: "Данс эзэмшигч", note: "Гүйлгээний утга", contact: "Холбоо барих" };
 
 let ME = null, CONF = null, TESTS = null, QCACHE = {};
 /* ---- төхөөрөмжийн хязгаар: нэг хэрэглэгч дээд тал нь DEV_MAX төхөөрөмж ---- */
@@ -4043,13 +4062,15 @@ async function meInfo() {
   const email = low(u.email), c = await conf();
   let until = null; try { const g = await getDoc(D("grants", email)); if (g.exists() && g.data().until) until = toD(g.data().until); } catch (e) {}
   let tUntil = null; try { const g = await getDoc(D("teachers", email)); if (g.exists() && g.data().until) tUntil = toD(g.data().until); } catch (e) {}
+  let lUntil = null; try { const g = await getDoc(D("lgrants", email)); if (g.exists() && g.data().until) lUntil = toD(g.data().until); } catch (e) {}
   let role = ""; try { const us = await getDoc(D("users", u.uid)); if (us.exists()) role = us.data().role || ""; } catch (e) {}
   const admin = ADMINS.concat(c.admins || []).map(low).indexOf(email) >= 0, tpro = !!tUntil && tUntil.getTime() > Date.now();
   const paid = (!!until && until.getTime() > Date.now()) || tpro || admin;
   const teacher = admin || tpro;
   if (!admin) { let ok = true; try { ok = await checkDevice(email); } catch (e) { console.warn("GeoExam device", e); }
     if (!ok) { ME = null; await signOut(auth); if (window.__devBlocked) window.__devBlocked(); return null; } }
-  ME = { uid: u.uid, email, name: u.displayName || email.split("@")[0], paid, status: paid ? "Төлсөн" : "Хүлээгдэж буй", until: until ? ymd(until) : "", teacher, admin, role: admin ? "teacher" : role, tUntil: tUntil ? ymd(tUntil) : "" };
+  ME = { uid: u.uid, email, name: u.displayName || email.split("@")[0], paid, status: paid ? "Төлсөн" : "Хүлээгдэж буй", until: until ? ymd(until) : "", teacher, admin, role: admin ? "teacher" : role, tUntil: tUntil ? ymd(tUntil) : "",
+    learn: admin || (!!lUntil && lUntil.getTime() > Date.now()), lUntil: lUntil ? ymd(lUntil) : "" };
   let day = ""; try { day = localStorage.getItem("gx-seen-" + u.uid) || ""; } catch (e) {}
   const today = new Date().toISOString().slice(0, 10);
   if (day !== today) { setDoc(D("users", u.uid), { name: ME.name, email, seen: Timestamp.now() }, { merge: true }).catch(() => {}); try { localStorage.setItem("gx-seen-" + u.uid, today); } catch (e) {} }
@@ -4142,7 +4163,7 @@ H.me = async () => { const m = await meInfo(); return m ? { ok: true, user: m } 
 H.tests = async p => {
   const m = await meInfo(), L = await allTests(!!(p && p.action === "tests"));
   const paid = !!(m && (m.paid || m.teacher)), topics = {};
-  const lessons = L.filter(t => t.lesson).map(t => ({ id: t.id, name: t.name, free: !!t.free, desc: t.desc || "", cat: ((c => c === "Бусад" ? "Олимпиад" : c)(String(t.group || "").replace(/^Сургалт · /, "")) || "Олимпиад"), unit: t.unit || "", count: t.count || 0, gate: t.gate !== false, order: t.order || 0, locked: !t.free && !paid, minutes: 0, group: t.group || "" }));
+  const lessons = L.filter(t => t.lesson).map(t => ({ id: t.id, name: t.name, free: !!t.free, desc: t.desc || "", cat: ((c => c === "Бусад" ? "Олимпиад" : c)(String(t.group || "").replace(/^Сургалт · /, "")) || "Олимпиад"), unit: t.unit || "", count: t.count || 0, gate: t.gate !== false, order: t.order || 0, locked: !t.free && !(m && m.learn), minutes: 0, group: t.group || "" }));   // 🎬 Сургалт: зөвхөн админ + сургалтын эрхтэй
   const tests = L.filter(t => !t.lesson && !t.hidden).map(t => {
     const locked = !t.free && !paid;
     const cat = catOfGroup(t.group);
@@ -4521,19 +4542,20 @@ H.myQDel = async p => {
 };
 
 /* ---- багшийн хэрэгслүүд ---- */
-H.grant = async p => {   // эрх олгох / цуцлах: {email, months}
+H.grant = async p => {   // эрх олгох / цуцлах: {email, months, kind:"learn"→ Сургалтын эрх}
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const GC = p.kind === "learn" ? "lgrants" : "grants";
   const e = low(p.email); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return { ok: false, error: "email" };
-  if (+p.months <= 0) { await deleteDoc(D("grants", e)); return { ok: true, email: e, until: "" }; }
-  const old = await getDoc(D("grants", e)); let base = Date.now();
+  if (+p.months <= 0) { await deleteDoc(D(GC, e)); return { ok: true, email: e, until: "" }; }
+  const old = await getDoc(D(GC, e)); let base = Date.now();
   if (old.exists() && old.data().until && toD(old.data().until).getTime() > base) base = toD(old.data().until).getTime();
   const u = new Date(base); u.setMonth(u.getMonth() + (+p.months));
-  await setDoc(D("grants", e), { until: Timestamp.fromDate(u), by: m.email, at: Timestamp.now() });
+  await setDoc(D(GC, e), { until: Timestamp.fromDate(u), by: m.email, at: Timestamp.now() });
   return { ok: true, email: e, until: ymd(u) };
 };
-H.grants = async () => {
+H.grants = async p => {
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
-  const s = await getDocs(C("grants"));
+  const s = await getDocs(C(p && p.kind === "learn" ? "lgrants" : "grants"));
   return { ok: true, list: s.docs.map(d => ({ email: d.id, until: d.data().until ? ymd(toD(d.data().until)) : "", active: d.data().until && toD(d.data().until).getTime() > Date.now() })).sort((a, b) => a.until < b.until ? 1 : -1) };
 };
 H.devices = async p => {   // сурагчийн төхөөрөмжүүд: {email}
