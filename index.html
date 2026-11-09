@@ -938,6 +938,45 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .link.lsback{padding:9px 16px;border:1.5px solid rgba(37,99,235,.4);background:rgba(37,99,235,.08);color:#2563EB;justify-self:start;align-self:flex-start;width:auto}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .link.lsback{color:#93C5FD;border-color:rgba(96,165,250,.45);background:rgba(96,165,250,.1)}}
 :root[data-theme="dark"] .link.lsback{color:#93C5FD;border-color:rgba(96,165,250,.45);background:rgba(96,165,250,.1)}
+/* 🎓 Сургалт: олон хичээлтэй үед эвхэгддэг бүлэг, нягт карт */
+.lscard{padding:10px 12px;gap:10px}
+.lscard .lsn.lsplay{width:40px;height:40px;min-width:40px}.lscard .lsn.lsplay svg{width:20px;height:20px}
+.lscard .tx b{font-size:15px;line-height:1.3}.lscard small{font-size:12.5px}
+.lsunit{border:1px solid var(--line);border-radius:16px;margin:10px 0;background:var(--surface);overflow:hidden}
+.lsunit>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer}
+.lsunit>summary::-webkit-details-marker{display:none}
+.lsunit .ut{flex:1;display:grid;gap:4px;min-width:0}.lsunit .ut b{font-size:16px}.lsunit .ut small{color:var(--muted);font-size:12.5px}
+.lsunit .up{height:5px;border-radius:3px;background:var(--line);overflow:hidden;max-width:220px}.lsunit .up i{display:block;height:100%;background:linear-gradient(90deg,#34D399,#059669);border-radius:3px}
+.lsunit .chev{font-size:22px;color:var(--muted);transition:transform .2s;line-height:1}.lsunit[open] .chev{transform:rotate(180deg)}
+.lsunit>.lsgrid{padding:0 12px 12px;margin:0}
+.lsunit[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+.lssearch{width:100%;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1.5px solid rgba(37,99,235,.3);background:var(--surface);color:var(--fg);font:inherit;margin:6px 0 4px}
+.lscont{position:relative;overflow:hidden;width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;margin:6px 0 10px;border-radius:16px;border:0;cursor:pointer;text-align:left;color:#fff;font:inherit;background:linear-gradient(120deg,#0057B7,#2563EB 60%,#38BDF8);box-shadow:0 8px 22px rgba(37,99,235,.3)}
+.lscont .lsn.lsplay{width:44px;height:44px;min-width:44px;background:rgba(255,255,255,.22)!important;box-shadow:none;border-radius:50%;display:grid;place-items:center}.lscont .lsn svg{width:22px;height:22px;margin-left:2px}
+.lscont .tx{display:grid;gap:2px;min-width:0}.lscont small{opacity:.85;font-size:12px;font-weight:700;color:#FFD500}.lscont b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lscont .lscp{position:absolute;left:0;bottom:0;height:4px;background:#FFD500}
+/* ↔ хичээлийн мөр: 2 карт харагдана, хажуу тийш гүйлгэнэ */
+.lsrow{padding:12px 0 14px}
+.lsrow .lshd{display:flex;align-items:center;gap:10px;padding:0 14px 10px}
+.lsnav{display:flex;gap:6px}.lsnav button{width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(37,99,235,.35);background:var(--surface);color:#2563EB;font:700 18px/1 sans-serif;cursor:pointer}
+.lsnav button:disabled{opacity:.3;cursor:default}
+.lsscroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 14px 6px;scroll-padding:0 14px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.lsscroll::-webkit-scrollbar{display:none}
+.lsscroll .lscard{flex:0 0 calc((100% - 10px) / 2);scroll-snap-align:start;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:12px;min-height:150px;box-sizing:border-box}
+.lsscroll .lscard .tx{flex:1;align-content:start}.lsscroll .lscard .tx b{font-size:14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.lsscroll .lscard .tg{align-self:flex-start}
+@media (min-width:700px){.lsscroll .lscard{flex-basis:calc((100% - 30px) / 4)}}
+/* 🎡 хүрд: 2 хичээл харагдана, дээш доош гүйлгэнэ */
+.lswheel{display:grid;gap:8px;padding:0 12px 2px;overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.lswheel::-webkit-scrollbar{display:none}
+.lswheel .lscard{scroll-snap-align:start}
+.lsunit.wheel{position:relative}
+.lsunit.wheel::before,.lsunit.wheel::after{content:"";position:absolute;left:1px;right:1px;height:26px;pointer-events:none;z-index:2;transition:opacity .2s}
+.lsunit.wheel::after{bottom:13px;background:linear-gradient(transparent,var(--surface))}
+.lsunit.wheel.end::after{opacity:0}
+.lsunit.wheel::before{display:none}
+.lsnav button{font-size:12px}
+.lscard .lsu{color:#2563EB!important;font-weight:700;font-size:11.5px!important;opacity:.9}
 </style>
 </head>
 <body>
@@ -3313,18 +3352,48 @@ function renderLearn(box) {
   if (have.length > 1) box.append(pick("Ангилал", have.map(c => ({ v: c, t: c + " · " + lessons.filter(l => l.cat === c).length })), lcat, v => { lcat = v; st.set("ge-lcat", v); renderPane(); }));
   box.append(el("p", "note hint", "▶ Бичлэгийг үзэж дуусмагц хичээлийн дараах тест нээгдэнэ."));
   const L = lessons.filter(l => l.cat === lcat).sort((a, b) => (a.order || 0) - (b.order || 0) || (a.id < b.id ? -1 : 1));
-  const U = {}; L.forEach(l => (U[l.unit || ""] = U[l.unit || ""] || []).push(l));
-  Object.keys(U).forEach(u => {
-    if (u) box.append(el("div", "grp", u));
-    const g = el("div", "lsgrid");
-    U[u].forEach((l, i) => { const w = lwGet(l.id), c = el("button", "lscard" + (l.locked ? " locked" : "") + (w.q != null ? " done" : "")); c.type = "button";
+  const isDone = l => lwGet(l.id).q != null;
+  /* ▶ Үргэлжлүүлэх: хамгийн сүүлд нээсэн, тестээ өгөөгүй хичээл */
+  const lastId = st.get("ge-lastl"), last = L.find(l => l.id === lastId && !isDone(l) && !l.locked);
+  if (last) { const w = lwGet(last.id), c = el("button", "lscont"); c.type = "button";
+    c.innerHTML = '<span class="lsn lsplay"><svg viewBox="0 0 24 24"><path d="M8.5 5.8v12.4a1 1 0 0 0 1.5.86l10-6.2a1 1 0 0 0 0-1.72l-10-6.2a1 1 0 0 0-1.5.86z" fill="#fff"/></svg></span>';
+    const tx = el("span", "tx"); tx.append(el("small", "", "▶ Үргэлжлүүлэх"), el("b", "", last.name)); c.append(tx);
+    if (w.p) { const pb = el("i", "lscp"); pb.style.width = Math.min(100, w.p) + "%"; c.append(pb); }
+    c.onclick = () => openLesson(last); box.append(c); }
+  /* 🔎 хайлт (олон хичээлтэй үед) */
+  let q = "";
+  if (L.length > 8) { const sI = Object.assign(el("input", "lssearch"), { type: "search", placeholder: "🔎 Хичээл хайх…" }); box.append(sI);
+    sI.oninput = () => { q = sI.value.trim().toLowerCase(); draw(); }; }
+  const wrap = el("div"); box.append(wrap);
+  const card = (l, i) => { const w = lwGet(l.id), c = el("button", "lscard" + (l.locked ? " locked" : "") + (w.q != null ? " done" : "")); c.type = "button";
       const n = el("span", "lsn lsplay" + (w.q != null ? " ok" : ""));
       n.innerHTML = w.q != null ? '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M8.5 5.8v12.4a1 1 0 0 0 1.5.86l10-6.2a1 1 0 0 0 0-1.72l-10-6.2a1 1 0 0 0-1.5.86z" fill="#fff"/></svg>'; const tx = el("span", "tx");
-      tx.append(el("b", "", l.name), el("small", "", (l.count ? "▶ Бичлэг · " + l.count + " асуулттай тест" : "▶ Бичлэг") + (w.q != null ? " · " + w.q + "%" : w.done ? " · үзсэн" : w.p ? " · " + w.p + "% үзсэн" : "")));
-      const tg = el("span", "tg" + (l.free ? "" : " pay"), l.free ? "Үнэгүй" : l.locked ? "🔒 Төлбөртэй" : "Төлбөртэй");
-      c.append(n, tx, tg); c.onclick = () => l.locked ? learnPay(l) : openLesson(l); g.append(c); });
-    box.append(g);
-  });
+      tx.append(el("b", "", l.name), el("small", "", (w.q != null ? "✓ Тест · " + w.q + "%" : w.done ? "✓ Үзсэн · тест үлдсэн" : w.p ? w.p + "% үзсэн" : "▶ Бичлэг + бататгах тест")));
+      const tg = el("span", "tg" + (l.free ? "" : " pay"), l.free ? "Үнэгүй" : l.locked ? "🔒" : "Төлбөртэй");
+      c.append(n, tx, tg); c.onclick = () => { st.set("ge-lastl", l.id); l.locked ? learnPay(l) : openLesson(l); }; return c; };
+  /* бүлгүүд: эвхэгддэг, хэд нь дууссаныг харуулна */
+  const OPEN = (() => { try { return JSON.parse(st.get("ge-lsopen-" + lcat) || "null"); } catch (e) { return null; } })();
+  function draw() { wrap.innerHTML = "";
+    const F = q ? L.filter(l => (l.name + " " + (l.unit || "")).toLowerCase().indexOf(q) >= 0) : L;
+    if (!F.length) { wrap.append(el("p", "empty", "Хичээл олдсонгүй.")); return; }
+    const U = {}; F.forEach(l => (U[l.unit || ""] = U[l.unit || ""] || []).push(l)); const keys = Object.keys(U);
+    if (q) { const g = el("div", "lsgrid"); F.forEach((l, i) => g.append(card(l, i))); wrap.append(g); return; }
+    /* 🎡 бүх хичээл НЭГ хүрдэнд: 2 хичээл харагдана, доорх «Шилдэг сурагчид» байрандаа хөдлөхгүй */
+    const n = F.length, k = F.filter(isDone).length, multi = keys.length > 1 || !!keys[0], d = el("section", "lsunit lsrow");
+    const hd = el("div", "lshd"), t = el("span", "ut"); t.append(el("b", "", lcat), el("small", "", n + " хичээл" + (k ? " · ✓ " + k + "/" + n : "")));
+    const pr = el("span", "up"); const pi = el("i"); pi.style.width = Math.round(k / n * 100) + "%"; pr.append(pi); t.append(pr); hd.append(t);
+    const g = el("div", "lswheel");
+    F.forEach((l, i) => { const c = card(l, i); if (multi && l.unit) { const tx = c.querySelector(".tx"); tx.prepend(el("small", "lsu", l.unit)); } g.append(c); });
+    d.append(hd, g); wrap.append(d);
+    if (n > 2) { const nav = el("span", "lsnav"), pv = el("button", "", "▲"), nx = el("button", "", "▼"); pv.type = nx.type = "button"; nav.append(pv, nx); hd.append(nav);
+      const step = dir => { const c = [...g.children], cur = c.findIndex(x => x.offsetTop - g.offsetTop >= g.scrollTop - 2), to = c[Math.max(0, Math.min(c.length - 1, cur + dir))]; if (to) g.scrollTo({ top: to.offsetTop - g.offsetTop, behavior: "smooth" }); };
+      pv.onclick = () => step(-1); nx.onclick = () => step(1);
+      const upd = () => { pv.disabled = g.scrollTop < 4; nx.disabled = g.scrollTop + g.clientHeight >= g.scrollHeight - 4; d.classList.toggle("end", g.scrollTop + g.clientHeight >= g.scrollHeight - 4); };
+      g.onscroll = upd; d.classList.add("wheel");
+      const fit = () => { const c = g.children; if (c.length < 2) return; const gap = parseFloat(getComputedStyle(g).rowGap) || 8; g.style.height = (Math.max(c[0].offsetHeight, c[1].offsetHeight) * 2 + gap) + "px"; upd(); };
+      requestAnimationFrame(() => { fit(); const fi = F.findIndex(l => !isDone(l)); if (fi > 0) { const c = g.children[Math.min(fi, n - 2)]; if (c) g.scrollTop = c.offsetTop - g.offsetTop; } upd(); });
+      addEventListener("resize", fit); } }
+  draw();
   renderLB(box, "learn", "", "Сургалт");
 }
 
