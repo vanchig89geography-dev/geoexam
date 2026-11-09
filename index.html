@@ -921,6 +921,16 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .ntcact{display:flex;gap:16px}.ntcact .link{align-self:auto}
 .lsvid video{position:absolute;inset:0;width:100%;height:100%;background:#000}
 .lsquiz{border:0!important;background:none!important;padding:0!important;margin:12px 0 4px}.lsquiz .lsqbtn{width:100%;padding:16px;font-size:17px}.lsquiz .lsqbtn:disabled{opacity:.45;cursor:not-allowed}.lsquiz .lbn{text-align:center;margin:8px 0 0}
+.lscard .lsn.lsplay{width:48px;height:48px;min-width:48px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#38BDF8,#2563EB 55%,#4F46E5);box-shadow:0 6px 16px rgba(37,99,235,.35);color:#fff;padding:0}
+.lscard .lsn.lsplay svg{width:24px;height:24px;margin-left:2px}
+.lscard .lsn.lsplay.ok{background:linear-gradient(135deg,#34D399,#059669);box-shadow:0 6px 16px rgba(5,150,105,.3)}.lscard .lsn.lsplay.ok svg{margin-left:0}
+.lscard:hover .lsn.lsplay{transform:scale(1.07)}.lscard .lsn.lsplay{transition:transform .15s}
+.lscard.locked .lsn.lsplay{filter:grayscale(.35) opacity(.85)}
+/* 🎓 хичээлийн карт: нарийн цэнхэр хүрээ */
+.lscard{border:1.5px solid rgba(37,99,235,.38)!important}
+.lscard:hover{border-color:#2563EB!important;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lscard{border-color:rgba(96,165,250,.45)!important}:root:not([data-theme="light"]) .lscard:hover{border-color:#60A5FA!important}}
+:root[data-theme="dark"] .lscard{border-color:rgba(96,165,250,.45)!important}:root[data-theme="dark"] .lscard:hover{border-color:#60A5FA!important}
 </style>
 </head>
 <body>
@@ -3301,7 +3311,8 @@ function renderLearn(box) {
     if (u) box.append(el("div", "grp", u));
     const g = el("div", "lsgrid");
     U[u].forEach((l, i) => { const w = lwGet(l.id), c = el("button", "lscard" + (l.locked ? " locked" : "") + (w.q != null ? " done" : "")); c.type = "button";
-      const n = el("span", "lsn", w.q != null ? "✓" : String(i + 1)); const tx = el("span", "tx");
+      const n = el("span", "lsn lsplay" + (w.q != null ? " ok" : ""));
+      n.innerHTML = w.q != null ? '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M8.5 5.8v12.4a1 1 0 0 0 1.5.86l10-6.2a1 1 0 0 0 0-1.72l-10-6.2a1 1 0 0 0-1.5.86z" fill="#fff"/></svg>'; const tx = el("span", "tx");
       tx.append(el("b", "", l.name), el("small", "", (l.count ? "▶ Бичлэг · " + l.count + " асуулттай тест" : "▶ Бичлэг") + (w.q != null ? " · " + w.q + "%" : w.done ? " · үзсэн" : w.p ? " · " + w.p + "% үзсэн" : "")));
       const tg = el("span", "tg" + (l.free ? "" : " pay"), l.free ? "Үнэгүй" : l.locked ? "🔒 Төлбөртэй" : "Төлбөртэй");
       c.append(n, tx, tg); c.onclick = () => l.locked ? learnPay(l) : openLesson(l); g.append(c); });
