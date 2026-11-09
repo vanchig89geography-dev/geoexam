@@ -931,6 +931,13 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .lscard:hover{border-color:#2563EB!important;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lscard{border-color:rgba(96,165,250,.45)!important}:root:not([data-theme="light"]) .lscard:hover{border-color:#60A5FA!important}}
 :root[data-theme="dark"] .lscard{border-color:rgba(96,165,250,.45)!important}:root[data-theme="dark"] .lscard:hover{border-color:#60A5FA!important}
+.lsback{display:inline-flex;align-items:center;gap:6px;margin:4px 0 10px;padding:9px 16px;border-radius:999px;border:1.5px solid rgba(37,99,235,.4);background:rgba(37,99,235,.08);color:#2563EB;font:700 14px var(--btn-font);cursor:pointer}
+.lsback:hover{background:rgba(37,99,235,.15);border-color:#2563EB}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lsback{color:#93C5FD;border-color:rgba(96,165,250,.45);background:rgba(96,165,250,.1)}}
+:root[data-theme="dark"] .lsback{color:#93C5FD;border-color:rgba(96,165,250,.45);background:rgba(96,165,250,.1)}
+.link.lsback{padding:9px 16px;border:1.5px solid rgba(37,99,235,.4);background:rgba(37,99,235,.08);color:#2563EB;justify-self:start;align-self:flex-start;width:auto}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .link.lsback{color:#93C5FD;border-color:rgba(96,165,250,.45);background:rgba(96,165,250,.1)}}
+:root[data-theme="dark"] .link.lsback{color:#93C5FD;border-color:rgba(96,165,250,.45);background:rgba(96,165,250,.1)}
 </style>
 </head>
 <body>
@@ -1620,7 +1627,7 @@ async function openContest(code, errEl) {
   let r; try { $("pane").style.opacity = .5; r = await api({ action: "contest", code, token }); } catch (e) { r = { ok: false, error: "net" }; } $("pane").style.opacity = 1;
   if (!r.ok) { const m = CERR[r.error] || "Алдаа гарлаа."; if (errEl) errEl.textContent = m; else alertBox(m); return; }
   CT = r; const c = r.contest, box = $("pane"); box.innerHTML = "";
-  const back = el("button", "link", "← Шалгалтууд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
+  const back = el("button", "link lsback", "← Шалгалтууд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
   const head = el("div", "chead"); const s = STAT[c.status];
   head.append(el("span", "tg st-" + s[1], s[0])); if (c.type === "olymp") head.append(el("span", "tg olymp", "🏆 Олимпиад")); head.append(el("h3", "", c.name));
   if (c.desc) head.append(el("p", "", c.desc));
@@ -1748,7 +1755,7 @@ async function renderTeacher(box) {
 let TRTAB = "res", TRCODE = "";
 async function teacherResults(code) {
   const r = await api({ action: "contestResults", code, token }); if (!r.ok) return alertBox(CERR[r.error] || "Алдаа");
-  const box = $("pane"); box.innerHTML = ""; const back = el("button", "link", "← Шалгалтууд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
+  const box = $("pane"); box.innerHTML = ""; const back = el("button", "link lsback", "← Шалгалтууд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
   box.append(contestCard(r.contest, "Сурагчдад код: " + r.contest.code));
   const csv = el("button", "btn ghost", "⬇ Excel-ээр татах"); csv.type = "button";
   csv.onclick = () => { const rows = [["Байр", "Нэр", "Майл", "Оноо", "Нийт", "Хувь", "Хугацаа"]].concat(r.ranking.map(x => [x.rank, x.name, x.email, x.score, x.total, x.total ? Math.round(x.score / x.total * 100) + "%" : "", fmtS(x.secs)]));
@@ -1845,7 +1852,7 @@ async function teacherResults(code) {
 async function myQuestions() {
   const box = $("pane"); box.innerHTML = '<p class="empty">Ачаалж байна…</p>';
   const r = await api({ action: "myQs" }); box.innerHTML = "";
-  const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
+  const back = el("button", "link lsback", "← Буцах"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
   box.append(el("h3", "bh", "✍️ Миний асуултууд"), el("p", "note", "Энд нэмсэн асуултууд зөвхөн танд харагдана. Шалгалт үүсгэхдээ «Миний асуултууд» ангиллаас сонгоно."));
   const nwb = el("button", "btn", "+ Шинэ асуулт"), imb = el("button", "btn ghost", "📥 Файлаас оруулах"); nwb.type = imb.type = "button"; imb.onclick = () => myImport();
   const imw = el("div", "tbtns"); imw.append(nwb, imb); box.append(imw);
@@ -1929,7 +1936,7 @@ async function printExam(code, teacher) {
 async function contestBuilder() {
   const box = $("pane"); box.innerHTML = '<p class="empty">Даалгаврын санг ачаалж байна…</p>';
   const r = await api({ action: "contestBank", token }); if (!r.ok) { box.innerHTML = ""; return alertBox(CERR[r.error] || "Алдаа"); }
-  box.innerHTML = ""; const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
+  box.innerHTML = ""; const back = el("button", "link lsback", "← Буцах"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
   box.append(el("h3", "bh", user.admin ? "Шинэ шалгалт / олимпиад" : "Шинэ шалгалт"));
   const now = new Date(), p = n => String(n).padStart(2, "0"), loc = d => d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes());
   const sec = (num, title) => { const c = el("section", "bsec"); const h = el("div", "bsech"); h.append(el("span", "bnum1", num), el("b", "", title)); c.append(h); box.append(c); return c; };
@@ -2357,7 +2364,7 @@ function mapOptions(code, G = MG) {
 }
 function drawMapQ() {
   const box = $("pane"); box.innerHTML = ""; const code = MG.list[MG.i], V = MG.V, T = V.targets[code];
-  const top = el("div", "mtop"); const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => { clearTimeout(MG.to); MG = null; renderPane(); };
+  const top = el("div", "mtop"); const back = el("button", "link lsback", "← Буцах"); back.type = "button"; back.onclick = () => { clearTimeout(MG.to); MG = null; renderPane(); };
   top.append(back, el("span", "mprog", (MG.i + 1) + " / " + MG.list.length), el("span", "mscore", "Оноо " + MG.score)); box.append(top);
   const bar = el("div", "bar"); const bi = el("i"); bi.style.width = (MG.i / MG.list.length * 100) + "%"; bar.append(bi); box.append(bar);
   const wrap = el("div", "mapbox"); if (Math.max(T.w, T.h) < 16) MG.zoom = true;   // жижиг улсыг автоматаар томруулна
@@ -2395,7 +2402,7 @@ function flagPre(c) {   // дараагийн тугийг урьдчилж ач
 function drawFlagQ() {
   const box = $("pane"); box.innerHTML = ""; const code = MG.list[MG.i];
   flagPre(MG.list[MG.i + 1]);
-  const top = el("div", "mtop"); const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => { clearTimeout(MG.to); MG = null; renderPane(); };
+  const top = el("div", "mtop"); const back = el("button", "link lsback", "← Буцах"); back.type = "button"; back.onclick = () => { clearTimeout(MG.to); MG = null; renderPane(); };
   top.append(back, el("span", "mprog", (MG.i + 1) + " / " + MG.list.length), el("span", "mscore", "Оноо " + MG.score)); box.append(top);
   const bar = el("div", "bar"); const bi = el("i"); bi.style.width = (MG.i / MG.list.length * 100) + "%"; bar.append(bi); box.append(bar);
   const wrap = el("div", "mflag"), im = el("img"); im.alt = "Туг"; im.src = flagUrl(code, 640); im.decoding = "async";
@@ -2427,7 +2434,7 @@ function featOptions(idx) {   // 3 буруу хариулт: эхлээд нэ�
 }
 function drawFeatQ() {
   const box = $("pane"); box.innerHTML = ""; const idx = MG.list[MG.i], F = mapFeats(MG.kind), f = F[idx], V = MG.V;
-  const top = el("div", "mtop"); const back = el("button", "link", "← Буцах"); back.type = "button"; back.onclick = () => { clearTimeout(MG.to); MG = null; renderPane(); };
+  const top = el("div", "mtop"); const back = el("button", "link lsback", "← Буцах"); back.type = "button"; back.onclick = () => { clearTimeout(MG.to); MG = null; renderPane(); };
   top.append(back, el("span", "mprog", (MG.i + 1) + " / " + MG.list.length), el("span", "mscore", "Оноо " + MG.score)); box.append(top);
   const bar = el("div", "bar"); const bi = el("i"); bi.style.width = (MG.i / MG.list.length * 100) + "%"; bar.append(bi); box.append(bar);
   const path = d3.geoPath(V.proj).digits(1), poly = Array.isArray(f[2][0][0][0]), multi = Array.isArray(f[2][0][0]), geo = poly ? { type: "MultiPolygon", coordinates: f[2] } : multi ? { type: "MultiLineString", coordinates: f[2] } : { type: "LineString", coordinates: f[2] }, d = path(geo), bb = path.bounds(geo);
@@ -2543,7 +2550,7 @@ function btPlayersChanged() {
 }
 function btScreen() {   // хүлээлгийн өрөө
   if (!BT || !BT.b) return; const b = BT.b, box = $("pane"); box.innerHTML = "";
-  const back = el("button", "link", "← Гарах"); back.type = "button"; back.onclick = () => { btStop(); renderPane(); }; box.append(back);
+  const back = el("button", "link lsback", "← Гарах"); back.type = "button"; back.onclick = () => { btStop(); renderPane(); }; box.append(back);
   const h = el("div", "blobby");
   h.append(el("span", "tg st-open", b.mode === "group" ? "Бүлгээр · " + b.max + " хүртэл" : "1 vs 1"), el("div", "bcode", BT.code),
     el("p", "", (b.kind === "fl" ? "🚩 Туг · " : "🌍 Улс орон · ") + MAP_SCOPES.find(s => s.v === b.scope).t + " · " + b.n + " асуулт · асуулт бүр " + BT_SEC + " секунд"));
@@ -3003,7 +3010,7 @@ const dlBlob = (b, name) => { const a = document.createElement("a"); a.href = UR
 /* --- дэлгэц --- */
 function myImport() {
   const box = $("pane"); box.innerHTML = "";
-  const back = el("button", "link", "← Миний асуултууд"); back.type = "button"; back.onclick = () => myQuestions(); box.append(back);
+  const back = el("button", "link lsback", "← Миний асуултууд"); back.type = "button"; back.onclick = () => myQuestions(); box.append(back);
   box.append(el("h3", "bh", "📥 Файлаас асуулт оруулах"));
   box.append(el("p", "note", "Word (.docx), PDF, Excel (.xlsx, .csv) эсвэл текст файлаа сонгоход сайт асуулт, хариултын сонголт, зөв хариуг автоматаар таньна. Шалгаад «Хадгалах» дарна."));
   const fmt = el("details", "impfmt"); fmt.append(el("summary", "", "Файл ямар байх вэ? (жишээ)"));
@@ -3071,7 +3078,7 @@ async function testManager(mode) {
   const box = $("pane"); box.innerHTML = '<p class="empty">Ачаалж байна…</p>'; hideLanding && hideLanding();
   let r; try { r = await api({ action: "adminTests" }); } catch (e) { r = { ok: false }; }
   box.innerHTML = ""; if (!r.ok) return alertBox("Зөвхөн админ нэвтэрнэ.");
-  const back = el("button", "link", "← Админы тохиргоо"); back.type = "button"; back.onclick = () => { if (tab === "admin") renderPane(); else goSection("admin"); }; box.append(back);
+  const back = el("button", "link lsback", "← Админы тохиргоо"); back.type = "button"; back.onclick = () => { if (tab === "admin") renderPane(); else goSection("admin"); }; box.append(back);
   box.append(el("h3", "bh", LM ? "🎓 Сургалт: видео хичээл нэмэх, засах" : "📝 Тест нэмэх, засах"), el("p", "note", LM ? "Хичээл бүрт YouTube бичлэг, тэмдэглэл, хичээлийн дараах тест нэмнэ. Сурагч бичлэгийг үзэж дуусмагц тест нээгдэнэ." : "Шинэ тест нэмэх, байгаа тестийн асуултыг засах, устгах. Хадгалмагц сайтад шууд гарна."));
   const nb = el("button", "btn", LM ? "+ Шинэ хичээл нэмэх" : "+ Шинэ тест нэмэх"); nb.type = "button"; nb.onclick = () => testEdit(null, r.tests, mode); const tb = el("div", "tbtns"); tb.append(nb); box.append(tb);
   (LM ? TA_LEARN : TA_SECS).forEach(([sk, sn]) => {
@@ -3094,7 +3101,7 @@ async function testEdit(id, all, mode) {
   let T = { name: "", group: "", free: true, minutes: 0, desc: "" }, Q = [], V = { vid: "", body: "" };
   if (id) { const r = await api({ action: "adminTest", id }); if (!r.ok) { box.innerHTML = ""; return alertBox("Тест ачаалж чадсангүй."); } T = r.test; Q = r.q.map(q => Object.assign({}, q)); V = { vid: r.vid || "", body: r.body || "" }; }
   const isL = mode === "learn" || !!T.lesson, MODE = isL ? "learn" : undefined;
-  box.innerHTML = ""; const back = el("button", "link", "← Тестүүд"); back.type = "button"; back.onclick = () => { if (dirty && !confirm("Хадгалаагүй өөрчлөлт алга болно. Гарах уу?")) return; testManager(MODE); }; box.append(back);
+  box.innerHTML = ""; const back = el("button", "link lsback", "← Тестүүд"); back.type = "button"; back.onclick = () => { if (dirty && !confirm("Хадгалаагүй өөрчлөлт алга болно. Гарах уу?")) return; testManager(MODE); }; box.append(back);
   back.textContent = isL ? "← Хичээлүүд" : "← Тестүүд"; box.append(el("h3", "bh", isL ? (id ? "✏️ Хичээл засах" : "➕ Шинэ хичээл") : (id ? "✏️ Тест засах" : "➕ Шинэ тест")));
   let dirty = false; const mark = () => { dirty = true; };
   /* --- 1. тестийн мэдээлэл --- */
@@ -3254,7 +3261,7 @@ function renderAdmin(box) {
   if (!user || !user.admin) { box.append(el("p", "empty", "Зөвхөн админ нэвтэрнэ.")); return; }
   if (admSub === "test" || admSub === "learn") { const m = admSub; admSub = ""; return testManager(m === "learn" ? "learn" : undefined); }
   if (admSub) { const k = admSub, c = ADM_CARDS.find(x => x[0] === k) || ADM_CARDS[0];
-    const back = el("button", "link", "← Админы тохиргоо"); back.type = "button"; back.onclick = () => { admSub = ""; renderPane(); scrollTo({ top: 0 }); };
+    const back = el("button", "link lsback", "← Админы тохиргоо"); back.type = "button"; back.onclick = () => { admSub = ""; renderPane(); scrollTo({ top: 0 }); };
     box.append(back, el("h3", "bh", c[1] + " " + c[2])); if (k === "cert") { certAdmin(box); return; } if (k === "notice") { noticeAdmin(box); return; } box.append(adminPanel(k)); return; }
   box.append(el("h3", "bh", "⚙️ Админы тохиргоо"), el("p", "note", "Энэ хэсэг зөвхөн танд (админд) харагдана."));
   const g = el("div", "admgrid");
@@ -3327,6 +3334,8 @@ function ytApi() { if (window.YT && YT.Player) return Promise.resolve();
     if (!document.getElementById("ytapi")) { const s = document.createElement("script"); s.id = "ytapi"; s.src = "https://www.youtube.com/iframe_api"; s.onerror = rej; document.head.append(s); }
     setTimeout(() => rej(new Error("yt")), 15000); }); }
 var LOPEN = null;
+function lessonBack(fromPop) { if (!fromPop) { try { if (history.state && history.state.ls) { history.back(); return; } } catch (e) {} } lessonStop(); renderPane(); scrollTo({ top: $("list").offsetTop - 10 }); }
+addEventListener("popstate", () => { if (LOPEN && $("exam").hidden) lessonBack(true); });
 function lessonStop() { LOPEN = null; clearInterval(ytTick); ytTick = null; try { YTP && YTP.destroy(); } catch (e) {} YTP = null; }
 
 async function openLesson(l) {
@@ -3334,7 +3343,8 @@ async function openLesson(l) {
   const box = $("pane"); box.innerHTML = '<p class="empty">Ачаалж байна…</p>'; LOPEN = l.id;
   let r; try { r = await api({ action: "lesson", id: l.id }); } catch (e) { r = { ok: false }; }
   box.innerHTML = "";
-  const back = el("button", "link", "← Хичээлүүд"); back.type = "button"; back.onclick = () => { lessonStop(); renderPane(); }; box.append(back);
+  const back = el("button", "lsback", "← Хичээлүүд рүү буцах"); back.type = "button"; back.onclick = () => lessonBack(); box.append(back);
+  try { if (!(history.state && history.state.ls)) history.pushState({ ls: l.id }, ""); } catch (e) {}   // 📱 утасны «буцах» товч хичээлийн жагсаалт руу буцаана
   if (!r.ok) { if (r.error === "locked") { box.append(el("p", "empty", "🔒 Энэ хичээл төлбөртэй.")); learnPay(l); } else box.append(el("p", "empty", "Хичээлийг ачаалж чадсангүй.")); return; }
   const L = r.lesson; box.append(el("h3", "bh lsh", L.name)); if (L.unit || L.desc) box.append(el("p", "note", [L.unit, L.desc].filter(Boolean).join(" · ")));
   const W = lwGet(L.id); let done = !!W.done || !L.gate || !r.count;
@@ -3410,6 +3420,20 @@ function learnPay(l) {
   z.onclick = e => { if (e.target === z) z.remove(); };
 }
 
+/* 📱 Утасны «буцах» товч: дэлгэц дээр «← …» буцах товч гарсан бол түүнийг дарсантай адил ажиллана (сайтаас гарахгүй) */
+(function () {
+  const vis = b => b && b.offsetParent !== null && !b.closest("[hidden]");
+  const cur = () => [...document.querySelectorAll(".lsback")].find(vis);
+  new MutationObserver(() => {
+    if (!cur()) return; try { const s = history.state; if (!(s && (s.gx || s.ls))) history.pushState({ gx: 1 }, ""); } catch (e) {}
+  }).observe(document.body, { childList: true, subtree: true });
+  addEventListener("popstate", () => {
+    if (LOPEN) return;   // хичээлийг өөрөө зохицуулна
+    if ($("exam") && !$("exam").hidden) return;
+    const b = cur(); if (b) b.click();
+  });
+})();
+
 /* ---------- 🏆 GeoQuiz: бүртгэл → төлбөр → тойрог → нийт жагсаалт ---------- */
 const QZ_GRADES = ["Газарзүйн багш"];
 const QZ_LOC = ["УБ · Багануур", "УБ · Багахангай", "УБ · Баянгол", "УБ · Баянзүрх", "УБ · Налайх", "УБ · Сонгинохайрхан", "УБ · Сүхбаатар", "УБ · Хан-Уул", "УБ · Чингэлтэй",
@@ -3470,7 +3494,7 @@ function quizCard(q, adm) {
   if (adm) { const b = el("button", "btn ghost", "⚙️ Удирдах"); b.type = "button"; b.onclick = () => quizAdmin(q); c.append(b); }
   return c;
 }
-function quizBack(box, txt) { const b = el("button", "link", txt || "← GeoQuiz"); b.type = "button"; b.onclick = () => { tab = "quiz"; renderPane(); scrollTo({ top: 0 }); }; box.append(b); }
+function quizBack(box, txt) { const b = el("button", "link lsback", txt || "← GeoQuiz"); b.type = "button"; b.onclick = () => { tab = "quiz"; renderPane(); scrollTo({ top: 0 }); }; box.append(b); }
 function quizRegForm(q) {
   const box = $("pane"); box.innerHTML = ""; quizBack(box); const me = q.me || {};
   box.append(el("h3", "bh", "📝 " + q.title));
