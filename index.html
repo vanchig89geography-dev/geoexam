@@ -977,6 +977,9 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .lsunit.wheel::before{display:none}
 .lsnav button{font-size:12px}
 .lscard .lsu{color:#2563EB!important;font-weight:700;font-size:11.5px!important;opacity:.9}
+.pay .cpbtn{margin-left:8px;padding:3px 9px;border-radius:999px;border:1.5px solid rgba(37,99,235,.4);background:rgba(37,99,235,.08);color:#2563EB;font:700 11.5px var(--btn-font);cursor:pointer;vertical-align:middle;white-space:nowrap}
+.pay .cpbtn.ok{border-color:#059669;color:#059669;background:rgba(5,150,105,.1)}
+.pay>div>b{display:inline-flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:4px;text-align:right}
 </style>
 </head>
 <body>
@@ -1196,12 +1199,12 @@ function renderAcct() {
 /* ---------- catalogue ---------- */
 async function loadTests() {
   let cached = null; try { cached = JSON.parse(st.get("ge-tests") || "null"); } catch (e) {}
-  if (ONLINE && cached && cached.tests) { tests = cached.tests; lessons = cached.lessons || []; topics = cached.topics || []; if (cached.cfg) cfg = cached.cfg; renderPane(); }
+  if (ONLINE && cached && cached.tests) { tests = cached.tests; lessons = cached.lessons || []; topics = cached.topics || []; if (cached.cfg) cfg = payDefaults(cached.cfg); renderPane(); }
   else $("pane").innerHTML = '<p class="empty">Ачаалж байна...</p>';
   if (!ONLINE) { tests = DEMO.tests; topics = DEMO.topics; cfg = DEMO.cfg; $("demo").hidden = false; renderPane(); return; }
   try {
     const [r, c] = await Promise.all([api({ action: "tests", token: token || "" }), Object.keys(cfg).length ? null : api({ action: "config" })]);
-    if (c && c.ok) cfg = c.config;
+    if (c && c.ok) cfg = payDefaults(c.config);
     if (!r.ok && r.error) throw new Error(r.error);
     tests = r.tests || []; lessons = r.lessons || []; topics = r.topics || []; user = r.user; if (USE_FB) token = user ? user.uid : null; else if (!user && token) { token = null; st.set("ge-token", null); }
     st.set("ge-tests", JSON.stringify({ tests, lessons, topics, cfg }));
@@ -2072,6 +2075,10 @@ let AUTO_C = null, AUTO_B = null, mmode = st.get("ge-mmode") || "solo";
 (() => { const c = new URLSearchParams(location.search).get("c"); if (c && /^\d{6}$/.test(c)) { st.set("ge-ccode", c); tab = "contest"; AUTO_C = c; } })();
 
 /* ---------- account modal ---------- */
+/* 💳 Сургалтын төлбөрийн үндсэн мэдээлэл: тохиргоонд хоосон эсвэл туршилтын утга байвал эдгээрийг харуулна */
+const PAY_DEF = { "Сургалтын үнэ": "49 000₮ / 1 жил", "Банк": "Хаан банк", "Данс": "MN28 0005 0050 3170 6401", "Данс эзэмшигч": "Б.Ванчигдорж", "Гүйлгээний утга": "Бүртгүүлсэн майл хаягаа бичнэ үү" };
+function payDefaults(c) { c = Object.assign({}, c || {}); const junk = v => !v || /^\s*(0|о|o|-|0₮.*|Банкны нэр|0000000000|Утас эсвэл майл)\s*$/i.test(String(v));
+  Object.keys(PAY_DEF).forEach(k => { if (junk(c[k])) c[k] = PAY_DEF[k]; }); if (junk(c["Холбоо барих"])) delete c["Холбоо барих"]; return c; }
 function payHTML() {
   const box = el("div", "pay");
   const h = el("b", "", "Бүх хувилбарыг нээх · " + (cfg["Үнэ"] || "")); h.style.textAlign = "left"; box.append(h);
@@ -3472,12 +3479,19 @@ async function openLesson(l) {
 }
 var LQ = null;   // дуусгасан хичээлийн тестийн хувийг хадгална
 
+/* 📋 хуулах товч */
+function copyBtn(text) { const b = el("button", "cpbtn", "📋 Хуулах"); b.type = "button";
+  b.onclick = e => { e.stopPropagation(); const ok = () => { b.textContent = "✓ Хуулагдлаа"; b.classList.add("ok"); setTimeout(() => { b.textContent = "📋 Хуулах"; b.classList.remove("ok"); }, 1800); };
+    const fb = () => { const t = el("textarea"); t.value = text; t.style.position = "fixed"; t.style.opacity = "0"; document.body.append(t); t.select(); try { document.execCommand("copy"); ok(); } catch (x) {} t.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fb); else fb(); };
+  return b; }
 /* 🎬 Сургалтын төлбөрийн мэдээлэл (хичээл дээр дарахад + Миний бүртгэлд) */
 function learnPayHTML() {
   const box = el("div", "pay"), price = cfg["Сургалтын үнэ"] || cfg["Үнэ"] || "";
   const h = el("b", "", "🎬 Сургалтын бүх хичээл" + (price ? " · " + price : "")); h.style.textAlign = "left"; box.append(h);
   ["Банк", "Данс", "Данс эзэмшигч", "Гүйлгээний утга", "Холбоо барих"].forEach(k => { const v = k === "Гүйлгээний утга" ? user.email : cfg[k]; if (!v) return;
-    const d = el("div"); d.append(el("span", "", k), el("b", "", v)); box.append(d); });
+    const d = el("div"); d.append(el("span", "", k), el("b", "", v));
+    if (k === "Данс" || k === "Гүйлгээний утга") d.lastChild.append(copyBtn(k === "Данс" ? String(v).replace(/^IBAN:?\s*/i, "") : v)); box.append(d); });
   const p = el("p", "", "Төлбөр шалгагдмагц Сургалтын эрх нээгдэнэ. Дараа нь хуудсаа refresh хийнэ үү."); p.style.margin = "4px 0 0"; box.append(p);
   return box;
 }
