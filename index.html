@@ -1166,7 +1166,7 @@ async function api(params) { if (USE_FB) return (await FB).call(params); const r
 async function post(data) { if (USE_FB) return (await FB).call(data); const r = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) }); return r.json(); }
 if (USE_FB) {
   FB.then(f => { user = f.user; token = user ? user.uid : null; renderAcct(); askRole(); });
-  window.__devBlocked = () => { devMsg = "Энэ акаунт 2 төхөөрөмж дээр аль хэдийн нэвтэрсэн байна. Шинэ төхөөрөмжөөс нэвтрэхийн тулд багшдаа хандаж төхөөрөмжийн жагсаалтаа цэвэрлүүлнэ үү."; user = null; token = null; renderAcct(); };
+  window.__devBlocked = () => { devMsg = "Энэ акаунт 3 төхөөрөмж дээр аль хэдийн нэвтэрсэн байна. Шинэ төхөөрөмжөөс нэвтрэхийн тулд багшдаа хандаж төхөөрөмжийн жагсаалтаа цэвэрлүүлнэ үү."; user = null; token = null; renderAcct(); };
   window.__onAuth = async u => { user = u; token = u ? u.uid : null; st.set("ge-tests", null); renderAcct();
     if (u && justSigned) { justSigned = false; closeAcct(); }   // нэвтэрмэгц цонх автоматаар хаагдана
     else if (!$("ov").hidden) openAcct(false);
@@ -4150,7 +4150,7 @@ const CFG_KEYS = { tprice: "Багшийн эрхийн үнэ", price: "Үнэ"
 
 let ME = null, CONF = null, TESTS = null, QCACHE = {};
 /* ---- төхөөрөмжийн хязгаар: нэг хэрэглэгч дээд тал нь DEV_MAX төхөөрөмж ---- */
-const DEV_MAX = 2;
+const DEV_MAX = 3;
 function devId() {
   let d = null; try { d = localStorage.getItem("gx-dev"); } catch (e) {}
   if (!d) { d = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)); try { localStorage.setItem("gx-dev", d); } catch (e) {} }
@@ -4163,9 +4163,15 @@ function devName() {
 }
 async function checkDevice(email) {
   const id = devId(), ref = D("devices", email), s = await getDoc(ref), d = (s.exists() && s.data().d) || {};
-  if (d[id]) return true;
-  if (Object.keys(d).length >= DEV_MAX) return false;
-  await setDoc(ref, { d: Object.assign({}, d, { [id]: { n: devName(), at: Timestamp.now() } }) });
+  const now = Date.now(), atOf = x => x && x.at ? toD(x.at).getTime() : 0;
+  if (d[id]) {   // хэрэглэж буй төхөөрөмж: өдөрт нэг удаа «сүүлд орсон» огноог шинэчилнэ
+    if (now - atOf(d[id]) > 864e5) setDoc(ref, { d: Object.assign({}, d, { [id]: { n: d[id].n || devName(), at: Timestamp.now() } }) }).catch(() => {});
+    return true; }
+  const n = Object.assign({}, d);
+  /* 🔄 хязгаар дүүрсэн бол хамгийн удаан ороогүй төхөөрөмжийг хасна (Safari түүх цэвэрлэгдэх, хөтөч солих үед гацахгүй) */
+  while (Object.keys(n).length >= DEV_MAX) { const old = Object.keys(n).sort((a, b) => atOf(n[a]) - atOf(n[b]))[0]; delete n[old]; }
+  n[id] = { n: devName(), at: Timestamp.now() };
+  await setDoc(ref, { d: n });
   return true;
 }
 async function conf() { if (!CONF) { const s = await getDoc(D("config", "app")); CONF = s.exists() ? s.data() : {}; } return CONF; }
