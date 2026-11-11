@@ -3385,13 +3385,13 @@ function renderLearn(box) {
     const g = el("div", "lswheel");
     F.forEach((l, i) => { const c = card(l, i); if (multi && l.unit) { const tx = c.querySelector(".tx"); tx.prepend(el("small", "lsu", l.unit)); } g.append(c); });
     d.append(hd, g); wrap.append(d);
-    if (n > 2) { const nav = el("span", "lsnav"), pv = el("button", "", "▲"), nx = el("button", "", "▼"); pv.type = nx.type = "button"; nav.append(pv, nx); hd.append(nav);
+    if (n > 3) { const nav = el("span", "lsnav"), pv = el("button", "", "▲"), nx = el("button", "", "▼"); pv.type = nx.type = "button"; nav.append(pv, nx); hd.append(nav);
       const step = dir => { const c = [...g.children], cur = c.findIndex(x => x.offsetTop - g.offsetTop >= g.scrollTop - 2), to = c[Math.max(0, Math.min(c.length - 1, cur + dir))]; if (to) g.scrollTo({ top: to.offsetTop - g.offsetTop, behavior: "smooth" }); };
       pv.onclick = () => step(-1); nx.onclick = () => step(1);
       const upd = () => { pv.disabled = g.scrollTop < 4; nx.disabled = g.scrollTop + g.clientHeight >= g.scrollHeight - 4; d.classList.toggle("end", g.scrollTop + g.clientHeight >= g.scrollHeight - 4); };
       g.onscroll = upd; d.classList.add("wheel");
-      const fit = () => { const c = g.children; if (c.length < 2) return; const gap = parseFloat(getComputedStyle(g).rowGap) || 8; g.style.height = (Math.max(c[0].offsetHeight, c[1].offsetHeight) * 2 + gap) + "px"; upd(); };
-      requestAnimationFrame(() => { fit(); const fi = F.findIndex(l => !isDone(l)); if (fi > 0) { const c = g.children[Math.min(fi, n - 2)]; if (c) g.scrollTop = c.offsetTop - g.offsetTop; } upd(); });
+      const fit = () => { const c = g.children; if (c.length < 3) return; const gap = parseFloat(getComputedStyle(g).rowGap) || 8; g.style.height = (Math.max(c[0].offsetHeight, c[1].offsetHeight, c[2].offsetHeight) * 3 + gap * 2) + "px"; upd(); };   // 🎡 3 хичээл харагдана
+      requestAnimationFrame(() => { fit(); const fi = F.findIndex(l => !isDone(l)); if (fi > 0) { const c = g.children[Math.min(fi, n - 3)]; if (c) g.scrollTop = c.offsetTop - g.offsetTop; } upd(); });
       addEventListener("resize", fit); } }
   draw();
   renderLB(box, "learn", "", "Сургалт");
