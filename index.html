@@ -980,6 +980,32 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .pay .cpbtn{margin-left:8px;padding:3px 9px;border-radius:999px;border:1.5px solid rgba(37,99,235,.4);background:rgba(37,99,235,.08);color:#2563EB;font:700 11.5px var(--btn-font);cursor:pointer;vertical-align:middle;white-space:nowrap}
 .pay .cpbtn.ok{border-color:#059669;color:#059669;background:rgba(5,150,105,.1)}
 .pay>div>b{display:inline-flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:4px;text-align:right}
+/* 📚 Багшийн булан */
+.mtop{margin:6px 0 10px}
+.mlist{display:grid;gap:10px;margin:10px 0}
+.mcard{display:flex;gap:12px;padding:14px;border-radius:14px;border:1.5px solid rgba(37,99,235,.3);background:var(--sunk);color:var(--fg)}
+.mic{flex:0 0 48px;height:58px;border-radius:10px;display:grid;place-items:center;font:800 14px var(--btn-font);color:#fff;background:#64748B;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.mic.kPDF{background:linear-gradient(135deg,#F87171,#DC2626)}.mic.kWORD{background:linear-gradient(135deg,#60A5FA,#1D4ED8);font-size:22px}.mic.kPPT{background:linear-gradient(135deg,#FDBA74,#EA580C);font-size:22px}.mic.kEXCEL{background:linear-gradient(135deg,#4ADE80,#15803D);font-size:22px}.mic.kLINK{background:linear-gradient(135deg,#38BDF8,#2563EB);font-size:20px}
+.mcard .tx{flex:1;min-width:0;display:grid;gap:4px}.mcard b{font-size:15.5px;line-height:1.3}
+.mcard .mcat{color:#2563EB;font-weight:700;font-size:11.5px}
+.mcard .mdesc{margin:0;color:var(--muted);font-size:13.5px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line}
+.mcard .mby{color:var(--muted);font-size:12px}
+.mact{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.mact .btn.sm,.mprev .btn.sm{padding:7px 14px;font-size:13px;text-decoration:none}
+.mact .link.danger{color:#EF4444}
+.mform{max-height:88vh;overflow:auto;max-width:480px}
+.mform .fld{display:flex;flex-direction:column;gap:5px;margin:8px 0}.mform .fld>span{font-size:13px;font-weight:600;opacity:.8}
+.mform input,.mform select,.mform textarea{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);font:inherit}
+.mform .bseg{margin:10px 0 4px}
+.mprev{max-width:900px;width:96vw;height:86vh;display:flex;flex-direction:column;gap:8px}
+.mprev .mph{display:flex;justify-content:space-between;align-items:center;gap:10px}.mprev .mph b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mprev iframe{flex:1;width:100%;border:0;border-radius:10px;background:#fff}
+/* 🎨 өргөмжлөлийн загвар засах: зүүн талд бичвэр, баруун талд зураг */
+.cdes{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:18px;align-items:start;margin:8px 0 18px}
+.cdside{display:flex;flex-direction:column;gap:8px}.cdside .fld{display:flex;flex-direction:column;gap:4px}.cdside .fld>span{font-size:12.5px;font-weight:600;opacity:.8}
+.cdside input:not([type=checkbox]){width:100%;box-sizing:border-box;padding:9px 11px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);font:inherit}
+.cdpv{position:sticky;top:10px}.cdpv canvas{width:100%;height:auto;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+@media (max-width:760px){.cdes{grid-template-columns:1fr}.cdpv{order:-1;position:static}}
 </style>
 </head>
 <body>
@@ -1018,6 +1044,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
       <button type="button" role="tab" data-t="map" aria-selected="false">Газарзүйн зураг</button>
       <button type="button" role="tab" data-t="quiz" aria-selected="false">GeoQuiz</button>
       <button type="button" role="tab" data-t="contest" aria-selected="false">Шалгалт · Олимпиад</button>
+      <button type="button" role="tab" data-t="share" aria-selected="false">Багшийн булан</button>
     </div>
     <div id="pane"><p class="empty">Ачаалж байна...</p></div>
   </section>
@@ -1131,8 +1158,11 @@ function recAsk() { return new Promise(res => {
   const ok = el("button", "btn", "Бичлэг эхлүүлэх"), no = el("button", "btn ghost", "Болих"); ok.type = no.type = "button";
   ok.onclick = () => { z.remove(); res(true); }; no.onclick = () => { z.remove(); res(false); };
   const r = el("div", "recrow"); r.append(no, ok); b.append(r); z.append(b); document.body.append(z); }); }
+/* 🎥 Дэлгэцийн бичлэг: Firebase Storage нь Spark (үнэгүй) багцад хаалттай тул түр унтраав.
+   Бичлэг шаардсан тэмцээн, шалгалт ч бичлэггүйгээр (утаснаас ч) хэвийн явагдана. Blaze болбол REC_ON = true. */
+const REC_ON = false;
 async function recStart(meta) {
-  if (!USE_FB) return true;
+  if (!USE_FB || !REC_ON) return true;
   if (isMobile() || !navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia || !window.MediaRecorder) {
     alertBox("Энэ шалгалт дэлгэцийн бичлэгтэй тул зөвхөн компьютерээр (Chrome, Edge хөтчөөр) өгнө."); return false; }
   if (!await recAsk()) return false;
@@ -1229,6 +1259,7 @@ const NAV = [
   ["learn", "Сургалт", "Видео хичээл · хичээлийн дараах тест", '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M10 8l5 2.5-5 2.5z"/><path d="M8 21h8M12 17v4"/>'],
   ["map", "Газарзүйн зураг", "🎯 Solo ба ⚔️ Battle", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'],
   ["quiz", "GeoQuiz", "Бүртгэл · тойрог · шагнал", '<circle cx="12" cy="15" r="6"/><path d="M8.6 10.2 6 3h4l2 4.5L14 3h4l-2.6 7.2"/><path d="m12 12.3.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2-1.45-1.4 2-.3z"/>'],
+  ["share", "Багшийн булан", "Туршлага, хичээлийн материал хуваалцах", '<path d="M4 4h10l6 6v10a0 0 0 0 1 0 0H4z"/><path d="M14 4v6h6"/><path d="M8 14h8M8 17h5"/>'],
   ["contest", "Шалгалт · Олимпиад", "Олимпиадууд · багшийн шалгалтад кодоор нэгдэх", '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>']];
 const navSvg = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + d + "</svg>";
 function secTitle() { let h = $("secT"); if (!h) { h = el("button", "secT"); h.id = "secT"; h.type = "button"; h.onclick = () => openNav(); $("tabs").before(h); }
@@ -1256,6 +1287,7 @@ function renderPane() {
   if (tab === "map") return renderMapTab(box);
   if (tab === "learn") return renderLearn(box);
   if (tab === "quiz") return renderQuiz(box);
+  if (tab === "share") return renderShare(box);
   if (tab === "admin") return renderAdmin(box);
   let list = tests.filter(t => !isTopicOnly(t) && (tab === "own" ? isOwn(t) : !isOwn(t)));
   if (tab === "own") {   // Мультимедиа: IGEO · Улсын олимпиад · Шинэ
@@ -1990,7 +2022,7 @@ async function contestBuilder() {
   const s2 = fld("Дуусах", Object.assign(el("input"), { type: "datetime-local", value: loc(new Date(now.getTime() + 2 * 3600e3)) }));
   const mn = fld("Хугацаа (минут)", Object.assign(el("input"), { type: "number", value: 30, min: 1, max: 600 }));
   const sw = (on, title, sub) => { const l = el("label", "bsw"), i = Object.assign(el("input"), { type: "checkbox", checked: on }), t = el("span", "bswt"); t.append(el("b", "", title), el("small", "", sub)); l.append(t, i, el("i", "bswk")); S1.append(l); return i; };
-  const rc = sw(false, "🎥 Дэлгэцийн бичлэгтэй", "Сурагч зөвхөн компьютерээр оролцоно, дэлгэц нь бичигдэнэ"); rc.id = "cRec";
+  const rc = sw(false, "🎥 Дэлгэцийн бичлэгтэй", "Сурагч зөвхөн компьютерээр оролцоно, дэлгэц нь бичигдэнэ"); rc.id = "cRec"; if (!REC_ON) rc.style.display = "none";
   const rv = sw(false, "🛡 Дүнг хянаж байж нийтлэх", "Дууссаны дараа та шалгаж «Дүн нийтлэх» дарах хүртэл сурагчид оноо, байраа харахгүй");
   const cm = sw(false, "📷 Камертай хяналт", "Утас, олон хүн, нүүр алга, цонх орхихыг илрүүлнэ · 3 зөрчилд дуусна"); cm.id = "cCam";
   const oc = user.admin ? sw(true, "🏆 Олимпиад болгох", "Бүх хэрэглэгчийн «Олимпиадууд» жагсаалтад харагдана") : Object.assign(el("input"), { type: "checkbox", checked: false }); oc.id = "cOlymp";
@@ -2238,7 +2270,7 @@ function adminPanel(only) {
   }
   if (!only || only === "rec") {
   // 1в. Дэлгэцийн бичлэг
-  const rv = el("div", "admb"); rv.append(el("b", "", "Дэлгэцийн бичлэг"));
+  const rv = el("div", "admb"); rv.append(el("b", "", "Дэлгэцийн бичлэг")); if (!REC_ON) rv.append(el("p", "lbn", "⚠ Одоогоор унтраалттай: Firebase Storage нь үнэгүй (Spark) багцад ажиллахгүй тул бичлэг хадгалагдахгүй. Шалгалт бичлэггүйгээр хэвийн явагдана."));
   const rel = el("label", "chk"); const rex = Object.assign(el("input"), { type: "checkbox" }); rex.id = "recExam";
   rel.append(rex, el("span", "", " «Шалгалт» горимд дэлгэцийн бичлэг шаардах (шалгалтыг үүсгэхдээ тус бүрд нь сонгоно)")); rv.append(rel);
   api({ action: "config" }).then(r => { rex.checked = !!(r && r.recExam); });
@@ -3301,7 +3333,7 @@ const ADM_CARDS = [
   ["grant", "🔑", "Сурагчийн эрх", "Төлбөр төлсөн сурагчид эрх олгох, цуцлах"],
   ["teach", "👩‍🏫", "Багшийн эрх", "Багшид шалгалт үүсгэх эрх олгох"],
   ["dev", "📱", "Төхөөрөмж", "Сурагчийн утас, компьютерийн жагсаалт цэвэрлэх"],
-  ["rec", "🎥", "Дэлгэцийн бичлэг", "Шалгалтын бичлэг шаардах, үзэх"],
+  ["rec", "🎥", "Дэлгэцийн бичлэг", "Одоогоор унтраалттай (Storage төлбөртэй багц шаардана)"],
   ["notice", "🔔", "Мэдэгдэл", "Багш нарт тэмцээний зар, мэдэгдэл илгээх"],
   ["cert", "🎓", "Өргөмжлөлийн загвар", "Өөрийн загвар зургаа оруулж, нэрийн байрлалыг тохируулах"],
   ["seed", "📦", "seed.json оруулах", "Олон тестийг файлаар нэг дор оруулах"]];
@@ -3765,10 +3797,15 @@ function camFlagsBox(flags) {
 /* ---------- 🎓 Өргөмжлөл: байр эзэлсэн хүн өөрөө татна (PNG / PDF) ---------- */
 let CERT_TPL = null;   // админы оруулсан загвар: {img, nameY, textY, color, score, date}
 async function certTpl(force) { if (CERT_TPL && !force) return CERT_TPL; try { const r = await api({ action: "certTpl" }); CERT_TPL = r.ok ? r.tpl : {}; } catch (e) { CERT_TPL = {}; } return CERT_TPL; }
+/* «Батын Тэмүүлэн» → «Б.Тэмүүлэн» (овгийн эхний үсэг) */
+function certName(n) { n = String(n || "").trim().replace(/\s+/g, " "); if (/^[^\s.]{1,3}\.\s?\S/.test(n)) return n.replace(/\.\s+/, ".");
+  const w = n.split(" "); return w.length >= 2 ? w[0].charAt(0).toUpperCase() + "." + w.slice(1).join(" ") : n; }
 function certDraw(o, tpl) {   // o: {name, contest, rank, score, total, secs, date}
+  o = Object.assign({}, o, { name: certName(o.name) });
   const W = 1754, H = 1240, c = document.createElement("canvas"); c.width = W; c.height = H; const x = c.getContext("2d");
   const SANS = '"Inter","Segoe UI",Arial,sans-serif', SERIF = 'Georgia,"Times New Roman",serif';
   const fitL = (t, y, size, weight, color, maxW) => { let s = size; do { x.font = weight + " " + s + "px " + SANS; s -= 4; } while (x.measureText(t).width > maxW && s > 24); x.fillStyle = color; x.textAlign = "center"; x.fillText(t, W / 2, y); };
+  if (tpl && !tpl.imgEl && (tpl.design === "A" || tpl.design === "B" || tpl.design === "C")) { certDesign(x, W, H, o, tpl, fitL, SANS); return c; }
   if (tpl && tpl.imgEl) {   // 🖼 өөрийн загвар: зураг + нэр, бичвэр
     x.drawImage(tpl.imgEl, 0, 0, W, H); const col = tpl.color || "#0B2E5C", ny = H * (tpl.nameY || 48) / 100, ty = H * (tpl.textY || 62) / 100;
     fitL(o.name || "", ny, 92, "800", col, W * .7);
@@ -3811,6 +3848,71 @@ function certDraw(o, tpl) {   // o: {name, contest, rank, score, total, secs, da
   x.fillStyle = "#0057B7"; x.font = "800 30px " + SANS; x.textAlign = "center"; x.fillText("GeoExam · geoexam.mn", W / 2, 1130);
   return c;
 }
+/* 🎨 бэлэн загвар A (цагаан) / B (хар хөх): бүх бичвэрийг админ засна */
+const CERT_TX = { ribbon: "", title: "ӨРГӨМЖЛӨЛ", sub: "", intro: "Газарзүйн багш нарын дунд зохион байгуулсан", event: "асуулт хариултын уралдаанд амжилттай оролцож", award13: "өргөмжлөл, мөнгөн шагналаар шагнав.", award45: "өргөмжлөл, ном, гарын авлагаар шагнав.", sign: "Зохион байгуулагч", signer: "www.geoexam.mn" };
+function certDesign(x, W, H, o, d, fitL, SANS) {
+  const C = d.design === "C", B = d.design === "B" || C, T = Object.assign({}, CERT_TX, d.tx || {}), ink = B ? "#FFFFFF" : "#0B2E5C", acc = B ? "#FFD500" : "#0B2E5C", sub = B ? "#cfe3ff" : "#0057B7";
+  const rr = (X, Y, w, h, r) => { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); };
+  x.fillStyle = B ? "#062a5e" : "#fffdf6"; x.fillRect(0, 0, W, H);
+  // хүрээ
+  let g = x.createLinearGradient(34, 34, W - 34, H - 34);
+  if (B) { g.addColorStop(0, "#FFD500"); g.addColorStop(.4, "#fff3a3"); g.addColorStop(.6, "#FFD500"); g.addColorStop(1, "#e6b800"); } else { g.addColorStop(0, "#0057B7"); g.addColorStop(.45, "#38BDF8"); g.addColorStop(1, "#FFD500"); }
+  x.fillStyle = g; rr(34, 34, W - 68, H - 68, 26); x.fill();
+  const p = B ? 40 : 48; g = x.createRadialGradient(W / 2, H * .42, 50, W / 2, H * .45, 1100);
+  if (B) { g.addColorStop(0, "#0a4fa8"); g.addColorStop(.75, "#062a5e"); } else { g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#fdf8ea"); }
+  if (C) { g = x.createLinearGradient(p, p, W - p, H - p); g.addColorStop(0, "#0b5fd0"); g.addColorStop(.5, "#2563EB"); g.addColorStop(1, "#1e6fe6"); }
+  x.fillStyle = g; rr(p, p, W - 2 * p, H - 2 * p, 20); x.fill();
+  if (C) {   // 🎉 өнгөлөг: гэрлийн толбо + конфетти
+    x.save(); rr(p, p, W - 2 * p, H - 2 * p, 20); x.clip();
+    [[.12, .2, 380, "rgba(56,189,248,.45)"], [.88, .18, 360, "rgba(255,213,0,.35)"], [.9, .85, 420, "rgba(56,189,248,.4)"], [.1, .9, 360, "rgba(52,211,153,.35)"], [.5, .5, 600, "rgba(255,255,255,.08)"]].forEach(([cx, cy, r, col]) => {
+      const rg = x.createRadialGradient(W * cx, H * cy, 0, W * cx, H * cy, r); rg.addColorStop(0, col); rg.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = rg; x.fillRect(0, 0, W, H); });
+    let sd = 7; const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280, cols = ["#FFD500", "#38BDF8", "#F472B6", "#34D399", "#FFFFFF", "#FB923C"];
+    for (let i = 0; i < 90; i++) { const cx = p + rnd() * (W - 2 * p), cy = p + rnd() * (H - 2 * p); if (cx > W * .2 && cx < W * .8 && cy > H * .2 && cy < H * .82) continue;
+      x.save(); x.translate(cx, cy); x.rotate(rnd() * 6.28); x.globalAlpha = .55 + rnd() * .4; x.fillStyle = cols[i % cols.length];
+      if (i % 3) x.fillRect(-9, -4, 18, 8); else { x.beginPath(); x.arc(0, 0, 6, 0, 7); x.fill(); } x.restore(); }
+    x.restore(); }
+  x.save(); rr(p, p, W - 2 * p, H - 2 * p, 20); x.clip();
+  x.strokeStyle = B ? "rgba(255,255,255,.04)" : "rgba(0,87,183,.05)"; x.lineWidth = 1;
+  for (let i = p; i < W; i += 60) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, H); x.stroke(); } for (let i = p; i < H; i += 60) { x.beginPath(); x.moveTo(0, i); x.lineTo(W, i); x.stroke(); }
+  const lg = document.querySelector(".logo img"), hasLg = lg && lg.complete && lg.naturalWidth;
+  if (hasLg) { x.globalAlpha = B ? .08 : .06; try { x.drawImage(lg, W / 2 - 390, H * .54 - 390, 780, 780); } catch (e) {} x.globalAlpha = 1; }
+  x.restore();
+  x.strokeStyle = B ? "rgba(255,213,0,.55)" : "rgba(0,87,183,.35)"; x.lineWidth = 2; rr(p + 20, p + 20, W - 2 * p - 40, H - 2 * p - 40, 14); x.stroke();
+  // одон (хоёр талд)
+  const medal = (cx, cy) => { x.save(); x.translate(cx, cy); x.fillStyle = "#0057B7"; x.beginPath(); x.moveTo(-30, -70); x.lineTo(-14, -70); x.lineTo(6, 20); x.lineTo(-10, 20); x.closePath(); x.fill();
+    x.fillStyle = "#38BDF8"; x.beginPath(); x.moveTo(14, -70); x.lineTo(30, -70); x.lineTo(10, 20); x.lineTo(-6, 20); x.closePath(); x.fill();
+    x.beginPath(); x.arc(0, 60, 60, 0, 7); x.fillStyle = "#FFD500"; x.fill(); x.lineWidth = 7; x.strokeStyle = "#e6a800"; x.stroke();
+    x.beginPath(); x.arc(0, 60, 44, 0, 7); x.lineWidth = 4; x.strokeStyle = "#fff3a3"; x.stroke();
+    x.beginPath(); for (let i = 0; i < 10; i++) { const r = i % 2 ? 13 : 30, a = -Math.PI / 2 + i * Math.PI / 5; x.lineTo(Math.cos(a) * r, 60 + Math.sin(a) * r); } x.closePath(); x.fillStyle = "#fff8d6"; x.fill(); x.restore(); };
+  medal(225, p + 20 + 70); medal(W - 225, p + 20 + 70);   // туузны дээд үзүүр нарийн шар хүрээнд тулна
+  // дээд хэсэг
+  if (hasLg) { try { x.drawImage(lg, W / 2 - 60, 96, 120, 120); } catch (e) {} }
+  const rb = (T.ribbon || o.contest || "").toUpperCase(); x.font = "800 30px " + SANS; const rw = Math.min(W * .6, x.measureText(rb).width + 90);
+  if (rb) { g = x.createLinearGradient(W / 2 - rw / 2, 0, W / 2 + rw / 2, 0); if (B) { g.addColorStop(0, "#FFD500"); g.addColorStop(1, "#ffe866"); } else { g.addColorStop(0, "#0057B7"); g.addColorStop(1, "#2563EB"); }
+    x.fillStyle = g; rr(W / 2 - rw / 2, 228, rw, 56, 28); x.fill(); fitL(rb, 267, 30, "800", B ? "#0b2a55" : "#FFFFFF", rw - 50); }
+  let s = 118; x.textAlign = "center"; do { x.font = "900 " + s + "px Georgia,'DejaVu Serif','Times New Roman',serif"; s -= 4; } while (x.measureText(T.title).width > W * .7 && s > 50);
+  x.fillStyle = acc; x.fillText(T.title, W / 2, 440);
+  if (T.sub) fitL(T.sub, 496, 34, "600", sub, W * .72);
+  // нэр, бичвэр: «… зохион байгуулсан «GeoQuiz №1» / … оролцож N-р байр эзэлсэн тул / өргөмжлөл, … шагнав.»
+  fitL(o.name || "", 585, 80, "800", ink, W * .7);
+  fitL((T.intro ? T.intro + " " : "") + "«" + (o.contest || "") + "»", 700, 42, "600", ink, W * .78);
+  const ROM = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+  {   // ром тоог serif, шар өнгөөр тодруулж бичнэ
+    const pre = (T.event ? T.event + " " : ""), rom = String(ROM[o.rank] || o.rank), post = " байр эзэлсэн тул", SER = "Georgia,'DejaVu Serif','Times New Roman',serif";
+    let sz = 42, wA, wR, wB; do { x.font = "600 " + sz + "px " + SANS; wA = x.measureText(pre).width; wB = x.measureText(post).width; x.font = "900 " + (sz + 8) + "px " + SER; wR = x.measureText(rom).width; sz -= 2; } while (wA + wR + wB > W * .78 && sz > 24); sz += 2;
+    let cx = W / 2 - (wA + wR + wB) / 2; x.textAlign = "left";
+    x.font = "600 " + sz + "px " + SANS; x.fillStyle = ink; x.fillText(pre, cx, 760); cx += wA;
+    x.font = "900 " + (sz + 8) + "px " + SER; x.fillStyle = acc; x.fillText(rom, cx, 762); cx += wR;
+    x.font = "600 " + sz + "px " + SANS; x.fillStyle = ink; x.fillText(post, cx, 760); x.textAlign = "center"; }
+  fitL(o.rank <= 3 ? T.award13 : T.award45, 826, 48, "800", acc, W * .78);
+  let ey = 920; if (d.score !== false) { fitL("Оноо: " + o.score + " / " + o.total + (o.secs ? "  ·  Хугацаа: " + fmtS(o.secs) : ""), ey, 38, "600", ink, W * .7); ey += 56; }
+  if (d.date !== false && o.date) fitL(o.date, ey, 34, "600", ink, W * .5);
+  // доод хэсэг: гарын үсэг, брэнд
+  const fy = H - 120; x.strokeStyle = B ? "#FFD500" : "#0B2E5C"; x.globalAlpha = .8; x.lineWidth = 3; x.beginPath(); x.moveTo(150, fy - 34); x.lineTo(570, fy - 34); x.stroke(); x.globalAlpha = 1;
+  x.textAlign = "center"; x.fillStyle = B ? "#e6f0ff" : "#0B2E5C"; x.font = "600 28px " + SANS; x.fillText(T.sign, 360, fy - 48);   // шар зураасны дээр
+  if (T.signer) { x.font = "800 32px " + SANS; x.fillText(T.signer, 360, fy + 8); }   // зураасны доор
+  if (hasLg) { try { x.drawImage(lg, W - 230, fy - 90, 80, 80); } catch (e) {} }
+}
 async function certOpen(o, canEdit) {
   const tpl = await certTpl(); if (tpl.img && !tpl.imgEl) { tpl.imgEl = await new Promise(r => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = tpl.img; }); }
   const z = el("div", "recov"), b = el("div", "recbox wide certbox"); z.append(b); document.body.append(z);
@@ -3821,7 +3923,15 @@ async function certOpen(o, canEdit) {
   const draw = () => { pv.innerHTML = ""; const cv = certDraw(Object.assign({}, o, { name: nm.value.trim() || o.name }), tpl); cv.className = "certcv"; pv.append(cv); return cv; };
   let cv = draw(); let tm; nm.oninput = () => { clearTimeout(tm); tm = setTimeout(() => { cv = draw(); }, 250); };
   const row = el("div", "recrow"), cl = el("button", "btn ghost", "Хаах"), png = el("button", "btn", "⬇ Зураг (PNG)"), pr = el("button", "btn ghost", "🖨 Хэвлэх / PDF");
-  cl.type = png.type = pr.type = "button"; row.append(cl, pr, png); b.append(row);
+  const sh = el("button", "btn", "📤 Хуваалцах"); sh.type = "button";
+  cl.type = png.type = pr.type = "button"; row.append(cl, pr, png, sh); b.append(row);
+  /* 📤 Facebook руу: утсанд хуваалцах цонхоор зураг шууд, компьютерт татаад Facebook нээнэ */
+  sh.onclick = () => cv.toBlob(async bl => { const txt = "🏆 «" + (o.contest || "") + "» тэмцээнд " + o.rank + "-р байр эзэллээ! · geoexam.mn #GeoQuiz #GeoExam";
+    try { navigator.clipboard && navigator.clipboard.writeText(txt); } catch (e) {}
+    const file = new File([bl], fname(), { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], text: txt }); return; } catch (e) { if (e && e.name === "AbortError") return; } }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(bl); a.download = fname(); document.body.append(a); a.click(); setTimeout(() => a.remove(), 500);
+    open("https://www.facebook.com/", "_blank", "noopener"); alert("Өргөмжлөл татагдлаа. Facebook-д шинэ пост үүсгээд зургаа оруулна уу. Бичвэр хуулагдсан тул буулгахад л болно."); }, "image/png");
   const fname = () => "Өргөмжлөл - " + (nm.value.trim() || o.name || "").replace(/[\\/:*?"<>|]/g, "") + ".png";
   cl.onclick = () => z.remove();
   png.onclick = () => { cv.toBlob(bl => { const a = document.createElement("a"); a.href = URL.createObjectURL(bl); a.download = fname(); document.body.append(a); a.click(); setTimeout(() => a.remove(), 500); play && play("ok"); }, "image/png"); };
@@ -3831,6 +3941,8 @@ async function certOpen(o, canEdit) {
 const certInfo = (c, x) => ({ name: x.name, contest: c.name, rank: x.rank, score: x.score, total: x.total, secs: x.secs, date: fmtD(c.end).slice(0, 10) });
 /* ⚙️ админ: өргөмжлөлийн загвар оруулах, нэрийн байрлал тохируулах */
 async function certAdmin(box) {
+  await certDesignAdmin(box);
+  box.append(el("div", "grp", "🖼 Эсвэл өөрийн зургаар загвар оруулах"));
   box.append(el("p", "note", "Canva, Word, Photoshop-оор хийсэн өргөмжлөлийн загвараа (A4 хэвтээ, нэрийн хэсэг нь хоосон) зураг болгон оруулна. Сайт нэр, тэмцээн, байрыг дээр нь бичнэ."));
   const T0 = Object.assign({ nameY: 48, textY: 62, color: "#0B2E5C", score: true, date: true }, await certTpl(true)); let imgEl = null, img = T0.img || "";
   const load = src => new Promise(r => { if (!src) return r(null); const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = src; });
@@ -3858,6 +3970,37 @@ async function certAdmin(box) {
     msg.textContent = x.ok ? "✓ Хадгалагдлаа. Бүх тэмцээний өргөмжлөлд энэ загвар хэрэглэгдэнэ." : "Хадгалж чадсангүй" + (x.error === "big" ? " (зураг хэт том)." : "."); if (x.ok) { CERT_TPL = null; play && play("ok"); } };
   rs.onclick = async () => { if (!confirm("Өөрийн загварыг устгаж, анхны загвар руу буцах уу?")) return; img = ""; imgEl = null; await api({ action: "certTplSave", img: "" }); CERT_TPL = null; draw(); msg.textContent = "Анхны загвар руу буцлаа."; };
   const br = el("div", "tbtns"); br.append(sv, rs); box.append(br); draw();
+}
+
+/* 🎨 бэлэн загвар: хажууд нь бичвэрээ засаад шууд харна */
+async function certDesignAdmin(box) {
+  const T0 = await certTpl(true), tx = Object.assign({}, CERT_TX, T0.tx || {});
+  let design = T0.design || "A";
+  const wrap = el("div", "cdes"), side = el("div", "cdside"), pv = el("div", "certpv cdpv"); wrap.append(side, pv);
+  box.append(el("div", "grp", "🎨 Бэлэн загвар · бичвэрээ засаад «Хадгалах» дарна"), wrap);
+  const sg = el("div", "bseg"); [["A", "⬜ Цагаан"], ["B", "🟦 Хар хөх"], ["C", "🌈 Өнгөлөг"]].forEach(([v, t]) => { const b = el("button", v === design ? "on" : "", t); b.type = "button"; b.dataset.v = v;
+    b.onclick = () => { design = v; sg.querySelectorAll("button").forEach(y => y.classList.toggle("on", y.dataset.v === v)); draw(); }; sg.append(b); });
+  side.append(sg);
+  const F = {}, fld = (k, lab, ph) => { const l = el("label", "fld"), i = Object.assign(el("input"), { value: tx[k] || "", placeholder: ph || "", maxLength: 120 }); l.append(el("span", "", lab), i); side.append(l); i.oninput = draw; F[k] = i; };
+  fld("ribbon", "Дээд шошго", "Хоосон бол тэмцээний нэр гарна");
+  fld("title", "Гарчиг", "ӨРГӨМЖЛӨЛ");
+  fld("sub", "Дэд гарчиг (заавал биш)", "");
+  fld("intro", "Эхний өгүүлбэр (тэмцээний нэрийн өмнө)", "Газарзүйн багш нарын дунд зохион байгуулсан");
+  fld("event", "Хоёр дахь өгүүлбэр («1-р байр»-ын өмнө)", "асуулт хариултын уралдаанд амжилттай оролцож");
+  fld("award13", "Шагнал · 1–3-р байр", "өргөмжлөл, мөнгөн шагналаар шагнав.");
+  fld("award45", "Шагнал · 4–5-р байр", "өргөмжлөл, ном, гарын авлагаар шагнав.");
+  fld("sign", "Гарын үсгийн доорх бичиг", "Зохион байгуулагч");
+  fld("signer", "Зохион байгуулагчийн нэр", "www.geoexam.mn");
+  const chk = (t, v) => { const l = el("label", "chk"), i = Object.assign(el("input"), { type: "checkbox", checked: v }); l.append(i, el("span", "", " " + t)); side.append(l); i.onchange = draw; return i; };
+  const sc = chk("Оноо, хугацаа бичих", T0.score !== false), dt = chk("Огноо бичих", T0.date !== false);
+  const msg = el("p", "lbn"), sv = el("button", "btn", "💾 Хадгалах"); sv.type = "button"; side.append(sv, msg);
+  const demo = { name: "Батын Тэмүүлэн", contest: "GeoQuiz №1", rank: 1, score: 38, total: 40, secs: 1452, date: fmtD(new Date()).slice(0, 10) };
+  const cur = () => { const t = {}; Object.keys(F).forEach(k => t[k] = F[k].value.trim()); return t; };
+  function draw() { pv.innerHTML = ""; const cv = certDraw(demo, { design, tx: cur(), score: sc.checked, date: dt.checked }); cv.className = "certcv"; pv.append(cv); }
+  sv.onclick = async () => { sv.disabled = true; msg.textContent = "Хадгалж байна…";
+    const r = await api({ action: "certTplSave", img: "", design, tx: cur(), score: sc.checked, date: dt.checked, nameY: T0.nameY, textY: T0.textY, color: T0.color }).catch(() => ({ ok: false }));
+    sv.disabled = false; msg.textContent = r.ok ? "✓ Хадгалагдлаа. Бүх өргөмжлөлд энэ загвар хэрэглэгдэнэ." : "Хадгалж чадсангүй."; if (r.ok) { CERT_TPL = null; play && play("ok"); } };
+  draw();
 }
 
 /* ---------- 🔔 Мэдэгдэл: зөвхөн багшаар бүртгүүлсэн хүмүүст (тэмцээний зар гэх мэт) ---------- */
@@ -3977,6 +4120,121 @@ async function noticeAdmin(box) {
     cp.onclick = () => { ta.select(); navigator.clipboard.writeText(ta.value).then(() => cp.textContent = "✓ Хуулагдлаа").catch(() => document.execCommand("copy")); };
     gm.onclick = () => open("https://mail.google.com/mail/?view=cm&fs=1&bcc=" + encodeURIComponent(E.join(",")) + "&su=" + encodeURIComponent(tI.value || "GeoQuiz тэмцээн"), "_blank", "noopener");
     row.append(cp, gm); mw.append(row); };
+}
+
+/* ---------- 📚 Багшийн булан: туршлага, хичээлийн материал хуваалцах ---------- */
+const MAT_CATS = ["Хичээлийн төлөвлөгөө", "Илтгэл, слайд", "Ажлын хуудас", "Тест, даалгавар", "Туршлага", "Бусад"];
+const MAT_MAX = 700 * 1024;   // шууд оруулах файлын дээд хэмжээ (Firestore-ийн 1MB баримтад багтана)
+let MATS = null, mcat = "", mq = "", MATN = 30;
+/* 💾 уншилт хэмнэх: жагсаалтыг 20 минут утсандаа хадгална */
+const matCache = { get() { try { const o = JSON.parse(localStorage.getItem("gx-mats-" + (user ? user.uid : "0")) || "null"); return o && Date.now() - o.t < 20 * 60e3 && o.n >= MATN ? o.L : null; } catch (e) { return null; } },
+  set(L) { try { localStorage.setItem("gx-mats-" + (user ? user.uid : "0"), JSON.stringify({ t: Date.now(), n: MATN, L })); } catch (e) {} }, clear() { try { localStorage.removeItem("gx-mats-" + (user ? user.uid : "0")); } catch (e) {} } };
+const matKind = n => { n = String(n || "").toLowerCase();
+  return /\.pdf$/.test(n) ? "PDF" : /\.docx?$/.test(n) ? "WORD" : /\.pptx?$/.test(n) ? "PPT" : /\.xlsx?$/.test(n) ? "EXCEL" : ""; };
+const linkKind = u => /presentation|\.pptx?/i.test(u) ? "PPT" : /document\/d|\.docx?/i.test(u) ? "WORD" : /spreadsheets|\.xlsx?/i.test(u) ? "EXCEL" : /\.pdf/i.test(u) ? "PDF" : "LINK";
+const isTchUser = () => !!user && (user.admin || user.teacher || user.role === "teacher");
+/* Google Drive / Docs холбоосыг сайт дотор харах (preview) хэлбэрт оруулна */
+function drivePreview(u) { u = String(u || "");
+  let m = /drive\.google\.com\/file\/d\/([\w-]+)/.exec(u); if (m) return "https://drive.google.com/file/d/" + m[1] + "/preview";
+  m = /docs\.google\.com\/(document|presentation|spreadsheets)\/d\/([\w-]+)/.exec(u); if (m) return "https://docs.google.com/" + m[1] + "/d/" + m[2] + "/preview";
+  m = /drive\.google\.com\/open\?id=([\w-]+)/.exec(u); if (m) return "https://drive.google.com/file/d/" + m[1] + "/preview";
+  return ""; }
+const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
+
+async function renderShare(box) {
+  box.append(el("p", "note hint", "📚 Багш нар хамгийн сайн туршлага, хичээлийн төлөвлөгөө, слайд, ажлын хуудсаа энд хуваалцана."));
+  const top = el("div", "mtop");
+  if (isTchUser()) { const ad = el("button", "btn", "➕ Материал хуваалцах"); ad.type = "button"; ad.onclick = () => matForm(); top.append(ad); }
+  else top.append(el("p", "lbn", user ? "Материал хуваалцахын тулд «Багш» гэж бүртгүүлнэ үү (👤 Миний бүртгэл)." : "Материал хуваалцахын тулд «Багш» гэж нэвтэрнэ үү."));
+  box.append(top);
+  box.append(pick("Ангилал", [{ v: "", t: "Бүгд" }].concat(MAT_CATS.map(c => ({ v: c, t: c }))), mcat, v => { mcat = v; draw(); }));
+  const sI = Object.assign(el("input", "lssearch"), { type: "search", placeholder: "🔎 Материал хайх…", value: mq }); sI.oninput = () => { mq = sI.value.trim().toLowerCase(); draw(); }; box.append(sI);
+  const list = el("div", "mlist"); box.append(list);
+  function draw() { list.innerHTML = "";
+    if (!MATS) { list.append(el("p", "empty", "Ачаалж байна…")); return; }
+    const L = MATS.filter(x => (!mcat || x.cat === mcat) && (!mq || (x.title + " " + x.desc + " " + x.by + " " + x.school).toLowerCase().indexOf(mq) >= 0));
+    if (!L.length) { list.append(el("p", "empty", MATS.length ? "Материал олдсонгүй." : "Одоогоор материал алга. Эхний материалаа хуваалцаарай! 📚")); return; }
+    L.forEach(x => list.append(matCard(x, () => { MATS = MATS.filter(y => y.id !== x.id); matCache.clear(); draw(); })));
+    if (MATS.length >= MATN && !mq) { const mo = el("button", "btn ghost", "⬇ Цааш нь харах"); mo.type = "button"; mo.onclick = () => { MATN += 30; MATS = null; renderPane(); }; list.append(mo); } }
+  draw();
+  if (!MATS) { const c = matCache.get();
+    if (c) MATS = c; else { try { const r = await api({ action: "matList", n: MATN }); MATS = r.ok ? r.list : []; if (r.ok) matCache.set(MATS); } catch (e) { MATS = []; } }
+    if (tab === "share") draw(); }
+}
+function matCard(x, onDel) {
+  const k = x.kind || "LINK", c = el("div", "mcard");
+  const ic = el("span", "mic k" + k, k === "WORD" ? "W" : k === "PPT" ? "P" : k === "EXCEL" ? "X" : k === "PDF" ? "PDF" : "🔗");
+  const tx = el("div", "tx"); tx.append(el("small", "mcat", x.cat + (x.grade ? " · " + x.grade : "")), el("b", "", x.title));
+  if (x.desc) tx.append(el("p", "mdesc", x.desc));
+  tx.append(el("small", "mby", "👩‍🏫 " + x.by + (x.school ? " · " + x.school : "") + " · " + x.at + (x.file && x.size ? " · " + fmtSize(x.size) : "")));
+  const act = el("div", "mact");
+  const pv = x.link ? drivePreview(x.link) : "";
+  if (x.file) {
+    if (k === "PDF") { const v = el("button", "btn ghost sm", "👁 Үзэх"); v.type = "button"; v.onclick = () => matOpen(x, true); act.append(v); }
+    const d = el("button", "btn sm", "⬇ Татах"); d.type = "button"; d.onclick = () => matOpen(x, false); act.append(d);
+  } else if (x.link) {
+    if (pv) { const v = el("button", "btn ghost sm", "👁 Үзэх"); v.type = "button"; v.onclick = () => matPreview(x.title, pv, x.link); act.append(v); }
+    const o = el("a", "btn sm", "↗ Нээх"); o.href = x.link; o.target = "_blank"; o.rel = "noopener"; act.append(o);
+  }
+  if (x.canDel) { const del = el("button", "link danger", "🗑 Устгах"); del.type = "button";
+    del.onclick = async () => { if (!confirm("«" + x.title + "» материалыг устгах уу?")) return; del.disabled = true; const r = await api({ action: "matDel", id: x.id }).catch(() => ({ ok: false })); if (r.ok) onDel(); else { del.disabled = false; alert("Устгаж чадсангүй."); } };
+    act.append(del); }
+  tx.append(act); c.append(ic, tx); return c;
+}
+/* 👁 сайт дотор харах цонх */
+function matPreview(title, src, open) {
+  const z = el("div", "recov"), b = el("div", "recbox mprev"); z.append(b); document.body.append(z);
+  const hd = el("div", "mph"); hd.append(el("b", "", title)); const x = el("button", "link", "✕ Хаах"); x.type = "button"; hd.append(x); b.append(hd);
+  const fr = el("iframe"); fr.src = src; fr.allow = "fullscreen"; b.append(fr);
+  if (open) { const o = el("a", "btn ghost sm", "↗ Шинэ цонхонд нээх"); o.href = open; o.target = "_blank"; o.rel = "noopener"; b.append(o); }
+  const close = () => { if (/^blob:/.test(src)) URL.revokeObjectURL(src); z.remove(); };
+  x.onclick = close; z.onclick = e => { if (e.target === z) close(); };
+}
+/* шууд оруулсан файлыг татах / PDF-ийг харах */
+async function matOpen(x, view) {
+  const r = await api({ action: "matFile", id: x.id }).catch(() => ({ ok: false })); if (!r.ok) { alert("Файлыг ачаалж чадсангүй."); return; }
+  const bin = atob(r.data.split(",")[1]), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  const url = URL.createObjectURL(new Blob([u8], { type: r.mime || "application/octet-stream" }));
+  if (view) { matPreview(x.title, url, null); return; }
+  const a = el("a"); a.href = url; a.download = r.fname || x.fname || (x.title + ".bin"); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+/* ➕ хуваалцах маягт */
+function matForm() {
+  const z = el("div", "recov"), b = el("div", "recbox mform"); z.append(b); document.body.append(z);
+  b.append(el("h4", "", "📚 Материал хуваалцах"));
+  const fld = (lab, node) => { const w = el("label", "fld"); w.append(el("span", "", lab), node); b.append(w); return node; };
+  const tI = fld("Гарчиг *", Object.assign(el("input"), { maxLength: 120, placeholder: "Жишээ: «Газарзүйн зураг» сэдвийн ээлжит хичээлийн төлөвлөгөө" }));
+  const cS = fld("Ангилал", el("select")); MAT_CATS.forEach(c => { const o = el("option", "", c); o.value = c; cS.append(o); });
+  const gI = fld("Анги (заавал биш)", Object.assign(el("input"), { maxLength: 30, placeholder: "Жишээ: 10-р анги" }));
+  const scI = fld("Сургууль (заавал биш)", Object.assign(el("input"), { maxLength: 80, placeholder: "Жишээ: Шинэ Монгол сургууль" }));
+  const dI = fld("Товч тайлбар", Object.assign(el("textarea"), { rows: 3, maxLength: 600, placeholder: "Юуны тухай, хэрхэн ашиглах вэ…" }));
+  /* файл эсвэл холбоос */
+  let F = null, mode = "file";
+  const sg = el("div", "bseg"), fw = el("div", "fld"), lw = el("div", "fld");
+  [["file", "📎 Файл оруулах"], ["link", "🔗 Google Drive холбоос"]].forEach(([v, t]) => { const x = el("button", v === mode ? "on" : "", t); x.type = "button"; x.dataset.v = v;
+    x.onclick = () => { mode = v; sg.querySelectorAll("button").forEach(y => y.classList.toggle("on", y.dataset.v === v)); fw.hidden = v !== "file"; lw.hidden = v !== "link"; }; sg.append(x); });
+  b.append(sg);
+  const fi = Object.assign(el("input"), { type: "file", accept: ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" }); const fm = el("small", "lbn", "Word, PDF, PowerPoint, Excel · 700 KB хүртэл. Том файлыг Google Drive-д байршуулаад холбоосыг нь оруулна.");
+  fw.append(fi, fm); b.append(fw);
+  const lI = Object.assign(el("input"), { placeholder: "https://drive.google.com/…" }); lw.append(lI, el("small", "lbn", "Drive дээр файлаа «Холбоостой хэн ч харж болно» (Anyone with the link) болгоод холбоосыг нь хуулна.")); lw.hidden = true; b.append(lw);
+  fi.onchange = () => { const f = fi.files[0]; F = null; if (!f) return;
+    if (!matKind(f.name)) { fm.textContent = "⚠ Зөвхөн Word, PDF, PowerPoint, Excel файл оруулна."; fi.value = ""; return; }
+    if (f.size > MAT_MAX) { fm.textContent = "⚠ Файл " + fmtSize(f.size) + " байна (700 KB хүртэл). Google Drive-д байршуулаад «🔗 Google Drive холбоос»-оор оруулна уу."; fi.value = ""; return; }
+    F = f; fm.textContent = "✓ " + f.name + " · " + fmtSize(f.size); if (!tI.value.trim()) tI.value = f.name.replace(/\.[^.]+$/, ""); };
+  const msg = el("p", "lbn"), row = el("div", "recrow"), cn = el("button", "btn ghost", "Болих"), ok = el("button", "btn", "📤 Хуваалцах"); cn.type = ok.type = "button"; row.append(cn, ok); b.append(msg, row);
+  cn.onclick = () => z.remove();
+  ok.onclick = async () => {
+    const title = tI.value.trim(); if (title.length < 3) { msg.textContent = "Гарчгаа бичнэ үү."; return; }
+    const p = { action: "matSave", title, cat: cS.value, grade: gI.value.trim(), school: scI.value.trim(), desc: dI.value.trim() };
+    if (mode === "file") { if (!F) { msg.textContent = "Файлаа сонгоно уу."; return; }
+      p.data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(F); });
+      p.mime = F.type; p.fname = F.name; p.size = F.size; p.kind = matKind(F.name); }
+    else { const u = lI.value.trim(); if (!/^https:\/\//.test(u)) { msg.textContent = "Холбоос https://-ээр эхлэх ёстой."; return; } p.link = u; p.kind = linkKind(u); }
+    ok.disabled = true; msg.textContent = "Хуваалцаж байна…";
+    const r = await api(p).catch(() => ({ ok: false }));
+    if (!r.ok) { ok.disabled = false; msg.textContent = r.error === "teacher" ? "Зөвхөн багш хуваалцана." : r.error === "big" ? "Файл хэт том байна." : "Хуваалцаж чадсангүй. Дахин оролдоно уу."; return; }
+    play && play("ok"); z.remove(); MATS = null; matCache.clear(); renderPane();
+  };
 }
 
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
@@ -4426,7 +4684,8 @@ H.contestRes = async p => {   // ⚡ байрын жагсаалт гарсан 
 H.certTpl = async () => { const s = await getDoc(D("config", "cert")); return { ok: true, tpl: s.exists() ? s.data() : {} }; };
 H.certTplSave = async p => { const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
   const img = /^data:image\/(jpeg|png|webp);base64,/.test(p.img || "") ? p.img : ""; if (img.length > 900000) return { ok: false, error: "big" };
-  await setDoc(D("config", "cert"), { img, nameY: Math.max(5, Math.min(95, +p.nameY || 48)), textY: Math.max(5, Math.min(95, +p.textY || 62)), color: /^#[0-9a-f]{6}$/i.test(p.color || "") ? p.color : "#0B2E5C", score: p.score !== false, date: p.date !== false });
+  await setDoc(D("config", "cert"), { img, nameY: Math.max(5, Math.min(95, +p.nameY || 48)), textY: Math.max(5, Math.min(95, +p.textY || 62)), color: /^#[0-9a-f]{6}$/i.test(p.color || "") ? p.color : "#0B2E5C", score: p.score !== false, date: p.date !== false,
+    design: ["A", "B", "C"].indexOf(p.design) >= 0 ? p.design : "", tx: Object.fromEntries(Object.entries(p.tx || {}).filter(([k]) => ["ribbon", "title", "sub", "intro", "event", "award13", "award45", "sign", "signer"].indexOf(k) >= 0).map(([k, v]) => [k, String(v || "").slice(0, 120)])) });
   return { ok: true }; };
 H.camLog = async p => {   // 📷 камерын зөрчил: сурагч өөрөө бичнэ (жижиг зурагтай)
   const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
@@ -4636,6 +4895,32 @@ H.teacherEmails = async () => {   // «Багш» гэж бүртгүүлсэн 
   const [t, u] = await Promise.all([getDocs(C("teachers")), getDocs(query(C("users"), where("role", "==", "teacher"), limit(1000)))]);
   const E = new Set(); t.docs.forEach(d => E.add(d.id)); u.docs.forEach(d => { const e = d.data().email; if (e) E.add(low(e)); });
   return { ok: true, emails: [...E].sort() };
+};
+/* ---- 📚 Багшийн булан: багш нарын хуваалцсан материал (Word, PDF, PPT · жижиг файл эсвэл Drive холбоос) ---- */
+const isTch = m => !!m && (m.admin || m.teacher || m.role === "teacher");
+H.matList = async p => {
+  const s = await getDocs(query(C("mats"), orderBy("at", "desc"), limit(Math.min(200, +p.n || 60))));
+  const uid = auth.currentUser && auth.currentUser.uid, m = auth.currentUser ? await meInfo() : null;
+  return { ok: true, list: s.docs.map(d => { const x = d.data(); return { id: d.id, title: x.title, desc: x.desc || "", cat: x.cat || "Бусад", grade: x.grade || "", kind: x.kind || "", fname: x.fname || "", size: x.size || 0, link: x.link || "", file: !!x.file, by: x.byName || "Багш", school: x.school || "", at: x.at ? ymd(toD(x.at)) : "", mine: x.owner === uid, canDel: x.owner === uid || !!(m && m.admin) }; }) };
+};
+H.matSave = async p => {
+  const m = await meInfo(); if (!isTch(m)) return { ok: false, error: "teacher" };
+  const title = String(p.title || "").trim().slice(0, 120); if (title.length < 3) return { ok: false, error: "title" };
+  const link = String(p.link || "").trim().slice(0, 500), data = String(p.data || "");
+  if (!data && !/^https:\/\//.test(link)) return { ok: false, error: "file" };
+  if (data && (!/^data:[\w.+\/-]+;base64,/.test(data) || data.length > 990000)) return { ok: false, error: "big" };
+  const id = "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const meta = { title, desc: String(p.desc || "").slice(0, 600), cat: String(p.cat || "Бусад").slice(0, 40), grade: String(p.grade || "").slice(0, 30), school: String(p.school || "").slice(0, 80),
+    kind: String(p.kind || "").slice(0, 8), fname: String(p.fname || "").slice(0, 120), size: Math.round(+p.size || 0), link: data ? "" : link, file: !!data, owner: m.uid, byName: m.name, at: Timestamp.now() };
+  const b = writeBatch(db); if (data) b.set(D("matFiles", id), { owner: m.uid, data, mime: String(p.mime || "").slice(0, 120), fname: meta.fname }); b.set(D("mats", id), meta); await b.commit();
+  return { ok: true, id };
+};
+H.matFile = async p => { const s = await getDoc(D("matFiles", String(p.id))); return s.exists() ? { ok: true, data: s.data().data, mime: s.data().mime, fname: s.data().fname } : { ok: false }; };
+H.matDel = async p => {
+  const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
+  const id = String(p.id), s = await getDoc(D("mats", id)); if (!s.exists()) return { ok: true };
+  if (!(m.admin || s.data().owner === m.uid)) return { ok: false, error: "owner" };
+  const b = writeBatch(db); if (s.data().file) b.delete(D("matFiles", id)); b.delete(D("mats", id)); await b.commit(); return { ok: true };
 };
 H.teacherList = async () => {   // эрхтэй багш нар + хүсэлт гаргасан хүмүүс
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
