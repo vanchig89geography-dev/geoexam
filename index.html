@@ -1311,7 +1311,6 @@ function renderPane() {
     if (!(tab === "var" && vyear === g)) { const h = el("div", "grp", g); const n = groups[g].length; h.append(el("small", "", "· " + n + " тест")); box.append(h); }
     const grid = el("div", "tests"); groups[g].forEach(t => grid.append(testCard(t))); box.append(grid);
   });
-  if (tab === "var") box.append(el("p", "note hint", "Дасгал — хариу шууд гарна · Шалгалт — ЭЕШ шиг цагтай, эцэст нь дүн гарна"));
   if (tab === "var" && groups[vyear] && isEesh(groups[vyear][0].id)) { const v = groups[vyear][0]; renderLB(box, "eesh", v.id, v.name.replace(/^ЭЕШ /, "")); return; }
   renderLB(box, tab, tab === "own" ? ocat : "");
 }
@@ -1333,7 +1332,6 @@ function renderTopics(box) {
   const have = topics.filter(tp => (tp.cat || "ЭЕШ") === tcat);
   // Анги бүрт ижил 5 бүлэг: даалгаваргүй бүлэг ч «удахгүй» гэж харагдана
   const list = TOPIC_ORDER.map(n => have.find(tp => tp.name === n) || { name: n, cat: tcat, total: 0, open: 0, soon: true }).concat(have.filter(tp => TOPIC_ORDER.indexOf(tp.name) < 0));
-  box.append(el("p", "note hint", "Давтах — хариу шууд гарна · Шалгалт — " + TOPIC_EXAM_N + " даалгавар, " + TOPIC_EXAM_MIN + " мин"));
   const grid = el("div", "tests");
   const rank = n => { const k = TOPIC_ORDER.indexOf(n); return k < 0 ? 99 : k; };
   list.slice().sort((a, b) => rank(a.name) - rank(b.name) || b.total - a.total).forEach(tp => {
@@ -1664,7 +1662,6 @@ const fmtS = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
 const CERR = { noreg: "Энэ бол GeoQuiz-ийн тойрог. Эхлээд GeoQuiz цэсэнд бүртгүүлнэ үү.", unpaid: "GeoQuiz-ийн хураамж тань баталгаажаагүй байна.", wait: "GeoQuiz-ийн хүсэлт тань баталгаажаагүй байна.", big: "Зурагтай асуулт хэт олон байна (нэг шалгалт ~950KB хүртэл). Асуултын тоог цөөлөх эсвэл хоёр тойрог болгоно уу.", auth: "Эхлээд нэвтэрнэ үү.", no_contest: "Ийм кодтой шалгалт олдсонгүй.", closed: "Шалгалт дууссан тул хариулт хүлээн авах боломжгүй.", already: "Та энэ шалгалтад аль хэдийн хариулт илгээсэн.", not_started: "Шалгалт хараахан эхлээгүй.", left: "Та энэ шалгалтыг эхлүүлээд гарсан тул дахин орох боломжгүй.", teacher: "Зөвхөн багш үүсгэнэ.", no_q: "Даалгавар сонгоогүй байна.", time: "Эхлэх, дуусах цагаа шалгана уу." };
 const STAT = { upcoming: ["Удахгүй", "up"], open: ["Явагдаж байна", "open"], done: ["Дууссан", "done"] };
 function renderContest(box) {
-  box.append(el("p", "note", "🏆 Олимпиадад шууд, багшийн шалгалтад 6 оронтой кодоор нэгдэнэ. Нэг л удаа оролцоно. Дүн, зөв хариу дууссаны дараа гарна."));
   if (!ONLINE) { box.append(el("p", "empty", "Шалгалт Google Sheet холбогдсоны дараа ажиллана.")); return; }
   if (!user) { const b = el("button", "btn", "Нэвтрэх"); b.type = "button"; b.onclick = () => openAcct(false);
     const w = el("div", "cjoin"); w.append(el("p", "empty", "Шалгалтад оролцохын тулд майлаараа нэвтэрнэ үү."), b); box.append(w); return; }
@@ -2412,7 +2409,6 @@ function renderMapTab(box) {
     b.onclick = () => { if (v === mmode) return; if (v !== "battle") btStop(); mmode = v; st.set("ge-mmode", v); renderPane(); }; seg.append(b); });
   box.append(seg);
   if (mmode === "battle") return renderBattle(box);
-  box.append(el("p", "note", mkind === "c" ? "Газарзүйн зураг дээр тодорсон улсын нэрийг сонгоорой. Бүс нутгаа сонгоод эхлүүлнэ." : mkind === "fl" ? "Тугийг хараад аль улсынх болохыг сонгоорой." : "Зураг дээр тодорсон " + KIND_Q[mkind] + "ын нэрийг сонгоорой."));
   box.append(pick("Төрөл", MAP_KINDS.map(([v, t]) => ({ v, t })), mkind, v => { mkind = v; st.set("ge-mkind", v); renderPane(); }));
   box.append(pick("Бүс нутаг", MAP_SCOPES.map(s => ({ v: s.v, t: s.t })), mscope, v => { mscope = v; st.set("ge-mscope", v); renderPane(); }));
   box.append(pick("Асуулт", [["10", "10 асуулт"], ["20", "20 асуулт"], ["all", mkind === "c" || mkind === "fl" ? "Бүх улс" : "Бүгд"]].map(([v, t]) => ({ v, t })), mcount, v => { mcount = v; st.set("ge-mcount", v); renderPane(); }));
@@ -4150,7 +4146,6 @@ function drivePreview(u) { u = String(u || "");
 const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
 
 async function renderShare(box) {
-  box.append(el("p", "note hint", "📚 Багш нар хамгийн сайн туршлага, хичээлийн төлөвлөгөө, слайд, ажлын хуудсаа энд хуваалцана."));
   /* 🔒 зөвхөн Сургалтын эрх авсан (төлбөр төлсөн) хүмүүст нээлттэй */
   if (!user || !(user.admin || user.learn)) { const lk = el("div", "mlock");
     lk.append(el("div", "mlic", "🔒"), el("b", "", "Багшийн булан зөвхөн Сургалтын эрхтэй багш нарт нээлттэй"), el("p", "lbn", "Сургалтын эрх авсан багш нар бие биеийнхээ хичээлийн төлөвлөгөө, слайд, ажлын хуудсыг үзэж, татаж, өөрсдийнхөө материалыг хуваалцана."));
