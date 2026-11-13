@@ -4127,6 +4127,11 @@ async function noticeAdmin(box) {
 
 /* ---------- 📚 Багшийн булан: туршлага, хичээлийн материал хуваалцах ---------- */
 const MAT_CATS = ["Хичээлийн төлөвлөгөө", "Илтгэл, слайд", "Ажлын хуудас", "Тест, даалгавар", "Туршлага", "Бусад"];
+const MAT_SUB = { "Хичээлийн төлөвлөгөө": ["Нэгж", "Ээлжит"] };   // дэд ангилал
+const MAT_BYGRADE = ["Илтгэл, слайд", "Ажлын хуудас"];             // анги → бүлгээр ангилна
+const MAT_GRADES = ["7-р анги", "8-р анги", "9-р анги", "10-р анги", "11-р анги", "12-р анги"];
+const MAT_UNITS = ["Гео орон зайн дүрслэл", "Дэлхий бидний орон гэр", "Хүн ам ба суурьшил", "Байгаль нийгмийн орчин", "Байгаль нийгмийн хамаарал, бүс нутаг"];
+let msub = "", mgrade = "", munit = "";
 const MAT_MAX = 700 * 1024;   // шууд оруулах файлын дээд хэмжээ (Firestore-ийн 1MB баримтад багтана)
 let MATS = null, mcat = "", mq = "", MATN = 30;
 /* 💾 уншилт хэмнэх: жагсаалтыг 20 минут утсандаа хадгална */
@@ -4154,12 +4159,16 @@ async function renderShare(box) {
   const top = el("div", "mtop");
   { const ad = el("button", "btn", "➕ Материал хуваалцах"); ad.type = "button"; ad.onclick = () => matForm(); top.append(ad); }
   box.append(top);
-  box.append(pick("Ангилал", [{ v: "", t: "Бүгд" }].concat(MAT_CATS.map(c => ({ v: c, t: c }))), mcat, v => { mcat = v; draw(); }));
+  box.append(pick("Ангилал", [{ v: "", t: "Бүгд" }].concat(MAT_CATS.map(c => ({ v: c, t: c }))), mcat, v => { mcat = v; msub = mgrade = munit = ""; renderPane(); }));
+  if (MAT_SUB[mcat]) box.append(pick("Төрөл", [{ v: "", t: "Бүгд" }].concat(MAT_SUB[mcat].map(c => ({ v: c, t: c }))), msub, v => { msub = v; draw(); }));
+  if (MAT_BYGRADE.indexOf(mcat) >= 0) {
+    box.append(pick("Анги", [{ v: "", t: "Бүх анги" }].concat(MAT_GRADES.map(c => ({ v: c, t: c }))), mgrade, v => { mgrade = v; draw(); }));
+    box.append(pick("Бүлэг", [{ v: "", t: "Бүх бүлэг" }].concat(MAT_UNITS.map(c => ({ v: c, t: c }))), munit, v => { munit = v; draw(); })); }
   const sI = Object.assign(el("input", "lssearch"), { type: "search", placeholder: "🔎 Материал хайх…", value: mq }); sI.oninput = () => { mq = sI.value.trim().toLowerCase(); draw(); }; box.append(sI);
   const list = el("div", "mlist"); box.append(list);
   function draw() { list.innerHTML = "";
     if (!MATS) { list.append(el("p", "empty", "Ачаалж байна…")); return; }
-    const L = MATS.filter(x => (!mcat || x.cat === mcat) && (!mq || (x.title + " " + x.desc + " " + x.by + " " + x.school).toLowerCase().indexOf(mq) >= 0));
+    const L = MATS.filter(x => (!mcat || x.cat === mcat) && (!msub || x.sub === msub) && (!mgrade || x.grade === mgrade) && (!munit || x.unit === munit) && (!mq || (x.title + " " + x.desc + " " + x.by + " " + x.school).toLowerCase().indexOf(mq) >= 0));
     if (!L.length) { list.append(el("p", "empty", MATS.length ? "Материал олдсонгүй." : "Одоогоор материал алга. Эхний материалаа хуваалцаарай! 📚")); return; }
     L.forEach(x => list.append(matCard(x, () => { MATS = MATS.filter(y => y.id !== x.id); matCache.clear(); draw(); })));
     if (MATS.length >= MATN && !mq) { const mo = el("button", "btn ghost", "⬇ Цааш нь харах"); mo.type = "button"; mo.onclick = () => { MATN += 30; MATS = null; renderPane(); }; list.append(mo); } }
@@ -4171,7 +4180,7 @@ async function renderShare(box) {
 function matCard(x, onDel) {
   const k = x.kind || "LINK", c = el("div", "mcard");
   const ic = el("span", "mic k" + k, k === "WORD" ? "W" : k === "PPT" ? "P" : k === "EXCEL" ? "X" : k === "PDF" ? "PDF" : "🔗");
-  const tx = el("div", "tx"); tx.append(el("small", "mcat", x.cat + (x.grade ? " · " + x.grade : "")), el("b", "", x.title));
+  const tx = el("div", "tx"); tx.append(el("small", "mcat", [x.cat, x.sub, x.grade, x.unit].filter(Boolean).join(" · ")), el("b", "", x.title));
   if (x.desc) tx.append(el("p", "mdesc", x.desc));
   tx.append(el("small", "mby", "👩‍🏫 " + x.by + (x.school ? " · " + x.school : "") + " · " + x.at + (x.file && x.size ? " · " + fmtSize(x.size) : "")));
   const dlc = el("span", "mdl", "⬇ " + (x.dl || 0) + " татсан"); tx.append(dlc);
@@ -4214,8 +4223,13 @@ function matForm() {
   b.append(el("h4", "", "📚 Материал хуваалцах"));
   const fld = (lab, node) => { const w = el("label", "fld"); w.append(el("span", "", lab), node); b.append(w); return node; };
   const tI = fld("Гарчиг *", Object.assign(el("input"), { maxLength: 120, placeholder: "Жишээ: «Газарзүйн зураг» сэдвийн ээлжит хичээлийн төлөвлөгөө" }));
-  const cS = fld("Ангилал", el("select")); MAT_CATS.forEach(c => { const o = el("option", "", c); o.value = c; cS.append(o); });
-  const gI = fld("Анги (заавал биш)", Object.assign(el("input"), { maxLength: 30, placeholder: "Жишээ: 10-р анги" }));
+  const sel = (lab, items, none) => { const s = fld(lab, el("select")); if (none) { const o = el("option", "", none); o.value = ""; s.append(o); } items.forEach(c => { const o = el("option", "", c); o.value = c; s.append(o); }); return s; };
+  const cS = sel("Ангилал", MAT_CATS);
+  const sS = sel("Төрөл", MAT_SUB["Хичээлийн төлөвлөгөө"]);
+  const gI = sel("Анги", MAT_GRADES, "— Сонгох —");
+  const uS = sel("Бүлэг", MAT_UNITS, "— Сонгох —");
+  const syncF = () => { const c = cS.value; sS.parentNode.hidden = !MAT_SUB[c]; uS.parentNode.hidden = MAT_BYGRADE.indexOf(c) < 0; };
+  cS.onchange = syncF; if (mcat) cS.value = mcat; syncF();
   const scI = fld("Сургууль (заавал биш)", Object.assign(el("input"), { maxLength: 80, placeholder: "Жишээ: Шинэ Монгол сургууль" }));
   const dI = fld("Товч тайлбар", Object.assign(el("textarea"), { rows: 3, maxLength: 600, placeholder: "Юуны тухай, хэрхэн ашиглах вэ…" }));
   /* файл эсвэл холбоос */
@@ -4235,7 +4249,8 @@ function matForm() {
   cn.onclick = () => z.remove();
   ok.onclick = async () => {
     const title = tI.value.trim(); if (title.length < 3) { msg.textContent = "Гарчгаа бичнэ үү."; return; }
-    const p = { action: "matSave", title, cat: cS.value, grade: gI.value.trim(), school: scI.value.trim(), desc: dI.value.trim() };
+    if (MAT_BYGRADE.indexOf(cS.value) >= 0 && (!gI.value || !uS.value)) { msg.textContent = "Анги, бүлгээ сонгоно уу."; return; }
+    const p = { action: "matSave", title, cat: cS.value, sub: MAT_SUB[cS.value] ? sS.value : "", unit: MAT_BYGRADE.indexOf(cS.value) >= 0 ? uS.value : "", grade: gI.value, school: scI.value.trim(), desc: dI.value.trim() };
     if (mode === "file") { if (!F) { msg.textContent = "Файлаа сонгоно уу."; return; }
       p.data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(F); });
       p.mime = F.type; p.fname = F.name; p.size = F.size; p.kind = matKind(F.name); }
@@ -4912,7 +4927,7 @@ H.matList = async p => {
   const m0 = auth.currentUser ? await meInfo() : null; if (!m0 || !(m0.admin || m0.learn)) return { ok: false, error: "locked" };   // 🔒 зөвхөн Сургалтын эрхтэй
   const s = await getDocs(query(C("mats"), orderBy("at", "desc"), limit(Math.min(200, +p.n || 60))));
   const uid = auth.currentUser && auth.currentUser.uid, m = auth.currentUser ? await meInfo() : null;
-  return { ok: true, list: s.docs.map(d => { const x = d.data(); return { id: d.id, title: x.title, desc: x.desc || "", cat: x.cat || "Бусад", grade: x.grade || "", kind: x.kind || "", fname: x.fname || "", size: x.size || 0, dl: x.dl || 0, link: x.link || "", file: !!x.file, by: x.byName || "Багш", school: x.school || "", at: x.at ? ymd(toD(x.at)) : "", mine: x.owner === uid, canDel: x.owner === uid || !!(m && m.admin) }; }) };
+  return { ok: true, list: s.docs.map(d => { const x = d.data(); return { id: d.id, title: x.title, desc: x.desc || "", cat: x.cat || "Бусад", sub: x.sub || "", unit: x.unit || "", grade: x.grade || "", kind: x.kind || "", fname: x.fname || "", size: x.size || 0, dl: x.dl || 0, link: x.link || "", file: !!x.file, by: x.byName || "Багш", school: x.school || "", at: x.at ? ymd(toD(x.at)) : "", mine: x.owner === uid, canDel: x.owner === uid || !!(m && m.admin) }; }) };
 };
 H.matSave = async p => {
   const m = await meInfo(); if (!m || !(m.admin || m.learn)) return { ok: false, error: "locked" };
@@ -4921,7 +4936,7 @@ H.matSave = async p => {
   if (!data && !/^https:\/\//.test(link)) return { ok: false, error: "file" };
   if (data && (!/^data:[\w.+\/-]+;base64,/.test(data) || data.length > 990000)) return { ok: false, error: "big" };
   const id = "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  const meta = { title, desc: String(p.desc || "").slice(0, 600), cat: String(p.cat || "Бусад").slice(0, 40), grade: String(p.grade || "").slice(0, 30), school: String(p.school || "").slice(0, 80),
+  const meta = { title, desc: String(p.desc || "").slice(0, 600), cat: String(p.cat || "Бусад").slice(0, 40), grade: String(p.grade || "").slice(0, 30), sub: String(p.sub || "").slice(0, 30), unit: String(p.unit || "").slice(0, 60), school: String(p.school || "").slice(0, 80),
     kind: String(p.kind || "").slice(0, 8), fname: String(p.fname || "").slice(0, 120), size: Math.round(+p.size || 0), link: data ? "" : link, file: !!data, owner: m.uid, byName: m.name, at: Timestamp.now() };
   const b = writeBatch(db); if (data) b.set(D("matFiles", id), { owner: m.uid, data, mime: String(p.mime || "").slice(0, 120), fname: meta.fname }); b.set(D("mats", id), meta); await b.commit();
   return { ok: true, id };
