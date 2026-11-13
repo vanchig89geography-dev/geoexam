@@ -1006,6 +1006,9 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .cdside input:not([type=checkbox]){width:100%;box-sizing:border-box;padding:9px 11px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--fg);font:inherit}
 .cdpv{position:sticky;top:10px}.cdpv canvas{width:100%;height:auto;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15)}
 @media (max-width:760px){.cdes{grid-template-columns:1fr}.cdpv{order:-1;position:static}}
+.mdl{display:inline-block;justify-self:start;font:700 12px var(--btn-font);color:#059669;background:rgba(5,150,105,.1);border-radius:999px;padding:3px 10px;margin-top:2px}
+.mlock{text-align:center;padding:26px 18px;border:1.5px dashed rgba(37,99,235,.4);border-radius:16px;margin:12px 0;display:flex;flex-direction:column;gap:10px;align-items:center}
+.mlock .mlic{font-size:42px}.mlock b{font-size:17px}.mlock .pay{text-align:left;width:100%;max-width:420px}
 </style>
 </head>
 <body>
@@ -4143,9 +4146,13 @@ const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1
 
 async function renderShare(box) {
   box.append(el("p", "note hint", "📚 Багш нар хамгийн сайн туршлага, хичээлийн төлөвлөгөө, слайд, ажлын хуудсаа энд хуваалцана."));
+  /* 🔒 зөвхөн Сургалтын эрх авсан (төлбөр төлсөн) хүмүүст нээлттэй */
+  if (!user || !(user.admin || user.learn)) { const lk = el("div", "mlock");
+    lk.append(el("div", "mlic", "🔒"), el("b", "", "Багшийн булан зөвхөн Сургалтын эрхтэй багш нарт нээлттэй"), el("p", "lbn", "Сургалтын эрх авсан багш нар бие биеийнхээ хичээлийн төлөвлөгөө, слайд, ажлын хуудсыг үзэж, татаж, өөрсдийнхөө материалыг хуваалцана."));
+    if (!user) { const b = el("button", "btn", "🔑 Нэвтрэх"); b.type = "button"; b.onclick = () => openAcct(true); lk.append(b); } else lk.append(learnPayHTML());
+    box.append(lk); return; }
   const top = el("div", "mtop");
-  if (isTchUser()) { const ad = el("button", "btn", "➕ Материал хуваалцах"); ad.type = "button"; ad.onclick = () => matForm(); top.append(ad); }
-  else top.append(el("p", "lbn", user ? "Материал хуваалцахын тулд «Багш» гэж бүртгүүлнэ үү (👤 Миний бүртгэл)." : "Материал хуваалцахын тулд «Багш» гэж нэвтэрнэ үү."));
+  { const ad = el("button", "btn", "➕ Материал хуваалцах"); ad.type = "button"; ad.onclick = () => matForm(); top.append(ad); }
   box.append(top);
   box.append(pick("Ангилал", [{ v: "", t: "Бүгд" }].concat(MAT_CATS.map(c => ({ v: c, t: c }))), mcat, v => { mcat = v; draw(); }));
   const sI = Object.assign(el("input", "lssearch"), { type: "search", placeholder: "🔎 Материал хайх…", value: mq }); sI.oninput = () => { mq = sI.value.trim().toLowerCase(); draw(); }; box.append(sI);
@@ -4167,14 +4174,17 @@ function matCard(x, onDel) {
   const tx = el("div", "tx"); tx.append(el("small", "mcat", x.cat + (x.grade ? " · " + x.grade : "")), el("b", "", x.title));
   if (x.desc) tx.append(el("p", "mdesc", x.desc));
   tx.append(el("small", "mby", "👩‍🏫 " + x.by + (x.school ? " · " + x.school : "") + " · " + x.at + (x.file && x.size ? " · " + fmtSize(x.size) : "")));
+  const dlc = el("span", "mdl", "⬇ " + (x.dl || 0) + " татсан"); tx.append(dlc);
+  const count = () => { const k = "gx-mdl-" + x.id; try { if (localStorage.getItem(k)) return; localStorage.setItem(k, "1"); } catch (e) {}   // нэг хүн нэг л удаа тоологдоно
+    x.dl = (x.dl || 0) + 1; dlc.textContent = "⬇ " + x.dl + " татсан"; api({ action: "matDl", id: x.id }).catch(() => {}); matCache.clear(); };
   const act = el("div", "mact");
   const pv = x.link ? drivePreview(x.link) : "";
   if (x.file) {
     if (k === "PDF") { const v = el("button", "btn ghost sm", "👁 Үзэх"); v.type = "button"; v.onclick = () => matOpen(x, true); act.append(v); }
-    const d = el("button", "btn sm", "⬇ Татах"); d.type = "button"; d.onclick = () => matOpen(x, false); act.append(d);
+    const d = el("button", "btn sm", "⬇ Татах"); d.type = "button"; d.onclick = () => { count(); matOpen(x, false); }; act.append(d);
   } else if (x.link) {
     if (pv) { const v = el("button", "btn ghost sm", "👁 Үзэх"); v.type = "button"; v.onclick = () => matPreview(x.title, pv, x.link); act.append(v); }
-    const o = el("a", "btn sm", "↗ Нээх"); o.href = x.link; o.target = "_blank"; o.rel = "noopener"; act.append(o);
+    const o = el("a", "btn sm", "↗ Нээх / Татах"); o.href = x.link; o.target = "_blank"; o.rel = "noopener"; o.onclick = () => count(); act.append(o);
   }
   if (x.canDel) { const del = el("button", "link danger", "🗑 Устгах"); del.type = "button";
     del.onclick = async () => { if (!confirm("«" + x.title + "» материалыг устгах уу?")) return; del.disabled = true; const r = await api({ action: "matDel", id: x.id }).catch(() => ({ ok: false })); if (r.ok) onDel(); else { del.disabled = false; alert("Устгаж чадсангүй."); } };
@@ -4899,12 +4909,13 @@ H.teacherEmails = async () => {   // «Багш» гэж бүртгүүлсэн 
 /* ---- 📚 Багшийн булан: багш нарын хуваалцсан материал (Word, PDF, PPT · жижиг файл эсвэл Drive холбоос) ---- */
 const isTch = m => !!m && (m.admin || m.teacher || m.role === "teacher");
 H.matList = async p => {
+  const m0 = auth.currentUser ? await meInfo() : null; if (!m0 || !(m0.admin || m0.learn)) return { ok: false, error: "locked" };   // 🔒 зөвхөн Сургалтын эрхтэй
   const s = await getDocs(query(C("mats"), orderBy("at", "desc"), limit(Math.min(200, +p.n || 60))));
   const uid = auth.currentUser && auth.currentUser.uid, m = auth.currentUser ? await meInfo() : null;
-  return { ok: true, list: s.docs.map(d => { const x = d.data(); return { id: d.id, title: x.title, desc: x.desc || "", cat: x.cat || "Бусад", grade: x.grade || "", kind: x.kind || "", fname: x.fname || "", size: x.size || 0, link: x.link || "", file: !!x.file, by: x.byName || "Багш", school: x.school || "", at: x.at ? ymd(toD(x.at)) : "", mine: x.owner === uid, canDel: x.owner === uid || !!(m && m.admin) }; }) };
+  return { ok: true, list: s.docs.map(d => { const x = d.data(); return { id: d.id, title: x.title, desc: x.desc || "", cat: x.cat || "Бусад", grade: x.grade || "", kind: x.kind || "", fname: x.fname || "", size: x.size || 0, dl: x.dl || 0, link: x.link || "", file: !!x.file, by: x.byName || "Багш", school: x.school || "", at: x.at ? ymd(toD(x.at)) : "", mine: x.owner === uid, canDel: x.owner === uid || !!(m && m.admin) }; }) };
 };
 H.matSave = async p => {
-  const m = await meInfo(); if (!isTch(m)) return { ok: false, error: "teacher" };
+  const m = await meInfo(); if (!m || !(m.admin || m.learn)) return { ok: false, error: "locked" };
   const title = String(p.title || "").trim().slice(0, 120); if (title.length < 3) return { ok: false, error: "title" };
   const link = String(p.link || "").trim().slice(0, 500), data = String(p.data || "");
   if (!data && !/^https:\/\//.test(link)) return { ok: false, error: "file" };
@@ -4915,6 +4926,9 @@ H.matSave = async p => {
   const b = writeBatch(db); if (data) b.set(D("matFiles", id), { owner: m.uid, data, mime: String(p.mime || "").slice(0, 120), fname: meta.fname }); b.set(D("mats", id), meta); await b.commit();
   return { ok: true, id };
 };
+H.matDl = async p => {   // ⬇ татсан тоог 1-ээр нэмнэ
+  const ref = D("mats", String(p.id)), s = await getDoc(ref); if (!s.exists()) return { ok: false };
+  const n = (s.data().dl || 0) + 1; await setDoc(ref, { dl: n }, { merge: true }); return { ok: true, dl: n }; };
 H.matFile = async p => { const s = await getDoc(D("matFiles", String(p.id))); return s.exists() ? { ok: true, data: s.data().data, mime: s.data().mime, fname: s.data().fname } : { ok: false }; };
 H.matDel = async p => {
   const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
