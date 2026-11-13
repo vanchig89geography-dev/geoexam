@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Газарзүйн даалгаврын сан: ЭЕШ-ийн хувилбарууд, сэдвээр давтах.">
+<meta name="description" content="Газарзүйн сургалтын систем: ЭЕШ-ийн хувилбарууд, сэдвээр давтах.">
 <meta property="og:site_name" content="GeoExam">
-<meta property="og:title" content="GeoExam · Газарзүйн даалгаврын сан">
+<meta property="og:title" content="GeoExam · Газарзүйн сургалтын систем">
 <meta property="og:image" content="https://geoexam.mn/icon-512.png">
 <meta property="og:url" content="https://geoexam.mn/">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"GeoExam","alternateName":"GeoExam · Газарзүйн даалгаврын сан","url":"https://geoexam.mn/"}</script>
-<title>GeoExam · Газарзүйн даалгаврын сан</title>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"GeoExam","alternateName":"GeoExam · Газарзүйн сургалтын систем","url":"https://geoexam.mn/"}</script>
+<title>GeoExam · Газарзүйн сургалтын систем</title>
 <link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#F4F4F5" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0F0F10" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&family=Lora:ital,wght@1,600;1,700&family=Nunito:wght@800;900&display=swap">
 <style>
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -1055,6 +1055,24 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 }
 .mcard{padding:8px 12px}.mcard .tx{gap:1px}.mcard .mcat{font-size:11px;line-height:1.25}.mcard b{line-height:1.25}.mcard .mby{font-size:11.5px;line-height:1.3}
 .mcard .mdesc{font-size:12.5px;line-height:1.3}.mtrow .mdl{padding:1px 8px;font-size:12px}
+.wrap{max-width:1140px}
+/* 📱 утсан дээр дэлгэцээ бүрэн ашиглана */
+@media(max-width:520px){
+ body{margin:0}
+ .wrap{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+ .pad{padding:12px}
+ #exam .nav{margin:16px -12px -12px;padding-left:12px;padding-right:12px}
+}
+.title{margin-top:18px}
+.title p.tagline{font-family:'Lora',Georgia,serif;font-style:italic;font-weight:700;font-size:clamp(17px,4.4vw,20px);letter-spacing:.4px;margin-top:2px;background-image:linear-gradient(135deg,#1D4ED8,#4338CA);-webkit-background-clip:text;background-clip:text;color:transparent}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .title p.tagline{background-image:linear-gradient(135deg,color-mix(in srgb,#38BDF8 70%,#fff),color-mix(in srgb,#4F46E5 70%,#fff))}}
+:root[data-theme="dark"] .title p.tagline{background-image:linear-gradient(135deg,color-mix(in srgb,#38BDF8 70%,#fff),color-mix(in srgb,#4F46E5 70%,#fff))}
+.title h1{font-family:"Nunito",var(--btn-font);font-weight:900;letter-spacing:-.01em}
+/* ✨ гарчиг: хар, жигд товгор */
+.title h1{color:#111113;background:none;filter:none;animation:none;
+ text-shadow:0 -1px 0 rgba(255,255,255,.9),0 1px 0 #6b6b73,0 2px 0 #8a8a92,0 3px 0 #a8a8b0,0 4px 2px rgba(0,0,0,.15),0 8px 14px rgba(0,0,0,.18)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .title h1{color:#FAFAFA;text-shadow:0 1px 0 #a1a1aa,0 2px 0 #71717a,0 3px 0 #52525b,0 4px 2px rgba(0,0,0,.5),0 8px 16px rgba(0,0,0,.6)}}
+:root[data-theme="dark"] .title h1{color:#FAFAFA;text-shadow:0 1px 0 #a1a1aa,0 2px 0 #71717a,0 3px 0 #52525b,0 4px 2px rgba(0,0,0,.5),0 8px 16px rgba(0,0,0,.6)}
 </style>
 </head>
 <body>
@@ -1075,8 +1093,8 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
       <button class="acct" id="acct" type="button"><i id="acI">?</i><b id="acN">Нэвтрэх</b><span class="st" id="acS" hidden></span></button></div>
     </div>
     <div class="title">
-      <h1>Газарзүйн даалгаврын сан</h1>
-      <p>Өдөр бүр нэг алхам — амжилт таных</p>
+      <h1>Газарзүйн сургалтын систем</h1>
+      <p class="tagline">Сур бас давт…</p>
     </div>
   </div>
 </section>
@@ -1132,7 +1150,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 
   <p class="demo" id="demo" hidden>Урьдчилан харах горим: бүх тест үнэгүй. Sheet холбогдоход нэвтрэх, төлбөр ажиллана.</p>
   <footer>
-    <div>GeoExam · Газарзүйн даалгаврын сан</div>
+    <div>GeoExam · Газарзүйн сургалтын систем</div>
   </footer>
 </main>
 
@@ -4384,7 +4402,7 @@ const IV_SCENES = [
   { k: "battle", cap: "⚔️ Найзуудтайгаа Battle" }, { k: "board", cap: "🏆 Шилдэг сурагчдын самбар" }, { k: "end" }];
 function ivScene(k) {
   const s = el("div", "ivs iv-" + k), logo = (document.querySelector(".logo img") || {}).src || "";
-  if (k === "logo") s.innerHTML = '<div class="ivglobe"><i></i><i></i><i></i></div><img class="ivlogo" src="' + logo + '" alt=""><b class="ivname">Geo<span>Exam</span></b><p class="ivtag">Өдөр бүр нэг алхам — амжилт таных</p>';
+  if (k === "logo") s.innerHTML = '<div class="ivglobe"><i></i><i></i><i></i></div><img class="ivlogo" src="' + logo + '" alt=""><b class="ivname">Geo<span>Exam</span></b><p class="ivtag">Сур бас давт…</p>';
   if (k === "test") s.innerHTML = '<div class="ivcard"><small>ЭЕШ 2024 · 12-р даалгавар</small><p>Дэлхийн хамгийн урт гол аль нь вэ?</p><div class="ivo">A. Амазон</div><div class="ivo">B. Миссисипи</div><div class="ivo ok">C. Нил <em>✓</em></div><div class="ivo">D. Янцзы</div><span class="ivplus">+100</span></div>';
   if (k === "map") {   // жинхэнэ газарзүйн зураг (Европ, Франц тодорсон)
     let map = '<div class="ivwait">🗺️</div>';
