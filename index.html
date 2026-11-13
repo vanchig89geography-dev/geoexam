@@ -1080,6 +1080,15 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .logo .g1{text-shadow:0 1px 0 #a1a1aa,0 2px 0 #52525b,0 3px 2px rgba(0,0,0,.5),0 6px 12px rgba(0,0,0,.6)}:root:not([data-theme="light"]) .logo img{filter:drop-shadow(0 3px 2px rgba(0,0,0,.5)) drop-shadow(0 6px 12px rgba(56,189,248,.3))}}
 :root[data-theme="dark"] .logo .g1{text-shadow:0 1px 0 #a1a1aa,0 2px 0 #52525b,0 3px 2px rgba(0,0,0,.5),0 6px 12px rgba(0,0,0,.6)}
 :root[data-theme="dark"] .logo img{filter:drop-shadow(0 3px 2px rgba(0,0,0,.5)) drop-shadow(0 6px 12px rgba(56,189,248,.3))}
+/* 👥 ангиуд */
+.clsrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.clsf textarea{width:100%;box-sizing:border-box;font:inherit;line-height:1.5}
+.clslist{display:grid;gap:8px;margin-top:12px}
+.clscard{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(37,99,235,.3);background:var(--sunk)}
+.clscard .tx{flex:1;min-width:0;display:grid;gap:2px}.clscard b{font-size:18px}
+.clscard small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clspick{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
+.clspick select{padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;min-width:220px}
 </style>
 </head>
 <body>
@@ -1926,7 +1935,8 @@ async function renderTeacher(box) {
   const row = el("div", "tbtns");
   const nb = el("button", "btn", "+ Шинэ шалгалт үүсгэх"); nb.type = "button"; nb.onclick = () => contestBuilder();
   const mq = el("button", "btn ghost", "✍️ Миний асуултууд"); mq.type = "button"; mq.onclick = () => myQuestions();
-  row.append(nb, mq); box.append(row);
+  const mc = el("button", "btn ghost", "👥 Миний ангиуд"); mc.type = "button"; mc.onclick = () => myClasses();
+  row.append(nb, mq, mc); box.append(row);
   try { const r = await api({ action: "contestMine", token }); if (!r.ok || !r.contests.length) return;
     const g = el("div", "tests"); r.contests.forEach(c => g.append(contestCard(c, c.players + " сурагч оролцсон", () => teacherResults(c.code), "Дүн харах"))); box.append(g);
   } catch (e) {}
@@ -2007,6 +2017,15 @@ async function teacherResults(code) {
   const tw2 = el("div", "rostw"); tw2.append(tb2);
   const bb = el("div", "tbtns"); bb.append(rs, more, rpr);
   rw.append(el("small", "lbn", "Нэрийг дарааллаар нь бичнэ (Enter — дараагийн мөр). Excel-ээс нэрсээ хуулж эхний нүдэнд буулгаж болно. Сурагч хуудсан дээр зүүн талын дугаараа будна."), tw2, bb, rm);
+  /* 👥 хадгалсан ангиас сонгох: нэрс автоматаар орно, хуудсанд ангийн нэр хэвлэгдэнэ */
+  const cw = el("div", "clspick"), cs2 = el("select"), ce2 = el("button", "link", "👥 Ангиуд засах"); ce2.type = "button"; ce2.onclick = () => myClasses(() => teacherResults(code));
+  cs2.append(Object.assign(el("option", "", "Энэ шалгалтын жагсаалт"), { value: "" })); cw.append(el("span", "lbn", "Анги:"), cs2, ce2);
+  let CL = [], curC = null;
+  api({ action: "classList" }).then(x => { if (!x.ok) return; CL = x.list; CL.forEach(c => cs2.append(Object.assign(el("option", "", c.name + " · " + c.list.filter(Boolean).length + " сурагч"), { value: c.id }))); }).catch(() => {});
+  cs2.onchange = () => { curC = CL.find(c => c.id === cs2.value) || null; rb.hidden = !!curC; if (curC) rw.hidden = true; };
+  ps.onclick = () => printSheet(code, curC ? curC.name : "");
+  sc.onclick = () => curC ? omrScan(code, curC.list, n => { if (n) teacherResults(code); }, { id: curC.id, name: curC.name }) : omrScan(code, roster, n => { if (n) teacherResults(code); });
+  pp.append(cw);
   pb.append(ps, sc, rb); pp.append(pb, rw); P.paper.append(pp);
   { const pc = el("div", "trprint"), mk = (b, d) => { const w = el("div", "trpi"); w.append(b, el("small", "lbn", d)); pc.append(w); };
     mk(pr1, "Асуултууд, хариулт бичих зайтай. Сурагчдад тарааж өгнө."); mk(pr2, "Асуулт + зөв хариу, тайлбартай. Зөвхөн багшид."); P.print.append(pc); }
@@ -2048,6 +2067,37 @@ function aiBar(code, r) {
     if (r.contest.status === "done") run(); };   // ⚡ шалгалт дууссан бол автоматаар үнэлнэ
   b.onclick = run; chk();
   return w;
+}
+/* 👥 багшийн ангиуд: анги, бүлэг, сурагчдын нэрс (цаасан шалгалтад ашиглана) */
+async function myClasses(back) {
+  const box = $("pane"); box.innerHTML = '<p class="empty">Ачаалж байна…</p>';
+  const r = await api({ action: "classList" }).catch(() => ({ ok: false })); box.innerHTML = "";
+  const bk = el("button", "link lsback", "← Буцах"); bk.type = "button"; bk.onclick = () => back ? back() : renderPane(); box.append(bk);
+  box.append(el("h3", "bh", "👥 Миний ангиуд"), el("p", "note", "Анги, бүлэг, сурагчдынхаа нэрийг нэг удаа хадгална. Цаасан шалгалтад ангиа сонгоход нэрс автоматаар орж, хариултын хуудсанд ангийн нэр хэвлэгдэнэ."));
+  const nw = el("button", "btn", "+ Шинэ анги"); nw.type = "button"; box.append(nw);
+  const f = el("div", "bform clsf"); f.hidden = true; box.append(f);
+  const gS = el("select"); for (let g = 1; g <= 12; g++) gS.append(Object.assign(el("option", "", g + "-р анги"), { value: String(g) })); gS.value = "7";
+  const gI = Object.assign(el("input"), { maxLength: 10, placeholder: "Жишээ: А, Б, 1, 2" });
+  const tA = Object.assign(el("textarea"), { rows: 10, placeholder: "Мөр бүрт нэг сурагчийн нэр.\nЖишээ:\nБ.Тэмүүлэн\nД.Номин\n…\n(Excel-ээс нэрсээ хуулж буулгаж болно)" });
+  const cnt = el("small", "lbn"); const upd = () => { const n = tA.value.split(/\r?\n/).map(x => x.split("\t").filter(Boolean).pop() || "").filter(x => x.trim()).length; cnt.textContent = n + " сурагч · 1-р мөр = №01, 2-р мөр = №02 …"; }; tA.oninput = upd;
+  const fl = (lab, n) => { const l = el("label", "fld"); l.append(el("span", "", lab), n); return l; };
+  const row = el("div", "clsrow"); row.append(fl("Анги", gS), fl("Бүлэг", gI)); f.append(el("b", "myqft", "➕ Шинэ анги"), row, fl("Сурагчдын нэрс", tA), cnt);
+  const msg = el("p", "lbn"), sv = el("button", "btn", "💾 Хадгалах"), cn = el("button", "btn ghost", "Болих"); sv.type = cn.type = "button"; const br = el("div", "tbtns"); br.append(sv, cn); f.append(msg, br);
+  let eid = ""; const open = (c) => { eid = c ? c.id : ""; f.querySelector(".myqft").textContent = c ? "✏️ " + c.name + " засах" : "➕ Шинэ анги"; gS.value = c ? (c.grade || "7") : "7"; gI.value = c ? c.grp : ""; tA.value = c ? c.list.join("\n") : ""; upd(); msg.textContent = ""; f.hidden = false; f.scrollIntoView({ behavior: "smooth", block: "start" }); };
+  nw.onclick = () => open(null); cn.onclick = () => { f.hidden = true; };
+  sv.onclick = async () => { const grp = gI.value.trim().toUpperCase(), list = tA.value.split(/\r?\n/).map(x => (x.split("\t").filter(Boolean).pop() || "").trim());
+    while (list.length && !list[list.length - 1]) list.pop();
+    if (!list.filter(Boolean).length) { msg.textContent = "Сурагчдын нэрийг бичнэ үү."; return; }
+    if (list.length > 99) { msg.textContent = "Нэг ангид 99 хүртэл сурагч багтана."; return; }
+    sv.disabled = true; const x = await api({ action: "classSave", id: eid, grade: gS.value, grp, name: gS.value + grp, list }).catch(() => ({ ok: false })); sv.disabled = false;
+    if (!x.ok) { msg.textContent = "Хадгалж чадсангүй."; return; } play("ok"); myClasses(back); };
+  const L = r.ok ? r.list : [], lst = el("div", "clslist"); box.append(lst);
+  if (!L.length) lst.append(el("p", "empty", "Анги алга. «+ Шинэ анги» дарж нэмнэ үү."));
+  L.forEach(c => { const d = el("div", "clscard"), n = c.list.filter(Boolean).length;
+    const t = el("div", "tx"); t.append(el("b", "", c.name), el("small", "lbn", n + " сурагч" + (n ? " · " + c.list.filter(Boolean).slice(0, 3).join(", ") + (n > 3 ? "…" : "") : "")));
+    const e = el("button", "btn ghost sm", "✏️"), dl = el("button", "link danger", "🗑"); e.type = dl.type = "button"; e.title = "Засах"; dl.title = "Устгах";
+    e.onclick = () => open(c); dl.onclick = async () => { if (!confirm("«" + c.name + "» ангийг устгах уу?")) return; await api({ action: "classDel", id: c.id }); myClasses(back); };
+    const a = el("div", "mact"); a.append(e, dl); d.append(t, a); lst.append(d); });
 }
 /* багшийн өөрийн асуултууд */
 async function myQuestions() {
@@ -2862,14 +2912,14 @@ function omrLayout(qs) {
   return L;
 }
 /* --- хэвлэх хуудас (бүтэн SVG — хэвлэхэд дэвсгэр өнгө алга болдоггүй) --- */
-function omrSheetSVG(c, qs) {
+function omrSheetSVG(c, qs, cls) {
   const L = omrLayout(qs), esc = t => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   let s = '<svg class="sheet" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 260" width="180mm" height="260mm" font-family="Arial,sans-serif">';
   OMR.mk.forEach(([x, y]) => s += '<rect x="' + (x - 5) + '" y="' + (y - 5) + '" width="10" height="10" fill="#000"/>');
   s += '<rect x="15.5" y="3" width="4" height="4" fill="#000"/>';
   s += '<text x="90" y="8.6" font-size="6" font-weight="700" text-anchor="middle">GeoExam · Хариултын хуудас</text>';
   s += '<text x="90" y="15" font-size="3.4" fill="#333" text-anchor="middle">' + esc(c.name).slice(0, 70) + " · Код " + esc(c.code) + "</text>";
-  s += '<text x="2" y="27" font-size="3.6">Нэр: _______________________</text><text x="2" y="36" font-size="3.6">Анги: ____________</text><text x="2" y="45" font-size="3.6">Оноо: ________ / ' + qs.reduce((a, q) => a + (q.slots ? q.slots.reduce((x, y) => x + y.p, 0) : (q.p || 1)), 0) + "</text>";
+  s += '<text x="2" y="27" font-size="3.6">Нэр: _______________________</text><text x="2" y="36" font-size="3.6">Анги: ' + (cls ? '<tspan font-weight="700">' + esc(cls) + '</tspan>' : '____________') + '</text><text x="2" y="45" font-size="3.6">Оноо: ________ / ' + qs.reduce((a, q) => a + (q.slots ? q.slots.reduce((x, y) => x + y.p, 0) : (q.p || 1)), 0) + "</text>";
   s += '<text x="97" y="22" font-size="3.2" font-weight="700">Сурагчийн дугаар (жагсаалтаар)</text>';
   ["Аравт", "Нэгж"].forEach((t, r) => { s += '<text x="81" y="' + (32.2 + r * 8) + '" font-size="2.9" fill="#333">' + t + "</text>";
     L.num[r].forEach(([x, y], d) => { s += '<circle cx="' + x + '" cy="' + y + '" r="' + OMR.br + '" fill="#fff" stroke="#666" stroke-width=".3"/><text x="' + x + '" y="' + (y + 1.1) + '" font-size="3" fill="#aaa" text-anchor="middle">' + d + "</text>"; }); });
@@ -2885,7 +2935,7 @@ function omrSheetSVG(c, qs) {
   s += '<text x="90" y="257" font-size="2.6" fill="#666" text-anchor="middle">geoexam.mn · Багш утасныхаа камераар скан хийж засна</text></svg>';
   return s;
 }
-async function printSheet(code) {
+async function printSheet(code, cls) {
   const w = window.open("", "_blank"); if (!w) { alertBox("Шинэ цонх нээгдсэнгүй. Хөтчийн popup хориглолтыг зөвшөөрнө үү."); return; }
   w.document.write("<p style='font-family:sans-serif;padding:20px'>Бэлдэж байна…</p>");
   const r = await api({ action: "contestExport", code }); if (!r.ok) { w.document.body.innerHTML = "<p>Алдаа гарлаа.</p>"; return; }
@@ -2894,7 +2944,7 @@ async function printSheet(code) {
     + "@page{size:A4;margin:12mm 15mm}body{margin:0;font-family:Arial,sans-serif}.bar{padding:10px;text-align:center;background:#f3f4f6}.bar button{font-size:15px;padding:9px 16px;cursor:pointer}.bar p{margin:6px 0 0;font-size:13px;color:#444}.warn{color:#b00}"
     + ".sheet{display:block;margin:10px auto}@media print{.bar{display:none}.sheet{margin:0 auto}}</style></head><body>"
     + '<div class="bar"><button onclick="print()">🖨 Хэвлэх</button><p>Нэг хуудсыг хэвлээд олшруулж болно. Хэвлэхдээ «Scale / Масштаб» 100% эсвэл «Fit to page» байхад болно.</p>' + big + "</div>"
-    + omrSheetSVG(r.contest, r.questions) + "</body></html>");
+    + omrSheetSVG(r.contest, r.questions, cls) + "</body></html>");
   w.document.close();
 }
 
@@ -2964,12 +3014,12 @@ function omrRead(G, Q, qs) {
 }
 
 /* --- скан хийх дэлгэц --- */
-async function omrScan(code, roster, onClose) {
+async function omrScan(code, roster, onClose, cls) {
   const r = await api({ action: "contestExport", code }); if (!r.ok) return alertBox(CERR[r.error] || "Алдаа");
   const qs = r.questions.slice(0, OMR.max), total = qs.reduce((a, q) => a + (q.slots ? q.slots.reduce((x, y) => x + y.p, 0) : (q.p || 1)), 0);
   const ov = el("div", "omr"); document.body.append(ov); document.body.classList.add("omr-on");
   const top = el("div", "omrtop"), x = el("button", "omrx", "✕ Хаах"); x.type = "button";
-  const cnt = el("span", "omrcnt", "Хадгалсан: 0"); top.append(x, el("b", "", "📷 Хариултын хуудас скан"), cnt); ov.append(top);
+  const cnt = el("span", "omrcnt", "Хадгалсан: 0"); top.append(x, el("b", "", "📷 Хариултын хуудас скан" + (cls ? " · " + cls.name : "")), cnt); ov.append(top);
   const stage = el("div", "omrstage"), vid = el("video"); vid.playsInline = true; vid.muted = true; vid.setAttribute("playsinline", ""); const cv = el("canvas", "omrcv");
   stage.append(vid, cv); ov.append(stage);
   const hint = el("p", "omrhint", "Хуудсаа бүтнээр нь, 4 булан дахь хар дөрвөлжин харагдахаар барина уу. Автоматаар уншина."); ov.append(hint);
@@ -3032,7 +3082,7 @@ async function omrScan(code, roster, onClose) {
     ag.onclick = () => { cool = 0; resume(); };
     sv.onclick = async () => { if (num == null || num < 1) { msg.textContent = "Сурагчийн дугаарыг (01–99) бичнэ үү."; ni.focus(); return; }
       sv.disabled = true; sv.textContent = "Хадгалж байна…";
-      const answers = qs.map((q, i) => q.slots ? {} : A[i]); let x; try { x = await api({ action: "paperSave", code, num, answers }); } catch (e) { x = { ok: false }; }
+      const answers = qs.map((q, i) => q.slots ? {} : A[i]); let x; try { x = await api({ action: "paperSave", code, num, answers, cls: cls ? cls.id : "" }); } catch (e) { x = { ok: false }; }
       if (!x.ok) { sv.disabled = false; sv.textContent = "✓ Хадгалах"; msg.textContent = CERR[x.error] || "Хадгалж чадсангүй. Интернэтээ шалгана уу."; return; }
       saved++; cnt.textContent = "Хадгалсан: " + saved; play("ok"); hint.textContent = "✓ " + nm.textContent + " — " + sc.textContent + " хадгалагдлаа. Дараагийн хуудсаа барина уу."; resume(); };
     bt.append(sv, ag); pane.append(msg, bt); upd(); pane.scrollTop = 0;
@@ -4814,7 +4864,7 @@ async function ranking(code, key, roster) {
   if (ai) ai.docs.forEach(d => G[d.id] = d.data());
   const list = s.docs.map(d => { const x = d.data(); let A = []; try { A = JSON.parse(x.answers || "[]"); } catch (e) {}
     let sc = 0, tot = 0; Q.forEach((q, i) => { tot += maxP(q); sc += grade(q, A[i], G[d.id], i); });
-    return { name: x.paper && roster && roster[x.num - 1] ? roster[x.num - 1] : x.name || x.email, email: x.email, score: sc, total: tot, secs: x.secs || 0, uid: d.id, answers: A }; });
+    return { name: x.paper && !x.cls && roster && roster[x.num - 1] ? roster[x.num - 1] : x.name || x.email, email: x.email, score: sc, total: tot, secs: x.secs || 0, uid: d.id, answers: A }; });
   list.sort((a, b) => b.score - a.score || a.secs - b.secs); list.forEach((x, i) => x.rank = i + 1);
   return list;
 }
@@ -4949,8 +4999,38 @@ H.paperSave = async p => {   // 📄 цаасан хуудсыг скан хий
   const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
   if (!m.admin && cs.data().owner !== m.email) return { ok: false, error: "teacher" };
   const num = parseInt(p.num, 10); if (!(num >= 1 && num <= 99)) return { ok: false, error: "num" };
-  const nn = String(num).padStart(2, "0"), R = cs.data().roster || [];
-  await setDoc(D("contests", code, "subs", "paper-" + nn), { name: R[num - 1] || "№" + nn, email: "📄 цаасаар", answers: JSON.stringify(Array.isArray(p.answers) ? p.answers : []).slice(0, 45000), secs: 0, paper: true, num, at: Timestamp.now() });
+  const nn = String(num).padStart(2, "0"), ans = JSON.stringify(Array.isArray(p.answers) ? p.answers : []).slice(0, 45000);
+  const cid = String(p.cls || "").replace(/[^a-z0-9]/gi, "").slice(0, 20);
+  if (cid) {   // 👥 хадгалсан ангийн жагсаалтаас нэрийг авна
+    const k = await getDoc(D("classes", cid)); if (!k.exists() || (k.data().owner !== m.email && !m.admin)) return { ok: false, error: "teacher" };
+    const L = k.data().list || [], cn = k.data().name || "";
+    await setDoc(D("contests", code, "subs", "paper-" + cid + "-" + nn), { name: L[num - 1] || cn + " №" + nn, email: "📄 " + cn, answers: ans, secs: 0, paper: true, num, cls: cn, at: Timestamp.now() });
+    return { ok: true }; }
+  const R = cs.data().roster || [];
+  await setDoc(D("contests", code, "subs", "paper-" + nn), { name: R[num - 1] || "№" + nn, email: "📄 цаасаар", answers: ans, secs: 0, paper: true, num, at: Timestamp.now() });
+  return { ok: true };
+};
+/* 👥 багшийн хадгалсан ангиуд (анги, бүлэг, сурагчдын нэрс) */
+H.classList = async () => {
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const s = await getDocs(query(C("classes"), where("owner", "==", m.email), limit(100)));
+  return { ok: true, list: s.docs.map(d => { const x = d.data(); return { id: d.id, grade: x.grade || "", grp: x.grp || "", name: x.name || "", list: x.list || [] }; }).sort((a, b) => a.name.localeCompare(b.name, "mn", { numeric: true })) };
+};
+H.classSave = async p => {
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const grade = String(p.grade || "").trim().slice(0, 10), grp = String(p.grp || "").trim().slice(0, 10);
+  const name = String(p.name || (grade + grp)).trim().slice(0, 30); if (!name) return { ok: false, error: "form" };
+  const list = (Array.isArray(p.list) ? p.list : []).map(x => String(x || "").trim().slice(0, 60)).slice(0, 99);
+  while (list.length && !list[list.length - 1]) list.pop();
+  let id = String(p.id || "").replace(/[^a-z0-9]/gi, "");
+  if (id) { const o = await getDoc(D("classes", id)); if (!o.exists() || (o.data().owner !== m.email && !m.admin)) return { ok: false, error: "teacher" }; }
+  else id = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  await setDoc(D("classes", id), { owner: m.email, grade, grp, name, list, at: Timestamp.now() });
+  return { ok: true, id };
+};
+H.classDel = async p => {
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const id = String(p.id || ""), o = await getDoc(D("classes", id)); if (o.exists() && (o.data().owner === m.email || m.admin)) await deleteDoc(D("classes", id));
   return { ok: true };
 };
 H.contestRoster = async p => {   // ангийн жагсаалт: 1-р мөр = №01
