@@ -3718,7 +3718,7 @@ function quizRules(q) {   // 📜 журам унших цонх
 
 /* ---------- 📷 Камертай хяналт: утас, олон хүн, нүүр алга, цонх орхих ---------- */
 const CAM = { on: false, stream: null, model: null, timer: null, n: 0, max: 3, last: {}, miss: 0, code: "", lw: 0, busy: false, kicked: false };
-const CAM_MSG = { phone: "📱 Камерт утас харагдлаа", multi: "👥 Камерт 2 ба түүнээс олон хүн харагдлаа", none: "🚫 Нүүр тань камерт харагдахгүй байна",
+const CAM_MSG = { phone: "📱 Камерт утас харагдлаа", multi: "👥 Камерт 2 ба түүнээс олон хүн харагдлаа", none: "🚫 10 секундээс удаан камерт харагдсангүй",
   blur: "🪟 Шалгалтын цонхноос гарлаа (өөр цонх, AI туслах)", resize: "↔ Цонхны хэмжээ өөрчлөгдлөө (хажуугийн цонх нээсэн)" };
 function loadScript(src) { return new Promise((res, rej) => { if (document.querySelector('script[src="' + src + '"]')) return res();
   const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.append(s); }); }
@@ -3765,7 +3765,7 @@ function camStart(code) {
   CAM.timer = setInterval(async () => { if (!CAM.on || CAM.busy || document.hidden) return; CAM.busy = true;
     try { const L = await camLook(v);
       if (L.phone) camFlag("phone", v); else if (L.persons >= 2) camFlag("multi", v);
-      if (L.persons === 0) { if (++CAM.miss >= 2) { camFlag("none", v); CAM.miss = 0; } } else CAM.miss = 0;
+      if (L.persons === 0) { if (++CAM.miss >= 4) { camFlag("none", v); CAM.miss = 0; } } else CAM.miss = 0;   // 4 × 2.5с ≈ 10 секунд харагдахгүй бол
     } catch (e) {} CAM.busy = false; }, 2500);
   window.addEventListener("blur", camBlur); window.addEventListener("resize", camResize);
 }
