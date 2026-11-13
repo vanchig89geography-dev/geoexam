@@ -1031,6 +1031,30 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .fb.openfb span,.fb.openfb small{text-align:left;word-spacing:normal}
 .openok{color:#15803d}
 #exam .nav #submit.btn.ico{width:auto;padding:0 18px;display:inline-flex;align-items:center;gap:8px;font-size:16px;font-weight:800;white-space:nowrap}
+.mact{flex-wrap:nowrap}.mact>*{flex:none;white-space:nowrap}.mact .link.danger{padding:7px 4px}
+.mtrow{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px}.mtrow .mdl{margin:0;flex:none}
+.mcard .tx{min-width:0;flex:1}.mcard .mby{overflow-wrap:anywhere}
+.mcard{min-width:0;max-width:100%}.mact{overflow-x:auto;scrollbar-width:none}@media(max-width:520px){.mact .lt{display:none}.mact .btn.sm{padding:7px 12px}}
+/* 📚 Багшийн булан: нягт карт, гүйлгэдэг жагсаалт */
+.mlist{max-height:min(68vh,640px);overflow-y:auto;overscroll-behavior:contain;padding-right:4px;gap:8px}
+.mcard{align-items:center;gap:10px;padding:10px 12px}
+.mic{flex:0 0 36px;height:44px;border-radius:9px;font-size:11px}
+.mic.kWORD,.mic.kPPT,.mic.kEXCEL{font-size:17px}.mic.kLINK{font-size:15px}
+.mcard .tx{gap:2px}
+.mcard b{font-size:14.5px}
+.mcard .mact{margin:0;flex:none;gap:6px;flex-wrap:nowrap;overflow:visible}
+.mcard .mact .btn.sm{padding:6px 12px;font-size:13px;min-height:0;line-height:1.2}
+.mcard .mact .link.danger{padding:6px 4px}
+@media(max-width:520px){
+ .mcard{display:grid;grid-template-columns:32px 1fr;column-gap:10px;row-gap:6px;padding:8px 10px;align-items:start}
+ .mcard .mic{flex:none;width:32px;height:38px}
+ .mcard .mact{grid-column:2;flex-direction:row;gap:6px}
+ .mcard .mact .btn.sm{width:auto;height:28px;padding:0 12px;display:inline-flex;align-items:center}
+ .mcard .mact .link.danger{width:auto;height:28px;padding:0 6px}
+ .mcard .mdesc{-webkit-line-clamp:1}
+}
+.mcard{padding:8px 12px}.mcard .tx{gap:1px}.mcard .mcat{font-size:11px;line-height:1.25}.mcard b{line-height:1.25}.mcard .mby{font-size:11.5px;line-height:1.3}
+.mcard .mdesc{font-size:12.5px;line-height:1.3}.mtrow .mdl{padding:1px 8px;font-size:12px}
 </style>
 </head>
 <body>
@@ -4267,25 +4291,24 @@ async function renderShare(box) {
 function matCard(x, onDel) {
   const k = x.kind || "LINK", c = el("div", "mcard");
   const ic = el("span", "mic k" + k, k === "WORD" ? "W" : k === "PPT" ? "P" : k === "EXCEL" ? "X" : k === "PDF" ? "PDF" : "🔗");
-  const tx = el("div", "tx"); tx.append(el("small", "mcat", [x.cat, x.sub, x.grade, x.unit].filter(Boolean).join(" · ")), el("b", "", x.title));
+  const tx = el("div", "tx"), trow = el("div", "mtrow"); tx.append(el("small", "mcat", [x.cat, x.sub, x.grade, x.unit].filter(Boolean).join(" · ")), trow); trow.append(el("b", "", x.title));
   if (x.desc) tx.append(el("p", "mdesc", x.desc));
   tx.append(el("small", "mby", "👩‍🏫 " + x.by + (x.school ? " · " + x.school : "") + " · " + x.at + (x.file && x.size ? " · " + fmtSize(x.size) : "")));
-  const dlc = el("span", "mdl", "⬇ " + (x.dl || 0) + " татсан"); tx.append(dlc);
+  const dlc = el("span", "mdl", "⬇ " + (x.dl || 0)); dlc.title = "Татсан тоо"; trow.append(dlc);
   const count = () => { const k = "gx-mdl-" + x.id; try { if (localStorage.getItem(k)) return; localStorage.setItem(k, "1"); } catch (e) {}   // нэг хүн нэг л удаа тоологдоно
-    x.dl = (x.dl || 0) + 1; dlc.textContent = "⬇ " + x.dl + " татсан"; api({ action: "matDl", id: x.id }).catch(() => {}); matCache.clear(); };
+    x.dl = (x.dl || 0) + 1; dlc.textContent = "⬇ " + x.dl; api({ action: "matDl", id: x.id }).catch(() => {}); matCache.clear(); };
   const act = el("div", "mact");
   const pv = x.link ? drivePreview(x.link) : "";
   if (x.file) {
-    if (k === "PDF") { const v = el("button", "btn ghost sm", "👁 Үзэх"); v.type = "button"; v.onclick = () => matOpen(x, true); act.append(v); }
-    const d = el("button", "btn sm", "⬇ Татах"); d.type = "button"; d.onclick = () => { count(); matOpen(x, false); }; act.append(d);
+    const d = el("button", "btn sm"); d.innerHTML = '⬇<span class="lt"> Татах</span>'; d.title = "Татах"; d.type = "button"; d.onclick = () => { count(); matOpen(x, false); }; act.append(d);
   } else if (x.link) {
-    if (pv) { const v = el("button", "btn ghost sm", "👁 Үзэх"); v.type = "button"; v.onclick = () => matPreview(x.title, pv, x.link); act.append(v); }
-    const o = el("a", "btn sm", "↗ Нээх / Татах"); o.href = x.link; o.target = "_blank"; o.rel = "noopener"; o.onclick = () => count(); act.append(o);
+    const o = el("a", "btn sm"); o.innerHTML = '↗<span class="lt"> Татах</span>'; o.title = "Нээх / Татах"; o.href = x.link; o.target = "_blank"; o.rel = "noopener"; o.onclick = () => count(); act.append(o);
   }
-  if (x.canDel) { const del = el("button", "link danger", "🗑 Устгах"); del.type = "button";
+  if (x.canDel) { const ed = el("button", "btn ghost sm"); ed.innerHTML = '✏️<span class="lt"> Засах</span>'; ed.title = "Засах"; ed.type = "button"; ed.onclick = () => matForm(x); act.append(ed); }
+  if (x.canDel) { const del = el("button", "link danger"); del.innerHTML = '🗑<span class="lt"> Устгах</span>'; del.title = "Устгах"; del.type = "button";
     del.onclick = async () => { if (!confirm("«" + x.title + "» материалыг устгах уу?")) return; del.disabled = true; const r = await api({ action: "matDel", id: x.id }).catch(() => ({ ok: false })); if (r.ok) onDel(); else { del.disabled = false; alert("Устгаж чадсангүй."); } };
     act.append(del); }
-  tx.append(act); c.append(ic, tx); return c;
+  c.append(ic, tx, act); return c;
 }
 /* 👁 сайт дотор харах цонх */
 function matPreview(title, src, open) {
@@ -4305,9 +4328,9 @@ async function matOpen(x, view) {
   const a = el("a"); a.href = url; a.download = r.fname || x.fname || (x.title + ".bin"); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 /* ➕ хуваалцах маягт */
-function matForm() {
+function matForm(E) {   // E байвал засах горим
   const z = el("div", "recov"), b = el("div", "recbox mform"); z.append(b); document.body.append(z);
-  b.append(el("h4", "", "📚 Материал хуваалцах"));
+  b.append(el("h4", "", E ? "✏️ Материал засах" : "📚 Материал хуваалцах"));
   const fld = (lab, node) => { const w = el("label", "fld"); w.append(el("span", "", lab), node); b.append(w); return node; };
   const tI = fld("Гарчиг *", Object.assign(el("input"), { maxLength: 120, placeholder: "Жишээ: «Газарзүйн зураг» сэдвийн ээлжит хичээлийн төлөвлөгөө" }));
   const sel = (lab, items, none) => { const s = fld(lab, el("select")); if (none) { const o = el("option", "", none); o.value = ""; s.append(o); } items.forEach(c => { const o = el("option", "", c); o.value = c; s.append(o); }); return s; };
@@ -4316,33 +4339,38 @@ function matForm() {
   const gI = sel("Анги", MAT_GRADES, "— Сонгох —");
   const uS = sel("Бүлэг", MAT_UNITS, "— Сонгох —");
   const syncF = () => { const c = cS.value; sS.parentNode.hidden = !MAT_SUB[c]; uS.parentNode.hidden = MAT_BYGRADE.indexOf(c) < 0; };
-  cS.onchange = syncF; if (mcat) cS.value = mcat; syncF();
+  cS.onchange = syncF; if (E) { cS.value = E.cat || MAT_CATS[0]; if (E.sub) sS.value = E.sub; gI.value = E.grade || ""; uS.value = E.unit || ""; } else if (mcat) cS.value = mcat; syncF();
+  if (E) tI.value = E.title || "";
   const scI = fld("Сургууль (заавал биш)", Object.assign(el("input"), { maxLength: 80, placeholder: "Жишээ: Шинэ Монгол сургууль" }));
   const dI = fld("Товч тайлбар", Object.assign(el("textarea"), { rows: 3, maxLength: 600, placeholder: "Юуны тухай, хэрхэн ашиглах вэ…" }));
+  if (E) { scI.value = E.school || ""; dI.value = E.desc || ""; }
   /* файл эсвэл холбоос */
   let F = null, mode = "file";
   const sg = el("div", "bseg"), fw = el("div", "fld"), lw = el("div", "fld");
   [["file", "📎 Файл оруулах"], ["link", "🔗 Google Drive холбоос"]].forEach(([v, t]) => { const x = el("button", v === mode ? "on" : "", t); x.type = "button"; x.dataset.v = v;
     x.onclick = () => { mode = v; sg.querySelectorAll("button").forEach(y => y.classList.toggle("on", y.dataset.v === v)); fw.hidden = v !== "file"; lw.hidden = v !== "link"; }; sg.append(x); });
-  b.append(sg);
+  if (!E) b.append(sg);
   const fi = Object.assign(el("input"), { type: "file", accept: ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" }); const fm = el("small", "lbn", "Word, PDF, PowerPoint, Excel · 700 KB хүртэл. Том файлыг Google Drive-д байршуулаад холбоосыг нь оруулна.");
-  fw.append(fi, fm); b.append(fw);
-  const lI = Object.assign(el("input"), { placeholder: "https://drive.google.com/…" }); lw.append(lI, el("small", "lbn", "Drive дээр файлаа «Холбоостой хэн ч харж болно» (Anyone with the link) болгоод холбоосыг нь хуулна.")); lw.hidden = true; b.append(lw);
+  fw.append(fi, fm); if (!E) b.append(fw);
+  const lI = Object.assign(el("input"), { placeholder: "https://drive.google.com/…" }); lw.append(lI, el("small", "lbn", "Drive дээр файлаа «Холбоостой хэн ч харж болно» (Anyone with the link) болгоод холбоосыг нь хуулна.")); lw.hidden = true; if (!E) b.append(lw);
+  if (E && E.link) { lI.value = E.link; lw.hidden = false; b.append(lw); }
+  if (E && E.file) b.append(el("small", "lbn", "📎 Файлыг солих бол энэ материалыг устгаад шинээр хуваалцана уу."));
   fi.onchange = () => { const f = fi.files[0]; F = null; if (!f) return;
     if (!matKind(f.name)) { fm.textContent = "⚠ Зөвхөн Word, PDF, PowerPoint, Excel файл оруулна."; fi.value = ""; return; }
     if (f.size > MAT_MAX) { fm.textContent = "⚠ Файл " + fmtSize(f.size) + " байна (700 KB хүртэл). Google Drive-д байршуулаад «🔗 Google Drive холбоос»-оор оруулна уу."; fi.value = ""; return; }
     F = f; fm.textContent = "✓ " + f.name + " · " + fmtSize(f.size); if (!tI.value.trim()) tI.value = f.name.replace(/\.[^.]+$/, ""); };
-  const msg = el("p", "lbn"), row = el("div", "recrow"), cn = el("button", "btn ghost", "Болих"), ok = el("button", "btn", "📤 Хуваалцах"); cn.type = ok.type = "button"; row.append(cn, ok); b.append(msg, row);
+  const msg = el("p", "lbn"), row = el("div", "recrow"), cn = el("button", "btn ghost", "Болих"), ok = el("button", "btn", E ? "💾 Хадгалах" : "📤 Хуваалцах"); cn.type = ok.type = "button"; row.append(cn, ok); b.append(msg, row);
   cn.onclick = () => z.remove();
   ok.onclick = async () => {
     const title = tI.value.trim(); if (title.length < 3) { msg.textContent = "Гарчгаа бичнэ үү."; return; }
     if (MAT_BYGRADE.indexOf(cS.value) >= 0 && (!gI.value || !uS.value)) { msg.textContent = "Анги, бүлгээ сонгоно уу."; return; }
-    const p = { action: "matSave", title, cat: cS.value, sub: MAT_SUB[cS.value] ? sS.value : "", unit: MAT_BYGRADE.indexOf(cS.value) >= 0 ? uS.value : "", grade: gI.value, school: scI.value.trim(), desc: dI.value.trim() };
-    if (mode === "file") { if (!F) { msg.textContent = "Файлаа сонгоно уу."; return; }
+    const p = { action: E ? "matEdit" : "matSave", id: E ? E.id : "", title, cat: cS.value, sub: MAT_SUB[cS.value] ? sS.value : "", unit: MAT_BYGRADE.indexOf(cS.value) >= 0 ? uS.value : "", grade: gI.value, school: scI.value.trim(), desc: dI.value.trim() };
+    if (E) { if (E.link) { const u = lI.value.trim(); if (!/^https:\/\//.test(u)) { msg.textContent = "Холбоос https://-ээр эхлэх ёстой."; return; } p.link = u; p.kind = linkKind(u); } }
+    else if (mode === "file") { if (!F) { msg.textContent = "Файлаа сонгоно уу."; return; }
       p.data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(F); });
       p.mime = F.type; p.fname = F.name; p.size = F.size; p.kind = matKind(F.name); }
     else { const u = lI.value.trim(); if (!/^https:\/\//.test(u)) { msg.textContent = "Холбоос https://-ээр эхлэх ёстой."; return; } p.link = u; p.kind = linkKind(u); }
-    ok.disabled = true; msg.textContent = "Хуваалцаж байна…";
+    ok.disabled = true; msg.textContent = E ? "Хадгалж байна…" : "Хуваалцаж байна…";
     const r = await api(p).catch(() => ({ ok: false }));
     if (!r.ok) { ok.disabled = false; msg.textContent = r.error === "teacher" ? "Зөвхөн багш хуваалцана." : r.error === "big" ? "Файл хэт том байна." : "Хуваалцаж чадсангүй. Дахин оролдоно уу."; return; }
     play && play("ok"); z.remove(); MATS = null; matCache.clear(); renderPane();
@@ -5043,6 +5071,15 @@ H.matSave = async p => {
     kind: String(p.kind || "").slice(0, 8), fname: String(p.fname || "").slice(0, 120), size: Math.round(+p.size || 0), link: data ? "" : link, file: !!data, owner: m.uid, byName: m.name, at: Timestamp.now() };
   const b = writeBatch(db); if (data) b.set(D("matFiles", id), { owner: m.uid, data, mime: String(p.mime || "").slice(0, 120), fname: meta.fname }); b.set(D("mats", id), meta); await b.commit();
   return { ok: true, id };
+};
+H.matEdit = async p => {   // ✏️ эзэн нь (эсвэл админ) материалын мэдээллийг засна
+  const m = await meInfo(); if (!m || !(m.admin || m.learn)) return { ok: false, error: "locked" };
+  const id = String(p.id || ""), s = await getDoc(D("mats", id)); if (!s.exists()) return { ok: false, error: "none" };
+  if (!m.admin && s.data().owner !== m.uid) return { ok: false, error: "locked" };
+  const title = String(p.title || "").trim().slice(0, 120); if (title.length < 3) return { ok: false, error: "title" };
+  const up = { title, desc: String(p.desc || "").slice(0, 600), cat: String(p.cat || "Бусад").slice(0, 40), grade: String(p.grade || "").slice(0, 30), sub: String(p.sub || "").slice(0, 30), unit: String(p.unit || "").slice(0, 60), school: String(p.school || "").slice(0, 80) };
+  if (!s.data().file && /^https:\/\//.test(String(p.link || ""))) { up.link = String(p.link).trim().slice(0, 500); up.kind = String(p.kind || s.data().kind || "").slice(0, 8); }
+  await setDoc(D("mats", id), up, { merge: true }); return { ok: true };
 };
 H.matDl = async p => {   // ⬇ татсан тоог 1-ээр нэмнэ
   const ref = D("mats", String(p.id)), s = await getDoc(ref); if (!s.exists()) return { ok: false };
