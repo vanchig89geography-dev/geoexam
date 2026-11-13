@@ -4123,7 +4123,7 @@ async function noticeAdmin(box) {
 
 /* ---------- 📚 Багшийн булан: туршлага, хичээлийн материал хуваалцах ---------- */
 const MAT_CATS = ["Хичээлийн төлөвлөгөө", "Илтгэл, слайд", "Ажлын хуудас", "Тест, даалгавар", "Туршлага", "Бусад"];
-const MAT_SUB = { "Хичээлийн төлөвлөгөө": ["Нэгж", "Ээлжит"] };   // дэд ангилал
+const MAT_SUB = { "Хичээлийн төлөвлөгөө": ["Жилийн", "Нэгж", "Ээлжит"] };   // дэд ангилал
 const MAT_BYGRADE = ["Илтгэл, слайд", "Ажлын хуудас"];             // анги → бүлгээр ангилна
 const MAT_GRADES = ["7-р анги", "8-р анги", "9-р анги", "10-р анги", "11-р анги", "12-р анги"];
 const MAT_UNITS = ["Гео орон зайн дүрслэл", "Дэлхий бидний орон гэр", "Хүн ам ба суурьшил", "Байгаль нийгмийн орчин", "Байгаль нийгмийн хамаарал, бүс нутаг"];
@@ -4467,19 +4467,26 @@ async function checkDevice(email) {
   return true;
 }
 async function conf() { if (!CONF) { const s = await getDoc(D("config", "app")); CONF = s.exists() ? s.data() : {}; } return CONF; }
+let ME_P = null, ME_UID = "";   // нэг зэрэг дуудвал давхар уншихгүй
 async function meInfo() {
   const u = auth.currentUser; if (!u) return null;
   if (ME && ME.uid === u.uid) return ME;
-  const email = low(u.email), c = await conf();
-  let until = null; try { const g = await getDoc(D("grants", email)); if (g.exists() && g.data().until) until = toD(g.data().until); } catch (e) {}
-  let tUntil = null; try { const g = await getDoc(D("teachers", email)); if (g.exists() && g.data().until) tUntil = toD(g.data().until); } catch (e) {}
-  let lUntil = null; try { const g = await getDoc(D("lgrants", email)); if (g.exists() && g.data().until) lUntil = toD(g.data().until); } catch (e) {}
-  let role = ""; try { const us = await getDoc(D("users", u.uid)); if (us.exists()) role = us.data().role || ""; } catch (e) {}
+  if (ME_P && ME_UID === u.uid) return ME_P;
+  ME_UID = u.uid; ME_P = meLoad(u).finally(() => { ME_P = null; });
+  return ME_P;
+}
+async function meLoad(u) {
+  const email = low(u.email), until0 = g => g && g.exists() && g.data().until ? toD(g.data().until) : null, safe = pr => pr.catch(() => null);
+  /* ⚡ бүх уншилтыг ЗЭРЭГ хийнэ (өмнө нь 7 удаа дараалан хүлээдэг байсан) */
+  const preAdmin = ADMINS.map(low).indexOf(email) >= 0;
+  const devP = preAdmin ? Promise.resolve(true) : checkDevice(email).catch(e => { console.warn("GeoExam device", e); return true; });
+  const [c, gG, gT, gL, us] = await Promise.all([conf(), safe(getDoc(D("grants", email))), safe(getDoc(D("teachers", email))), safe(getDoc(D("lgrants", email))), safe(getDoc(D("users", u.uid)))]);
+  const until = until0(gG), tUntil = until0(gT), lUntil = until0(gL), role = us && us.exists() ? us.data().role || "" : "";
   const admin = ADMINS.concat(c.admins || []).map(low).indexOf(email) >= 0, tpro = !!tUntil && tUntil.getTime() > Date.now();
   const paid = (!!until && until.getTime() > Date.now()) || tpro || admin;
   const teacher = admin || tpro;
-  if (!admin) { let ok = true; try { ok = await checkDevice(email); } catch (e) { console.warn("GeoExam device", e); }
-    if (!ok) { ME = null; await signOut(auth); if (window.__devBlocked) window.__devBlocked(); return null; } }
+  const ok = admin ? true : await devP;
+  if (!ok) { ME = null; await signOut(auth); if (window.__devBlocked) window.__devBlocked(); return null; }
   ME = { uid: u.uid, email, name: u.displayName || email.split("@")[0], paid, status: paid ? "Төлсөн" : "Хүлээгдэж буй", until: until ? ymd(until) : "", teacher, admin, role: admin ? "teacher" : role, tUntil: tUntil ? ymd(tUntil) : "",
     learn: admin || (!!lUntil && lUntil.getTime() > Date.now()), lUntil: lUntil ? ymd(lUntil) : "" };
   let day = ""; try { day = localStorage.getItem("gx-seen-" + u.uid) || ""; } catch (e) {}
@@ -4572,7 +4579,7 @@ H.quizBoard = async p => {   // улирлын нийт жагсаалт: той
 H.config = async () => { const c = await conf(), o = {}; Object.keys(CFG_KEYS).forEach(k => { if (c[k]) o[CFG_KEYS[k]] = c[k]; }); return { ok: true, config: o, recExam: !!c.recExam }; };
 H.me = async () => { const m = await meInfo(); return m ? { ok: true, user: m } : { ok: false, error: "auth" }; };
 H.tests = async p => {
-  const m = await meInfo(), L = await allTests(!!(p && p.action === "tests"));
+  const [m, L] = await Promise.all([meInfo(), allTests(!!(p && p.action === "tests"))]);   // ⚡ зэрэг
   const paid = !!(m && (m.paid || m.teacher)), topics = {};
   const lessons = L.filter(t => t.lesson).map(t => ({ id: t.id, name: t.name, free: !!t.free, desc: t.desc || "", cat: ((c => c === "Бусад" ? "Олимпиад" : c)(String(t.group || "").replace(/^Сургалт · /, "")) || "Олимпиад"), unit: t.unit || "", count: t.count || 0, gate: t.gate !== false, order: t.order || 0, locked: !t.free && !(m && m.learn), minutes: 0, group: t.group || "" }));   // 🎬 Сургалт: зөвхөн админ + сургалтын эрхтэй
   const tests = L.filter(t => !t.lesson && !t.hidden).map(t => {
