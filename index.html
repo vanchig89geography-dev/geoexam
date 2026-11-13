@@ -1989,6 +1989,7 @@ function aiBar(code, r) {
     st.textContent = x.error === "quota" ? "⚠ Өнөөдрийн AI хязгаар дууслаа. Маргааш дахин оролдоно уу." : "⚠ AI үнэлж чадсангүй" + (x.n ? " (" + x.n + " үнэлэгдсэн)" : "") + ". Дахин оролдоно уу.";
     if (x.msg) w.title = x.msg; b.hidden = false; };
   const chk = async () => { const x = await api({ action: "aiPending", code }).catch(() => ({ ok: false }));
+    if (!x.ok && x.error === "learn") { st.textContent = "🔒 🤖 AI үнэлгээ зөвхөн 🎬 Сургалтын эрхтэй багшид"; const pb = el("button", "btn ghost", "Эрх авах"); pb.type = "button"; pb.onclick = () => learnPay({ msg: "🤖 AI үнэлгээ нь зөвхөн 🎬 Сургалтын эрхтэй багш нарт нээлттэй. Оноог 👁 дээр дарж гараар тавьж болно." }); w.insertBefore(pb, bar); return; }
     if (!x.ok) { st.textContent = "🤖 " + r.open + " задгай даалгавар"; b.hidden = false; return; }
     if (!x.n) { st.textContent = "✓ Бүх задгай хариулт үнэлэгдсэн (🤖 AI)"; return; }
     st.textContent = "🤖 " + x.n + " задгай хариулт үнэлэгдээгүй"; b.hidden = false;
@@ -2008,7 +2009,8 @@ async function myQuestions() {
   let editId = null;
   const ty = el("div", "myqty"), tyC = el("button", "on", "🔘 Сонголттой"), tyO = el("button", "", "✍️ Задгай даалгавар"); tyC.type = tyO.type = "button"; ty.append(tyC, tyO); f.append(ty);
   let isOpen = false; const setTy = o => { isOpen = o; tyC.classList.toggle("on", !o); tyO.classList.toggle("on", o); rad.hidden = o; rad.previousElementSibling.hidden = o; ow.hidden = !o; };
-  tyC.onclick = () => setTy(false); tyO.onclick = () => setTy(true);
+  const aiOk = !!(user && (user.admin || user.learn)); if (!aiOk) tyO.textContent = "🔒 Задгай даалгавар · 🤖 AI";
+  tyC.onclick = () => setTy(false); tyO.onclick = () => aiOk ? setTy(true) : learnPay({ msg: "✍️ Задгай даалгавар, 🤖 AI үнэлгээ нь зөвхөн 🎬 Сургалтын эрхтэй багш нарт нээлттэй." });
   const q = fld("Асуулт", Object.assign(el("textarea"), { rows: 3, maxLength: 1200, placeholder: "Жишээ: Дэлхийн хамгийн урт гол аль нь вэ?" }));
   const L = ["A", "B", "C", "D", "E"], oIn = [], rad = el("div", "myqo");
   L.forEach((l, k) => { const w = el("label", "myqopt"); const rb = Object.assign(el("input"), { type: "radio", name: "myqa", value: k }); if (k === 0) rb.checked = true;
@@ -3617,7 +3619,8 @@ function learnPay(l) {
   if (!user) { openAcct(true); return; }
   const z = el("div", "recov"), b = el("div", "recbox"); z.append(b); document.body.append(z);
   b.append(el("h4", "", "🔒 Төлбөртэй хичээл"));
-  if (l && l.name) b.append(el("p", "lbn", "«" + l.name + "» хичээлийг үзэхийн тулд Сургалтын эрх авна уу."));
+  if (l && l.msg) { b.firstChild.textContent = "🔒 Сургалтын эрх"; b.append(el("p", "lbn", l.msg)); }
+  else if (l && l.name) b.append(el("p", "lbn", "«" + l.name + "» хичээлийг үзэхийн тулд Сургалтын эрх авна уу."));
   b.append(learnPayHTML());
   const row = el("div", "recrow"), cl = el("button", "btn", "Ойлголоо"); cl.type = "button"; cl.onclick = () => z.remove(); row.append(cl); b.append(row);
   z.onclick = e => { if (e.target === z) z.remove(); };
@@ -5063,6 +5066,7 @@ H.myQs = async () => {
 };
 H.myQSave = async p => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  if (p.open === true && !(m.admin || m.learn)) return { ok: false, error: "learn" };
   const open = p.open === true, rub = String(p.rub || "").trim().slice(0, 1500);
   const o = open ? [] : (Array.isArray(p.o) ? p.o : []).map(x => String(x || "").trim().slice(0, 300)).filter(Boolean);
   const q = String(p.q || "").trim().slice(0, 1200), a = open ? -1 : Math.round(+p.a);
@@ -5332,8 +5336,8 @@ async function gemini(text) {
   }
   throw new Error(last);
 }
-H.aiGrade = async p => {   // 🤖 үнэлэгдээгүй задгай хариултуудыг AI-аар үнэлнэ
-  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+H.aiGrade = async p => {   // 🤖 үнэлэгдээгүй задгай хариултуудыг AI-аар үнэлнэ (зөвхөн 🎬 Сургалтын эрхтэй)
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" }; if (!(m.admin || m.learn)) return { ok: false, error: "learn" };
   const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists()) return { ok: false, error: "no_contest" };
   if (!m.admin && cs.data().owner !== m.email) return { ok: false, error: "teacher" };
   await conf();
@@ -5367,7 +5371,7 @@ H.aiGrade = async p => {   // 🤖 үнэлэгдээгүй задгай хар�
   return err ? { ok: false, error: "ai", msg: err, n: done, total } : { ok: true, n: done, total, left };
 };
 H.aiPending = async p => {   // үнэлэгдээгүй задгай хариултын тоо
-  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" }; if (!(m.admin || m.learn)) return { ok: false, error: "learn" };
   const code = String(p.code), Q = ((await getDoc(D("contestKeys", code))).data() || {}).qs || [], OI = Q.map((q, i) => q.open ? i : -1).filter(i => i >= 0);
   if (!OI.length) return { ok: true, n: 0 };
   const [subs, ai] = await Promise.all([getDocs(C("contests", code, "subs")), getDocs(C("contests", code, "ai"))]), G = {}; ai.docs.forEach(d => G[d.id] = d.data());
