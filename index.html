@@ -1987,7 +1987,7 @@ function aiBar(code, r) {
     AIRUN[code] = 0; bar.hidden = true;
     if (x.ok) { if (x.n) { play("ok"); teacherResults(code); } else chk(); return; }
     st.textContent = x.error === "quota" ? "⚠ Өнөөдрийн AI хязгаар дууслаа. Маргааш дахин оролдоно уу." : "⚠ AI үнэлж чадсангүй" + (x.n ? " (" + x.n + " үнэлэгдсэн)" : "") + ". Дахин оролдоно уу.";
-    if (x.msg) w.title = x.msg; b.hidden = false; };
+    if (x.msg) { w.title = x.msg; let e = w.querySelector(".aierr"); if (!e) { e = el("small", "lbn aierr"); w.append(e); } e.textContent = "Алдаа: " + x.msg.slice(0, 160); } b.hidden = false; };
   const chk = async () => { const x = await api({ action: "aiPending", code }).catch(() => ({ ok: false }));
     if (!x.ok && x.error === "learn") { st.textContent = "🔒 🤖 AI үнэлгээ зөвхөн 🎬 Сургалтын эрхтэй багшид"; const pb = el("button", "btn ghost", "Эрх авах"); pb.type = "button"; pb.onclick = () => learnPay({ msg: "🤖 AI үнэлгээ нь зөвхөн 🎬 Сургалтын эрхтэй багш нарт нээлттэй. Оноог 👁 дээр дарж гараар тавьж болно." }); w.insertBefore(pb, bar); return; }
     if (!x.ok) { st.textContent = "🤖 " + r.open + " задгай даалгавар"; b.hidden = false; return; }
@@ -5309,7 +5309,7 @@ async function signIn() {
 getRedirectResult(auth).catch(() => {});
 /* ===== 🤖 AI үнэлгээ (Firebase AI Logic · Gemini) — зөвхөн багшийн талд ажиллана ===== */
 const AI_SITE = "6LdE1h0uAAAAAEKkLDmk6bloSm9_YkImpdgIfnRS", AI_DAY = 300, AI_CHUNK = 12;
-const AI_MODELS = ["gemini-2.5-flash-lite", "gemini-2.5-flash"];
+const AI_MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.5-flash"];   // 2.5 загварууд 2026.10.20-нд хаагдсан
 let AC = null;
 function appCheck() { if (!AC) AC = initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(AI_SITE), isTokenAutoRefreshEnabled: true }); return AC; }
 const AI_SYS = "Чи Монголын газарзүйн багшийн туслах. Сурагчдын задгай даалгаврын хариултыг багшийн өгсөн үнэлгээний шалгуур (жишиг хариулт)-аар үнэлнэ. " +
@@ -5325,10 +5325,10 @@ async function aiQuota(email, n) {   // хоногийн хязгаар (баг�
 async function gemini(text) {
   const tk = (await acGetToken(appCheck(), false)).token, id = await auth.currentUser.getIdToken();
   const body = JSON.stringify({ systemInstruction: { parts: [{ text: AI_SYS }] }, contents: [{ role: "user", parts: [{ text }] }],
-    generationConfig: { temperature: 0.1, maxOutputTokens: 4096, responseMimeType: "application/json", responseSchema: AI_SCHEMA } });
+    generationConfig: { temperature: 0.1, maxOutputTokens: 8192, responseMimeType: "application/json", responseSchema: AI_SCHEMA } });
   let last = "";
   for (const mdl of [(CONF && CONF.aiModel) || ""].concat(AI_MODELS).filter(Boolean)) {
-    const r = await fetch("https://firebasevertexai.googleapis.com/v1beta/projects/geoexam/locations/us-central1/publishers/google/models/" + mdl + ":generateContent",
+    const r = await fetch("https://firebasevertexai.googleapis.com/v1beta/projects/geoexam/locations/global/publishers/google/models/" + mdl + ":generateContent",
       { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": app.options.apiKey, "X-Firebase-AppCheck": tk, "Authorization": "Firebase " + id, "x-goog-api-client": "gl-js/ fire/10.12.2" }, body });
     if (r.ok) { const j = await r.json(), t = (((j.candidates || [])[0] || {}).content || {}).parts; return JSON.parse((t || []).map(x => x.text || "").join("")); }
     last = r.status + " " + (await r.text().catch(() => "")).slice(0, 300);
