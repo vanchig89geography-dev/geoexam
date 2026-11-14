@@ -1089,6 +1089,19 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .clscard small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .clspick{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
 .clspick select{padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;min-width:220px}
+/* 💳 Сургалтын эрх: багц сонгох, хүсэлт */
+.lplans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 4px}
+.lplan{position:relative;display:grid;gap:4px;padding:14px 10px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;font:inherit;text-align:center}
+.lplan .lpt{font-weight:700;font-size:15px}.lplan .lpp{font-weight:800;font-size:20px}
+.lplan i{position:absolute;top:-10px;right:8px;font-style:normal;font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;background:#F59E0B;color:#fff}
+.lplan.on{border-color:#2563EB;background:rgba(37,99,235,.08);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.lpay .btn{margin-top:4px}.lpst{margin:6px 0 0;font-size:13.5px}.lpst.ok{color:#15803d;font-weight:600}
+.payq{display:grid;gap:8px}
+.payrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1.5px solid rgba(37,99,235,.3);background:var(--sunk);flex-wrap:wrap}
+.payrow .tx{flex:1;min-width:160px;display:grid;gap:1px}.payrow small{color:var(--muted);font-size:12px}
+.paypl{font-weight:800;color:#2563EB;font-size:13.5px}.payrow.done{opacity:.75;border-color:#16a34a}.payrow.done .paypl{color:#15803d}
+#payBox .status.soon{background:rgba(245,158,11,.14);color:#b45309}
+#payBox > .btn.ghost{display:block;width:100%;margin:6px 0 10px}#payBox .status{color:inherit}
 </style>
 </head>
 <body>
@@ -1384,7 +1397,8 @@ function renderPane() {
   let keys = tab === "var" ? Object.keys(groups).sort() : Object.keys(groups).sort().reverse();
   if (tab === "var" && keys.length > 1) {   // ЭЕШ: оноор сонгох товчнууд (2022 · 2023 · …), нэг удаад нэг он
     if (keys.indexOf(vyear) < 0) vyear = keys[0];
-    box.append(pick("Он", keys.map(g => ({ v: g, t: g + (groups[g].some(t => t.free) ? " · Үнэгүй" : " · Төлбөртэй") })), vyear, v => { vyear = v; st.set("ge-year", v); renderPane(); }));
+    const vlab = g => { const V = groups[g].map(t => (/[·\-–]\s*([A-DА-Г])\s*хувилбар/i.exec(t.name) || /\b([A-D])\s*$/.exec(t.name) || [])[1]).filter(Boolean); return V.length ? " · " + (V.length > 1 ? V.sort().join(", ") + " хувилбар" : V[0] + " хувилбар") : ""; };
+    box.append(pick("Он", keys.map(g => ({ v: g, t: g + vlab(g) })), vyear, v => { vyear = v; st.set("ge-year", v); renderPane(); }));
     keys = [vyear];
   }
   keys.forEach(g => {
@@ -2356,8 +2370,9 @@ function openAcct(wantPay) {
     $("payBox").innerHTML = "";
     if (USE_FB && user.role === "teacher" && !user.teacher) $("payBox").append(teacherPayHTML());
     else if (!user.paid && !user.teacher && tests.some(t => t.locked)) $("payBox").append(payHTML());   // төлбөртэй тест үлдсэн үед л
-    if (USE_FB && !user.admin) { const ls = el("p", "status" + (user.learn ? " paid" : ""), user.learn ? "🎬 Сургалт · " + user.lUntil + " хүртэл · бүх видео хичээл нээлттэй" : "🎬 Сургалт · эрхгүй (төлбөртэй хичээлүүд 🔒)");
-      $("payBox").append(ls); if (!user.learn && lessons.some(l => !l.free)) $("payBox").append(learnPayHTML()); }
+    if (USE_FB && !user.admin) { const ls = el("p", "status" + (user.learn ? " paid" : ""), user.learn ? "🎬 " + lplanName(user.lPlan) + " · " + user.lUntil + " хүртэл" + (user.lDays <= 14 ? " · ⏳ " + user.lDays + " хоног үлдлээ" : "") : "🎬 Сургалт · эрхгүй (төлбөртэй хичээлүүд 🔒)");
+      $("payBox").append(ls); if (user.learn && user.lDays <= 14) { ls.classList.add("soon"); const rn = el("button", "btn ghost", "🔄 Эрхээ сунгах"); rn.type = "button"; rn.onclick = () => { rn.replaceWith(learnPayHTML()); }; $("payBox").append(rn); }
+      if (!user.learn && lessons.some(l => !l.free)) $("payBox").append(learnPayHTML()); }
     if (USE_FB && !user.admin) { const ch = el("button", "link", user.role === "teacher" ? "Би сурагч" : "Би багш — шалгалт үүсгэх эрх авах"); ch.type = "button";
       ch.onclick = async () => { const r = await api({ action: "setRole", role: user.role === "teacher" ? "student" : "teacher" }); if (r.ok) { user = r.user; renderAcct(); openAcct(false); loadTests(); } };
       $("payBox").append(ch); }
@@ -2411,6 +2426,20 @@ function adminPanel(only) {
   gb.onclick = async () => { gb.disabled = true; gm.textContent = "Хадгалж байна…"; const r = await api({ action: "grant", email: em.value, months: mo.value, kind: KIND }); gb.disabled = false;
     gm.textContent = r.ok ? (r.until ? r.email + " · " + r.until + " хүртэл эрхтэй боллоо" : r.email + " · эрх цуцлагдлаа") : (r.error === "email" ? "Майл хаяг буруу байна." : "Алдаа гарлаа."); if (r.ok) { em.value = ""; loadList(); } };
   const row = el("div", "admrowf"); row.append(em, mo, gb); g.append(row, gm, list); w.append(g); loadList();
+  }
+  if (only === "payreq") {   // 💳 багш нарын «Төлбөр төлсөн» хүсэлт
+  const pq = el("div", "admb"); pq.append(el("b", "", "💳 Хүлээгдэж буй төлбөр"), el("p", "lbn", "Банкны апп-аасаа гүйлгээний утга (майл) болон дүнг шалгаад «✓ Олгох» дарна. Эрх шууд нээгдэнэ."));
+  const pl = el("div", "payq"); pq.append(pl); w.append(pq);
+  const load = async () => { pl.innerHTML = '<p class="lbn">Ачаалж байна…</p>'; const r = await api({ action: "payList" }).catch(() => ({ ok: false })); pl.innerHTML = "";
+    if (!r.ok) { pl.append(el("p", "lbn", "Алдаа гарлаа.")); return; } if (!r.list.length) { pl.append(el("p", "empty", "Хүлээгдэж буй хүсэлт алга. 🎉")); return; }
+    r.list.forEach(x => { const d = el("div", "payrow"), t = el("div", "tx"), P = LPLANS.find(p => p.k === x.plan) || LPLANS[1];
+      t.append(el("b", "", x.name || x.email), el("small", "", x.email), el("small", "", "🗓 " + new Date(x.at).toLocaleString("mn-MN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })));
+      const pg = el("span", "paypl", lplanName(x.plan) + " · " + P.price);
+      const ok = el("button", "btn sm", "✓ Олгох"), no = el("button", "link danger", "✕"); ok.type = no.type = "button"; no.title = "Татгалзах";
+      ok.onclick = async () => { ok.disabled = true; const z = await api({ action: "payDo", uid: x.uid, ok: true }); if (z.ok) { d.classList.add("done"); d.querySelector(".paypl").textContent = "✓ " + z.until + " хүртэл"; ok.remove(); no.remove(); play && play("ok"); } else { ok.disabled = false; alert("Чадсангүй."); } };
+      no.onclick = async () => { if (!confirm("Энэ хүсэлтийг татгалзах уу?")) return; await api({ action: "payDo", uid: x.uid, ok: false }); d.remove(); };
+      const a = el("div", "mact"); a.append(ok, no); d.append(t, pg, a); pl.append(d); }); };
+  load();
   }
   if (!only || only === "price") {
   // 0. Тестийн үнэ: Үнэгүй / Төлбөртэй
@@ -3518,6 +3547,7 @@ const ADM_CARDS = [
   ["learn", "🎓", "Сургалт", "Видео хичээл, хичээлийн дараах тест нэмэх, засах"],
   ["price", "💰", "Үнэгүй / Төлбөртэй", "Тест, хичээл бүрийг үнэгүй эсвэл төлбөртэй болгох"],
   ["pay", "💳", "Төлбөр, данс", "Үнэ, банк, дансны дугаар, холбоо барих"],
+  ["payreq", "💳", "Төлбөрийн хүсэлт", "Багш нарын «Төлбөр төлсөн» хүсэлтийг нэг товчоор баталгаажуулах"],
   ["lgrant", "🎬", "Сургалтын эрх", "Сургалтын төлбөр төлсөн хүнд видео хичээл үзэх эрх олгох"],
   ["grant", "🔑", "Сурагчийн эрх", "Төлбөр төлсөн сурагчид эрх олгох, цуцлах"],
   ["teach", "👩‍🏫", "Багшийн эрх", "Багшид шалгалт үүсгэх эрх олгох"],
@@ -3707,13 +3737,26 @@ function copyBtn(text) { const b = el("button", "cpbtn", "📋 Хуулах"); b
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fb); else fb(); };
   return b; }
 /* 🎬 Сургалтын төлбөрийн мэдээлэл (хичээл дээр дарахад + Миний бүртгэлд) */
+const LPLANS = [{ k: "3", t: "3 сар", price: "49 000₮" }, { k: "12", t: "1 жил", price: "99 000₮", tag: "Хэмнэлттэй" }];
+const lplanName = k => k === "3" ? "3 сарын эрх" : k === "12" ? "Жилийн эрх" : k ? k + " сарын эрх" : "Сургалтын эрх";
 function learnPayHTML() {
-  const box = el("div", "pay"), price = cfg["Сургалтын үнэ"] || cfg["Үнэ"] || "";
-  const h = el("b", "", "🎬 Сургалтын бүх хичээл" + (price ? " · " + price : "")); h.style.textAlign = "left"; box.append(h);
-  ["Банк", "Данс", "Данс эзэмшигч", "Гүйлгээний утга", "Холбоо барих"].forEach(k => { const v = k === "Гүйлгээний утга" ? user.email : cfg[k]; if (!v) return;
+  const box = el("div", "pay lpay"); let plan = "12";
+  const h = el("b", "", "🎬 Сургалтын эрх авах"); h.style.textAlign = "left"; box.append(h);
+  const pl = el("div", "lplans"), amt = el("b");
+  LPLANS.forEach(x => { const b = el("button", "lplan" + (x.k === plan ? " on" : "")); b.type = "button"; b.dataset.k = x.k;
+    b.append(el("span", "lpt", x.t), el("span", "lpp", x.price)); if (x.tag) b.append(el("i", "", x.tag));
+    b.onclick = () => { plan = x.k; pl.querySelectorAll(".lplan").forEach(y => y.classList.toggle("on", y.dataset.k === plan)); amt.textContent = x.price; }; pl.append(b); });
+  box.append(pl); amt.textContent = LPLANS[1].price;
+  const ad = el("div"); ad.append(el("span", "", "Төлөх дүн"), amt); box.append(ad);
+  ["Банк", "Данс", "Данс эзэмшигч", "Гүйлгээний утга", "Холбоо барих"].forEach(k => { const v = k === "Гүйлгээний утга" ? (user && user.email) : cfg[k]; if (!v) return;
     const d = el("div"); d.append(el("span", "", k), el("b", "", v));
     if (k === "Данс" || k === "Гүйлгээний утга") d.lastChild.append(copyBtn(k === "Данс" ? String(v).replace(/^IBAN:?\s*/i, "") : v)); box.append(d); });
-  const p = el("p", "", "Төлбөр шалгагдмагц Сургалтын эрх нээгдэнэ. Дараа нь хуудсаа refresh хийнэ үү."); p.style.margin = "4px 0 0"; box.append(p);
+  const st = el("p", "lpst"), pb = el("button", "btn", "✅ Төлбөр төлсөн"); pb.type = "button";
+  pb.onclick = async () => { if (!user) { openAcct(true); return; } pb.disabled = true; const r = await api({ action: "payReq", plan }).catch(() => ({ ok: false })); pb.disabled = false;
+    if (r.ok) { st.className = "lpst ok"; st.textContent = "⏳ Хүсэлт илгээгдлээ (" + lplanName(plan) + "). Админ төлбөрийг шалгаад эрхийг тань нээнэ. Нээгдсэний дараа хуудсаа refresh хийнэ үү."; pb.textContent = "✅ Дахин илгээх"; }
+    else st.textContent = "Илгээж чадсангүй. Дахин оролдоно уу."; };
+  const pp = el("p", "", "Мөнгөө шилжүүлсний дараа «✅ Төлбөр төлсөн» товчийг дарна."); pp.style.margin = "4px 0 0"; box.append(pp, pb, st);
+  if (user) api({ action: "payMy" }).then(r => { if (r && r.req && r.req.status === "wait") { st.className = "lpst ok"; st.textContent = "⏳ " + r.req.at + "-нд илгээсэн хүсэлт (" + lplanName(r.req.plan) + ") хүлээгдэж байна."; } }).catch(() => {});
   return box;
 }
 /* 🔒 төлбөртэй хичээл: Сургалтын төлбөрийн мэдээлэл */
@@ -4319,7 +4362,7 @@ const MAT_BYGRADE = ["Илтгэл, слайд", "Ажлын хуудас"];    
 const MAT_GRADES = ["7-р анги", "8-р анги", "9-р анги", "10-р анги", "11-р анги", "12-р анги"];
 const MAT_UNITS = ["Гео орон зайн дүрслэл", "Дэлхий бидний орон гэр", "Хүн ам ба суурьшил", "Байгаль нийгмийн орчин", "Байгаль нийгмийн хамаарал, бүс нутаг"];
 let msub = "", mgrade = "", munit = "";
-const MAT_MAX = 700 * 1024;   // шууд оруулах файлын дээд хэмжээ (Firestore-ийн 1MB баримтад багтана)
+const MAT_MAX = 50 * 1024 * 1024;   // ☁️ Cloud Storage руу шууд оруулах файлын дээд хэмжээ
 let MATS = null, mcat = "", mq = "", MATN = 30;
 /* 💾 уншилт хэмнэх: жагсаалтыг 20 минут утсандаа хадгална */
 const matCache = { get() { try { const o = JSON.parse(localStorage.getItem("gx-mats-" + (user ? user.uid : "0")) || "null"); return o && Date.now() - o.t < 20 * 60e3 && o.n >= MATN ? o.L : null; } catch (e) { return null; } },
@@ -4396,6 +4439,7 @@ function matPreview(title, src, open) {
 }
 /* шууд оруулсан файлыг татах / PDF-ийг харах */
 async function matOpen(x, view) {
+  if (x.surl) { const a = el("a"); a.href = x.surl; a.target = "_blank"; a.rel = "noopener"; document.body.append(a); a.click(); a.remove(); return; }
   const r = await api({ action: "matFile", id: x.id }).catch(() => ({ ok: false })); if (!r.ok) { alert("Файлыг ачаалж чадсангүй."); return; }
   const bin = atob(r.data.split(",")[1]), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
   const url = URL.createObjectURL(new Blob([u8], { type: r.mime || "application/octet-stream" }));
@@ -4425,14 +4469,14 @@ function matForm(E) {   // E байвал засах горим
   [["file", "📎 Файл оруулах"], ["link", "🔗 Google Drive холбоос"]].forEach(([v, t]) => { const x = el("button", v === mode ? "on" : "", t); x.type = "button"; x.dataset.v = v;
     x.onclick = () => { mode = v; sg.querySelectorAll("button").forEach(y => y.classList.toggle("on", y.dataset.v === v)); fw.hidden = v !== "file"; lw.hidden = v !== "link"; }; sg.append(x); });
   if (!E) b.append(sg);
-  const fi = Object.assign(el("input"), { type: "file", accept: ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" }); const fm = el("small", "lbn", "Word, PDF, PowerPoint, Excel · 700 KB хүртэл. Том файлыг Google Drive-д байршуулаад холбоосыг нь оруулна.");
+  const fi = Object.assign(el("input"), { type: "file", accept: ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" }); const fm = el("small", "lbn", "Word, PDF, PowerPoint, Excel · 50 MB хүртэл. Том файлыг Google Drive-д байршуулаад холбоосыг нь оруулна.");
   fw.append(fi, fm); if (!E) b.append(fw);
   const lI = Object.assign(el("input"), { placeholder: "https://drive.google.com/…" }); lw.append(lI, el("small", "lbn", "Drive дээр файлаа «Холбоостой хэн ч харж болно» (Anyone with the link) болгоод холбоосыг нь хуулна.")); lw.hidden = true; if (!E) b.append(lw);
   if (E && E.link) { lI.value = E.link; lw.hidden = false; b.append(lw); }
   if (E && E.file) b.append(el("small", "lbn", "📎 Файлыг солих бол энэ материалыг устгаад шинээр хуваалцана уу."));
   fi.onchange = () => { const f = fi.files[0]; F = null; if (!f) return;
     if (!matKind(f.name)) { fm.textContent = "⚠ Зөвхөн Word, PDF, PowerPoint, Excel файл оруулна."; fi.value = ""; return; }
-    if (f.size > MAT_MAX) { fm.textContent = "⚠ Файл " + fmtSize(f.size) + " байна (700 KB хүртэл). Google Drive-д байршуулаад «🔗 Google Drive холбоос»-оор оруулна уу."; fi.value = ""; return; }
+    if (f.size > MAT_MAX) { fm.textContent = "⚠ Файл " + fmtSize(f.size) + " байна (50 MB хүртэл). Google Drive-д байршуулаад «🔗 Google Drive холбоос»-оор оруулна уу."; fi.value = ""; return; }
     F = f; fm.textContent = "✓ " + f.name + " · " + fmtSize(f.size); if (!tI.value.trim()) tI.value = f.name.replace(/\.[^.]+$/, ""); };
   const msg = el("p", "lbn"), row = el("div", "recrow"), cn = el("button", "btn ghost", "Болих"), ok = el("button", "btn", E ? "💾 Хадгалах" : "📤 Хуваалцах"); cn.type = ok.type = "button"; row.append(cn, ok); b.append(msg, row);
   cn.onclick = () => z.remove();
@@ -4442,8 +4486,8 @@ function matForm(E) {   // E байвал засах горим
     const p = { action: E ? "matEdit" : "matSave", id: E ? E.id : "", title, cat: cS.value, sub: MAT_SUB[cS.value] ? sS.value : "", unit: MAT_BYGRADE.indexOf(cS.value) >= 0 ? uS.value : "", grade: gI.value, school: scI.value.trim(), desc: dI.value.trim() };
     if (E) { if (E.link) { const u = lI.value.trim(); if (!/^https:\/\//.test(u)) { msg.textContent = "Холбоос https://-ээр эхлэх ёстой."; return; } p.link = u; p.kind = linkKind(u); } }
     else if (mode === "file") { if (!F) { msg.textContent = "Файлаа сонгоно уу."; return; }
-      p.data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(F); });
-      p.mime = F.type; p.fname = F.name; p.size = F.size; p.kind = matKind(F.name); }
+      p.file = F; p.mime = F.type; p.fname = F.name; p.size = F.size; p.kind = matKind(F.name);
+      p.onp = (d, t) => { msg.textContent = "Файл оруулж байна… " + (t ? Math.round(d / t * 100) : 0) + "%"; }; }
     else { const u = lI.value.trim(); if (!/^https:\/\//.test(u)) { msg.textContent = "Холбоос https://-ээр эхлэх ёстой."; return; } p.link = u; p.kind = linkKind(u); }
     ok.disabled = true; msg.textContent = E ? "Хадгалж байна…" : "Хуваалцаж байна…";
     const r = await api(p).catch(() => ({ ok: false }));
@@ -4607,7 +4651,7 @@ renderAcct(); loadTests();
    Apps Script-ийн api()/post() хариуг ижил хэлбэрээр Firestore-оос гаргана. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import { getStorage, ref as sRef, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import { initializeAppCheck, ReCaptchaEnterpriseProvider, getToken as acGetToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, query, where, orderBy, limit, getCountFromServer, runTransaction, writeBatch, Timestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -4679,14 +4723,14 @@ async function meLoad(u) {
   const preAdmin = ADMINS.map(low).indexOf(email) >= 0;
   const devP = preAdmin ? Promise.resolve(true) : checkDevice(email).catch(e => { console.warn("GeoExam device", e); return true; });
   const [c, gG, gT, gL, us] = await Promise.all([conf(), safe(getDoc(D("grants", email))), safe(getDoc(D("teachers", email))), safe(getDoc(D("lgrants", email))), safe(getDoc(D("users", u.uid)))]);
-  const until = until0(gG), tUntil = until0(gT), lUntil = until0(gL), role = us && us.exists() ? us.data().role || "" : "";
+  const until = until0(gG), tUntil = until0(gT), lUntil = until0(gL), lPlan = gL && gL.exists() ? String(gL.data().plan || "") : "", role = us && us.exists() ? us.data().role || "" : "";
   const admin = ADMINS.concat(c.admins || []).map(low).indexOf(email) >= 0, tpro = !!tUntil && tUntil.getTime() > Date.now();
   const paid = (!!until && until.getTime() > Date.now()) || tpro || admin;
   const teacher = admin || tpro;
   const ok = admin ? true : await devP;
   if (!ok) { ME = null; await signOut(auth); if (window.__devBlocked) window.__devBlocked(); return null; }
   ME = { uid: u.uid, email, name: u.displayName || email.split("@")[0], paid, status: paid ? "Төлсөн" : "Хүлээгдэж буй", until: until ? ymd(until) : "", teacher, admin, role: admin ? "teacher" : role, tUntil: tUntil ? ymd(tUntil) : "",
-    learn: admin || (!!lUntil && lUntil.getTime() > Date.now()), lUntil: lUntil ? ymd(lUntil) : "" };
+    learn: admin || (!!lUntil && lUntil.getTime() > Date.now()), lUntil: lUntil ? ymd(lUntil) : "", lPlan, lDays: lUntil ? Math.ceil((lUntil.getTime() - Date.now()) / 864e5) : 0 };
   let day = ""; try { day = localStorage.getItem("gx-seen-" + u.uid) || ""; } catch (e) {}
   const today = new Date().toISOString().slice(0, 10);
   if (day !== today) { setDoc(D("users", u.uid), { name: ME.name, email, seen: Timestamp.now() }, { merge: true }).catch(() => {}); try { localStorage.setItem("gx-seen-" + u.uid, today); } catch (e) {} }
@@ -5163,17 +5207,25 @@ H.matList = async p => {
   const m0 = auth.currentUser ? await meInfo() : null; if (!m0 || !(m0.admin || m0.learn)) return { ok: false, error: "locked" };   // 🔒 зөвхөн Сургалтын эрхтэй
   const s = await getDocs(query(C("mats"), orderBy("at", "desc"), limit(Math.min(200, +p.n || 60))));
   const uid = auth.currentUser && auth.currentUser.uid, m = auth.currentUser ? await meInfo() : null;
-  return { ok: true, list: s.docs.map(d => { const x = d.data(); return { id: d.id, title: x.title, desc: x.desc || "", cat: x.cat || "Бусад", sub: x.sub || "", unit: x.unit || "", grade: x.grade || "", kind: x.kind || "", fname: x.fname || "", size: x.size || 0, dl: x.dl || 0, link: x.link || "", file: !!x.file, by: x.byName || "Багш", school: x.school || "", at: x.at ? ymd(toD(x.at)) : "", mine: x.owner === uid, canDel: x.owner === uid || !!(m && m.admin) }; }) };
+  return { ok: true, list: s.docs.map(d => { const x = d.data(); return { id: d.id, title: x.title, desc: x.desc || "", cat: x.cat || "Бусад", sub: x.sub || "", unit: x.unit || "", grade: x.grade || "", kind: x.kind || "", fname: x.fname || "", size: x.size || 0, dl: x.dl || 0, link: x.link || "", file: !!x.file || !!x.surl, surl: x.surl || "", by: x.byName || "Багш", school: x.school || "", at: x.at ? ymd(toD(x.at)) : "", mine: x.owner === uid, canDel: x.owner === uid || !!(m && m.admin) }; }) };
 };
 H.matSave = async p => {
   const m = await meInfo(); if (!m || !(m.admin || m.learn)) return { ok: false, error: "locked" };
   const title = String(p.title || "").trim().slice(0, 120); if (title.length < 3) return { ok: false, error: "title" };
-  const link = String(p.link || "").trim().slice(0, 500), data = String(p.data || "");
-  if (!data && !/^https:\/\//.test(link)) return { ok: false, error: "file" };
+  const link = String(p.link || "").trim().slice(0, 500), data = String(p.data || ""), F = p.file instanceof Blob ? p.file : null;
+  if (F && F.size > 50 * 1024 * 1024) return { ok: false, error: "big" };
+  if (!data && !F && !/^https:\/\//.test(link)) return { ok: false, error: "file" };
   if (data && (!/^data:[\w.+\/-]+;base64,/.test(data) || data.length > 990000)) return { ok: false, error: "big" };
   const id = "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  let spath = "", surl = "";
+  if (F) {   // ☁️ Cloud Storage руу (50 MB хүртэл)
+    const fname = String(p.fname || F.name || "file").replace(/[\\/#?\[\]*]/g, "_").slice(0, 120);
+    spath = "mats/" + m.uid + "/" + id + "/" + fname; const r = sRef(stor, spath);
+    const task = uploadBytesResumable(r, F, { contentType: F.type || "application/octet-stream", contentDisposition: "attachment; filename*=UTF-8''" + encodeURIComponent(fname) });
+    await new Promise((res, rej) => task.on("state_changed", sn => { if (p.onp) try { p.onp(sn.bytesTransferred, sn.totalBytes); } catch (e) {} }, rej, res));
+    surl = await getDownloadURL(r); }
   const meta = { title, desc: String(p.desc || "").slice(0, 600), cat: String(p.cat || "Бусад").slice(0, 40), grade: String(p.grade || "").slice(0, 30), sub: String(p.sub || "").slice(0, 30), unit: String(p.unit || "").slice(0, 60), school: String(p.school || "").slice(0, 80),
-    kind: String(p.kind || "").slice(0, 8), fname: String(p.fname || "").slice(0, 120), size: Math.round(+p.size || 0), link: data ? "" : link, file: !!data, owner: m.uid, byName: m.name, at: Timestamp.now() };
+    kind: String(p.kind || "").slice(0, 8), fname: String(p.fname || "").slice(0, 120), size: Math.round(+p.size || 0), link: data || F ? "" : link, file: !!data, spath, surl, owner: m.uid, byName: m.name, at: Timestamp.now() };
   const b = writeBatch(db); if (data) b.set(D("matFiles", id), { owner: m.uid, data, mime: String(p.mime || "").slice(0, 120), fname: meta.fname }); b.set(D("mats", id), meta); await b.commit();
   return { ok: true, id };
 };
@@ -5194,6 +5246,7 @@ H.matDel = async p => {
   const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
   const id = String(p.id), s = await getDoc(D("mats", id)); if (!s.exists()) return { ok: true };
   if (!(m.admin || s.data().owner === m.uid)) return { ok: false, error: "owner" };
+  if (s.data().spath) { try { await deleteObject(sRef(stor, s.data().spath)); } catch (e) {} }
   const b = writeBatch(db); if (s.data().file) b.delete(D("matFiles", id)); b.delete(D("mats", id)); await b.commit(); return { ok: true };
 };
 H.teacherList = async () => {   // эрхтэй багш нар + хүсэлт гаргасан хүмүүс
@@ -5245,8 +5298,29 @@ H.grant = async p => {   // эрх олгох / цуцлах: {email, months, ki
   const old = await getDoc(D(GC, e)); let base = Date.now();
   if (old.exists() && old.data().until && toD(old.data().until).getTime() > base) base = toD(old.data().until).getTime();
   const u = new Date(base); u.setMonth(u.getMonth() + (+p.months));
-  await setDoc(D(GC, e), { until: Timestamp.fromDate(u), by: m.email, at: Timestamp.now() });
+  await setDoc(D(GC, e), { until: Timestamp.fromDate(u), by: m.email, at: Timestamp.now(), plan: String(+p.months) });
   return { ok: true, email: e, until: ymd(u) };
+};
+/* 💳 Сургалтын эрхийн төлбөрийн хүсэлт: багш «Төлбөр төлсөн» дарна → админ нэг товчоор олгоно */
+H.payReq = async p => {
+  const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
+  const plan = String(p.plan) === "3" ? "3" : "12";
+  await setDoc(D("payreqs", m.uid), { email: m.email, name: m.name || "", plan, status: "wait", at: Timestamp.now() }); return { ok: true };
+};
+H.payMy = async () => { const m = await meInfo(); if (!m) return { ok: false }; const s = await safe(getDoc(D("payreqs", m.uid)));
+  return { ok: true, req: s && s.exists() ? { plan: s.data().plan, status: s.data().status, at: s.data().at ? ymd(toD(s.data().at)) : "" } : null }; };
+H.payList = async () => {
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const s = await getDocs(query(C("payreqs"), where("status", "==", "wait"), limit(200)));
+  return { ok: true, list: s.docs.map(d => { const x = d.data(); return { uid: d.id, email: x.email, name: x.name, plan: x.plan, at: x.at ? toD(x.at).getTime() : 0 }; }).sort((a, b) => a.at - b.at) };
+};
+H.payDo = async p => {   // ✓ олгох / ✕ татгалзах
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const s = await getDoc(D("payreqs", String(p.uid))); if (!s.exists()) return { ok: false, error: "none" };
+  const x = s.data(); let r = { ok: true };
+  if (p.ok) r = await H.grant({ email: x.email, months: x.plan === "3" ? 3 : 12, kind: "learn" });
+  if (r.ok) await setDoc(D("payreqs", String(p.uid)), { status: p.ok ? "done" : "no", doneAt: Timestamp.now(), by: m.email }, { merge: true });
+  return r;
 };
 H.grants = async p => {
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
