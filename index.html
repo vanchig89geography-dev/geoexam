@@ -1855,10 +1855,10 @@ async function openContest(code, errEl) {
       const poll = async () => { if (!(CT && CT.contest && CT.contest.code === code && (tab === "contest" || tab === "quiz") && pi.isConnected) || ++n > 20) return;   // 1 уншилт, 1.5–2 мин тутам, дээд тал нь 20 удаа
         let x; try { x = await api({ action: "contestRes", code }); } catch (e) { x = null; }
         if (x && x.ready) { const me = x.ranking.find(z => z.email === (user.email || "")); const cme = box.querySelector(".cme");
-          if (me && cme) { cme.textContent += " · " + me.rank + "-р байр / " + x.ranking.length; const cb = CT.certBtn && CT.certBtn(me); if (cb && CT.certRow) CT.certRow.prepend(cb); } pi.replaceWith(rankTable(x.ranking, false)); return; }
+          if (me && cme) { cme.textContent += " · " + me.rank + "-р байр / " + x.ranking.length; const cb = CT.certBtn && CT.certBtn(me); if (cb && CT.certRow) CT.certRow.prepend(cb); } if (user && user.admin) pi.replaceWith(rankTable(x.ranking, false)); else pi.remove(); return; }
         setTimeout(poll, 90000 + Math.random() * 30000); };
       setTimeout(poll, 60000 + Math.random() * 30000); }
-    else box.append(rankTable(r.ranking, false));
+    else if (user && user.admin) box.append(rankTable(r.ranking, false));   // 🔒 оролцогч зөвхөн өөрийн оноо, байраа харна
   }
 }
 function rankTable(list, full, onReset, certN) {
@@ -3798,7 +3798,7 @@ function quizCard(q, adm) {
       if (b) { b.type = "button"; b.onclick = () => openContest(rd.code); row.append(b); }
       L.append(row); });
     c.append(L);
-    if (q.rounds.some(x => x.status === "done")) { const b = el("button", "btn ghost", "🏆 Нийт жагсаалт"); b.type = "button"; b.onclick = () => quizBoard(q); c.append(b); } }
+    if (q.rounds.some(x => x.status === "done") && user && user.admin) { const b = el("button", "btn ghost", "🏆 Нийт жагсаалт"); b.type = "button"; b.onclick = () => quizBoard(q); c.append(b); } }
   if (adm) { const b = el("button", "btn ghost", "⚙️ Удирдах"); b.type = "button"; b.onclick = () => quizAdmin(q); c.append(b); }
   return c;
 }
