@@ -1102,6 +1102,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .paypl{font-weight:800;color:#2563EB;font-size:13.5px}.payrow.done{opacity:.75;border-color:#16a34a}.payrow.done .paypl{color:#15803d}
 #payBox .status.soon{background:rgba(245,158,11,.14);color:#b45309}
 #payBox > .btn.ghost{display:block;width:100%;margin:6px 0 10px}#payBox .status{color:inherit}
+.mic.kZIP{background:linear-gradient(135deg,#A8A29E,#57534E);font-size:12px}
 </style>
 </head>
 <body>
@@ -4368,8 +4369,8 @@ let MATS = null, mcat = "", mq = "", MATN = 30;
 const matCache = { get() { try { const o = JSON.parse(localStorage.getItem("gx-mats-" + (user ? user.uid : "0")) || "null"); return o && Date.now() - o.t < 20 * 60e3 && o.n >= MATN ? o.L : null; } catch (e) { return null; } },
   set(L) { try { localStorage.setItem("gx-mats-" + (user ? user.uid : "0"), JSON.stringify({ t: Date.now(), n: MATN, L })); } catch (e) {} }, clear() { try { localStorage.removeItem("gx-mats-" + (user ? user.uid : "0")); } catch (e) {} } };
 const matKind = n => { n = String(n || "").toLowerCase();
-  return /\.pdf$/.test(n) ? "PDF" : /\.docx?$/.test(n) ? "WORD" : /\.pptx?$/.test(n) ? "PPT" : /\.xlsx?$/.test(n) ? "EXCEL" : ""; };
-const linkKind = u => /presentation|\.pptx?/i.test(u) ? "PPT" : /document\/d|\.docx?/i.test(u) ? "WORD" : /spreadsheets|\.xlsx?/i.test(u) ? "EXCEL" : /\.pdf/i.test(u) ? "PDF" : "LINK";
+  return /\.pdf$/.test(n) ? "PDF" : /\.docx?$/.test(n) ? "WORD" : /\.pptx?$/.test(n) ? "PPT" : /\.xlsx?$/.test(n) ? "EXCEL" : /\.zip$/.test(n) ? "ZIP" : ""; };
+const linkKind = u => /presentation|\.pptx?/i.test(u) ? "PPT" : /document\/d|\.docx?/i.test(u) ? "WORD" : /spreadsheets|\.xlsx?/i.test(u) ? "EXCEL" : /\.pdf/i.test(u) ? "PDF" : /\.zip/i.test(u) ? "ZIP" : "LINK";
 const isTchUser = () => !!user && (user.admin || user.teacher || user.role === "teacher");
 /* Google Drive / Docs холбоосыг сайт дотор харах (preview) хэлбэрт оруулна */
 function drivePreview(u) { u = String(u || "");
@@ -4408,7 +4409,7 @@ async function renderShare(box) {
 }
 function matCard(x, onDel) {
   const k = x.kind || "LINK", c = el("div", "mcard");
-  const ic = el("span", "mic k" + k, k === "WORD" ? "W" : k === "PPT" ? "P" : k === "EXCEL" ? "X" : k === "PDF" ? "PDF" : "🔗");
+  const ic = el("span", "mic k" + k, k === "WORD" ? "W" : k === "PPT" ? "P" : k === "EXCEL" ? "X" : k === "PDF" ? "PDF" : k === "ZIP" ? "ZIP" : "🔗");
   const tx = el("div", "tx"), trow = el("div", "mtrow"); tx.append(el("small", "mcat", [x.cat, x.sub, x.grade, x.unit].filter(Boolean).join(" · ")), trow); trow.append(el("b", "", x.title));
   if (x.desc) tx.append(el("p", "mdesc", x.desc));
   tx.append(el("small", "mby", "👩‍🏫 " + x.by + (x.school ? " · " + x.school : "") + " · " + x.at + (x.file && x.size ? " · " + fmtSize(x.size) : "")));
@@ -4469,13 +4470,13 @@ function matForm(E) {   // E байвал засах горим
   [["file", "📎 Файл оруулах"], ["link", "🔗 Google Drive холбоос"]].forEach(([v, t]) => { const x = el("button", v === mode ? "on" : "", t); x.type = "button"; x.dataset.v = v;
     x.onclick = () => { mode = v; sg.querySelectorAll("button").forEach(y => y.classList.toggle("on", y.dataset.v === v)); fw.hidden = v !== "file"; lw.hidden = v !== "link"; }; sg.append(x); });
   if (!E) b.append(sg);
-  const fi = Object.assign(el("input"), { type: "file", accept: ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" }); const fm = el("small", "lbn", "Word, PDF, PowerPoint, Excel · 50 MB хүртэл. Том файлыг Google Drive-д байршуулаад холбоосыг нь оруулна.");
+  const fi = Object.assign(el("input"), { type: "file", accept: ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip" }); const fm = el("small", "lbn", "Word, PDF, PowerPoint, Excel, ZIP · 50 MB хүртэл. Том файлыг Google Drive-д байршуулаад холбоосыг нь оруулна.");
   fw.append(fi, fm); if (!E) b.append(fw);
   const lI = Object.assign(el("input"), { placeholder: "https://drive.google.com/…" }); lw.append(lI, el("small", "lbn", "Drive дээр файлаа «Холбоостой хэн ч харж болно» (Anyone with the link) болгоод холбоосыг нь хуулна.")); lw.hidden = true; if (!E) b.append(lw);
   if (E && E.link) { lI.value = E.link; lw.hidden = false; b.append(lw); }
   if (E && E.file) b.append(el("small", "lbn", "📎 Файлыг солих бол энэ материалыг устгаад шинээр хуваалцана уу."));
   fi.onchange = () => { const f = fi.files[0]; F = null; if (!f) return;
-    if (!matKind(f.name)) { fm.textContent = "⚠ Зөвхөн Word, PDF, PowerPoint, Excel файл оруулна."; fi.value = ""; return; }
+    if (!matKind(f.name)) { fm.textContent = "⚠ Зөвхөн Word, PDF, PowerPoint, Excel, ZIP файл оруулна."; fi.value = ""; return; }
     if (f.size > MAT_MAX) { fm.textContent = "⚠ Файл " + fmtSize(f.size) + " байна (50 MB хүртэл). Google Drive-д байршуулаад «🔗 Google Drive холбоос»-оор оруулна уу."; fi.value = ""; return; }
     F = f; fm.textContent = "✓ " + f.name + " · " + fmtSize(f.size); if (!tI.value.trim()) tI.value = f.name.replace(/\.[^.]+$/, ""); };
   const msg = el("p", "lbn"), row = el("div", "recrow"), cn = el("button", "btn ghost", "Болих"), ok = el("button", "btn", E ? "💾 Хадгалах" : "📤 Хуваалцах"); cn.type = ok.type = "button"; row.append(cn, ok); b.append(msg, row);
