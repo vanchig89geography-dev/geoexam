@@ -1121,6 +1121,100 @@ body.geofull{overflow:hidden}
 .geotop{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line)}.geotop span{width:30px;text-align:center;font-weight:800}.geotop b{flex:1}.geotop small{color:var(--muted)}
 .geopzr{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}.geopzr label{display:grid;gap:4px}.geopzr select{padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit}
 .geof .fld input,.geof .fld textarea{width:100%;box-sizing:border-box}
+
+/* 📍 GeoHunt */
+.ghbadge{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:99px;font:800 10.5px/1.4 var(--btn-font);letter-spacing:.03em;vertical-align:middle;color:#fff;background:#F59E0B}
+.ghbadge.live{background:#EF4444;animation:ghpulse 1.4s ease-in-out infinite}
+@keyframes ghpulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.55)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+.drwi .ghbadge{margin-left:auto}
+.ghero{display:flex;gap:16px;align-items:center;padding:18px;border-radius:20px;color:#fff;background:linear-gradient(135deg,#0F766E,#0EA5E9 55%,#4F46E5);box-shadow:0 10px 28px rgba(14,116,144,.3);margin:12px 0 6px}
+.ghic svg{width:76px;height:76px;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}
+.ghtx{flex:1;min-width:0}.ghtx h3{margin:0;font:900 26px/1.1 Nunito,var(--btn-font);letter-spacing:-.01em;text-shadow:0 2px 0 rgba(0,0,0,.18)}
+.ghtx p{margin:6px 0 10px;font-size:14.5px;line-height:1.45;opacity:.95}
+.ghsteps{display:flex;flex-wrap:wrap;gap:6px}.ghsteps span{padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.18);font:700 12.5px var(--btn-font)}
+@media (max-width:520px){.ghero{padding:14px;gap:12px;align-items:flex-start}.ghic svg{width:54px;height:54px}.ghtx h3{font-size:22px}.ghtx p{font-size:13.5px}}
+.ghban{display:flex;gap:12px;align-items:center;width:100%;margin:12px 0 0;padding:10px 12px;border:0;border-radius:18px;cursor:pointer;text-align:left;color:#fff;background:linear-gradient(135deg,#0F766E,#0EA5E9 55%,#4F46E5);box-shadow:0 8px 22px rgba(14,116,144,.3)}
+.ghban img{width:64px;height:64px;object-fit:cover;border-radius:12px;flex:none;border:2px solid rgba(255,255,255,.7)}
+.ghban .tx{flex:1;min-width:0;display:grid;gap:3px;justify-items:start}.ghban .ghbadge{margin:0}.ghban b{font:800 15.5px var(--btn-font)}.ghban small{font-size:12.5px;opacity:.92}
+.ghban .go{flex:none;padding:9px 14px;border-radius:12px;background:#FACC15;color:#0B1426;font:800 14px var(--btn-font)}
+@media (max-width:520px){.ghban .go{display:none}}
+.ghhd{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;color:#fff;background:linear-gradient(135deg,#0F766E,#0EA5E9 55%,#4F46E5);box-shadow:0 8px 22px rgba(14,116,144,.25)}
+.ghhd svg{width:40px;height:40px;flex:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.25))}.ghhd>div{flex:1;display:grid;gap:2px}.ghhd b{font:900 20px/1.1 Nunito,var(--btn-font)}.ghhd small{font-size:13px;opacity:.92}.ghhd .ghbadge{margin:0}
+
+/* 🧰 Ангийн хэрэгсэл */
+.thero{display:grid;gap:4px;margin:12px 0;padding:16px 18px;border-radius:18px;color:#fff;background:linear-gradient(135deg,#F59E0B,#EC4899 55%,#8B5CF6);box-shadow:0 8px 22px rgba(236,72,153,.25)}
+.thero b{font:900 22px Nunito,var(--btn-font)}.thero small{font-size:13.5px;opacity:.95}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.tcard{display:grid;gap:6px;justify-items:start;text-align:left;padding:16px;border-radius:18px;border:1.5px solid color-mix(in srgb,var(--c) 35%,transparent);background:color-mix(in srgb,var(--c) 8%,var(--surface));color:var(--fg);cursor:pointer;transition:transform .12s,box-shadow .15s}
+.tcard:hover{transform:translateY(-2px);box-shadow:0 10px 24px color-mix(in srgb,var(--c) 25%,transparent)}
+.tcard .ic{font-size:34px;width:58px;height:58px;display:grid;place-items:center;border-radius:16px;background:var(--c);box-shadow:0 6px 14px color-mix(in srgb,var(--c) 40%,transparent)}
+.tcard b{font:800 17px var(--btn-font)}.tcard small{color:var(--muted);font-size:13px;line-height:1.4}
+@media (max-width:520px){.tgrid{grid-template-columns:1fr 1fr;gap:8px}.tcard{padding:12px}.tcard .ic{width:46px;height:46px;font-size:26px}.tcard b{font-size:15px}.tcard small{font-size:12px}}
+.tstage{position:relative;margin-top:8px;padding:16px;border-radius:20px;background:var(--surface);border:1.5px solid color-mix(in srgb,var(--c) 30%,transparent);display:grid;gap:12px}
+.tstage:fullscreen{overflow:auto;border-radius:0;padding:28px clamp(16px,4vw,60px);background:#fff;align-content:start}
+.tstage:fullscreen .tdig{font-size:min(22vw,34vh)}.tstage:fullscreen .tring{width:min(80vw,70vh)}
+.ttl{margin:0;font:900 22px Nunito,var(--btn-font);color:var(--c)}
+.tfs{position:absolute;right:12px;top:12px;width:40px;height:40px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface);font-size:20px;cursor:pointer;z-index:2}
+.tbig{font-size:17px!important;min-height:52px!important;padding:12px 22px!important;background:var(--c)!important;color:#fff!important}
+.tctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.tctl.c{justify-content:center}.tctl select{min-height:48px;border-radius:12px;padding:0 12px;font:700 15px var(--btn-font)}
+.tnames{display:grid;gap:6px}.tnames select,.tnames textarea{width:100%;border-radius:12px;border:1px solid var(--line-2);padding:10px;font:inherit;background:var(--surface);color:var(--fg)}
+.tdet summary{cursor:pointer;font-weight:700;padding:6px 0}
+.tchk{font-size:13.5px;display:flex;gap:6px;align-items:center}
+.twl{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:700px){.twl{grid-template-columns:1fr}}
+.twheel{position:relative;width:100%;max-width:520px;margin:0 auto}.twheel canvas{display:block;margin:0 auto;filter:drop-shadow(0 8px 18px rgba(0,0,0,.18))}
+.tptr{position:absolute;left:50%;top:-4px;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid #0B1426;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.tside{display:grid;gap:10px}
+.twin{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;min-width:min(86vw,420px);padding:26px 30px;border-radius:24px;text-align:center;color:#fff;background:var(--c);box-shadow:0 20px 60px rgba(0,0,0,.4);cursor:pointer;animation:tpop .45s cubic-bezier(.2,1.6,.4,1)}
+.twin small{display:block;font:700 16px var(--btn-font);opacity:.9}.twin b{display:block;font:900 clamp(30px,7vw,56px)/1.15 Nunito,var(--btn-font);margin-top:6px}
+@keyframes tpop{from{transform:translate(-50%,-50%) scale(.3);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.tpicked{display:flex;flex-wrap:wrap;gap:6px}.tpicked span{padding:4px 10px;border-radius:99px;background:var(--chip);font-size:13px;font-weight:700}
+.tteams{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.tteam{border-radius:16px;padding:12px 14px;background:color-mix(in srgb,var(--c) 10%,var(--surface));border:2px solid var(--c);animation:tin .4s both}
+.tteam b{display:block;color:var(--c);font:900 18px Nunito,var(--btn-font);margin-bottom:4px}.tteam ol{margin:0;padding-left:22px;font-size:15px;line-height:1.6;font-weight:600}
+@keyframes tin{from{transform:translateY(14px) scale(.95);opacity:0}to{transform:none;opacity:1}}
+.tring{position:relative;width:min(86vw,380px);aspect-ratio:1;margin:0 auto}.tring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.tring circle{fill:none;stroke-width:9}.tring .bg{stroke:var(--chip)}.tring .fg{stroke:var(--c);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.tdig{position:absolute;inset:0;display:grid;place-items:center;font:900 clamp(56px,16vw,104px) Nunito,var(--btn-font);font-variant-numeric:tabular-nums;color:var(--fg)}
+.tring.low .tdig{color:#EF4444}.tring.low .fg{stroke:#EF4444}
+.tring.end .tdig{color:#EF4444;animation:tblink .5s steps(2) infinite}@keyframes tblink{50%{opacity:.2}}
+.tpre{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.tpre button{border:0;border-radius:99px;padding:8px 14px;background:var(--chip);font:700 14px var(--btn-font);color:var(--fg);cursor:pointer}.tpre button:hover{background:color-mix(in srgb,var(--c) 18%,var(--chip))}
+.tsc{display:grid;gap:10px}
+.tscr{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:10px;align-items:center;padding:10px 12px;border-radius:16px;overflow:hidden;border:2px solid var(--c);background:var(--surface)}
+.tscr>i{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,var(--c) 16%,transparent);transition:width .4s ease;z-index:0}
+.tscr>*:not(i){position:relative;z-index:1}
+.tscr input{border:0;background:transparent;font:800 18px var(--btn-font);color:var(--fg);min-width:0;width:100%}
+.tsv{font:900 34px Nunito,var(--btn-font);color:var(--c);min-width:70px;text-align:right}.tsv.bump{animation:tbump .35s}
+@keyframes tbump{40%{transform:scale(1.35)}}
+.tsb{display:flex;gap:6px}.tsb button{width:48px;height:44px;border-radius:12px;border:0;background:var(--c);color:#fff;font:800 16px var(--btn-font);cursor:pointer}.tsb button.m{background:var(--chip);color:var(--fg)}
+.tsd{border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer;padding:6px}
+@media (max-width:520px){.tscr{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.tsb{grid-column:1/-1}.tsb button{flex:1}.tsd{position:absolute!important;right:4px;top:2px}.tsv{font-size:28px;margin-right:18px}}
+.tpty{display:flex;gap:8px}.tpty button{flex:1;min-height:46px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);font:700 15px var(--btn-font);color:var(--fg);cursor:pointer}.tpty button[aria-pressed="true"]{border-color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--surface));color:var(--c)}
+.tpopts{display:grid;gap:8px}.tpo{display:flex;gap:6px;align-items:center;border-left:6px solid var(--c);border-radius:10px;padding-left:6px}.tpo input{flex:1}
+.tpj{display:flex;gap:16px;align-items:center;padding:12px;border-radius:16px;background:var(--chip)}
+.tqr{flex:none;padding:6px;background:#fff;border-radius:10px;line-height:0}.tqr img,.tqr canvas{width:120px!important;height:120px!important}
+.tpjt{display:grid;gap:2px;min-width:0}.tpjt small{color:var(--muted);font-weight:700}.tpjt b{font:800 clamp(18px,3vw,26px) var(--btn-font);overflow-wrap:anywhere}
+.tpcode{justify-self:start;margin-top:4px;padding:4px 14px;border-radius:12px;background:var(--c);color:#fff;font:900 clamp(26px,5vw,40px) Nunito,var(--btn-font);letter-spacing:.12em}
+.tpq{margin:6px 0 0;font:900 clamp(22px,4vw,34px)/1.25 Nunito,var(--btn-font);text-align:center}
+.tpcnt{text-align:center;color:var(--muted);font-weight:800}
+.tbars{display:grid;gap:10px}.tbars.hid,.tcloud.hid{filter:blur(14px);pointer-events:none}
+.tbar{position:relative;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:56px;padding:8px 16px;border-radius:14px;overflow:hidden;background:var(--chip)}
+.tbar i{position:absolute;left:0;top:0;bottom:0;background:var(--c);transition:width .6s cubic-bezier(.2,.9,.3,1);opacity:.9}
+.tbar span,.tbar b{position:relative;z-index:1;font:800 clamp(16px,2.6vw,22px) var(--btn-font)}.tbar b{white-space:nowrap}
+.tcloud{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;align-items:center;min-height:160px;padding:16px;border-radius:16px;background:var(--chip)}
+.tcloud span{font-family:Nunito,var(--btn-font);font-weight:900;line-height:1.1;animation:tin .4s both}
+@media (max-width:520px){.tpj{flex-direction:column;text-align:center}.tpjt{justify-items:center}.tpcode{justify-self:center}}
+.pollov{position:fixed;inset:0;z-index:9999;background:rgba(11,20,38,.6);display:grid;place-items:center;padding:16px}
+.pollc{position:relative;width:min(520px,100%);max-height:92vh;overflow:auto;background:var(--surface);color:var(--fg);border-radius:22px;padding:22px 18px;display:grid;gap:12px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.pollc .drwx{position:absolute;right:12px;top:12px}
+.pollb{font:800 14px var(--btn-font);color:#EC4899}
+.pollq{margin:0;font:900 22px/1.3 Nunito,var(--btn-font)}
+.pollopts{display:grid;gap:10px}.pollopts button{min-height:58px;border:0;border-radius:14px;background:var(--c);color:#fff;font:800 17px var(--btn-font);text-align:left;padding:10px 16px;cursor:pointer}
+.pollopts button:disabled{opacity:.6}
+.pollin{width:100%;min-height:52px;border-radius:14px;border:1.5px solid var(--line-2);padding:0 14px;font:700 18px var(--btn-font);background:var(--surface);color:var(--fg)}
+.pollok{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:#10B981;color:#fff;font:900 40px Nunito;justify-self:center;animation:tpop2 .4s}
+@keyframes tpop2{from{transform:scale(.3)}to{transform:scale(1)}}
+.pollc h3{margin:0;text-align:center}.pollc .note{text-align:center}
 </style>
 </head>
 <body>
@@ -1160,6 +1254,7 @@ body.geofull{overflow:hidden}
       <button type="button" role="tab" data-t="quiz" aria-selected="false">GeoQuiz</button>
       <button type="button" role="tab" data-t="contest" aria-selected="false">Шалгалт · Олимпиад</button>
       <button type="button" role="tab" data-t="share" aria-selected="false">Багшийн булан</button>
+      <button type="button" role="tab" data-t="tools" aria-selected="false" hidden>Ангийн хэрэгсэл</button>
     </div>
     <div id="pane"><p class="empty">Ачаалж байна...</p></div>
   </section>
@@ -1304,7 +1399,7 @@ async function recStop(extra) {
 }
 const ctKey = () => "gx-ct-" + (T && T.contest);
 function saveCt() { if (!T || !T.contest) return; try { localStorage.setItem(ctKey(), JSON.stringify({ a: ctOrig(), s: ctStart })); } catch (e) {} }
-let token = USE_FB ? null : st.get("ge-token"), user = null, cfg = {}, tests = [], lessons = [], topics = [], tab = (st.get("ge-tab") || "var").replace(/^(rev|admin)$/, "var");
+let token = USE_FB ? null : st.get("ge-token"), user = null, cfg = {}, tests = [], lessons = [], topics = [], tab = (st.get("ge-tab") || "var").replace(/^(rev|admin|hunt)$/, "var");
 let T = null, QS = [], ans = [], done = [], cur = 0, reviewMode = false, practice = true, timer = null, left = 0;
 
 /* demo data (сервергүй үед) */
@@ -1330,6 +1425,11 @@ function navLabels() {   // багш/админд «Шалгалт үүсгэх�
   const adm = !!(user && user.admin), ai = NAV.findIndex(x => x[0] === "admin");
   if (adm && ai < 0) NAV.push(["admin", "Админы тохиргоо", "Тест, сургалт, үнэ, данс, эрх", '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>']);
   if (!adm && ai >= 0) NAV.splice(ai, 1);
+  const tch = !!(user && user.teacher), ti = NAV.findIndex(x => x[0] === "tools");   // 🧰 Ангийн хэрэгсэл: зөвхөн багшид
+  if (tch && ti < 0) { const a2 = NAV.findIndex(x => x[0] === "admin"); NAV.splice(a2 < 0 ? NAV.length : a2, 0, ["tools", "Ангийн хэрэгсэл", "Хүрд · баг · цаг · оноо · санал асуулга", '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18M10 13v2h4v-2"/>']); }
+  if (!tch && ti >= 0) NAV.splice(ti, 1);
+  const tb2 = document.querySelector('#tabs [data-t="tools"]'); if (tb2) tb2.hidden = !tch;
+  if (!tch && tab === "tools") tab = "var";
   if (!adm && tab === "admin") tab = "var";
   if (typeof secTitle === "function" && $("secT")) secTitle();
 }
@@ -1353,7 +1453,7 @@ async function loadTests() {
     if (!r.ok && r.error) throw new Error(r.error);
     tests = r.tests || []; lessons = r.lessons || []; topics = r.topics || []; user = r.user; if (USE_FB) token = user ? user.uid : null; else if (!user && token) { token = null; st.set("ge-token", null); }
     st.set("ge-tests", JSON.stringify({ tests, lessons, topics, cfg }));
-    renderAcct(); renderPane();
+    renderAcct(); renderPane(); geoBadge();
   } catch (e) { if (cached && cached.tests) return; $("pane").innerHTML = '<p class="empty">Ачаалж чадсангүй. Интернэтээ шалгаад хуудсаа дахин ачаална уу.</p>'; }
 }
 const isOwn = t => !/^ЭЕШ/.test(t.group || "");
@@ -1365,7 +1465,7 @@ let vyear = st.get("ge-year") || "";
 const OWN_CATS = ["IGEO", "Улсын олимпиад", "Шинэ"];
 const ownCat = t => { const g = (t.group || "").toUpperCase(); return g.indexOf("IGEO") === 0 ? "IGEO" : /^УЛСЫН ОЛИМПИАД/.test(g) ? "Улсын олимпиад" : "Шинэ"; };
 let ocat = OWN_CATS.indexOf(st.get("ge-ocat")) >= 0 ? st.get("ge-ocat") : null;
-function setTab(t) { if (typeof lessonStop === "function") lessonStop(); if (t !== "map" && typeof btStop === "function") btStop(); tab = t; st.set("ge-tab", t); document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t)); secTitle(); renderPane(); }
+function setTab(t) { if (typeof lessonStop === "function") lessonStop(); if (typeof toolsStop === "function") toolsStop(); if (t !== "map" && typeof btStop === "function") btStop(); tab = t; st.set("ge-tab", t); document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t)); secTitle(); renderPane(); }
 /* ---------- утасны цэс: ☰ дарахад хажуугаас гарна ---------- */
 const NAV = [
   ["var", "ЭЕШ", "2022–2026 оны хувилбарууд", '<path d="M9 3h6l1 2h3v16H5V5h3z"/><path d="M9 12l2 2 4-4"/>'],
@@ -1386,6 +1486,7 @@ function openNav() {
   hb.onclick = () => { close(); showLanding(); }; pn.append(hb);
   NAV.forEach(([t, name, sub, ic]) => { if (t === "admin") pn.append(el("div", "drwsep")); const b = el("button", "drwi" + (t === tab ? " on" : "")); b.type = "button";
     b.innerHTML = '<span class="ic">' + navSvg(ic) + "</span>"; const tx = el("span", "tx"); tx.append(el("b", "", name), el("small", "", sub)); b.append(tx);
+    if (t === "quiz" && GH.st) b.append(el("span", "ghbadge " + GH.st, GH.st === "live" ? "ШУУД" : "Удахгүй"));
     b.onclick = () => { close(); goSection(t); }; pn.append(b); });
   const close = () => { ov.classList.remove("open"); setTimeout(() => ov.remove(), 220); document.body.style.overflow = ""; };
   x.onclick = close; ov.onclick = e => { if (e.target === ov) close(); };
@@ -1403,6 +1504,7 @@ function renderPane() {
   if (tab === "learn") return renderLearn(box);
   if (tab === "quiz") return renderQuiz(box);
   if (tab === "share") return renderShare(box);
+  if (tab === "tools") return renderTools(box);
   if (tab === "admin") return renderAdmin(box);
   let list = tests.filter(t => !isTopicOnly(t) && (tab === "own" ? isOwn(t) : !isOwn(t)));
   if (tab === "own") {   // Мультимедиа: IGEO · Улсын олимпиад · Шинэ
@@ -3818,14 +3920,16 @@ const shortD = s => { const d = new Date(s), p = n => String(n).padStart(2, "0")
 let QZ_N = 0;
 async function renderQuiz(box) {
   box.append(el("p", "empty", "Ачаалж байна…"));
-  let r; try { r = await api({ action: "quizList" }); } catch (e) { r = { ok: false }; }
+  let r; try { [r] = await Promise.all([api({ action: "quizList" }), ONLINE ? ghList() : null]); } catch (e) { r = { ok: false }; }
   if (tab !== "quiz") return; box.innerHTML = "";
   if (!r.ok) { box.append(el("p", "empty", "Ачаалж чадсангүй.")); return; }
   const adm = !!(user && user.admin);
   if (adm) { const b = el("button", "btn", "+ Шинэ GeoQuiz үүсгэх"); b.type = "button"; b.onclick = () => quizAdmin(null); const w = el("div", "tbtns"); w.append(b); box.append(w); }
-  if (!r.list.length) { box.append(el("p", "empty", "🏆 GeoQuiz тэмцээн удахгүй зарлагдана.")); geoSection(box); return; }
-  QZ_N = r.list.length; r.list.forEach(q => box.append(quizCard(q, adm)));
-  geoSection(box);
+  const top = !!GH.st;   // 📍 GeoHunt явагдаж / удахгүй эхлэх үед хамгийн дээр
+  if (top) geoSection(box);
+  if (!r.list.length) box.append(el("p", "empty", "🏆 GeoQuiz тэмцээн удахгүй зарлагдана."));
+  else { QZ_N = r.list.length; r.list.forEach(q => box.append(quizCard(q, adm))); }
+  if (!top && ONLINE) geoSection(box);
 }
 function quizCard(q, adm) {
   const need = q.fee > 0 || q.approve !== false;   // ✋ баталгаажуулалт шаардах эсэх
@@ -4607,15 +4711,29 @@ function geoMap(host, opt) {
   return api2;
 }
 
-/* GeoQuiz табын доор: байршил таах уралдаанууд */
+/* 📍 GeoHunt: тусдаа цэс, нүүрний зар, «ШУУД» тэмдэг */
+const GH = { st: "", list: null, t: 0 };
+async function ghList(force) { if (!force && GH.list && Date.now() - GH.t < 6e4) return GH.list;
+  let r; try { r = await api({ action: "geoList" }); } catch (e) { r = { ok: false }; } if (!r.ok) return null;
+  GH.list = r.list; GH.t = Date.now(); GH.st = r.list.some(q => q.status === "open") ? "live" : r.list.some(q => q.status === "upcoming") ? "soon" : ""; return r.list; }
+async function geoBadge() { if (!ONLINE) return; await ghList(); const tb = document.querySelector('#tabs [data-t="quiz"]');
+  if (tb) { tb.querySelectorAll(".ghbadge").forEach(x => x.remove()); if (GH.st) tb.append(el("span", "ghbadge " + GH.st, GH.st === "live" ? "ШУУД" : "Удахгүй")); }
+  const L = $("landing"); if (L && !L.hidden) huntBanner(L); }
+function huntBanner(L) { L.querySelectorAll(".ghban").forEach(x => x.remove()); if (!GH.list) return;
+  const q = GH.list.find(x => x.status === "open") || GH.list.find(x => x.status === "upcoming"); if (!q) return;
+  const b = el("button", "ghban"); b.type = "button"; const im = el("img"); im.src = q.img; im.alt = "";
+  const tx = el("span", "tx"); tx.append(el("span", "ghbadge " + (q.status === "open" ? "live" : "soon"), q.status === "open" ? "ШУУД" : "Удахгүй"), el("b", "", "GeoHunt · " + q.title),
+    el("small", "", q.status === "open" ? "Зургийг хаана авсныг таагаад шагнал аваарай · " + shortD(q.end) + " хүртэл" : shortD(q.start) + "-д эхэлнэ"));
+  b.append(im, tx, el("span", "go", q.status === "open" ? "📍 Оролцох" : "Үзэх")); b.onclick = () => goSection("quiz");
+  const h = L.querySelector(".lhero"); h ? h.after(b) : L.prepend(b); }
 async function geoSection(box) {
-  const sec = el("div", "geosec"); box.append(sec);
-  let r; try { r = await api({ action: "geoList" }); } catch (e) { r = { ok: false }; }
-  if (!r.ok) return; const adm = !!(user && user.admin);
-  if (!r.list.length && !adm) { sec.remove(); return; }
-  sec.append(el("div", "grp", "📍 Байршил таах уралдаан"));
-  if (adm) { const b = el("button", "btn ghost", "+ Шинэ байршил таах уралдаан"); b.type = "button"; b.onclick = () => geoAdmin(null); sec.append(b); }
-  r.list.forEach(q => sec.append(geoCard(q, adm)));
+  const sec = el("div", "geosec"); box.append(sec); sec.append(el("p", "lbn", "Ачаалж байна…"));
+  const L = await ghList(); sec.innerHTML = ""; if (!L) { sec.append(el("p", "empty", "Ачаалж чадсангүй.")); return; }
+  const adm = !!(user && user.admin); if (!L.length && !adm) { sec.remove(); return; }
+  const hd = el("div", "ghhd"); hd.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z" fill="#FACC15" stroke="#fff" stroke-width="1.6"/><circle cx="12" cy="10" r="2.6" fill="#0F766E"/></svg>';
+  const ht = el("div"); ht.append(el("b", "", "GeoHunt"), el("small", "", "Зургийг хаана авсныг таагаад шагнал аваарай")); hd.append(ht); if (GH.st) hd.append(el("span", "ghbadge " + GH.st, GH.st === "live" ? "ШУУД" : "Удахгүй")); sec.append(hd);
+  if (adm) { const b = el("button", "btn ghost", "+ Шинэ GeoHunt уралдаан"); b.type = "button"; b.onclick = () => geoAdmin(null); sec.append(b); }
+  L.forEach(q => sec.append(geoCard(q, adm)));
 }
 function geoCard(q, adm) {
   const c = el("div", "geocard"), im = el("img"); im.src = q.img; im.alt = ""; im.loading = "lazy"; c.append(im);
@@ -4627,7 +4745,7 @@ function geoCard(q, adm) {
   tx.append(b); if (adm) { const a = el("button", "btn ghost", "⚙️ Удирдах"); a.type = "button"; a.onclick = () => geoAdmin(q); tx.append(a); }
   c.append(tx); return c;
 }
-function geoBack(box) { const b = el("button", "link lsback", "← GeoQuiz"); b.type = "button"; b.onclick = () => renderPane(); box.append(b); }
+function geoBack(box) { const b = el("button", "link lsback", "← GeoHunt"); b.type = "button"; b.onclick = () => renderPane(); box.append(b); }
 function geoPhoto(src) { const f = el("div", "geoph"), im = el("img"); im.src = src; im.alt = "Асуултын зураг"; im.onclick = () => zoom(src); f.append(im, el("small", "", "🔍 Дарж томруулна")); return f; }
 
 async function geoOpen(id) {
@@ -4664,7 +4782,7 @@ async function geoOpen(id) {
 async function geoAdmin(q0) {
   const box = $("pane"); box.innerHTML = ""; geoBack(box);
   let q = q0 ? (await api({ action: "geoGet", id: q0.id, admin: true })).q : null;
-  box.append(el("h3", "bh", q ? "⚙️ " + q.title : "➕ Шинэ байршил таах уралдаан"));
+  box.append(el("h3", "bh", q ? "⚙️ " + q.title : "➕ Шинэ GeoHunt уралдаан"));
   const f = el("div", "bform geof"); box.append(f);
   const fld = (lab, n) => { const l = el("label", "fld"); l.append(el("span", "", lab), n); f.append(l); return n; };
   const loc = d => { const p = n => String(n).padStart(2, "0"); d = new Date(d); return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes()); };
@@ -4716,6 +4834,210 @@ async function geoShrink(src) {   // асуултын зургийг ~1600px, �
     c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); d = c.toDataURL("image/jpeg", q); if (d.length * .75 < 350 * 1024) break; q -= .08; if (q < .55) { mx *= .8; q = .75; } }
   return d;
 }
+
+/* ---------- 🧰 Ангийн хэрэгсэл (зөвхөн багшид): хүрд · баг · цаг · оноо · санал асуулга ---------- */
+const TCOL = ["#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6", "#EC4899", "#14B8A6", "#F97316"];
+const TLS = { get(k, d) { try { const v = localStorage.getItem("ge-t" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem("ge-t" + k, JSON.stringify(v)); } catch (e) {} } };
+let TSTOP = [];
+function toolsStop() { TSTOP.forEach(f => { try { f(); } catch (e) {} }); TSTOP = []; }
+let TAC = null;
+function tBeep(f, d, v, type) { try { TAC = TAC || new (window.AudioContext || window.webkitAudioContext)(); const o = TAC.createOscillator(), g = TAC.createGain(); o.type = type || "sine"; o.frequency.value = f; g.gain.setValueAtTime(v || .15, TAC.currentTime); g.gain.exponentialRampToValueAtTime(.0001, TAC.currentTime + (d || .12)); o.connect(g); g.connect(TAC.destination); o.start(); o.stop(TAC.currentTime + (d || .12)); } catch (e) {} }
+const TOOLS = [
+  ["wheel", "🎡", "Сурагч сонгогч", "Хүрдийг эргүүлж санамсаргүй сурагч сонгоно", "#F59E0B"],
+  ["teams", "👥", "Баг хуваагч", "Ангиа хэдэн баг болгон санамсаргүй хуваана", "#10B981"],
+  ["timer", "⏱", "Цаг хэмжигч", "Том дэлгэцэн дээрх цаг, дуусахад дуугарна", "#3B82F6"],
+  ["score", "📊", "Онооны самбар", "Багуудын оноог шууд нэмж, хасна", "#8B5CF6"],
+  ["poll", "🗳", "Санал асуулга", "Сурагчид утсаараа кодоор санал өгнө, үр дүн шууд харагдана", "#EC4899"]];
+function renderTools(box) {
+  toolsStop();
+  if (!user || !user.teacher) { box.append(el("p", "empty", "🧰 Ангийн хэрэгсэл багшийн эрхтэй хүнд нээгдэнэ.")); return; }
+  const h = el("div", "thero"); h.append(el("b", "", "🧰 Ангийн хэрэгсэл"), el("small", "", "Ангийн дэлгэц, проектор дээр нээж ашиглаарай. ⛶ товчоор бүтэн дэлгэц болно.")); box.append(h);
+  const g = el("div", "tgrid"); box.append(g);
+  TOOLS.forEach(([k, ic, n, d, c]) => { const b = el("button", "tcard"); b.type = "button"; b.style.setProperty("--c", c);
+    b.append(el("span", "ic", ic), el("b", "", n), el("small", "", d)); b.onclick = () => toolOpen(k); g.append(b); });
+}
+function toolOpen(k) {
+  toolsStop(); const box = $("pane"); box.innerHTML = "";
+  const t = TOOLS.find(x => x[0] === k), top = el("div", "ttop"), bk = el("button", "link lsback", "← Ангийн хэрэгсэл"); bk.type = "button"; bk.onclick = () => { toolsStop(); renderPane(); };
+  const st = el("div", "tstage"); st.style.setProperty("--c", t[4]);
+  const fs = el("button", "tfs", "⛶"); fs.type = "button"; fs.title = "Бүтэн дэлгэц"; fs.onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else if (st.requestFullscreen) st.requestFullscreen().catch(() => {}); };
+  top.append(bk); box.append(top, st); st.append(fs, el("h3", "ttl", t[1] + " " + t[2]));
+  ({ wheel: toolWheel, teams: toolTeams, timer: toolTimer, score: toolScore, poll: toolPoll })[k](st);
+}
+/* 👥 нэрсийн жагсаалт: «Миний ангиуд»-аас эсвэл гараар */
+let TCLS = null;
+async function toolNames(host, onChange) {
+  const w = el("div", "tnames"), sel = el("select"), ta = Object.assign(el("textarea"), { rows: 5, placeholder: "Мөр бүрт нэг нэр (эсвэл дээрээс ангиа сонгоно)" });
+  sel.append(Object.assign(el("option", "", "✏️ Нэрсээ гараар бичих"), { value: "" })); w.append(sel, ta); host.append(w);
+  const cnt = el("small", "lbn"); w.append(cnt);
+  const names = () => ta.value.split(/\r?\n/).map(x => x.split("\t").filter(Boolean).pop() || "").map(x => x.trim()).filter(Boolean);
+  const upd = () => { const n = names(); cnt.textContent = n.length + " хүн"; TLS.set("names", { c: sel.value, t: ta.value }); onChange(n); };
+  const s0 = TLS.get("names", { c: "", t: "" }); ta.value = s0.t || ""; ta.oninput = upd;
+  sel.onchange = () => { const c = (TCLS || []).find(x => x.id === sel.value); if (c) ta.value = (c.list || []).join("\n"); upd(); };
+  if (!TCLS) { const r = await api({ action: "classList" }).catch(() => ({ ok: false })); TCLS = r.ok ? r.list : []; }
+  TCLS.forEach(c => sel.append(Object.assign(el("option", "", (c.name || c.grade + c.grp) + " · " + (c.list || []).length + " сурагч"), { value: c.id })));
+  if (s0.c && TCLS.some(c => c.id === s0.c)) sel.value = s0.c;
+  upd(); return { names, set: v => { ta.value = v.join("\n"); upd(); } };
+}
+
+/* 🎡 Хүрд */
+function toolWheel(st) {
+  const lay = el("div", "twl"), wbox = el("div", "twheel"), cv = el("canvas"), ptr = el("div", "tptr"), spin = el("button", "btn tbig", "🎡 Эргүүлэх"); spin.type = "button";
+  wbox.append(cv, ptr); const side = el("div", "tside"); lay.append(wbox, side); st.append(lay);
+  const res = el("div", "twin"); res.hidden = true; st.append(res);
+  const rm = el("label", "tchk"), rmc = Object.assign(el("input"), { type: "checkbox", checked: true }); rm.append(rmc, document.createTextNode(" Сонгогдсон сурагчийг дахин гаргахгүй"));
+  side.append(spin, rm); let all = [], left = [], rot = 0, busy = false, picked = [];
+  const pk = el("div", "tpicked");
+  toolNames(side, n => { all = n; left = n.filter(x => !picked.includes(x)); draw(); }).then(() => side.append(pk));
+  const x = cv.getContext("2d"); let S = 0;
+  function size() { const w = Math.min(wbox.clientWidth || 340, 520); if (w === S) return; S = w; const d = Math.min(2, devicePixelRatio || 1); cv.width = cv.height = w * d; cv.style.width = cv.style.height = w + "px"; x.setTransform(d, 0, 0, d, 0, 0); draw(); }
+  function draw() { if (!S) return; const L = left.length ? left : ["Нэр оруулна уу"], n = L.length, r = S / 2 - 6, c = S / 2, seg = 2 * Math.PI / n;
+    x.clearRect(0, 0, S, S); x.save(); x.translate(c, c);
+    for (let i = 0; i < n; i++) { const a = rot + i * seg; x.beginPath(); x.moveTo(0, 0); x.arc(0, 0, r, a, a + seg); x.closePath(); x.fillStyle = TCOL[i % TCOL.length]; if (n % TCOL.length === 1 && i === n - 1 && n > 1) x.fillStyle = TCOL[2]; x.fill(); x.strokeStyle = "rgba(255,255,255,.85)"; x.lineWidth = 2; x.stroke();
+      x.save(); x.rotate(a + seg / 2); x.fillStyle = "#fff"; x.textAlign = "right"; x.textBaseline = "middle"; const fz = Math.max(10, Math.min(22, seg * r * .55, r / 8)); x.font = "800 " + fz + "px Nunito, sans-serif";
+      let t = L[i]; while (t.length > 3 && x.measureText(t).width > r * .72) t = t.slice(0, -2) + "…"; x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 3; x.fillText(t, r - 12, 0); x.restore(); }
+    x.beginPath(); x.arc(0, 0, r * .13, 0, 7); x.fillStyle = "#fff"; x.fill(); x.lineWidth = 4; x.strokeStyle = "#0B1426"; x.stroke(); x.restore(); }
+  const idx = () => { const n = left.length, seg = 2 * Math.PI / n; let a = (-Math.PI / 2 - rot) % (2 * Math.PI); if (a < 0) a += 2 * Math.PI; return Math.floor(a / seg) % n; };
+  spin.onclick = () => { if (busy) return; if (left.length < 1) { if (all.length && rmc.checked) { picked = []; left = all.slice(); pk.innerHTML = ""; draw(); } return; }
+    busy = true; res.hidden = true; const r0 = rot, tot = 2 * Math.PI * (5 + Math.random() * 3) + Math.random() * 2 * Math.PI, T = 4200 + Math.random() * 800, t0 = performance.now(); let last = -1;
+    const step = now => { if (!st.isConnected) return; const k = Math.min(1, (now - t0) / T), e = 1 - Math.pow(1 - k, 3.4); rot = r0 + tot * e; draw();
+      const i = idx(); if (i !== last) { last = i; tBeep(900, .03, .06, "square"); }
+      if (k < 1) return requestAnimationFrame(step);
+      busy = false; const w = left[idx()]; tBeep(660, .15, .2); setTimeout(() => tBeep(990, .3, .2), 150);
+      res.innerHTML = ""; res.append(el("small", "", "Сонгогдлоо!"), el("b", "", w)); res.hidden = false; res.style.setProperty("--c", TCOL[idx() % TCOL.length]);
+      if (rmc.checked) { picked.push(w); pk.append(el("span", "", picked.length + ". " + w)); setTimeout(() => { left = left.filter(x => x !== w); draw(); }, 1800); } };
+    requestAnimationFrame(step); };
+  res.onclick = () => res.hidden = true;
+  requestAnimationFrame(size); const ro = new ResizeObserver(size); ro.observe(wbox); TSTOP.push(() => ro.disconnect());
+}
+
+/* 👥 Баг хуваагч */
+function toolTeams(st) {
+  const ctl = el("div", "tctl"), nS = el("select"); for (let i = 2; i <= 8; i++) nS.append(Object.assign(el("option", "", i + " баг"), { value: String(i) })); nS.value = String(TLS.get("tn", 4));
+  const go = el("button", "btn tbig", "🔀 Хуваах"), toS = el("button", "btn ghost", "📊 Онооны самбарт оруулах"); go.type = toS.type = "button"; toS.hidden = true;
+  ctl.append(nS, go, toS); st.append(ctl); let names = [];
+  const nm = el("details", "tdet"); nm.append(el("summary", "", "👥 Сурагчдын нэрс")); st.append(nm); toolNames(nm, n => names = n).then(() => { if (!names.length) nm.open = true; });
+  const out = el("div", "tteams"); st.append(out); let last = null;
+  go.onclick = () => { if (!names.length) { nm.open = true; return; } const n = +nS.value; TLS.set("tn", n); const a = names.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    const T = Array.from({ length: n }, () => []); a.forEach((x, i) => T[i % n].push(x)); last = T; out.innerHTML = ""; toS.hidden = false;
+    T.forEach((m, i) => { const c = el("div", "tteam"); c.style.setProperty("--c", TCOL[i % TCOL.length]); c.style.animationDelay = i * 90 + "ms"; c.append(el("b", "", (i + 1) + "-р баг · " + m.length));
+      const ul = el("ol"); m.forEach(s => ul.append(el("li", "", s))); c.append(ul); out.append(c); }); tBeep(520, .1, .15); setTimeout(() => tBeep(780, .2, .15), 110); };
+  toS.onclick = () => { if (!last) return; TLS.set("score", last.map((m, i) => ({ n: (i + 1) + "-р баг", s: 0 }))); toolOpen("score"); };
+}
+
+/* ⏱ Цаг хэмжигч */
+function toolTimer(st) {
+  let total = TLS.get("tm", 300) * 1000, rem = total, run = false, endAt = 0, done = false;
+  const ring = el("div", "tring"); ring.innerHTML = '<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="bg"/><circle cx="60" cy="60" r="54" class="fg"/></svg>';
+  const dig = el("div", "tdig"); ring.append(dig); st.append(ring);
+  const pre = el("div", "tpre"); [[30, "30 сек"], [60, "1 мин"], [120, "2 мин"], [180, "3 мин"], [300, "5 мин"], [600, "10 мин"], [900, "15 мин"]].forEach(([s, t]) => { const b = el("button", "", t); b.type = "button"; b.onclick = () => set(s * 1000); pre.append(b); });
+  const ctl = el("div", "tctl c"), m1 = el("button", "btn ghost", "−1 мин"), p1 = el("button", "btn ghost", "+1 мин"), sp = el("button", "btn tbig", "▶ Эхлүүлэх"), rs = el("button", "btn ghost", "↺"); [m1, p1, sp, rs].forEach(b => b.type = "button");
+  ctl.append(m1, sp, p1, rs); st.append(ctl, pre);
+  const fg = ring.querySelector(".fg"), C = 2 * Math.PI * 54; fg.style.strokeDasharray = C;
+  const fmt = ms => { const s = Math.ceil(ms / 1000), m = Math.floor(s / 60); return (m < 10 ? "0" : "") + m + ":" + String(s % 60).padStart(2, "0"); };
+  function show() { dig.textContent = done ? "00:00" : fmt(rem); fg.style.strokeDashoffset = C * (1 - (total ? rem / total : 0)); ring.classList.toggle("low", !done && rem <= 10000 && rem > 0); ring.classList.toggle("end", done); sp.textContent = run ? "⏸ Түр зогсоох" : rem < total && !done ? "▶ Үргэлжлүүлэх" : "▶ Эхлүүлэх"; }
+  function set(ms) { run = false; done = false; total = rem = Math.max(5000, ms); TLS.set("tm", total / 1000); show(); }
+  m1.onclick = () => { if (run) { endAt -= 60000; } else set(total - 60000); }; p1.onclick = () => { if (run) { endAt += 60000; total += 60000; } else set(total + 60000); };
+  rs.onclick = () => set(total); sp.onclick = () => { if (done) { set(total); return; } run = !run; if (run) { endAt = Date.now() + rem; tick(); } show(); };
+  let lastS = -1;
+  function tick() { if (!run || !st.isConnected) return; rem = Math.max(0, endAt - Date.now()); const s = Math.ceil(rem / 1000);
+    if (s !== lastS) { lastS = s; if (s <= 5 && s > 0) tBeep(880, .08, .12); }
+    if (rem <= 0) { run = false; done = true; show(); [0, 400, 800].forEach(d => setTimeout(() => { tBeep(988, .35, .25); tBeep(1318, .35, .15); }, d)); return; }
+    show(); requestAnimationFrame(tick); }
+  show(); TSTOP.push(() => run = false);
+}
+
+/* 📊 Онооны самбар */
+function toolScore(st) {
+  let T = TLS.get("score", null) || [1, 2, 3, 4].map(i => ({ n: i + "-р баг", s: 0 }));
+  const list = el("div", "tsc"), ctl = el("div", "tctl"), add = el("button", "btn ghost", "+ Баг нэмэх"), z = el("button", "btn ghost", "↺ Оноог тэглэх"); add.type = z.type = "button";
+  ctl.append(add, z); st.append(list, ctl);
+  const save = () => TLS.set("score", T);
+  function render(bump) { list.innerHTML = ""; const mx = Math.max(1, ...T.map(t => t.s)), best = Math.max(...T.map(t => t.s));
+    T.forEach((t, i) => { const r = el("div", "tscr"); r.style.setProperty("--c", TCOL[i % TCOL.length]);
+      const bar = el("i"); bar.style.width = Math.max(0, t.s) / mx * 100 + "%"; r.append(bar);
+      const nm = Object.assign(el("input"), { value: t.n, maxLength: 24 }); nm.onchange = () => { t.n = nm.value || (i + 1) + "-р баг"; save(); };
+      const sc = el("b", "tsv" + (bump === i ? " bump" : ""), (t.s === best && best > 0 ? "👑 " : "") + t.s);
+      const bt = el("div", "tsb"); [[-1, "−1"], [1, "+1"], [5, "+5"]].forEach(([d, l]) => { const b = el("button", d < 0 ? "m" : "", l); b.type = "button"; b.onclick = () => { t.s += d; save(); tBeep(d > 0 ? 700 + d * 40 : 300, .1, .12); render(i); }; bt.append(b); });
+      const del = el("button", "tsd", "✕"); del.type = "button"; del.title = "Багийг хасах"; del.onclick = () => { if (T.length <= 1 || !confirm("«" + t.n + "»-г хасах уу?")) return; T.splice(i, 1); save(); render(); };
+      r.append(nm, sc, bt, del); list.append(r); }); }
+  add.onclick = () => { if (T.length >= 8) return; T.push({ n: (T.length + 1) + "-р баг", s: 0 }); save(); render(); };
+  z.onclick = () => { if (!confirm("Бүх багийн оноог 0 болгох уу?")) return; T.forEach(t => t.s = 0); save(); render(); };
+  render();
+}
+
+/* 🗳 Санал асуулга (багш) */
+function toolPoll(st) {
+  const cur = TLS.get("poll", "");
+  if (cur) return pollLive(st, cur);
+  const f = el("div", "bform tpf"); st.append(f);
+  const qI = Object.assign(el("textarea"), { rows: 2, maxLength: 200, placeholder: "Асуулт. Жишээ: Монголын хамгийн урт гол аль вэ?" });
+  const ty = el("div", "two tpty"), b1 = el("button", "", "🔘 Сонголттой"), b2 = el("button", "", "☁️ Үгийн үүл"); b1.type = b2.type = "button"; ty.append(b1, b2);
+  let type = "mc"; const ow = el("div", "tpopts"), addO = el("button", "link", "+ Хувилбар нэмэх"); addO.type = "button";
+  const opt = v => { if (ow.children.length >= 6) return; const r = el("div", "tpo"), i = Object.assign(el("input"), { maxLength: 60, value: v || "", placeholder: "Хувилбар " + (ow.children.length + 1) }); r.style.setProperty("--c", TCOL[ow.children.length % TCOL.length]);
+    const x = el("button", "tsd", "✕"); x.type = "button"; x.onclick = () => { if (ow.children.length > 2) r.remove(); }; r.append(i, x); ow.append(r); };
+  opt(); opt(); opt(); addO.onclick = () => opt();
+  const setT = t => { type = t; b1.setAttribute("aria-pressed", t === "mc"); b2.setAttribute("aria-pressed", t === "word"); ow.hidden = addO.hidden = t !== "mc"; hint.textContent = t === "word" ? "Сурагч бүр нэг үг/богино хариулт бичнэ. Олон хүний бичсэн үг томоор харагдана." : ""; };
+  const hint = el("small", "lbn"); b1.onclick = () => setT("mc"); b2.onclick = () => setT("word");
+  const msg = el("p", "lbn"), go = el("button", "btn tbig", "🚀 Асуулга эхлүүлэх"); go.type = "button";
+  const fl = (l, n) => { const w = el("label", "fld"); w.append(el("span", "", l), n); return w; };
+  f.append(fl("Асуулт", qI), ty, hint, ow, addO, msg, go); setT("mc");
+  go.onclick = async () => { const q = qI.value.trim(); if (!q) { msg.textContent = "Асуултаа бичнэ үү."; return; }
+    const opts = [...ow.querySelectorAll("input")].map(i => i.value.trim()).filter(Boolean); if (type === "mc" && opts.length < 2) { msg.textContent = "Дор хаяж 2 хувилбар бичнэ үү."; return; }
+    go.disabled = true; msg.textContent = "Үүсгэж байна…"; const r = await api({ action: "pollCreate", q, type, opts }).catch(() => ({ ok: false }));
+    go.disabled = false; if (!r.ok) { msg.textContent = "Үүсгэж чадсангүй."; return; } TLS.set("poll", r.code); st.querySelectorAll(":scope > :not(.tfs):not(.ttl)").forEach(x => x.remove()); pollLive(st, r.code); };
+}
+function tQR(host, text) { const draw = () => { try { host.innerHTML = ""; new QRCode(host, { text, width: 168, height: 168, colorDark: "#0B1426", colorLight: "#ffffff" }); } catch (e) { host.hidden = true; } };
+  if (window.QRCode) return draw(); const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"; s.onload = draw; s.onerror = () => host.hidden = true; document.head.append(s); }
+async function pollLive(st, code) {
+  const r = await api({ action: "pollGet", code }).catch(() => ({ ok: false }));
+  if (!r.ok) { TLS.set("poll", ""); st.querySelectorAll(":scope > :not(.tfs):not(.ttl)").forEach(x => x.remove()); return toolPoll(st); }
+  const P = r, url = location.origin + "/?p=" + code;
+  const join = el("div", "tpj"), qr = el("div", "tqr"), jt = el("div", "tpjt");
+  jt.append(el("small", "", "Утсаараа орж санал өгнө үү"), el("b", "", url.replace(/^https?:\/\//, "")), el("span", "tpcode", code)); join.append(qr, jt); st.append(join); tQR(qr, url);
+  st.append(el("h2", "tpq", P.q)); const cnt = el("div", "tpcnt", "0 санал"); st.append(cnt);
+  const res = el("div", P.type === "word" ? "tcloud" : "tbars"); st.append(res);
+  const ctl = el("div", "tctl c"), oB = el("button", "btn ghost", ""), hB = el("button", "btn ghost", ""), nB = el("button", "btn", "🆕 Шинэ асуулт"), dB = el("button", "link danger", "🗑 Устгах"); [oB, hB, nB, dB].forEach(b => b.type = "button");
+  ctl.append(oB, hB, nB, dB); st.append(ctl);
+  const lab = () => { oB.textContent = P.open ? "⏸ Санал авахыг зогсоох" : "▶ Дахин нээх"; hB.textContent = P.hide ? "👁 Үр дүн харуулах" : "🙈 Үр дүн нуух"; res.classList.toggle("hid", P.hide); };
+  oB.onclick = async () => { P.open = !P.open; lab(); await api({ action: "pollSet", code, open: P.open }); };
+  hB.onclick = () => { P.hide = !P.hide; lab(); };
+  nB.onclick = () => { toolsStop(); TLS.set("poll", ""); toolOpen("poll"); };
+  dB.onclick = async () => { if (!confirm("Энэ асуулга, бүх саналыг устгах уу?")) return; toolsStop(); await api({ action: "pollDel", code }).catch(() => {}); TLS.set("poll", ""); toolOpen("poll"); };
+  lab(); let prevN = 0;
+  const draw = V => { cnt.textContent = V.length + " санал"; if (V.length > prevN && prevN) tBeep(1200, .05, .05); prevN = V.length;
+    if (P.type === "word") { const m = {}; V.forEach(v => { const k = String(v).trim().toLowerCase(); if (k) m[k] = (m[k] || 0) + 1; }); const A = Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 60), mx = A.length ? A[0][1] : 1;
+      res.innerHTML = ""; if (!A.length) res.append(el("p", "lbn", "Хариулт хүлээж байна…")); A.forEach(([w, c], i) => { const s = el("span", "", w); s.style.fontSize = (16 + 38 * c / mx) + "px"; s.style.color = TCOL[i % TCOL.length]; s.title = c + " хүн"; res.append(s); }); return; }
+    const C = P.opts.map(() => 0); V.forEach(v => { if (typeof v === "number" && C[v] !== undefined) C[v]++; }); const mx = Math.max(1, ...C), tot = V.length || 1;
+    if (!res.children.length) P.opts.forEach((o, i) => { const r2 = el("div", "tbar"); r2.style.setProperty("--c", TCOL[i % TCOL.length]); r2.append(el("span", "l", o), el("i"), el("b", "", "0")); res.append(r2); });
+    [...res.children].forEach((r2, i) => { r2.querySelector("i").style.width = C[i] / mx * 100 + "%"; r2.querySelector("b").textContent = C[i] + " · " + Math.round(C[i] / tot * 100) + "%"; }); };
+  draw([]); const w = await api({ action: "pollWatch", code, onVotes: draw }).catch(() => null); if (w && w.stop) TSTOP.push(w.stop);
+}
+
+/* 🗳 Сурагч: geoexam.mn/?p=12345 → санал өгөх цонх (нэвтрэх шаардлагагүй) */
+function pollVid() { let v = ""; try { v = localStorage.getItem("ge-vid") || ""; if (!v) { v = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem("ge-vid", v); } } catch (e) { v = Math.random().toString(36).slice(2); } return v; }
+async function pollJoin(code) {
+  const ov = el("div", "pollov"), cd = el("div", "pollc"); ov.append(cd); document.body.append(ov); document.body.style.overflow = "hidden";
+  const close = () => { ov.remove(); document.body.style.overflow = ""; history.replaceState(null, "", location.pathname); };
+  const x = el("button", "drwx", "✕"); x.type = "button"; x.onclick = close; cd.append(x, el("div", "pollb", "🗳 GeoExam · Санал асуулга"));
+  const body = el("div"); cd.append(body); body.append(el("p", "lbn", "Ачаалж байна…"));
+  const r = await api({ action: "pollGet", code }).catch(() => ({ ok: false })); body.innerHTML = "";
+  const done = t => { body.innerHTML = ""; body.append(el("div", "pollok", "✓"), el("h3", "", t), el("p", "note", "Үр дүнг багшийн дэлгэцээс хараарай.")); const b = el("button", "btn ghost", "GeoExam руу орох"); b.type = "button"; b.onclick = close; body.append(b); };
+  if (!r.ok) { body.append(el("h3", "", "Асуулга олдсонгүй"), el("p", "note", "Кодоо шалгаад дахин оролдоно уу.")); return; }
+  const key = "ge-pv-" + code; let voted = false; try { voted = !!localStorage.getItem(key); } catch (e) {}
+  if (voted) return done("Та санал өгсөн байна");
+  body.append(el("h3", "pollq", r.q)); if (!r.open) { body.append(el("p", "cinfo", "⏸ Санал авах хугацаа дууссан байна.")); return; }
+  const msg = el("p", "lbn");
+  const send = async v => { body.querySelectorAll("button,input").forEach(b => b.disabled = true); msg.textContent = "Илгээж байна…";
+    const s = await api({ action: "pollVote", code, v, vid: pollVid() }).catch(() => ({ ok: false }));
+    if (s.ok || s.error === "denied") { try { localStorage.setItem(key, "1"); } catch (e) {} play && play("ok"); return done(s.ok ? "Таны санал илгээгдлээ!" : "Та санал өгсөн эсвэл асуулга хаагдсан байна"); }
+    msg.textContent = "Илгээж чадсангүй. Дахин оролдоно уу."; body.querySelectorAll("button,input").forEach(b => b.disabled = false); };
+  if (r.type === "word") { const i = Object.assign(el("input", "pollin"), { maxLength: 30, placeholder: "Хариултаа бичнэ үү" }), b = el("button", "btn wide", "Илгээх"); b.type = "button";
+    b.onclick = () => { if (i.value.trim()) send(i.value.trim()); }; i.onkeydown = e => { if (e.key === "Enter") b.click(); }; body.append(i, b, msg); setTimeout(() => i.focus(), 100); }
+  else { const g = el("div", "pollopts"); r.opts.forEach((o, i) => { const b = el("button", "", o); b.type = "button"; b.style.setProperty("--c", TCOL[i % TCOL.length]); b.onclick = () => send(i); g.append(b); }); body.append(g, msg); }
+}
+(() => { const c = new URLSearchParams(location.search).get("p"); if (c && /^\d{5}$/.test(c)) setTimeout(() => pollJoin(c), 300); })();
 
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
 const IV = { DUR: 2.8, timers: [], on: false, loopT: null, nodes: [] };
@@ -4828,6 +5150,7 @@ function renderLanding() {
   const stats = el("div", "lstats");
   [[nQ ? nQ.toLocaleString("en-US") + "+" : "1,300+", "даалгавар"], [nE || 5, "ЭЕШ хувилбар"], ["190+", "улсын газарзүйн зураг"], ["0₮", "үнэгүй эхлэх"]].forEach(([n, t]) => { const d = el("div"); d.append(el("b", "", String(n)), el("span", "", t)); stats.append(d); });
   L.append(stats);
+  huntBanner(L);
   // 💬 сэтгэгдлүүдийг нүүрээс хассан (Firebase уншилт хэмнэх)
 }
 /* ---------- 💬 Сэтгэгдэл ---------- */
@@ -5623,6 +5946,24 @@ H.battleAnswer = async p => {
   await setDoc(D("battles", String(p.code), "players", m.uid), { name: m.name, score: +p.score || 0, right: +p.right || 0, i: +p.i || 0, done: !!p.done }, { merge: true });
   return { ok: true };
 };
+/* ---- 🗳 Санал асуулга (Ангийн хэрэгсэл): багш үүсгэнэ, сурагч нэвтрэхгүйгээр кодоор санал өгнө ---- */
+H.pollCreate = async p => {
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
+  const type = p.type === "word" ? "word" : "mc", opts = type === "mc" ? (p.opts || []).map(x => String(x).trim().slice(0, 60)).filter(Boolean).slice(0, 6) : [];
+  if (type === "mc" && opts.length < 2) return { ok: false, error: "opts" };
+  let code = ""; for (let i = 0; i < 8; i++) { const c = String(10000 + Math.floor(Math.random() * 90000)); if (!(await getDoc(D("polls", c))).exists()) { code = c; break; } }
+  if (!code) return { ok: false, error: "code" };
+  await setDoc(D("polls", code), { owner: m.email, q: String(p.q || "").trim().slice(0, 200), type, opts, open: true, hide: false, at: Timestamp.now() });
+  return { ok: true, code };
+};
+H.pollGet = async p => { const s = await getDoc(D("polls", String(p.code || ""))); if (!s.exists()) return { ok: false, error: "none" };
+  const x = s.data(); return { ok: true, q: x.q, type: x.type, opts: x.opts || [], open: !!x.open, hide: !!x.hide, mine: !!(ME && ME.email === x.owner) }; };
+H.pollSet = async p => { const o = {}; if ("open" in p) o.open = !!p.open; if ("hide" in p) o.hide = !!p.hide; await setDoc(D("polls", String(p.code)), o, { merge: true }); return { ok: true }; };
+H.pollDel = async p => { const code = String(p.code), v = await getDocs(C("polls", code, "votes")), b = writeBatch(db); v.docs.slice(0, 450).forEach(d => b.delete(d.ref)); b.delete(D("polls", code)); await b.commit(); return { ok: true }; };
+H.pollVote = async p => {
+  const v = typeof p.v === "number" ? Math.max(0, Math.min(7, Math.floor(p.v))) : String(p.v || "").trim().slice(0, 30); if (v === "") return { ok: false, error: "empty" };
+  try { await setDoc(D("polls", String(p.code), "votes", String(p.vid)), { v, at: Timestamp.now() }); return { ok: true }; } catch (e) { return { ok: false, error: "denied" }; } };
+H.pollWatch = async p => { const u = onSnapshot(C("polls", String(p.code), "votes"), s => p.onVotes(s.docs.map(d => d.data().v)), () => {}); return { ok: true, stop: u }; };
 /* ---- дэлгэцийн бичлэг: 30 секунд тутам хэсэгчлэн Storage руу илгээнэ ---- */
 let REC = null;
 const recPath = (uid, id, k) => "rec/" + uid + "/" + id + "/" + String(k).padStart(4, "0") + ".webm";
