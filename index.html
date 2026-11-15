@@ -3929,7 +3929,7 @@ async function renderQuiz(box) {
     if (!r.list.length) box.append(el("p", "empty", "🏆 GeoQuiz тэмцээн удахгүй зарлагдана."));
     else { QZ_N = r.list.length; r.list.forEach(q => box.append(quizCard(q, adm))); }
     box.append(gBot);
-    if (ONLINE) ghList().then(() => { if (!gTop.isConnected) return; geoSection(GH.st ? gTop : gBot); });
+    if (ONLINE) ghList(true).then(() => { if (!gTop.isConnected) return; geoSection(GH.st ? gTop : gBot); });
   };
   if (QZ_C && QZ_C.key === key) draw(QZ_C.r); else box.append(el("p", "empty", "Ачаалж байна…"));
   let r; try { r = await api({ action: "quizList" }); } catch (e) { r = { ok: false }; }
@@ -4828,7 +4828,9 @@ async function geoAdmin(q0) {
   [calc, pub, giv, del].forEach(b => b.type = "button"); bt.append(calc, pub, giv, del); rs.append(bt, rl);
   const show = R => { rl.innerHTML = ""; if (!R || !R.length) { rl.append(el("p", "lbn", "Оролцогч алга.")); return; }
     R.slice(0, 50).forEach(x => { const d = el("div", "geotop"); d.append(el("span", "", String(x.rank)), el("b", "", x.name), el("small", "", geoFmtKm(x.km) + " · " + (x.email || "") + (x.prize ? " · 🎁 " + geoPrizeTxt(x.prize) + (x.given ? " ✓" : "") : ""))); rl.append(d); }); };
-  calc.onclick = async () => { calc.disabled = true; const x = await api({ action: "geoCalc", id: q.id }).catch(() => ({ ok: false })); calc.disabled = false; if (x.ok) show(x.list); else alert("Чадсангүй."); };
+  const GERR = { no_key: "Зөв байршил хадгалагдаагүй байна. Дээрх хэсэгт зөв байршлаа тэмдэглээд «💾 Хадгалах» дарна уу.", no_doc: "Уралдаан олдсонгүй.", admin: "Админаар нэвтэрнэ үү.", "permission-denied": "Эрх хүрэхгүй байна (Firestore-ийн дүрмийг шалгана уу)." };
+  calc.onclick = async () => { calc.disabled = true; rl.innerHTML = ""; rl.append(el("p", "lbn", "Бодож байна…")); const x = await api({ action: "geoCalc", id: q.id }).catch(e => ({ ok: false, error: String(e && e.message || e) })); calc.disabled = false;
+    if (x.ok) show(x.list); else { rl.innerHTML = ""; rl.append(el("p", "cinfo", "⚠️ Дүн бодож чадсангүй: " + (GERR[x.error] || x.error || "алдаа"))); } };
   pub.onclick = async () => { if (!q.pub && !confirm("Дүн, зөв байршлыг бүх хүнд нийтлэх үү?")) return; const x = await api({ action: "geoPublish", id: q.id, pub: !q.pub }); if (x.ok) geoAdmin({ id: q.id }); };
   giv.onclick = async () => { if (!confirm("Шагналт байр эзэлсэн хүмүүст Сургалтын эрх олгох уу?")) return; giv.disabled = true; const x = await api({ action: "geoPrize", id: q.id }).catch(() => ({ ok: false })); giv.disabled = false;
     if (x.ok) { play("ok"); alert("✓ " + x.n + " хүнд эрх олголоо."); calc.click(); } else alert("Чадсангүй. Эхлээд «Дүн бодох» дарна уу."); };
@@ -6145,7 +6147,7 @@ H.geoList = async () => {
 H.geoGet = async p => {
   const id = String(p.id || ""), s = await getDoc(D("geoq", id)); if (!s.exists()) return { ok: false };
   const x = s.data(), q = geoPub(id, x), uid = auth.currentUser && auth.currentUser.uid;
-  if (x.pub) { q.ans = x.ans || null; q.pins = x.pins || []; q.top = x.top || []; q.total = x.total || 0; }
+  if (x.pub) { q.ans = x.ans || null; q.pins = []; { const f = Array.isArray(x.pinsF) ? x.pinsF : []; for (let i = 0; i + 1 < f.length; i += 2) q.pins.push([f[i], f[i + 1]]); } q.top = x.top || []; q.total = x.total || 0; }
   if (p.admin) { const m = await meInfo(); if (m && m.admin) { const k = await safe(getDoc(D("geoqKey", id))); if (k && k.exists()) q.key = [k.data().lat, k.data().lon]; } }
   let mine = null, myRank = 0; if (uid) { const m = await safe(getDoc(D("geoq", id, "subs", uid))); if (m && m.exists()) mine = { lat: m.data().lat, lon: m.data().lon }; if (x.pub && x.ranks) myRank = x.ranks[uid] || 0; }
   return { ok: true, q, mine, myRank };
@@ -6172,19 +6174,20 @@ H.geoSave = async p => {
   await setDoc(D("geoqKey", id), { lat, lon });
   return { ok: true, id };
 };
-H.geoCalc = async p => {   // 🔄 зайг тооцоолж эрэмбэлнэ (админ)
-  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+H.geoCalc = async p => { try { return await geoCalc0(p); } catch (e) { console.warn("geoCalc", e); return { ok: false, error: (e && (e.code || e.message)) || "err" }; } };
+async function geoCalc0(p) {   // 🔄 зайг тооцоолж эрэмбэлнэ (админ)
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "admin" };
   const id = String(p.id), [s, k, sub] = await Promise.all([getDoc(D("geoq", id)), getDoc(D("geoqKey", id)), getDocs(C("geoq", id, "subs"))]);
-  if (!s.exists() || !k.exists()) return { ok: false };
+  if (!s.exists()) return { ok: false, error: "no_doc" }; if (!k.exists()) return { ok: false, error: "no_key" };
   const R = 6371, rd = v => v * Math.PI / 180, km = (a, b, c, d) => { const h = Math.sin(rd(c - a) / 2) ** 2 + Math.cos(rd(a)) * Math.cos(rd(c)) * Math.sin(rd(d - b) / 2) ** 2; return 2 * R * Math.asin(Math.min(1, Math.sqrt(h))); };
   const K = k.data(), pz = s.data().prizes || [], given = s.data().given || {};
-  const L = sub.docs.map(d => { const x = d.data(); return { uid: d.id, name: x.name || x.email, email: x.email, lat: x.lat, lon: x.lon, km: Math.round(km(K.lat, K.lon, x.lat, x.lon) * 10) / 10, at: x.at ? toD(x.at).getTime() : 0 }; });
+  const L = sub.docs.map(d => { const x = d.data(); return { uid: d.id, name: x.name || x.email || "?", email: x.email || "", lat: x.lat, lon: x.lon, km: Math.round(km(K.lat, K.lon, x.lat, x.lon) * 10) / 10, at: x.at ? toD(x.at).getTime() : 0 }; });
   L.sort((a, b) => a.km - b.km || a.at - b.at); L.forEach((x, i) => { x.rank = i + 1; x.prize = pz[i] || 0; x.given = !!given[x.uid]; });
   const ranks = {}; L.forEach(x => ranks[x.uid] = x.rank);
   await setDoc(D("geoq", id), { n: L.length, total: L.length, top: L.filter(x => x.prize).map(x => ({ rank: x.rank, name: String(x.name).slice(0, 60), km: x.km, prize: x.prize })),
-    pins: L.slice(0, 3000).map(x => [Math.round(x.lat * 100) / 100, Math.round(x.lon * 100) / 100]), ranks, calcAt: Timestamp.now() }, { merge: true });
+    pinsF: L.filter(x => isFinite(x.lat) && isFinite(x.lon)).slice(0, 3000).flatMap(x => [Math.round(x.lat * 100) / 100, Math.round(x.lon * 100) / 100]), ranks, calcAt: Timestamp.now() }, { merge: true });
   return { ok: true, list: L };
-};
+}
 H.geoPublish = async p => {
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
   const id = String(p.id), v = p.pub === true;
