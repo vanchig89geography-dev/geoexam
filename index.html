@@ -4847,7 +4847,7 @@ async function geoShrink(src) {   // асуултын зургийг ~1600px, �
 }
 
 /* 📤 Хуваалцах: шууд холбоос + Facebook-д тавих зураг (админ) */
-const geoUrl = id => location.origin + "/?g=" + id;
+const geoUrl = id => "https://geoexam.mn/g/" + id;   // Cloudflare Pages Function (functions/g/[id].js) нь Facebook-д уралдааны зургийг харуулна
 function geoShareBar(q, adm) {
   const w = el("div", "geoshare"), sh = el("button", "btn ghost", "📤 Хуваалцах"); sh.type = "button"; w.append(sh);
   const msg = el("small", "lbn");
