@@ -1223,6 +1223,13 @@ body.geofull{overflow:hidden}
 .inapp .btn{background:#EA580C!important;color:#fff!important}.inapp .btn.ghost{background:#fff!important;color:#7C2D12!important;border-color:#FDBA74}
 .inappbar{position:sticky;top:0;z-index:50;display:flex;gap:8px;align-items:center;justify-content:center;padding:8px 12px;background:#EA580C;color:#fff;font:700 13px var(--btn-font);text-align:center}
 .inappbar button{flex:none;border:0;border-radius:99px;padding:5px 12px;background:#fff;color:#EA580C;font:800 13px var(--btn-font);cursor:pointer}
+.tpqs{display:grid;gap:12px}.tpqe{display:grid;gap:8px;padding:12px;border-radius:14px;border:1.5px solid var(--line-2);background:var(--sunk,var(--chip))}
+.tpqh{display:flex;justify-content:space-between;align-items:center}.tpqh b{font:800 15px var(--btn-font);color:var(--c)}
+.tpqe textarea,.tpqe input,.tpf>.fld input{width:100%;border-radius:10px;border:1px solid var(--line-2);padding:9px 10px;font:inherit;background:var(--surface);color:var(--fg)}
+.tpnav{display:flex;gap:10px;align-items:center;justify-content:center}.tpnav .tpn{font:900 18px Nunito,var(--btn-font);min-width:120px;text-align:center}
+.tpsum{display:grid;gap:14px;padding:14px;border-radius:16px;background:var(--chip)}.tpsum h3{margin:0}.tpsq{display:grid;gap:8px}.tpsq>b{font:800 16px var(--btn-font)}
+.tpsq .tbar{min-height:42px}.tpsq .tcloud{min-height:80px}
+.tpf{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px}.tpf>.btn.ghost{justify-self:start}
 </style>
 </head>
 <body>
@@ -5031,75 +5038,114 @@ function toolScore(st) {
   render();
 }
 
-/* 🗳 Санал асуулга (багш) */
+/* 🗳 Санал асуулга (багш): олон асуулт, нэг код */
+const clearStage = st => st.querySelectorAll(":scope > :not(.tfs):not(.ttl)").forEach(x => x.remove());
 function toolPoll(st) {
   const cur = TLS.get("poll", "");
   if (cur) return pollLive(st, cur);
   const f = el("div", "bform tpf"); st.append(f);
-  const qI = Object.assign(el("textarea"), { rows: 2, maxLength: 200, placeholder: "Асуулт. Жишээ: Монголын хамгийн урт гол аль вэ?" });
-  const ty = el("div", "two tpty"), b1 = el("button", "", "🔘 Сонголттой"), b2 = el("button", "", "☁️ Үгийн үүл"); b1.type = b2.type = "button"; ty.append(b1, b2);
-  let type = "mc"; const ow = el("div", "tpopts"), addO = el("button", "link", "+ Хувилбар нэмэх"); addO.type = "button";
-  const opt = v => { if (ow.children.length >= 6) return; const r = el("div", "tpo"), i = Object.assign(el("input"), { maxLength: 60, value: v || "", placeholder: "Хувилбар " + (ow.children.length + 1) }); r.style.setProperty("--c", TCOL[ow.children.length % TCOL.length]);
-    const x = el("button", "tsd", "✕"); x.type = "button"; x.onclick = () => { if (ow.children.length > 2) r.remove(); }; r.append(i, x); ow.append(r); };
-  opt(); opt(); opt(); addO.onclick = () => opt();
-  const setT = t => { type = t; b1.setAttribute("aria-pressed", t === "mc"); b2.setAttribute("aria-pressed", t === "word"); ow.hidden = addO.hidden = t !== "mc"; hint.textContent = t === "word" ? "Сурагч бүр нэг үг/богино хариулт бичнэ. Олон хүний бичсэн үг томоор харагдана." : ""; };
-  const hint = el("small", "lbn"); b1.onclick = () => setT("mc"); b2.onclick = () => setT("word");
-  const msg = el("p", "lbn"), go = el("button", "btn tbig", "🚀 Асуулга эхлүүлэх"); go.type = "button";
+  const sets = TLS.get("sets", []);
+  if (sets.length) { const row = el("div", "tctl"), sel = el("select"); sel.append(Object.assign(el("option", "", "📂 Хадгалсан асуулгаас сонгох…"), { value: "" }));
+    sets.forEach((x, i) => sel.append(Object.assign(el("option", "", x.title + " · " + x.qs.length + " асуулт"), { value: String(i) })));
+    const del = el("button", "link danger", "🗑"); del.type = "button"; del.title = "Сонгосныг устгах";
+    sel.onchange = () => { const x = sets[+sel.value]; if (x) load(x); };
+    del.onclick = () => { if (sel.value === "" || !confirm("«" + sets[+sel.value].title + "»-г устгах уу?")) return; sets.splice(+sel.value, 1); TLS.set("sets", sets); clearStage(st); toolPoll(st); };
+    row.append(sel, del); f.append(row); }
+  const tI = Object.assign(el("input"), { maxLength: 100, placeholder: "Асуулгын нэр (заавал биш). Жишээ: 7А · Гол мөрөн" });
   const fl = (l, n) => { const w = el("label", "fld"); w.append(el("span", "", l), n); return w; };
-  f.append(fl("Асуулт", qI), ty, hint, ow, addO, msg, go); setT("mc");
-  go.onclick = async () => { const q = qI.value.trim(); if (!q) { msg.textContent = "Асуултаа бичнэ үү."; return; }
-    const opts = [...ow.querySelectorAll("input")].map(i => i.value.trim()).filter(Boolean); if (type === "mc" && opts.length < 2) { msg.textContent = "Дор хаяж 2 хувилбар бичнэ үү."; return; }
-    go.disabled = true; msg.textContent = "Үүсгэж байна…"; const r = await api({ action: "pollCreate", q, type, opts }).catch(() => ({ ok: false }));
-    go.disabled = false; if (!r.ok) { msg.textContent = "Үүсгэж чадсангүй."; return; } TLS.set("poll", r.code); st.querySelectorAll(":scope > :not(.tfs):not(.ttl)").forEach(x => x.remove()); pollLive(st, r.code); };
+  const list = el("div", "tpqs"), addQ = el("button", "btn ghost", "+ Асуулт нэмэх"); addQ.type = "button";
+  f.append(fl("Нэр", tI), list, addQ);
+  function qEd(d) { d = d || { q: "", type: "mc", opts: ["", "", ""] };
+    const w = el("div", "tpqe"), hd = el("div", "tpqh"), nb = el("b"), x = el("button", "tsd", "✕"); x.type = "button"; x.title = "Асуултыг хасах";
+    hd.append(nb, x); const qI = Object.assign(el("textarea"), { rows: 2, maxLength: 200, value: d.q, placeholder: "Асуулт. Жишээ: Монголын хамгийн урт гол аль вэ?" });
+    const ty = el("div", "tpty"), b1 = el("button", "", "🔘 Сонголттой"), b2 = el("button", "", "☁️ Үгийн үүл"); b1.type = b2.type = "button"; ty.append(b1, b2);
+    const ow = el("div", "tpopts"), addO = el("button", "link", "+ Хувилбар нэмэх"); addO.type = "button";
+    const opt = v => { if (ow.children.length >= 6) return; const r = el("div", "tpo"), i = Object.assign(el("input"), { maxLength: 60, value: v || "", placeholder: "Хувилбар " + (ow.children.length + 1) }); r.style.setProperty("--c", TCOL[ow.children.length % TCOL.length]);
+      const xx = el("button", "tsd", "✕"); xx.type = "button"; xx.onclick = () => { if (ow.children.length > 2) r.remove(); }; r.append(i, xx); ow.append(r); };
+    (d.opts && d.opts.length ? d.opts : ["", ""]).forEach(opt); while (ow.children.length < 2) opt(); addO.onclick = () => opt();
+    let type = d.type; const setT = t => { type = t; b1.setAttribute("aria-pressed", t === "mc"); b2.setAttribute("aria-pressed", t === "word"); ow.hidden = addO.hidden = t !== "mc"; };
+    b1.onclick = () => setT("mc"); b2.onclick = () => setT("word"); setT(type);
+    x.onclick = () => { if (list.children.length > 1) { w.remove(); renum(); } };
+    w.append(hd, qI, ty, ow, addO); w.get = () => ({ q: qI.value.trim(), type, opts: type === "mc" ? [...ow.querySelectorAll("input")].map(i => i.value.trim()).filter(Boolean) : [] });
+    list.append(w); renum(); return w; }
+  const renum = () => [...list.children].forEach((w, i) => w.querySelector(".tpqh b").textContent = "Асуулт " + (i + 1));
+  function load(x) { tI.value = x.title || ""; list.innerHTML = ""; x.qs.forEach(q => qEd(q)); }
+  qEd(); addQ.onclick = () => { if (list.children.length < 30) qEd().querySelector("textarea").focus(); };
+  const msg = el("p", "lbn"), row = el("div", "tctl"), sv = el("button", "btn ghost", "💾 Хадгалах"), go = el("button", "btn tbig", "🚀 Асуулга эхлүүлэх"); sv.type = go.type = "button"; row.append(go, sv); f.append(msg, row);
+  const collect = () => { const qs = [...list.children].map(w => w.get()); const bad = qs.findIndex(q => !q.q || (q.type === "mc" && q.opts.length < 2));
+    if (bad >= 0) { msg.textContent = "Асуулт " + (bad + 1) + ": асуултаа бичээд дор хаяж 2 хувилбар оруулна уу."; return null; } return qs; };
+  sv.onclick = () => { const qs = collect(); if (!qs) return; const t = tI.value.trim() || qs[0].q.slice(0, 40); const i = sets.findIndex(x => x.title === t); const o = { title: t, qs };
+    if (i >= 0) sets[i] = o; else sets.unshift(o); TLS.set("sets", sets.slice(0, 30)); msg.textContent = "✓ «" + t + "» хадгалагдлаа. Дараа нь дээрх жагсаалтаас сонгоно."; };
+  go.onclick = async () => { const qs = collect(); if (!qs) return; go.disabled = true; msg.textContent = "Үүсгэж байна…";
+    const r = await api({ action: "pollCreate", title: tI.value.trim(), qs }).catch(() => ({ ok: false }));
+    go.disabled = false; if (!r.ok) { msg.textContent = "Үүсгэж чадсангүй."; return; } TLS.set("poll", r.code); clearStage(st); pollLive(st, r.code); };
 }
 function tQR(host, text) { const draw = () => { try { host.innerHTML = ""; new QRCode(host, { text, width: 168, height: 168, colorDark: "#0B1426", colorLight: "#ffffff" }); } catch (e) { host.hidden = true; } };
   if (window.QRCode) return draw(); const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"; s.onload = draw; s.onerror = () => host.hidden = true; document.head.append(s); }
+function pollRes(res, q, V) {   // нэг асуултын үр дүн
+  res.className = q.type === "word" ? "tcloud" : "tbars"; res.innerHTML = "";
+  if (q.type === "word") { const m = {}; V.forEach(v => { const k = String(v).trim().toLowerCase(); if (k) m[k] = (m[k] || 0) + 1; }); const A = Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 60), mx = A.length ? A[0][1] : 1;
+    if (!A.length) res.append(el("p", "lbn", "Хариулт хүлээж байна…")); A.forEach(([w, c], i) => { const s = el("span", "", w); s.style.fontSize = (16 + 38 * c / mx) + "px"; s.style.color = TCOL[i % TCOL.length]; s.title = c + " хүн"; res.append(s); }); return; }
+  const C = q.opts.map(() => 0); V.forEach(v => { if (typeof v === "number" && C[v] !== undefined) C[v]++; }); const mx = Math.max(1, ...C), tot = V.length || 1;
+  q.opts.forEach((o, i) => { const r2 = el("div", "tbar"); r2.style.setProperty("--c", TCOL[i % TCOL.length]); const bar = el("i"); r2.append(el("span", "l", o), bar, el("b", "", C[i] + " · " + Math.round(C[i] / tot * 100) + "%")); res.append(r2); requestAnimationFrame(() => bar.style.width = C[i] / mx * 100 + "%"); });
+}
 async function pollLive(st, code) {
   const r = await api({ action: "pollGet", code }).catch(() => ({ ok: false }));
-  if (!r.ok) { TLS.set("poll", ""); st.querySelectorAll(":scope > :not(.tfs):not(.ttl)").forEach(x => x.remove()); return toolPoll(st); }
-  const P = r, url = location.origin + "/?p=" + code;
+  if (!r.ok) { TLS.set("poll", ""); clearStage(st); return toolPoll(st); }
+  const P = r, url = "https://geoexam.mn/?p=" + code; let hide = false, ALL = [];
   const join = el("div", "tpj"), qr = el("div", "tqr"), jt = el("div", "tpjt");
   jt.append(el("small", "", "Утсаараа орж санал өгнө үү"), el("b", "", url.replace(/^https?:\/\//, "")), el("span", "tpcode", code)); join.append(qr, jt); st.append(join); tQR(qr, url);
-  st.append(el("h2", "tpq", P.q)); const cnt = el("div", "tpcnt", "0 санал"); st.append(cnt);
-  const res = el("div", P.type === "word" ? "tcloud" : "tbars"); st.append(res);
-  const ctl = el("div", "tctl c"), oB = el("button", "btn ghost", ""), hB = el("button", "btn ghost", ""), nB = el("button", "btn", "🆕 Шинэ асуулт"), dB = el("button", "link danger", "🗑 Устгах"); [oB, hB, nB, dB].forEach(b => b.type = "button");
-  ctl.append(oB, hB, nB, dB); st.append(ctl);
-  const lab = () => { oB.textContent = P.open ? "⏸ Санал авахыг зогсоох" : "▶ Дахин нээх"; hB.textContent = P.hide ? "👁 Үр дүн харуулах" : "🙈 Үр дүн нуух"; res.classList.toggle("hid", P.hide); };
-  oB.onclick = async () => { P.open = !P.open; lab(); await api({ action: "pollSet", code, open: P.open }); };
-  hB.onclick = () => { P.hide = !P.hide; lab(); };
+  const nav = el("div", "tpnav"), pv = el("button", "btn ghost", "←"), lab = el("b", "tpn"), nx = el("button", "btn tbig", "Дараагийн асуулт →"); pv.type = nx.type = "button"; nav.append(pv, lab, nx); st.append(nav);
+  const qh = el("h2", "tpq"), cnt = el("div", "tpcnt"), res = el("div"); st.append(qh, cnt, res);
+  const ctl = el("div", "tctl c"), oB = el("button", "btn ghost", ""), hB = el("button", "btn ghost", ""), sB = el("button", "btn ghost", "📊 Нэгтгэл"), nB = el("button", "btn ghost", "🆕 Шинэ асуулга"), dB = el("button", "link danger", "🗑 Устгах"); [oB, hB, sB, nB, dB].forEach(b => b.type = "button");
+  ctl.append(oB, hB, sB, nB, dB); st.append(ctl);
+  const sum = el("div", "tpsum"); sum.hidden = true; st.append(sum);
+  const n = P.qs.length; let prevN = -1;
+  const draw = () => { const q = P.qs[P.cur] || P.qs[0], V = ALL.filter(x => (x.i || 0) === P.cur).map(x => x.v);
+    lab.textContent = "Асуулт " + (P.cur + 1) + " / " + n; pv.disabled = P.cur <= 0; nx.textContent = P.cur >= n - 1 ? "🏁 Дуусгах" : "Дараагийн асуулт →"; nav.hidden = n < 2 && false;
+    qh.textContent = q.q; cnt.textContent = V.length + " санал"; if (V.length > prevN && prevN >= 0) tBeep(1200, .05, .05); prevN = V.length;
+    pollRes(res, q, V); res.classList.toggle("hid", hide);
+    oB.textContent = P.open ? "⏸ Санал авахыг зогсоох" : "▶ Дахин нээх"; hB.textContent = hide ? "👁 Үр дүн харуулах" : "🙈 Үр дүн нуух"; };
+  const go = async i => { if (i < 0 || i >= n) return; P.cur = i; prevN = -1; sum.hidden = true; draw(); await api({ action: "pollSet", code, cur: i, open: true }); P.open = true; draw(); };
+  pv.onclick = () => go(P.cur - 1);
+  nx.onclick = async () => { if (P.cur < n - 1) return go(P.cur + 1); P.open = false; draw(); await api({ action: "pollSet", code, open: false }); sB.click(); };
+  oB.onclick = async () => { P.open = !P.open; draw(); await api({ action: "pollSet", code, open: P.open }); };
+  hB.onclick = () => { hide = !hide; draw(); };
+  sB.onclick = () => { sum.hidden = !sum.hidden; if (sum.hidden) return; sum.innerHTML = ""; sum.append(el("h3", "", "📊 Бүх асуултын нэгтгэл"));
+    P.qs.forEach((q, i) => { const V = ALL.filter(x => (x.i || 0) === i).map(x => x.v), b = el("div", "tpsq"), rr = el("div"); b.append(el("b", "", (i + 1) + ". " + q.q + " · " + V.length + " санал"), rr); pollRes(rr, q, V); sum.append(b); });
+    sum.scrollIntoView({ behavior: "smooth", block: "start" }); };
   nB.onclick = () => { toolsStop(); TLS.set("poll", ""); toolOpen("poll"); };
   dB.onclick = async () => { if (!confirm("Энэ асуулга, бүх саналыг устгах уу?")) return; toolsStop(); await api({ action: "pollDel", code }).catch(() => {}); TLS.set("poll", ""); toolOpen("poll"); };
-  lab(); let prevN = 0;
-  const draw = V => { cnt.textContent = V.length + " санал"; if (V.length > prevN && prevN) tBeep(1200, .05, .05); prevN = V.length;
-    if (P.type === "word") { const m = {}; V.forEach(v => { const k = String(v).trim().toLowerCase(); if (k) m[k] = (m[k] || 0) + 1; }); const A = Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 60), mx = A.length ? A[0][1] : 1;
-      res.innerHTML = ""; if (!A.length) res.append(el("p", "lbn", "Хариулт хүлээж байна…")); A.forEach(([w, c], i) => { const s = el("span", "", w); s.style.fontSize = (16 + 38 * c / mx) + "px"; s.style.color = TCOL[i % TCOL.length]; s.title = c + " хүн"; res.append(s); }); return; }
-    const C = P.opts.map(() => 0); V.forEach(v => { if (typeof v === "number" && C[v] !== undefined) C[v]++; }); const mx = Math.max(1, ...C), tot = V.length || 1;
-    if (!res.children.length) P.opts.forEach((o, i) => { const r2 = el("div", "tbar"); r2.style.setProperty("--c", TCOL[i % TCOL.length]); r2.append(el("span", "l", o), el("i"), el("b", "", "0")); res.append(r2); });
-    [...res.children].forEach((r2, i) => { r2.querySelector("i").style.width = C[i] / mx * 100 + "%"; r2.querySelector("b").textContent = C[i] + " · " + Math.round(C[i] / tot * 100) + "%"; }); };
-  draw([]); const w = await api({ action: "pollWatch", code, onVotes: draw }).catch(() => null); if (w && w.stop) TSTOP.push(w.stop);
+  draw(); const w = await api({ action: "pollWatch", code, onVotes: L => { ALL = L; draw(); if (!sum.hidden) { sum.hidden = true; sB.click(); } } }).catch(() => null); if (w && w.stop) TSTOP.push(w.stop);
 }
 
-/* 🗳 Сурагч: geoexam.mn/?p=12345 → санал өгөх цонх (нэвтрэх шаардлагагүй) */
+/* 🗳 Сурагч: geoexam.mn/?p=12345 → санал өгөх цонх (нэвтрэх шаардлагагүй), багш асуулт солиход өөрөө шинэчлэгдэнэ */
 function pollVid() { let v = ""; try { v = localStorage.getItem("ge-vid") || ""; if (!v) { v = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem("ge-vid", v); } } catch (e) { v = Math.random().toString(36).slice(2); } return v; }
 async function pollJoin(code) {
   const ov = el("div", "pollov"), cd = el("div", "pollc"); ov.append(cd); document.body.append(ov); document.body.style.overflow = "hidden";
-  const close = () => { ov.remove(); document.body.style.overflow = ""; history.replaceState(null, "", location.pathname); };
-  const x = el("button", "drwx", "✕"); x.type = "button"; x.onclick = close; cd.append(x, el("div", "pollb", "🗳 GeoExam · Санал асуулга"));
-  const body = el("div"); cd.append(body); body.append(el("p", "lbn", "Ачаалж байна…"));
-  const r = await api({ action: "pollGet", code }).catch(() => ({ ok: false })); body.innerHTML = "";
-  const done = t => { body.innerHTML = ""; body.append(el("div", "pollok", "✓"), el("h3", "", t), el("p", "note", "Үр дүнг багшийн дэлгэцээс хараарай.")); const b = el("button", "btn ghost", "GeoExam руу орох"); b.type = "button"; b.onclick = close; body.append(b); };
-  if (!r.ok) { body.append(el("h3", "", "Асуулга олдсонгүй"), el("p", "note", "Кодоо шалгаад дахин оролдоно уу.")); return; }
-  const key = "ge-pv-" + code; let voted = false; try { voted = !!localStorage.getItem(key); } catch (e) {}
-  if (voted) return done("Та санал өгсөн байна");
-  body.append(el("h3", "pollq", r.q)); if (!r.open) { body.append(el("p", "cinfo", "⏸ Санал авах хугацаа дууссан байна.")); return; }
-  const msg = el("p", "lbn");
-  const send = async v => { body.querySelectorAll("button,input").forEach(b => b.disabled = true); msg.textContent = "Илгээж байна…";
-    const s = await api({ action: "pollVote", code, v, vid: pollVid() }).catch(() => ({ ok: false }));
-    if (s.ok || s.error === "denied") { try { localStorage.setItem(key, "1"); } catch (e) {} play && play("ok"); return done(s.ok ? "Таны санал илгээгдлээ!" : "Та санал өгсөн эсвэл асуулга хаагдсан байна"); }
-    msg.textContent = "Илгээж чадсангүй. Дахин оролдоно уу."; body.querySelectorAll("button,input").forEach(b => b.disabled = false); };
-  if (r.type === "word") { const i = Object.assign(el("input", "pollin"), { maxLength: 30, placeholder: "Хариултаа бичнэ үү" }), b = el("button", "btn wide", "Илгээх"); b.type = "button";
-    b.onclick = () => { if (i.value.trim()) send(i.value.trim()); }; i.onkeydown = e => { if (e.key === "Enter") b.click(); }; body.append(i, b, msg); setTimeout(() => i.focus(), 100); }
-  else { const g = el("div", "pollopts"); r.opts.forEach((o, i) => { const b = el("button", "", o); b.type = "button"; b.style.setProperty("--c", TCOL[i % TCOL.length]); b.onclick = () => send(i); g.append(b); }); body.append(g, msg); }
+  let stop = null; const close = () => { if (stop) stop(); ov.remove(); document.body.style.overflow = ""; history.replaceState(null, "", location.pathname); };
+  const x = el("button", "drwx", "✕"); x.type = "button"; x.onclick = close; const top = el("div", "pollb", "🗳 GeoExam · Санал асуулга"); cd.append(x, top);
+  const body = el("div", "pollbd"); cd.append(body); body.append(el("p", "lbn", "Ачаалж байна…"));
+  const vk = i => "ge-pv-" + code + "-" + i, voted = i => { try { return !!localStorage.getItem(vk(i)); } catch (e) { return false; } };
+  let P = null, shown = "";
+  const wait = (t, s) => { body.innerHTML = ""; body.append(el("div", "pollok", "✓"), el("h3", "", t), el("p", "note", s || "Багш дараагийн асуултыг гаргахыг хүлээнэ үү…")); };
+  const render = () => {
+    if (!P) { body.innerHTML = ""; body.append(el("h3", "", "Асуулга олдсонгүй"), el("p", "note", "Кодоо шалгаад дахин оролдоно уу.")); return; }
+    const i = P.cur, q = P.qs[i] || P.qs[0], key = i + "|" + P.open + "|" + voted(i); if (key === shown) return; shown = key;
+    top.textContent = "🗳 " + (P.title || "Санал асуулга") + (P.qs.length > 1 ? " · " + (i + 1) + "/" + P.qs.length : "");
+    if (voted(i)) return wait("Таны санал илгээгдлээ!", P.open && i < P.qs.length - 1 ? "Багш дараагийн асуултыг гаргахыг хүлээнэ үү…" : "Үр дүнг багшийн дэлгэцээс хараарай.");
+    body.innerHTML = ""; body.append(el("h3", "pollq", q.q));
+    if (!P.open) { body.append(el("p", "cinfo", "⏸ Одоогоор санал авахгүй байна.")); return; }
+    const msg = el("p", "lbn");
+    const send = async v => { body.querySelectorAll("button,input").forEach(b => b.disabled = true); msg.textContent = "Илгээж байна…";
+      const s = await api({ action: "pollVote", code, i, v, vid: pollVid() }).catch(() => ({ ok: false }));
+      if (s.ok || s.error === "denied") { try { localStorage.setItem(vk(i), "1"); } catch (e) {} if (s.ok && typeof play === "function") play("ok"); shown = ""; return render(); }
+      msg.textContent = "Илгээж чадсангүй. Дахин оролдоно уу."; body.querySelectorAll("button,input").forEach(b => b.disabled = false); };
+    if (q.type === "word") { const inp = Object.assign(el("input", "pollin"), { maxLength: 30, placeholder: "Хариултаа бичнэ үү" }), b = el("button", "btn wide", "Илгээх"); b.type = "button";
+      b.onclick = () => { if (inp.value.trim()) send(inp.value.trim()); }; inp.onkeydown = e => { if (e.key === "Enter") b.click(); }; body.append(inp, b, msg); setTimeout(() => inp.focus(), 100); }
+    else { const g = el("div", "pollopts"); q.opts.forEach((o, k) => { const b = el("button", "", o); b.type = "button"; b.style.setProperty("--c", TCOL[k % TCOL.length]); b.onclick = () => send(k); g.append(b); }); body.append(g, msg); } };
+  const r = await api({ action: "pollFollow", code, onPoll: p => { P = p; render(); } }).catch(() => null);
+  if (r && r.stop) stop = r.stop; else { const g = await api({ action: "pollGet", code }).catch(() => ({ ok: false })); P = g.ok ? g : null; render(); }
 }
 (() => { const c = new URLSearchParams(location.search).get("p"); if (c && /^\d{5}$/.test(c)) setTimeout(() => pollJoin(c), 300); })();
 
@@ -6012,24 +6058,29 @@ H.battleAnswer = async p => {
   await setDoc(D("battles", String(p.code), "players", m.uid), { name: m.name, score: +p.score || 0, right: +p.right || 0, i: +p.i || 0, done: !!p.done }, { merge: true });
   return { ok: true };
 };
-/* ---- 🗳 Санал асуулга (Ангийн хэрэгсэл): багш үүсгэнэ, сурагч нэвтрэхгүйгээр кодоор санал өгнө ---- */
+/* ---- 🗳 Санал асуулга (Ангийн хэрэгсэл): багш олон асуулт бэлдэнэ, сурагч нэвтрэхгүйгээр нэг кодоор санал өгнө ---- */
+const pollQs = x => Array.isArray(x.qs) && x.qs.length ? x.qs : [{ q: x.q || "", type: x.type || "mc", opts: x.opts || [] }];   // хуучин нэг асуулттай
 H.pollCreate = async p => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
-  const type = p.type === "word" ? "word" : "mc", opts = type === "mc" ? (p.opts || []).map(x => String(x).trim().slice(0, 60)).filter(Boolean).slice(0, 6) : [];
-  if (type === "mc" && opts.length < 2) return { ok: false, error: "opts" };
+  const qs = (Array.isArray(p.qs) ? p.qs : []).slice(0, 30).map(x => { const type = x.type === "word" ? "word" : "mc"; return { q: String(x.q || "").trim().slice(0, 200), type, opts: type === "mc" ? (x.opts || []).map(o => String(o).trim().slice(0, 60)).filter(Boolean).slice(0, 6) : [] }; })
+    .filter(x => x.q && (x.type === "word" || x.opts.length >= 2));
+  if (!qs.length) return { ok: false, error: "qs" };
   let code = ""; for (let i = 0; i < 8; i++) { const c = String(10000 + Math.floor(Math.random() * 90000)); if (!(await getDoc(D("polls", c))).exists()) { code = c; break; } }
   if (!code) return { ok: false, error: "code" };
-  await setDoc(D("polls", code), { owner: m.email, q: String(p.q || "").trim().slice(0, 200), type, opts, open: true, hide: false, at: Timestamp.now() });
+  await setDoc(D("polls", code), { owner: m.email, title: String(p.title || "").trim().slice(0, 100), qs, cur: 0, open: true, at: Timestamp.now() });
   return { ok: true, code };
 };
 H.pollGet = async p => { const s = await getDoc(D("polls", String(p.code || ""))); if (!s.exists()) return { ok: false, error: "none" };
-  const x = s.data(); return { ok: true, q: x.q, type: x.type, opts: x.opts || [], open: !!x.open, hide: !!x.hide, mine: !!(ME && ME.email === x.owner) }; };
-H.pollSet = async p => { const o = {}; if ("open" in p) o.open = !!p.open; if ("hide" in p) o.hide = !!p.hide; await setDoc(D("polls", String(p.code)), o, { merge: true }); return { ok: true }; };
-H.pollDel = async p => { const code = String(p.code), v = await getDocs(C("polls", code, "votes")), b = writeBatch(db); v.docs.slice(0, 450).forEach(d => b.delete(d.ref)); b.delete(D("polls", code)); await b.commit(); return { ok: true }; };
+  const x = s.data(); return { ok: true, title: x.title || "", qs: pollQs(x), cur: x.cur || 0, open: !!x.open, mine: !!(ME && ME.email === x.owner) }; };
+H.pollSet = async p => { const o = {}; if ("open" in p) o.open = !!p.open; if ("cur" in p) o.cur = Math.max(0, Math.floor(+p.cur || 0)); await setDoc(D("polls", String(p.code)), o, { merge: true }); return { ok: true }; };
+H.pollDel = async p => { const code = String(p.code), v = await getDocs(C("polls", code, "votes"));
+  for (let i = 0; i < v.docs.length; i += 400) { const b = writeBatch(db); v.docs.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); }
+  await deleteDoc(D("polls", code)); return { ok: true }; };
 H.pollVote = async p => {
-  const v = typeof p.v === "number" ? Math.max(0, Math.min(7, Math.floor(p.v))) : String(p.v || "").trim().slice(0, 30); if (v === "") return { ok: false, error: "empty" };
-  try { await setDoc(D("polls", String(p.code), "votes", String(p.vid)), { v, at: Timestamp.now() }); return { ok: true }; } catch (e) { return { ok: false, error: "denied" }; } };
-H.pollWatch = async p => { const u = onSnapshot(C("polls", String(p.code), "votes"), s => p.onVotes(s.docs.map(d => d.data().v)), () => {}); return { ok: true, stop: u }; };
+  const i = Math.max(0, Math.floor(+p.i || 0)), v = typeof p.v === "number" ? Math.max(0, Math.min(7, Math.floor(p.v))) : String(p.v || "").trim().slice(0, 30); if (v === "") return { ok: false, error: "empty" };
+  try { await setDoc(D("polls", String(p.code), "votes", String(p.vid) + "_" + i), { v, i, at: Timestamp.now() }); return { ok: true }; } catch (e) { return { ok: false, error: "denied" }; } };
+H.pollWatch = async p => { const u = onSnapshot(C("polls", String(p.code), "votes"), s => p.onVotes(s.docs.map(d => { const x = d.data(); return { i: x.i || 0, v: x.v }; })), () => {}); return { ok: true, stop: u }; };
+H.pollFollow = async p => { const u = onSnapshot(D("polls", String(p.code)), s => { if (!s.exists()) return p.onPoll(null); const x = s.data(); p.onPoll({ title: x.title || "", qs: pollQs(x), cur: x.cur || 0, open: !!x.open }); }, () => p.onPoll(null)); return { ok: true, stop: u }; };
 /* ---- дэлгэцийн бичлэг: 30 секунд тутам хэсэгчлэн Storage руу илгээнэ ---- */
 let REC = null;
 const recPath = (uid, id, k) => "rec/" + uid + "/" + id + "/" + String(k).padStart(4, "0") + ".webm";
