@@ -1217,6 +1217,12 @@ body.geofull{overflow:hidden}
 @keyframes tpop2{from{transform:scale(.3)}to{transform:scale(1)}}
 .pollc h3{margin:0;text-align:center}.pollc .note{text-align:center}
 .geoshare{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}.geoshare small{flex-basis:100%}
+
+.inapp{display:grid;gap:8px;margin:12px 0;padding:14px;border-radius:14px;background:#FFF7ED;border:1.5px solid #FB923C;color:#7C2D12}
+.inapp b{font:800 15px var(--btn-font)}.inapp p{margin:0;font-size:14px}.inapp ol{margin:0;padding-left:20px;font-size:14.5px;line-height:1.6;font-weight:600}
+.inapp .btn{background:#EA580C!important;color:#fff!important}.inapp .btn.ghost{background:#fff!important;color:#7C2D12!important;border-color:#FDBA74}
+.inappbar{position:sticky;top:0;z-index:50;display:flex;gap:8px;align-items:center;justify-content:center;padding:8px 12px;background:#EA580C;color:#fff;font:700 13px var(--btn-font);text-align:center}
+.inappbar button{flex:none;border:0;border-radius:99px;padding:5px 12px;background:#fff;color:#EA580C;font:800 13px var(--btn-font);cursor:pointer}
 </style>
 </head>
 <body>
@@ -2472,12 +2478,24 @@ function askRole() {
     g.append(btn); });
   b.append(g); z.append(b); document.body.append(z);
 }
+/* 📱 Facebook, Instagram, Messenger-ийн дотоод хөтөч: Google нэвтрэлтийг хаадаг тул жинхэнэ хөтчөөр нээлгэнэ */
+const INAPP = /FBAN|FBAV|FB_IAB|FBIOS|FB4A|Instagram|Messenger|MessengerForiOS|Line\/|KAKAOTALK|TikTok|musical_ly|Snapchat/i.test(navigator.userAgent), IOSD = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+function inappBox() {
+  const w = el("div", "inapp"); w.append(el("b", "", "⚠️ Facebook-ийн дотор Google-ээр нэвтрэх боломжгүй"));
+  if (IOSD) { w.append(el("p", "", "Сайтыг Safari-р нээгээрэй:")); const ol = el("ol"); ["Баруун дээд буланд байгаа ⋯ товчийг дарна", "«Open in external browser» (Хөтчөөр нээх) гэснийг сонгоно", "Safari-д нээгдсэний дараа нэвтэрнэ"].forEach(t => ol.append(el("li", "", t))); w.append(ol); }
+  else { const b = el("button", "btn", "🌐 Chrome-оор нээх"); b.type = "button"; b.onclick = () => { location.href = "intent://" + location.host + location.pathname + location.search + "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(location.href) + ";end"; }; w.append(b, el("p", "", "Нээгдэхгүй бол баруун дээд талын ⋮ → «Open in browser» гэснийг дарна.")); }
+  const c = el("button", "btn ghost", "🔗 Холбоос хуулах"); c.type = "button"; c.onclick = async () => { try { await navigator.clipboard.writeText(location.href); c.textContent = "✓ Хуулагдлаа — Safari/Chrome-д буулгана уу"; } catch (e) { prompt("Холбоосыг хуулна уу:", location.href); } }; w.append(c);
+  return w;
+}
+if (INAPP) addEventListener("DOMContentLoaded", () => { const bar = el("div", "inappbar"); bar.append(el("span", "", "📱 Facebook дотор нээгдсэн байна. Нэвтрэхийн тулд " + (IOSD ? "Safari" : "Chrome") + "-р нээнэ үү."));
+  const b = el("button", "", "Яаж?"); b.type = "button"; b.onclick = () => openAcct(); bar.append(b); document.body.prepend(bar); });
 function openAcct(wantPay) {
   $("ov").hidden = false;
   ["f1", "f2", "f3"].forEach(id => $(id).hidden = true);
   if (!user && USE_FB) {
     $("f1").hidden = false; $("f1").classList.add("gmode"); $("e1").textContent = devMsg;
     $("f1").querySelector("p").textContent = wantPay ? "Төлбөртэй тестүүдийг нээхийн тулд эхлээд Google акаунтаараа нэвтэрнэ үү. Үүний дараа төлбөрийн мэдээлэл гарна." : "Google акаунтаараа нэг товчоор нэвтэрнэ. Шинэ хэрэглэгч автоматаар бүртгэгдэнэ.";
+    $("f1").querySelectorAll(".inapp").forEach(x => x.remove()); if (INAPP) $("gSign").before(inappBox());
     return;
   }
   if (!user) {
