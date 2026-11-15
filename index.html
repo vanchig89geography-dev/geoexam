@@ -4754,7 +4754,7 @@ async function geoBadge() { if (!ONLINE) return; if (AUTO_G) { const g = AUTO_G;
   const L = $("landing"); if (L && !L.hidden) huntBanner(L); }
 function huntBanner(L) { L.querySelectorAll(".ghban").forEach(x => x.remove()); if (!GH.list) return;
   const q = GH.list.find(x => x.status === "open") || GH.list.find(x => x.status === "upcoming"); if (!q) return;
-  const b = el("button", "ghban"); b.type = "button"; const im = el("img"); im.src = q.img; im.alt = "";
+  const b = el("button", "ghban"); b.type = "button"; const im = el("img"); im.src = q.thumb || q.img; im.alt = "";
   const tx = el("span", "tx"); tx.append(el("span", "ghbadge " + (q.status === "open" ? "live" : "soon"), q.status === "open" ? "ШУУД" : "Удахгүй"), el("b", "", "GeoHunt · " + q.title),
     el("small", "", q.status === "open" ? "Зургийг хаана авсныг таагаад шагнал аваарай · " + shortD(q.end) + " хүртэл" : shortD(q.start) + "-д эхэлнэ"));
   b.append(im, tx, el("span", "go", q.status === "open" ? "📍 Оролцох" : "Үзэх")); b.onclick = () => goSection("quiz");
@@ -4769,7 +4769,7 @@ async function geoSection(box) {
   L.forEach(q => sec.append(geoCard(q, adm)));
 }
 function geoCard(q, adm) {
-  const c = el("div", "geocard"), im = el("img"); im.src = q.img; im.alt = ""; im.loading = "lazy"; c.append(im);
+  const c = el("div", "geocard"), im = el("img"); im.src = q.thumb || q.img; im.alt = ""; im.loading = "lazy"; c.append(im);
   const tx = el("div", "tx"); tx.append(el("b", "", q.title));
   const sts = q.status === "upcoming" ? "⏳ " + shortD(q.start) + "-д эхэлнэ" : q.status === "open" ? "🟢 " + shortD(q.end) + " хүртэл" : q.pub ? "🏆 Дүн гарсан" : "⌛ Дууссан · дүн удахгүй";
   tx.append(el("small", "", sts));
@@ -4821,11 +4821,11 @@ async function geoAdmin(q0) {
   const loc = d => { const p = n => String(n).padStart(2, "0"); d = new Date(d); return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes()); };
   const tI = fld("Гарчиг", Object.assign(el("input"), { maxLength: 80, value: q ? q.title : "Энэ зургийг хаана авсан бэ?" }));
   const dI = fld("Тайлбар (заавал биш)", Object.assign(el("textarea"), { rows: 2, maxLength: 400, value: q ? q.desc || "" : "" }));
-  let img = q ? q.img : "", imgData = "";
+  let img = q ? q.img : "", imgData = "", thumbData = "";
   const pv = el("div", "geoph"), pi = el("img"); if (img) pi.src = img; pv.append(pi);
   const fi = Object.assign(el("input"), { type: "file", accept: "image/*" }), fm = el("small", "lbn", "Зураг автоматаар шахагдана.");
   fi.onchange = async () => { const fl = fi.files[0]; if (!fl) return; fm.textContent = "Бэлдэж байна…"; const u = URL.createObjectURL(fl);
-    try { imgData = await geoShrink(u); pi.src = imgData; fm.textContent = "✓ Зураг бэлэн (" + Math.round(imgData.length * .75 / 1024) + " KB)"; } catch (e) { fm.textContent = "Зургийг уншиж чадсангүй."; } finally { URL.revokeObjectURL(u); } };
+    try { imgData = await geoShrink(u); thumbData = await geoShrink(u, 480, 40); pi.src = imgData; fm.textContent = "✓ Зураг бэлэн (" + Math.round(imgData.length * .75 / 1024) + " KB)"; } catch (e) { fm.textContent = "Зургийг уншиж чадсангүй."; } finally { URL.revokeObjectURL(u); } };
   const iw = el("div", "fld"); iw.append(el("span", "", "Асуултын зураг"), pv, fi, fm); f.append(iw);
   /* зөв хариулт: газарзүйн зураг дээр дарах эсвэл координат буулгах */
   const ci = Object.assign(el("input"), { placeholder: "Жишээ: 47.918, 106.917 (Google Maps-аас хуулж болно)", value: q && q.key ? q.key[0] + ", " + q.key[1] : "" });
@@ -4844,7 +4844,7 @@ async function geoAdmin(q0) {
   sv.onclick = async () => { const m = /(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)/.exec(ci.value);
     if (!m) { msg.textContent = "Зөв байршлаа тэмдэглэнэ үү."; return; } if (+m[1] < GB.s || +m[1] > GB.n || +m[2] < GB.w || +m[2] > GB.e) { msg.textContent = "Байршил Монголын газарзүйн зургийн хүрээнд байх ёстой (" + GB.s + "–" + GB.n + "° х.ө., " + GB.w + "–" + GB.e + "° з.у.)."; return; } if (!img && !imgData) { msg.textContent = "Асуултын зургаа оруулна уу."; return; }
     sv.disabled = true; msg.textContent = "Хадгалж байна…";
-    let x; try { x = await api({ action: "geoSave", id: q ? q.id : "", title: tI.value, desc: dI.value, imgData, lat: +m[1], lon: +m[2], start: new Date(s1.value).toISOString(), end: new Date(s2.value).toISOString(), prizes: pzs.map(s => +s.value) }); } catch (e) { x = { ok: false }; }
+    let x; try { x = await api({ action: "geoSave", id: q ? q.id : "", title: tI.value, desc: dI.value, imgData, thumbData, lat: +m[1], lon: +m[2], start: new Date(s1.value).toISOString(), end: new Date(s2.value).toISOString(), prizes: pzs.map(s => +s.value) }); } catch (e) { x = { ok: false }; }
     sv.disabled = false; if (!x.ok) { msg.textContent = "Хадгалж чадсангүй" + (x.error ? " (" + x.error + ")" : "") + "."; return; } play("ok"); geoAdmin({ id: x.id }); };
   if (!q) return;
   box.insertBefore(geoShareBar(q, true), f);
@@ -4863,11 +4863,11 @@ async function geoAdmin(q0) {
   del.onclick = async () => { if (!confirm("Уралдааныг бүх оролцогчийн хамт устгах уу?")) return; await api({ action: "geoDel", id: q.id }); renderPane(); };
   calc.click();
 }
-async function geoShrink(src) {   // асуултын зургийг ~1600px, ≤350KB JPEG болгоно
+async function geoShrink(src, MX, KB) {   // асуултын зургийг ~1600px, ≤350KB JPEG болгоно (жижиг хувилбар: 480px, ≤40KB)
   const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
-  let mx = 1600, q = .82, d = "";
+  let mx = MX || 1600, q = .82, d = ""; const lim = (KB || 350) * 1024;
   for (let k = 0; k < 8; k++) { const s = Math.min(1, mx / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement("canvas"); c.width = Math.round(im.naturalWidth * s); c.height = Math.round(im.naturalHeight * s);
-    c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); d = c.toDataURL("image/jpeg", q); if (d.length * .75 < 350 * 1024) break; q -= .08; if (q < .55) { mx *= .8; q = .75; } }
+    c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); d = c.toDataURL("image/jpeg", q); if (d.length * .75 < lim) break; q -= .08; if (q < .55) { mx *= .8; q = .75; } }
   return d;
 }
 
@@ -6207,7 +6207,7 @@ async function signIn() {
 getRedirectResult(auth).catch(() => {});
 /* ===== 📍 Байршил таах уралдаан ===== */
 const geoStat = q => { const n = Date.now(); return n < toD(q.start).getTime() ? "upcoming" : n <= toD(q.end).getTime() ? "open" : "done"; };
-const geoPub = (id, q) => ({ id, title: q.title, desc: q.desc || "", img: q.img, start: toD(q.start).toISOString(), end: toD(q.end).toISOString(), prizes: q.prizes || [], pub: !!q.pub, status: geoStat(q), n: q.n || 0 });
+const geoPub = (id, q) => ({ id, title: q.title, desc: q.desc || "", img: q.img, thumb: q.thumb || "", start: toD(q.start).toISOString(), end: toD(q.end).toISOString(), prizes: q.prizes || [], pub: !!q.pub, status: geoStat(q), n: q.n || 0 });
 H.geoList = async () => {
   const s = await getDocs(query(C("geoq"), orderBy("start", "desc"), limit(20))), uid = auth.currentUser && auth.currentUser.uid;
   const L = s.docs.map(d => geoPub(d.id, d.data())).filter(q => q.status !== "done" || q.pub || (ME && ME.admin) || Date.now() - new Date(q.end).getTime() < 30 * 864e5);
@@ -6240,6 +6240,7 @@ H.geoSave = async p => {
   const data = { title: String(p.title || "Байршил таах").slice(0, 80), desc: String(p.desc || "").slice(0, 400), start: Timestamp.fromDate(start), end: Timestamp.fromDate(end),
     prizes: (Array.isArray(p.prizes) ? p.prizes : []).slice(0, 5).map(v => [0, 3, 12].indexOf(+v) >= 0 ? +v : 0), by: m.email };
   if (p.imgData) { const b = await (await fetch(p.imgData)).blob(), r = sRef(stor, "geoq/" + id + ".jpg"); await uploadBytes(r, b, { contentType: "image/jpeg" }); { const u = await getDownloadURL(r); data.img = u + (u.indexOf("?") >= 0 ? "&v=" + Date.now() : ""); } }
+  if (p.thumbData) { const b = await (await fetch(p.thumbData)).blob(), r = sRef(stor, "geoq/" + id + "_t.jpg"); await uploadBytes(r, b, { contentType: "image/jpeg" }); const u = await getDownloadURL(r); data.thumb = u + (u.indexOf("?") >= 0 ? "&v=" + Date.now() : ""); }
   await setDoc(D("geoq", id), data, { merge: true });
   await setDoc(D("geoqKey", id), { lat, lon });
   return { ok: true, id };
@@ -6277,6 +6278,7 @@ H.geoDel = async p => {
   const id = String(p.id), L = (await getDocs(C("geoq", id, "subs"))).docs;
   for (let i = 0; i < L.length; i += 400) { const b = writeBatch(db); L.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); }
   try { await deleteObject(sRef(stor, "geoq/" + id + ".jpg")); } catch (e) {}
+  try { await deleteObject(sRef(stor, "geoq/" + id + "_t.jpg")); } catch (e) {}
   await deleteDoc(D("geoqKey", id)).catch(() => {}); await deleteDoc(D("geoq", id)); return { ok: true };
 };
 /* ===== 🤖 AI үнэлгээ (Firebase AI Logic · Gemini) — зөвхөн багшийн талд ажиллана ===== */
