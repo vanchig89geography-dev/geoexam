@@ -1103,6 +1103,19 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 #payBox .status.soon{background:rgba(245,158,11,.14);color:#b45309}
 #payBox > .btn.ghost{display:block;width:100%;margin:6px 0 10px}#payBox .status{color:inherit}
 .mic.kZIP{background:linear-gradient(135deg,#A8A29E,#57534E);font-size:12px}
+/* 📍 байршил таах */
+.geosec{display:grid;gap:10px;margin-top:18px}
+.geocard{display:flex;gap:12px;padding:12px;border-radius:16px;border:1.5px solid rgba(37,99,235,.3);background:var(--sunk);align-items:center}
+.geocard img{width:96px;height:96px;object-fit:cover;border-radius:12px;flex:none}
+.geocard .tx{flex:1;min-width:0;display:grid;gap:4px;justify-items:start}.geocard b{font-size:16px}.geocard small{color:var(--muted)}.geopz{color:#B45309!important;font-weight:700}
+.geomap{position:relative;border-radius:14px;overflow:hidden;margin:10px 0;touch-action:none;user-select:none;background:#0b1426}
+.geocv{display:block;width:100%;cursor:crosshair;touch-action:none}
+.geozb{position:absolute;right:8px;top:8px;display:grid;gap:6px}
+.geozb button{width:36px;height:36px;border-radius:10px;border:0;background:rgba(255,255,255,.92);color:#0b1426;font:800 20px/1 sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.geoph{display:grid;gap:4px;margin:8px 0}.geoph img{width:100%;max-height:60vh;object-fit:contain;border-radius:14px;background:#000;cursor:zoom-in}.geoph small{color:var(--muted);text-align:center}
+.geotop{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line)}.geotop span{width:30px;text-align:center;font-weight:800}.geotop b{flex:1}.geotop small{color:var(--muted)}
+.geopzr{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}.geopzr label{display:grid;gap:4px}.geopzr select{padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit}
+.geof .fld input,.geof .fld textarea{width:100%;box-sizing:border-box}
 </style>
 </head>
 <body>
@@ -3805,8 +3818,9 @@ async function renderQuiz(box) {
   if (!r.ok) { box.append(el("p", "empty", "Ачаалж чадсангүй.")); return; }
   const adm = !!(user && user.admin);
   if (adm) { const b = el("button", "btn", "+ Шинэ GeoQuiz үүсгэх"); b.type = "button"; b.onclick = () => quizAdmin(null); const w = el("div", "tbtns"); w.append(b); box.append(w); }
-  if (!r.list.length) { box.append(el("p", "empty", "🏆 GeoQuiz тэмцээн удахгүй зарлагдана.")); return; }
+  if (!r.list.length) { box.append(el("p", "empty", "🏆 GeoQuiz тэмцээн удахгүй зарлагдана.")); geoSection(box); return; }
   QZ_N = r.list.length; r.list.forEach(q => box.append(quizCard(q, adm)));
+  geoSection(box);
 }
 function quizCard(q, adm) {
   const need = q.fee > 0 || q.approve !== false;   // ✋ баталгаажуулалт шаардах эсэх
@@ -4495,6 +4509,168 @@ function matForm(E) {   // E байвал засах горим
     if (!r.ok) { ok.disabled = false; msg.textContent = r.error === "teacher" ? "Зөвхөн багш хуваалцана." : r.error === "big" ? "Файл хэт том байна." : "Хуваалцаж чадсангүй. Дахин оролдоно уу."; return; }
     play && play("ok"); z.remove(); MATS = null; matCache.clear(); renderPane();
   };
+}
+
+/* ---------- 📍 Байршил таах уралдаан (зургийг хаана авсныг дэлхийн газарзүйн зураг дээр таана) ---------- */
+const GEO_IMG = "world.jpg";   // хиймэл дагуулын зураг (GitHub-ийн үндсэн хавтаст)
+let GEO_IM = null;
+const geoImg = () => GEO_IM || (GEO_IM = new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = GEO_IMG; }));
+const geoKm = (a, b, c, d) => { const R = 6371, r = x => x * Math.PI / 180, dl = r(c - a), dn = r(d - b), h = Math.sin(dl / 2) ** 2 + Math.cos(r(a)) * Math.cos(r(c)) * Math.sin(dn / 2) ** 2; return 2 * R * Math.asin(Math.min(1, Math.sqrt(h))); };
+const geoFmtKm = k => k < 10 ? k.toFixed(1) + " км" : Math.round(k).toLocaleString("en-US") + " км";
+const geoPrizeTxt = m => +m === 12 ? "1 жилийн эрх" : +m ? m + " сарын эрх" : "";
+
+/* 🗺 томруулж, чирдэг дэлхийн газарзүйн зураг. opt: {pick:true, pin, pins:[[lat,lon]], ans:[lat,lon], mine:[lat,lon], onPick} */
+function geoMap(host, opt) {
+  opt = opt || {}; const cv = el("canvas", "geocv"), x = cv.getContext("2d"), wrap = el("div", "geomap"); wrap.append(cv);
+  const zb = el("div", "geozb"), zi = el("button", "", "+"), zo = el("button", "", "−"), zr = el("button", "", "⤢"); zi.type = zo.type = zr.type = "button"; zr.title = "Бүтэн дэлхий"; zb.append(zi, zo, zr); wrap.append(zb);
+  host.append(wrap);
+  let im = null, W = 0, H = 0, dpr = 1, z = 1, ox = 0, oy = 0, pin = opt.pin || null;
+  const pw = () => W * z, ph = () => W * z / 2;
+  const clamp = () => { const PW = pw(), PH = ph(); ox = PW <= W ? (W - PW) / 2 : Math.min(0, Math.max(W - PW, ox)); oy = PH <= H ? (H - PH) / 2 : Math.min(0, Math.max(H - PH, oy)); };
+  const toXY = (lat, lon) => [ox + (lon + 180) / 360 * pw(), oy + (90 - lat) / 180 * ph()];
+  const toLL = (px, py) => [Math.max(-90, Math.min(90, 90 - (py - oy) / ph() * 180)), Math.max(-180, Math.min(180, (px - ox) / pw() * 360 - 180))];
+  const mark = (lat, lon, col, big) => { const [a, b] = toXY(lat, lon), r = big ? 11 : 7; x.fillStyle = col; x.strokeStyle = "#fff"; x.lineWidth = 2.5;
+    x.beginPath(); x.arc(a, b - r * 1.6, r, 0, 7); x.fill(); x.stroke(); x.beginPath(); x.moveTo(a - r * .62, b - r * 1.05); x.lineTo(a, b); x.lineTo(a + r * .62, b - r * 1.05); x.closePath(); x.fill(); };
+  function draw() {
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.fillStyle = "#0b1426"; x.fillRect(0, 0, W, H);
+    if (im) x.drawImage(im, ox, oy, pw(), ph()); else { x.fillStyle = "#94a3b8"; x.font = "600 14px sans-serif"; x.textAlign = "center"; x.fillText("Газарзүйн зураг ачаалж байна…", W / 2, H / 2); }
+    (opt.pins || []).forEach(p => { const [a, b] = toXY(p[0], p[1]); x.fillStyle = "rgba(250,204,21,.9)"; x.strokeStyle = "rgba(0,0,0,.55)"; x.lineWidth = 1; x.beginPath(); x.arc(a, b, Math.max(2.5, Math.min(5, 2 + z * .4)), 0, 7); x.fill(); x.stroke(); });
+    if (opt.ans && opt.mine) { const [a, b] = toXY(opt.ans[0], opt.ans[1]), [c, d] = toXY(opt.mine[0], opt.mine[1]); x.setLineDash([6, 5]); x.strokeStyle = "#fff"; x.lineWidth = 2; x.beginPath(); x.moveTo(a, b); x.lineTo(c, d); x.stroke(); x.setLineDash([]); }
+    if (opt.mine) mark(opt.mine[0], opt.mine[1], "#EF4444", true);
+    if (pin) mark(pin[0], pin[1], "#EF4444", true);
+    if (opt.ans) { const [a, b] = toXY(opt.ans[0], opt.ans[1]); x.font = "28px sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("⭐", a, b); }
+  }
+  const size = () => { const r = wrap.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1); const nw = Math.round(r.width) || 340; if (!W) { W = nw; H = Math.round(Math.min(W * .78, innerHeight * .62)); } else { const k = nw / W; ox *= k; oy *= k; W = nw; H = Math.round(Math.min(W * .78, innerHeight * .62)); }
+    cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + "px"; clamp(); draw(); };
+  const zoomAt = (f, px, py) => { const nz = Math.max(1, Math.min(18, z * f)); if (nz === z) return; ox = px - (px - ox) * nz / z; oy = py - (py - oy) * nz / z; z = nz; clamp(); draw(); };
+  zi.onclick = () => zoomAt(1.8, W / 2, H / 2); zo.onclick = () => zoomAt(1 / 1.8, W / 2, H / 2); zr.onclick = () => { z = 1; clamp(); draw(); };
+  /* хулгана / хуруу: чирэх, хоёр хуруугаар томруулах, товших = цэг тавих */
+  const P = new Map(); let st = null;
+  const pos = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  cv.addEventListener("pointerdown", e => { cv.setPointerCapture(e.pointerId); P.set(e.pointerId, pos(e)); const pts = [...P.values()];
+    st = pts.length === 1 ? { t: Date.now(), p0: pts[0], ox, oy, moved: false } : { pinch: Math.hypot(pts[0][0] - pts[1][0], pts[0][1] - pts[1][1]), z, ox, oy, c: [(pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2], moved: true }; });
+  cv.addEventListener("pointermove", e => { if (!P.has(e.pointerId) || !st) return; P.set(e.pointerId, pos(e)); const pts = [...P.values()];
+    if (pts.length >= 2 && st.pinch) { const d = Math.hypot(pts[0][0] - pts[1][0], pts[0][1] - pts[1][1]), nz = Math.max(1, Math.min(18, st.z * d / st.pinch));
+      ox = st.c[0] - (st.c[0] - st.ox) * nz / st.z; oy = st.c[1] - (st.c[1] - st.oy) * nz / st.z; z = nz; clamp(); draw(); return; }
+    const [a, b] = pts[0], dx = a - st.p0[0], dy = b - st.p0[1]; if (Math.hypot(dx, dy) > 6) st.moved = true; if (st.moved) { ox = st.ox + dx; oy = st.oy + dy; clamp(); draw(); } });
+  const up = e => { const s = st; P.delete(e.pointerId); if (P.size) { const q = [...P.values()][0]; st = { t: 0, p0: q, ox, oy, moved: true }; return; }
+    st = null; if (s && !s.moved && !s.pinch && opt.pick && Date.now() - s.t < 600) { const [a, b] = pos(e); pin = toLL(a, b); draw(); opt.onPick && opt.onPick(pin); } };
+  cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+  cv.addEventListener("wheel", e => { e.preventDefault(); const [a, b] = pos(e); zoomAt(e.deltaY < 0 ? 1.25 : 1 / 1.25, a, b); }, { passive: false });
+  cv.addEventListener("dblclick", e => { const [a, b] = pos(e); zoomAt(2, a, b); });
+  requestAnimationFrame(size); addEventListener("resize", () => wrap.isConnected && size());
+  geoImg().then(i => { im = i; draw(); }).catch(() => {});
+  return { get: () => pin, set: p => { pin = p; draw(); }, focus: (lat, lon, zz) => { z = zz || 4; const [a, b] = [(lon + 180) / 360 * pw(), (90 - lat) / 180 * ph()]; ox = W / 2 - a; oy = H / 2 - b; clamp(); draw(); }, redraw: draw };
+}
+
+/* GeoQuiz табын доор: байршил таах уралдаанууд */
+async function geoSection(box) {
+  const sec = el("div", "geosec"); box.append(sec);
+  let r; try { r = await api({ action: "geoList" }); } catch (e) { r = { ok: false }; }
+  if (!r.ok) return; const adm = !!(user && user.admin);
+  if (!r.list.length && !adm) { sec.remove(); return; }
+  sec.append(el("div", "grp", "📍 Байршил таах уралдаан"));
+  if (adm) { const b = el("button", "btn ghost", "+ Шинэ байршил таах уралдаан"); b.type = "button"; b.onclick = () => geoAdmin(null); sec.append(b); }
+  r.list.forEach(q => sec.append(geoCard(q, adm)));
+}
+function geoCard(q, adm) {
+  const c = el("div", "geocard"), im = el("img"); im.src = q.img; im.alt = ""; im.loading = "lazy"; c.append(im);
+  const tx = el("div", "tx"); tx.append(el("b", "", q.title));
+  const sts = q.status === "upcoming" ? "⏳ " + shortD(q.start) + "-д эхэлнэ" : q.status === "open" ? "🟢 " + shortD(q.end) + " хүртэл" : q.pub ? "🏆 Дүн гарсан" : "⌛ Дууссан · дүн удахгүй";
+  tx.append(el("small", "", sts));
+  const pz = (q.prizes || []).map((m, i) => m ? (i + 1) + "-р байр: " + geoPrizeTxt(m) : "").filter(Boolean); if (pz.length) tx.append(el("small", "geopz", "🎁 " + pz.join(" · ")));
+  const b = el("button", "btn", q.status === "open" ? (q.mine ? "✓ Илгээсэн" : "📍 Оролцох") : q.pub ? "🏆 Дүн харах" : "Үзэх"); b.type = "button"; b.onclick = () => geoOpen(q.id);
+  tx.append(b); if (adm) { const a = el("button", "btn ghost", "⚙️ Удирдах"); a.type = "button"; a.onclick = () => geoAdmin(q); tx.append(a); }
+  c.append(tx); return c;
+}
+function geoBack(box) { const b = el("button", "link lsback", "← GeoQuiz"); b.type = "button"; b.onclick = () => renderPane(); box.append(b); }
+function geoPhoto(src) { const f = el("div", "geoph"), im = el("img"); im.src = src; im.alt = "Асуултын зураг"; im.onclick = () => zoom(src); f.append(im, el("small", "", "🔍 Дарж томруулна")); return f; }
+
+async function geoOpen(id) {
+  const box = $("pane"); box.innerHTML = '<p class="empty">Ачаалж байна…</p>';
+  let r; try { r = await api({ action: "geoGet", id }); } catch (e) { r = { ok: false }; } box.innerHTML = ""; geoBack(box);
+  if (!r.ok) { box.append(el("p", "empty", "Уралдаан олдсонгүй.")); return; }
+  const q = r.q; box.append(el("h3", "bh", "📍 " + q.title)); if (q.desc) box.append(el("p", "note", q.desc));
+  box.append(geoPhoto(q.img));
+  if (q.pub) {   // 🏆 дүн
+    const me = r.mine, ans = q.ans;
+    if (me && ans) { const k = geoKm(me.lat, me.lon, ans[0], ans[1]); box.append(el("div", "cme", "Таны цэг зөв байршлаас " + geoFmtKm(k) + (r.myRank ? " · " + r.myRank + "-р байр / " + q.total : ""))); }
+    const m = geoMap(box, { pins: q.pins || [], ans, mine: me ? [me.lat, me.lon] : null });
+    if (ans) setTimeout(() => m.focus(ans[0], ans[1], 3), 300);
+    box.append(el("p", "lbn", "⭐ Зөв байршил · 🔴 Таны цэг · 🟡 Бусад оролцогчид"));
+    if (q.top && q.top.length) { const w = el("div", "rank"); w.append(el("div", "grp", "🏆 Шагналт байр"));
+      q.top.forEach(x => { const d = el("div", "geotop"); d.append(el("span", "", ["🥇", "🥈", "🥉"][x.rank - 1] || x.rank), el("b", "", x.name), el("small", "", geoFmtKm(x.km) + (x.prize ? " · 🎁 " + geoPrizeTxt(x.prize) : ""))); w.append(d); }); box.append(w); }
+    return; }
+  if (q.status === "upcoming") { box.append(el("p", "cinfo", "Уралдаан " + fmtD(q.start) + "-д эхэлнэ.")); return; }
+  if (r.mine) { box.append(el("div", "cme", "✓ Таны хариулт илгээгдсэн. Дүн " + (q.status === "open" ? fmtD(q.end) + "-ны дараа" : "удахгүй") + " гарна."));
+    geoMap(box, { mine: [r.mine.lat, r.mine.lon] }); return; }
+  if (q.status !== "open") { box.append(el("p", "cinfo", "Уралдаан дууссан. Дүн удахгүй гарна.")); return; }
+  if (!user) { const b = el("button", "btn wide", "🔑 Нэвтэрч оролцох"); b.type = "button"; b.onclick = () => openAcct(true); box.append(el("p", "note", "Оролцохын тулд Google акаунтаараа нэвтэрнэ. Нэг хүн нэг л удаа оролцоно."), b); return; }
+  box.append(el("p", "note", "Зургийг хаана авсан бэ? Газарзүйн зураг дээр томруулж хараад тэр газарт дарж цэг тавина. Нэг л удаа илгээх боломжтой."));
+  const msg = el("p", "lbn"), sv = el("button", "btn wide", "✓ Илгээх"); sv.type = "button"; sv.disabled = true;
+  const m = geoMap(box, { pick: true, onPick: p => { sv.disabled = false; msg.textContent = "📍 " + p[0].toFixed(3) + ", " + p[1].toFixed(3) + " · Зөв бол «Илгээх» дарна. Өөр газар дарж солих боломжтой."; } });
+  box.append(msg, sv);
+  sv.onclick = async () => { const p = m.get(); if (!p) return; if (!confirm("Энэ цэгийг илгээх үү? Дахин засах боломжгүй.")) return;
+    sv.disabled = true; sv.textContent = "Илгээж байна…"; let x; try { x = await api({ action: "geoSubmit", id, lat: p[0], lon: p[1] }); } catch (e) { x = { ok: false }; }
+    if (x.ok) { play("ok"); geoOpen(id); return; }
+    sv.disabled = false; sv.textContent = "✓ Илгээх"; msg.textContent = x.error === "already" ? "Та аль хэдийн оролцсон байна." : x.error === "closed" ? "Уралдааны хугацаа дууссан байна." : "Илгээж чадсангүй. Дахин оролдоно уу."; };
+}
+
+/* ⚙️ админ: уралдаан үүсгэх / засах / дүн / шагнал */
+async function geoAdmin(q0) {
+  const box = $("pane"); box.innerHTML = ""; geoBack(box);
+  let q = q0 ? (await api({ action: "geoGet", id: q0.id, admin: true })).q : null;
+  box.append(el("h3", "bh", q ? "⚙️ " + q.title : "➕ Шинэ байршил таах уралдаан"));
+  const f = el("div", "bform geof"); box.append(f);
+  const fld = (lab, n) => { const l = el("label", "fld"); l.append(el("span", "", lab), n); f.append(l); return n; };
+  const loc = d => { const p = n => String(n).padStart(2, "0"); d = new Date(d); return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes()); };
+  const tI = fld("Гарчиг", Object.assign(el("input"), { maxLength: 80, value: q ? q.title : "Энэ зургийг хаана авсан бэ?" }));
+  const dI = fld("Тайлбар (заавал биш)", Object.assign(el("textarea"), { rows: 2, maxLength: 400, value: q ? q.desc || "" : "" }));
+  let img = q ? q.img : "", imgData = "";
+  const pv = el("div", "geoph"), pi = el("img"); if (img) pi.src = img; pv.append(pi);
+  const fi = Object.assign(el("input"), { type: "file", accept: "image/*" }), fm = el("small", "lbn", "Зураг автоматаар шахагдана.");
+  fi.onchange = async () => { const fl = fi.files[0]; if (!fl) return; fm.textContent = "Бэлдэж байна…"; const u = URL.createObjectURL(fl);
+    try { imgData = await geoShrink(u); pi.src = imgData; fm.textContent = "✓ Зураг бэлэн (" + Math.round(imgData.length * .75 / 1024) + " KB)"; } catch (e) { fm.textContent = "Зургийг уншиж чадсангүй."; } finally { URL.revokeObjectURL(u); } };
+  const iw = el("div", "fld"); iw.append(el("span", "", "Асуултын зураг"), pv, fi, fm); f.append(iw);
+  /* зөв хариулт: газарзүйн зураг дээр дарах эсвэл координат буулгах */
+  const ci = Object.assign(el("input"), { placeholder: "Жишээ: 27.988, 86.925 (Google Maps-аас хуулж болно)", value: q && q.key ? q.key[0] + ", " + q.key[1] : "" });
+  const cw = el("div", "fld"); cw.append(el("span", "", "⭐ Зөв байршил (оролцогчдод харагдахгүй)")); f.append(cw);
+  const am = geoMap(cw, { pick: true, pin: q && q.key ? q.key : null, onPick: p => { ci.value = p[0].toFixed(4) + ", " + p[1].toFixed(4); } });
+  cw.append(ci, el("small", "lbn", "Газарзүйн зураг дээр томруулаад зөв газарт дарна, эсвэл координатаа (өргөрөг, уртраг) бичнэ."));
+  ci.onchange = () => { const m = /(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)/.exec(ci.value); if (m) { am.set([+m[1], +m[2]]); am.focus(+m[1], +m[2], 5); } };
+  if (q && q.key) setTimeout(() => am.focus(q.key[0], q.key[1], 4), 300);
+  const now = Date.now();
+  const s1 = fld("Эхлэх", Object.assign(el("input"), { type: "datetime-local", value: loc(q ? q.start : now) })), s2 = fld("Дуусах", Object.assign(el("input"), { type: "datetime-local", value: loc(q ? q.end : now + 7 * 864e5) }));
+  const PZ = [["0", "—"], ["3", "3 сарын эрх"], ["12", "1 жилийн эрх"]], pzs = [];
+  const pw = el("div", "fld"); pw.append(el("span", "", "🎁 Шагнал (Сургалтын эрх)")); const pr = el("div", "geopzr");
+  [1, 2, 3, 4, 5].forEach(i => { const s = el("select"); PZ.forEach(([v, t]) => s.append(Object.assign(el("option", "", t), { value: v }))); s.value = String(q && q.prizes ? q.prizes[i - 1] || 0 : i === 1 ? 12 : i <= 3 ? 3 : 0);
+    const l = el("label"); l.append(el("b", "", i + "-р байр"), s); pr.append(l); pzs.push(s); }); pw.append(pr); f.append(pw);
+  const msg = el("p", "lbn"), sv = el("button", "btn", "💾 Хадгалах"); sv.type = "button"; f.append(msg, sv);
+  sv.onclick = async () => { const m = /(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)/.exec(ci.value);
+    if (!m) { msg.textContent = "Зөв байршлаа тэмдэглэнэ үү."; return; } if (!img && !imgData) { msg.textContent = "Асуултын зургаа оруулна уу."; return; }
+    sv.disabled = true; msg.textContent = "Хадгалж байна…";
+    let x; try { x = await api({ action: "geoSave", id: q ? q.id : "", title: tI.value, desc: dI.value, imgData, lat: +m[1], lon: +m[2], start: new Date(s1.value).toISOString(), end: new Date(s2.value).toISOString(), prizes: pzs.map(s => +s.value) }); } catch (e) { x = { ok: false }; }
+    sv.disabled = false; if (!x.ok) { msg.textContent = "Хадгалж чадсангүй" + (x.error ? " (" + x.error + ")" : "") + "."; return; } play("ok"); geoAdmin({ id: x.id }); };
+  if (!q) return;
+  /* дүн, нийтлэх, шагнал */
+  const rs = el("div", "admb"); rs.append(el("b", "", "🏆 Дүн · " + (q.n || 0) + " оролцогч")); box.append(rs);
+  const rl = el("div", "geores"), bt = el("div", "tbtns"), calc = el("button", "btn ghost", "🔄 Дүн бодох"), pub = el("button", "btn", q.pub ? "↩ Нийтлэлийг буцаах" : "📢 Дүн нийтлэх"), giv = el("button", "btn ghost", "🎁 Шагнал олгох"), del = el("button", "link danger", "🗑 Устгах");
+  [calc, pub, giv, del].forEach(b => b.type = "button"); bt.append(calc, pub, giv, del); rs.append(bt, rl);
+  const show = R => { rl.innerHTML = ""; if (!R || !R.length) { rl.append(el("p", "lbn", "Оролцогч алга.")); return; }
+    R.slice(0, 50).forEach(x => { const d = el("div", "geotop"); d.append(el("span", "", String(x.rank)), el("b", "", x.name), el("small", "", geoFmtKm(x.km) + " · " + (x.email || "") + (x.prize ? " · 🎁 " + geoPrizeTxt(x.prize) + (x.given ? " ✓" : "") : ""))); rl.append(d); }); };
+  calc.onclick = async () => { calc.disabled = true; const x = await api({ action: "geoCalc", id: q.id }).catch(() => ({ ok: false })); calc.disabled = false; if (x.ok) show(x.list); else alert("Чадсангүй."); };
+  pub.onclick = async () => { if (!q.pub && !confirm("Дүн, зөв байршлыг бүх хүнд нийтлэх үү?")) return; const x = await api({ action: "geoPublish", id: q.id, pub: !q.pub }); if (x.ok) geoAdmin({ id: q.id }); };
+  giv.onclick = async () => { if (!confirm("Шагналт байр эзэлсэн хүмүүст Сургалтын эрх олгох уу?")) return; giv.disabled = true; const x = await api({ action: "geoPrize", id: q.id }).catch(() => ({ ok: false })); giv.disabled = false;
+    if (x.ok) { play("ok"); alert("✓ " + x.n + " хүнд эрх олголоо."); calc.click(); } else alert("Чадсангүй. Эхлээд «Дүн бодох» дарна уу."); };
+  del.onclick = async () => { if (!confirm("Уралдааныг бүх оролцогчийн хамт устгах уу?")) return; await api({ action: "geoDel", id: q.id }); renderPane(); };
+  calc.click();
+}
+async function geoShrink(src) {   // асуултын зургийг ~1600px, ≤350KB JPEG болгоно
+  const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+  let mx = 1600, q = .82, d = "";
+  for (let k = 0; k < 8; k++) { const s = Math.min(1, mx / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement("canvas"); c.width = Math.round(im.naturalWidth * s); c.height = Math.round(im.naturalHeight * s);
+    c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); d = c.toDataURL("image/jpeg", q); if (d.length * .75 < 350 * 1024) break; q -= .08; if (q < .55) { mx *= .8; q = .75; } }
+  return d;
 }
 
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
@@ -5527,6 +5703,79 @@ async function signIn() {
   }
 }
 getRedirectResult(auth).catch(() => {});
+/* ===== 📍 Байршил таах уралдаан ===== */
+const geoStat = q => { const n = Date.now(); return n < toD(q.start).getTime() ? "upcoming" : n <= toD(q.end).getTime() ? "open" : "done"; };
+const geoPub = (id, q) => ({ id, title: q.title, desc: q.desc || "", img: q.img, start: toD(q.start).toISOString(), end: toD(q.end).toISOString(), prizes: q.prizes || [], pub: !!q.pub, status: geoStat(q), n: q.n || 0 });
+H.geoList = async () => {
+  const s = await getDocs(query(C("geoq"), orderBy("start", "desc"), limit(20))), uid = auth.currentUser && auth.currentUser.uid;
+  const L = s.docs.map(d => geoPub(d.id, d.data())).filter(q => q.status !== "done" || q.pub || (ME && ME.admin) || Date.now() - new Date(q.end).getTime() < 30 * 864e5);
+  if (uid) await Promise.all(L.filter(q => q.status === "open").map(async q => { const m = await safe(getDoc(D("geoq", q.id, "subs", uid))); q.mine = !!(m && m.exists()); }));
+  return { ok: true, list: L };
+};
+H.geoGet = async p => {
+  const id = String(p.id || ""), s = await getDoc(D("geoq", id)); if (!s.exists()) return { ok: false };
+  const x = s.data(), q = geoPub(id, x), uid = auth.currentUser && auth.currentUser.uid;
+  if (x.pub) { q.ans = x.ans || null; q.pins = x.pins || []; q.top = x.top || []; q.total = x.total || 0; }
+  if (p.admin) { const m = await meInfo(); if (m && m.admin) { const k = await safe(getDoc(D("geoqKey", id))); if (k && k.exists()) q.key = [k.data().lat, k.data().lon]; } }
+  let mine = null, myRank = 0; if (uid) { const m = await safe(getDoc(D("geoq", id, "subs", uid))); if (m && m.exists()) mine = { lat: m.data().lat, lon: m.data().lon }; if (x.pub && x.ranks) myRank = x.ranks[uid] || 0; }
+  return { ok: true, q, mine, myRank };
+};
+H.geoSubmit = async p => {
+  const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
+  const id = String(p.id), s = await getDoc(D("geoq", id)); if (!s.exists()) return { ok: false, error: "none" };
+  if (geoStat(s.data()) !== "open") return { ok: false, error: "closed" };
+  const lat = +p.lat, lon = +p.lon; if (!(lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180)) return { ok: false, error: "form" };
+  const ref = D("geoq", id, "subs", m.uid); if ((await getDoc(ref)).exists()) return { ok: false, error: "already" };
+  try { await setDoc(ref, { name: String(m.name || "").slice(0, 60), email: m.email, lat: Math.round(lat * 1e5) / 1e5, lon: Math.round(lon * 1e5) / 1e5, at: Timestamp.now() }); }
+  catch (e) { return { ok: false, error: "already" }; }
+  return { ok: true };
+};
+H.geoSave = async p => {
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const id = String(p.id || "") || "g" + Date.now().toString(36);
+  const start = new Date(p.start), end = new Date(p.end); if (isNaN(start) || isNaN(end) || end <= start) return { ok: false, error: "time" };
+  const lat = +p.lat, lon = +p.lon; if (!(lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180)) return { ok: false, error: "coord" };
+  const data = { title: String(p.title || "Байршил таах").slice(0, 80), desc: String(p.desc || "").slice(0, 400), start: Timestamp.fromDate(start), end: Timestamp.fromDate(end),
+    prizes: (Array.isArray(p.prizes) ? p.prizes : []).slice(0, 5).map(v => [0, 3, 12].indexOf(+v) >= 0 ? +v : 0), by: m.email };
+  if (p.imgData) { const b = await (await fetch(p.imgData)).blob(), r = sRef(stor, "geoq/" + id + ".jpg"); await uploadBytes(r, b, { contentType: "image/jpeg" }); { const u = await getDownloadURL(r); data.img = u + (u.indexOf("?") >= 0 ? "&v=" + Date.now() : ""); } }
+  await setDoc(D("geoq", id), data, { merge: true });
+  await setDoc(D("geoqKey", id), { lat, lon });
+  return { ok: true, id };
+};
+H.geoCalc = async p => {   // 🔄 зайг тооцоолж эрэмбэлнэ (админ)
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const id = String(p.id), [s, k, sub] = await Promise.all([getDoc(D("geoq", id)), getDoc(D("geoqKey", id)), getDocs(C("geoq", id, "subs"))]);
+  if (!s.exists() || !k.exists()) return { ok: false };
+  const R = 6371, rd = v => v * Math.PI / 180, km = (a, b, c, d) => { const h = Math.sin(rd(c - a) / 2) ** 2 + Math.cos(rd(a)) * Math.cos(rd(c)) * Math.sin(rd(d - b) / 2) ** 2; return 2 * R * Math.asin(Math.min(1, Math.sqrt(h))); };
+  const K = k.data(), pz = s.data().prizes || [], given = s.data().given || {};
+  const L = sub.docs.map(d => { const x = d.data(); return { uid: d.id, name: x.name || x.email, email: x.email, lat: x.lat, lon: x.lon, km: Math.round(km(K.lat, K.lon, x.lat, x.lon) * 10) / 10, at: x.at ? toD(x.at).getTime() : 0 }; });
+  L.sort((a, b) => a.km - b.km || a.at - b.at); L.forEach((x, i) => { x.rank = i + 1; x.prize = pz[i] || 0; x.given = !!given[x.uid]; });
+  const ranks = {}; L.forEach(x => ranks[x.uid] = x.rank);
+  await setDoc(D("geoq", id), { n: L.length, total: L.length, top: L.filter(x => x.prize).map(x => ({ rank: x.rank, name: String(x.name).slice(0, 60), km: x.km, prize: x.prize })),
+    pins: L.slice(0, 3000).map(x => [Math.round(x.lat * 100) / 100, Math.round(x.lon * 100) / 100]), ranks, calcAt: Timestamp.now() }, { merge: true });
+  return { ok: true, list: L };
+};
+H.geoPublish = async p => {
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const id = String(p.id), v = p.pub === true;
+  if (v) { const c = await H.geoCalc({ id }); if (!c.ok) return c; const k = (await getDoc(D("geoqKey", id))).data(); await setDoc(D("geoq", id), { pub: true, ans: [k.lat, k.lon] }, { merge: true }); }
+  else await setDoc(D("geoq", id), { pub: false, ans: null }, { merge: true });
+  return { ok: true };
+};
+H.geoPrize = async p => {   // 🎁 шагналт байранд Сургалтын эрх олгоно (давхар олгохгүй)
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const id = String(p.id), c = await H.geoCalc({ id }); if (!c.ok) return c;
+  const s = await getDoc(D("geoq", id)), given = Object.assign({}, s.data().given || {}); let n = 0;
+  for (const x of c.list) { if (!x.prize || given[x.uid] || !x.email) continue; const r = await H.grant({ email: x.email, months: x.prize, kind: "learn" }); if (r.ok) { given[x.uid] = x.prize; n++; } }
+  await setDoc(D("geoq", id), { given }, { merge: true }); return { ok: true, n };
+};
+H.geoDel = async p => {
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const id = String(p.id), L = (await getDocs(C("geoq", id, "subs"))).docs;
+  for (let i = 0; i < L.length; i += 400) { const b = writeBatch(db); L.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); }
+  try { await deleteObject(sRef(stor, "geoq/" + id + ".jpg")); } catch (e) {}
+  await deleteDoc(D("geoqKey", id)).catch(() => {}); await deleteDoc(D("geoq", id)); return { ok: true };
+};
 /* ===== 🤖 AI үнэлгээ (Firebase AI Logic · Gemini) — зөвхөн багшийн талд ажиллана ===== */
 const AI_SITE = "6LdE1h0uAAAAAEKkLDmk6bloSm9_YkImpdgIfnRS", AI_DAY = 300, AI_CHUNK = 12;
 const AI_MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.5-flash"];   // 2.5 загварууд 2026.10.20-нд хаагдсан
