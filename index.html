@@ -1233,6 +1233,37 @@ body.geofull{overflow:hidden}
 .tpsq .tbar{min-height:42px}.tpsq .tcloud{min-height:80px}
 .tpf{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px}.tpf>.btn.ghost{justify-self:start}
 
+
+/* 💬 Багшийн чат */
+.tcsw{display:flex;gap:6px;margin:4px 0 12px}.tcsw button{padding:9px 16px;border-radius:12px;border:0;background:var(--chip);font:700 14px var(--btn-font);color:var(--muted);cursor:pointer}.tcsw button.on{background:linear-gradient(135deg,#38BDF8,#4F46E5);color:#fff}
+.tcw{display:grid;grid-template-columns:220px minmax(0,1fr);border:1.5px solid var(--line-2);border-radius:16px;overflow:hidden;height:min(72vh,680px);background:var(--surface)}
+.tcside{background:var(--sunk,var(--chip));border-right:1.5px solid var(--line-2);padding:12px;display:flex;flex-direction:column;gap:4px;min-height:0;overflow:auto}
+.tcside h4{margin:4px 6px 8px;font-size:12px;letter-spacing:.08em;color:var(--muted)}.tcchl{display:flex;flex-direction:column;gap:4px}
+.tcch{display:flex;align-items:center;gap:6px;padding:9px 10px;border-radius:10px;border:0;background:none;font:700 14px var(--btn-font);color:var(--fg);text-align:left;cursor:pointer}.tcch>span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.tcch.on{background:#E0E7FF;color:#3730A3}.tcdot{width:9px;height:9px;border-radius:50%;background:#EF4444;flex:none}.tcchx{opacity:0;font-size:12px}.tcch:hover .tcchx{opacity:.7}
+.tcmain{display:flex;flex-direction:column;min-width:0;min-height:0}
+.tchd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;border-bottom:1.5px solid var(--line-2)}.tchd b{font-size:17px}.tchd small{color:var(--muted);font-size:12px;text-align:right}
+.tcpin{margin:10px 16px 0;padding:9px 12px;border-radius:10px;background:#FEF3C7;font-size:13px;color:#78350F;display:flex;gap:2px;align-items:baseline;flex-wrap:wrap}.tcpin .link{margin-left:auto}
+.tcmsgs{flex:1;overflow:auto;padding:12px 16px;display:flex;flex-direction:column;gap:12px;min-height:0}
+.tcday{align-self:center;font-size:11.5px;font-weight:700;color:var(--muted);background:var(--chip);padding:3px 10px;border-radius:99px}
+.tcmore{align-self:center}
+.tcm{display:flex;gap:10px;max-width:82%;position:relative}.tcav{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800}
+.tcbd{display:grid;gap:4px;min-width:0}.tcnm{display:flex;gap:6px;align-items:baseline;font-size:13px}.tcnm small{color:#94A3B8;font-weight:600}
+.tctx{background:var(--chip);padding:9px 12px;border-radius:4px 14px 14px 14px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}.tctx a{color:inherit;text-decoration:underline}
+.tcm.me{align-self:flex-end;flex-direction:row-reverse}.tcm.me .tcnm{justify-content:flex-end}.tcm.me .tctx{background:linear-gradient(135deg,#38BDF8,#4F46E5);color:#fff;border-radius:14px 4px 14px 14px}
+.tcre{font-size:12px;color:var(--muted);border-left:3px solid #A5B4FC;padding-left:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tcimg{max-width:min(280px,100%);max-height:240px;border-radius:12px;object-fit:cover;cursor:zoom-in}
+.tcrx{display:flex;gap:4px;flex-wrap:wrap}.tcrx button{font-size:12.5px;background:var(--surface);border:1px solid var(--line-2);border-radius:99px;padding:2px 9px;cursor:pointer}.tcrx button.on{border-color:#6366F1;background:#EEF2FF}
+.tcact{display:none;gap:2px;background:var(--surface);border:1px solid var(--line-2);border-radius:10px;padding:2px;box-shadow:0 4px 12px rgba(0,0,0,.1);width:max-content}
+.tcact button{border:0;background:none;font-size:16px;width:34px;height:32px;border-radius:8px;cursor:pointer}.tcact button:hover{background:var(--chip)}
+.tcm:hover .tcact,.tcm.sel .tcact{display:flex}.tcm.me .tcact{justify-self:end}
+.tcrep,.tcprev{display:flex;align-items:center;gap:8px;margin:0 16px;padding:8px 12px;border-radius:10px;background:#EEF2FF;font-size:13px;color:#3730A3}.tcrep span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tcprev img{height:64px;border-radius:8px}
+.tcin{display:flex;gap:8px;align-items:flex-end;padding:12px 16px;border-top:1.5px solid var(--line-2)}
+.tcin textarea{flex:1;min-height:46px;max-height:140px;resize:none;border:1.5px solid var(--line-2);border-radius:12px;padding:11px 12px;font:inherit;font-size:15px;background:var(--surface);color:var(--fg)}
+.tcib,.tcsb{flex:none;width:46px;height:46px;border-radius:12px;border:0;background:var(--chip);font-size:20px;cursor:pointer}.tcsb{background:linear-gradient(135deg,#38BDF8,#4F46E5);color:#fff}
+@media (max-width:700px){.tcw{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);height:78vh}.tcside{flex-direction:row;align-items:center;border-right:0;border-bottom:1.5px solid var(--line-2);padding:8px;overflow-x:auto}.tcside h4{display:none}.tcchl{flex-direction:row}.tcch{white-space:nowrap;font-size:13px}.tcside .link{white-space:nowrap}.tcm{max-width:94%}.tchd small{display:none}.tcmsgs,.tcin{padding-left:10px;padding-right:10px}}
+@media (max-width:700px){.tcpin{margin:8px 10px 0;font-size:12.5px;max-height:58px;overflow:hidden;cursor:pointer}.tcpin.open{max-height:none}}
 </style>
 </head>
 <body>
@@ -1483,7 +1514,7 @@ let vyear = st.get("ge-year") || "";
 const OWN_CATS = ["IGEO", "Улсын олимпиад", "Шинэ"];
 const ownCat = t => { const g = (t.group || "").toUpperCase(); return g.indexOf("IGEO") === 0 ? "IGEO" : /^УЛСЫН ОЛИМПИАД/.test(g) ? "Улсын олимпиад" : "Шинэ"; };
 let ocat = OWN_CATS.indexOf(st.get("ge-ocat")) >= 0 ? st.get("ge-ocat") : null;
-function setTab(t) { if (typeof lessonStop === "function") lessonStop(); if (typeof toolsStop === "function") toolsStop(); if (t !== "map" && typeof btStop === "function") btStop(); tab = t; st.set("ge-tab", t); document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t)); secTitle(); renderPane(); }
+function setTab(t) { if (typeof lessonStop === "function") lessonStop(); if (typeof toolsStop === "function") toolsStop(); if (typeof tcStop === "function") tcStop(); if (t !== "map" && typeof btStop === "function") btStop(); tab = t; st.set("ge-tab", t); document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t)); secTitle(); renderPane(); }
 /* ---------- утасны цэс: ☰ дарахад хажуугаас гарна ---------- */
 const NAV = [
   ["var", "ЭЕШ", "2022–2026 оны хувилбарууд", '<path d="M9 3h6l1 2h3v16H5V5h3z"/><path d="M9 12l2 2 4-4"/>'],
@@ -4515,6 +4546,7 @@ async function noticeAdmin(box) {
     row.append(cp, gm); mw.append(row); };
 }
 
+let SHV = (() => { try { return localStorage.getItem("ge-shv") || "mat"; } catch (e) { return "mat"; } })();
 /* ---------- 📚 Багшийн булан: туршлага, хичээлийн материал хуваалцах ---------- */
 const MAT_CATS = ["Хичээлийн төлөвлөгөө", "Илтгэл, слайд", "Ажлын хуудас", "Тест, даалгавар", "Туршлага", "Бусад"];
 const MAT_SUB = { "Хичээлийн төлөвлөгөө": ["Жилийн", "Нэгж", "Ээлжит"] };   // дэд ангилал
@@ -4545,6 +4577,8 @@ async function renderShare(box) {
     lk.append(el("div", "mlic", "🔒"), el("b", "", "Багшийн булан зөвхөн Сургалтын эрхтэй багш нарт нээлттэй"), el("p", "lbn", "Сургалтын эрх авсан багш нар бие биеийнхээ хичээлийн төлөвлөгөө, слайд, ажлын хуудсыг үзэж, татаж, өөрсдийнхөө материалыг хуваалцана."));
     if (!user) { const b = el("button", "btn", "🔑 Нэвтрэх"); b.type = "button"; b.onclick = () => openAcct(true); lk.append(b); } else lk.append(learnPayHTML());
     box.append(lk); return; }
+  { const sw = el("div", "tcsw"); [["mat", "📚 Материал"], ["chat", "💬 Багшийн чат"]].forEach(([v, t]) => { const b = el("button", (SHV === v ? "on" : ""), t); b.type = "button"; b.onclick = () => { SHV = v; try { localStorage.setItem("ge-shv", v); } catch (e) {} renderPane(); }; sw.append(b); }); box.append(sw); }
+  if (SHV === "chat") return renderTChat(box);
   const top = el("div", "mtop");
   { const ad = el("button", "btn", "➕ Материал хуваалцах"); ad.type = "button"; ad.onclick = () => matForm(); top.append(ad); }
   box.append(top);
@@ -5211,6 +5245,71 @@ async function pollJoin(code) {
 }
 (() => { const c = new URLSearchParams(location.search).get("p"); if (c && /^\d{5}$/.test(c)) setTimeout(() => pollJoin(c), 300); })();
 
+
+/* ---------- 💬 Багшийн чат (Багшийн булан доторх таб): зөвхөн Сургалтын эрхтэй багш нар ---------- */
+let TC_STOP = [], TC_CH = null, TC_N = 50;
+function tcStop() { TC_STOP.forEach(f => { try { f(); } catch (e) {} }); TC_STOP = []; }
+const TC_RX = ["👍", "❤️", "😂", "👏", "🙏"], TC_COL = ["#F59E0B", "#10B981", "#8B5CF6", "#EF4444", "#0EA5E9", "#EC4899", "#14B8A6", "#F97316"];
+const tcCol = s => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return TC_COL[h % TC_COL.length]; };
+const tcSeen = { get: ch => { try { return +localStorage.getItem("ge-tc-" + ch) || 0; } catch (e) { return 0; } }, set: (ch, t) => { try { localStorage.setItem("ge-tc-" + ch, String(t)); } catch (e) {} } };
+const tcTime = t => { const d = new Date(t), p = n => String(n).padStart(2, "0"), today = new Date().toDateString() === d.toDateString(); return (today ? "" : p(d.getMonth() + 1) + "/" + p(d.getDate()) + " ") + p(d.getHours()) + ":" + p(d.getMinutes()); };
+function tcText(t) { const f = document.createDocumentFragment(); String(t || "").split(/(https?:\/\/[^\s<]+)/g).forEach((part, i) => {
+  if (i % 2) { const a = el("a", "", part); a.href = part; a.target = "_blank"; a.rel = "noopener noreferrer"; f.append(a); } else f.append(document.createTextNode(part)); }); return f; }
+
+async function renderTChat(box) {
+  tcStop(); const me = user, adm = !!user.admin;
+  const wrap = el("div", "tcw"), side = el("div", "tcside"), main = el("div", "tcmain"); wrap.append(side, main); box.append(wrap);
+  side.append(el("h4", "", "СЭДЭВ")); const chl = el("div", "tcchl"); side.append(chl);
+  if (adm) { const ab = el("button", "link", "+ Сэдэв нэмэх"); ab.type = "button"; ab.onclick = async () => { const n = prompt("Шинэ сэдвийн нэр (жишээ: ЭЕШ-бэлтгэл):"); if (!n) return; await api({ action: "tcChSave", name: n.trim().replace(/^#/, ""), order: CH.length + 1 }); }; side.append(ab); }
+  const hd = el("div", "tchd"), msgs = el("div", "tcmsgs"), pinB = el("div", "tcpin"); pinB.hidden = true; pinB.onclick = () => pinB.classList.toggle("open");
+  const inp = el("div", "tcin"), rep = el("div", "tcrep"); rep.hidden = true;
+  const fi = Object.assign(el("input"), { type: "file", accept: "image/*", hidden: true }), ib = el("button", "tcib", "🖼"), ta = Object.assign(el("textarea"), { rows: 1, maxLength: 2000, placeholder: "Мессеж бичих…" }), sb = el("button", "tcsb", "➤");
+  ib.type = sb.type = "button"; ib.title = "Зураг"; ib.setAttribute("aria-label", "Зураг нэмэх"); sb.setAttribute("aria-label", "Илгээх");
+  const prev = el("div", "tcprev"); prev.hidden = true; inp.append(fi, ib, ta, sb);
+  main.append(hd, pinB, msgs, rep, prev, inp);
+  let CH = [], MS = [], replyTo = null, imgData = "", stopMsgs = null, stick = true;
+  const chName = id => (CH.find(c => c.id === id) || {}).name || id;
+  function drawCh() { chl.innerHTML = ""; CH.forEach(c => { const b = el("button", "tcch" + (c.id === TC_CH ? " on" : "")); b.type = "button"; b.append(el("span", "", "# " + c.name));
+      if (c.id !== TC_CH && c.last > tcSeen.get(c.id)) b.append(el("i", "tcdot"));
+      if (adm) { const d = el("span", "tcchx", "🗑"); d.title = "Сэдэв устгах"; d.onclick = async ev => { ev.stopPropagation(); if (!confirm("«" + c.name + "» сэдвийг бүх мессежийн хамт устгах уу?")) return; if (TC_CH === c.id) TC_CH = null; await api({ action: "tcChDel", id: c.id }); }; b.append(d); }
+      b.onclick = () => openCh(c.id); chl.append(b); }); }
+  function drawPin() { const c = CH.find(x => x.id === TC_CH), p = c && c.pin; pinB.hidden = !p; pinB.innerHTML = ""; if (!p) return;
+    pinB.append(el("span", "", "📌 "), el("b", "", p.name + ": "), tcText(p.text)); if (adm) { const x = el("button", "link", "✕"); x.type = "button"; x.title = "Бэхэлгээг авах"; x.onclick = () => api({ action: "tcPin", ch: TC_CH, pin: null }); pinB.append(x); } }
+  function msgEl(m) { const mine = m.uid === me.uid, d = el("div", "tcm" + (mine ? " me" : "")), av = el("div", "tcav", (m.name || "?").trim().charAt(0).toUpperCase()); av.style.background = mine ? "#4F46E5" : tcCol(m.uid);
+    const bd = el("div", "tcbd"), nm = el("div", "tcnm"); nm.append(el("b", "", mine ? "Та" : m.name || "Багш"), el("small", "", tcTime(m.at) + (m.edited ? " · засварласан" : ""))); bd.append(nm);
+    if (m.reply) bd.append(el("div", "tcre", "↪ " + m.reply.name + ": " + m.reply.text));
+    if (m.img) { const im = el("img", "tcimg"); im.src = m.img; im.alt = "Зураг"; im.loading = "lazy"; im.onclick = () => zoom(m.img); bd.append(im); }
+    if (m.text) { const tx = el("div", "tctx"); tx.append(tcText(m.text)); bd.append(tx); }
+    const rx = el("div", "tcrx"); Object.entries(m.rx || {}).forEach(([e, L]) => { if (!L || !L.length) return; const b = el("button", L.indexOf(me.uid) >= 0 ? "on" : "", e + " " + L.length); b.type = "button"; b.onclick = () => api({ action: "tcReact", ch: TC_CH, id: m.id, e }); rx.append(b); }); if (rx.children.length) bd.append(rx);
+    const act = el("div", "tcact"); const A = (t, tip, f) => { const b = el("button", "", t); b.type = "button"; b.title = tip; b.setAttribute("aria-label", tip); b.onclick = e => { e.stopPropagation(); f(); }; act.append(b); };
+    TC_RX.slice(0, 3).forEach(e => A(e, "Хариу " + e, () => api({ action: "tcReact", ch: TC_CH, id: m.id, e })));
+    A("↪", "Хариулах", () => { replyTo = { id: m.id, name: m.name, text: (m.text || "🖼 Зураг").slice(0, 100) }; rep.hidden = false; rep.innerHTML = ""; const x = el("button", "link", "✕"); x.type = "button"; x.onclick = () => { replyTo = null; rep.hidden = true; }; rep.append(el("span", "", "↪ " + replyTo.name + ": " + replyTo.text), x); ta.focus(); });
+    if (mine && m.text) A("✏️", "Засах", async () => { const t = prompt("Мессеж засах:", m.text); if (t == null || !t.trim()) return; await api({ action: "tcEdit", ch: TC_CH, id: m.id, text: t }); });
+    if (adm && m.text) A("📌", "Бэхлэх", () => api({ action: "tcPin", ch: TC_CH, pin: { name: m.name, text: m.text } }));
+    if (mine || adm) A("🗑", "Устгах", async () => { if (!confirm("Энэ мессежийг устгах уу?")) return; await api({ action: "tcDel", ch: TC_CH, id: m.id }); });
+    bd.append(act); d.append(av, bd); d.onclick = () => { msgs.querySelectorAll(".tcm.sel").forEach(x => x !== d && x.classList.remove("sel")); d.classList.toggle("sel"); }; return d; }
+  function drawMsgs() { const near = stick || msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 80; msgs.innerHTML = "";
+    if (MS.length >= TC_N) { const mo = el("button", "btn ghost tcmore", "⬆ Өмнөх мессежүүд"); mo.type = "button"; mo.onclick = () => { TC_N += 50; stick = false; follow(); }; msgs.append(mo); }
+    if (!MS.length) msgs.append(el("p", "empty", "Энэ сэдэвт мессеж алга. Эхний мессежээ бичээрэй! 👋"));
+    let lastDay = ""; MS.forEach(m => { const dd = new Date(m.at).toLocaleDateString("mn-MN"); if (dd !== lastDay) { lastDay = dd; msgs.append(el("div", "tcday", dd)); } msgs.append(msgEl(m)); });
+    if (near) { const go = () => { msgs.scrollTop = msgs.scrollHeight; }; requestAnimationFrame(go); msgs.querySelectorAll("img").forEach(im => { if (!im.complete) im.addEventListener("load", go, { once: true }); }); } stick = false; }
+  async function follow() { if (stopMsgs) stopMsgs(); const ch = TC_CH; const r = await api({ action: "tcFollow", ch, n: TC_N, onMsgs: L => { if (ch !== TC_CH || !wrap.isConnected) return; MS = L || []; drawMsgs(); const lt = MS.length ? MS[MS.length - 1].at : 0; tcSeen.set(ch, Math.max(lt, Date.now())); } }).catch(() => null);
+    stopMsgs = r && r.stop ? r.stop : null; }
+  function openCh(id) { TC_CH = id; TC_N = 50; stick = true; MS = []; replyTo = null; rep.hidden = true; hd.innerHTML = ""; hd.append(el("b", "", "# " + chName(id)), el("small", "", "Зөвхөн Сургалтын эрхтэй багш нар")); msgs.innerHTML = '<p class="empty">Ачаалж байна…</p>'; drawCh(); drawPin(); follow(); }
+  const send = async () => { const text = ta.value.trim(); if (!text && !imgData) return; if (!TC_CH) return; sb.disabled = true;
+    const r = await api({ action: "tcSend", ch: TC_CH, text, img: imgData, reply: replyTo }).catch(() => ({ ok: false })); sb.disabled = false;
+    if (!r.ok) { alert(r.error === "big" ? "Зураг хэт том байна." : r.error === "learn" ? "Сургалтын эрх шаардлагатай." : "Илгээж чадсангүй."); return; }
+    ta.value = ""; ta.style.height = ""; imgData = ""; prev.hidden = true; replyTo = null; rep.hidden = true; stick = true; };
+  sb.onclick = send; ta.onkeydown = e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } };
+  ta.oninput = () => { ta.style.height = "auto"; ta.style.height = Math.min(140, ta.scrollHeight) + "px"; };
+  ib.onclick = () => fi.click();
+  fi.onchange = async () => { const f = fi.files[0]; fi.value = ""; if (!f) return; const u = URL.createObjectURL(f); try { imgData = await geoShrink(u, 1200, 200); prev.hidden = false; prev.innerHTML = ""; const im = el("img"); im.src = imgData; im.alt = ""; const x = el("button", "link", "✕ Зураг хасах"); x.type = "button"; x.onclick = () => { imgData = ""; prev.hidden = true; }; prev.append(im, x); } catch (e) { alert("Зургийг уншиж чадсангүй."); } finally { URL.revokeObjectURL(u); } };
+  hd.append(el("b", "", "Ачаалж байна…"));
+  const r = await api({ action: "tcChannels", onCh: async (L, err) => { if (!wrap.isConnected) return; if (!L) { hd.innerHTML = ""; hd.append(el("b", "", "Чатыг ачаалж чадсангүй")); return; }
+      if (!L.length && adm && !CH.length) { for (const [i, n] of ["ерөнхий", "шалгалт-даалгавар", "хичээлийн-санаа"].entries()) await api({ action: "tcChSave", id: ["general", "exams", "ideas"][i], name: n, order: i }); return; }
+      CH = L; if (!TC_CH || !CH.some(c => c.id === TC_CH)) { if (CH.length) openCh(CH[0].id); else { hd.innerHTML = ""; hd.append(el("b", "", "Сэдэв алга")); } } else { drawCh(); drawPin(); } } }).catch(() => null);
+  if (r && r.stop) TC_STOP.push(r.stop); TC_STOP.push(() => { if (stopMsgs) stopMsgs(); });
+}
 
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
 const IV = { DUR: 2.8, timers: [], on: false, loopT: null, nodes: [] };
@@ -6144,6 +6243,36 @@ H.pollVote = async p => {
   try { await setDoc(D("polls", String(p.code), "votes", String(p.vid) + "_" + i), { v, i, at: Timestamp.now() }); return { ok: true }; } catch (e) { return { ok: false, error: "denied" }; } };
 H.pollWatch = async p => { const u = onSnapshot(C("polls", String(p.code), "votes"), s => p.onVotes(s.docs.map(d => { const x = d.data(); return { i: x.i || 0, v: x.v }; })), () => {}); return { ok: true, stop: u }; };
 H.pollFollow = async p => { const u = onSnapshot(D("polls", String(p.code)), s => { if (!s.exists()) return p.onPoll(null); const x = s.data(); p.onPoll({ title: x.title || "", qs: pollQs(x), cur: x.cur || 0, open: !!x.open }); }, () => p.onPoll(null)); return { ok: true, stop: u }; };
+/* ---- 💬 Багшийн чат: зөвхөн Сургалтын эрхтэй багш нар (Firestore-ийн дүрмээр хамгаалагдсан) ---- */
+H.tcChannels = async p => { const u = onSnapshot(C("tchat"), s => p.onCh(s.docs.map(d => { const x = d.data(); return { id: d.id, name: x.name || d.id, order: x.order || 0, last: x.last ? toD(x.last).getTime() : 0, pin: x.pin || null }; }).sort((a, b) => a.order - b.order || (a.name < b.name ? -1 : 1))), e => p.onCh(null, e)); return { ok: true, stop: u }; };
+H.tcFollow = async p => { const u = onSnapshot(query(C("tchat", String(p.ch), "msgs"), orderBy("at", "desc"), limit(Math.min(500, +p.n || 50))), s => p.onMsgs(s.docs.map(d => { const x = d.data(); return Object.assign({ id: d.id }, x, { at: x.at ? toD(x.at).getTime() : Date.now() }); }).sort((a, b) => a.at - b.at || (a.id < b.id ? -1 : 1))), () => p.onMsgs(null)); return { ok: true, stop: u }; };
+H.tcSend = async p => {
+  const m = await meInfo(); if (!m || !m.learn) return { ok: false, error: "learn" };
+  const ch = String(p.ch), id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7), text = String(p.text || "").trim().slice(0, 2000);
+  let img = "";
+  if (p.img) { const b = await (await fetch(p.img)).blob(); if (b.size > 400 * 1024) return { ok: false, error: "big" }; const r = sRef(stor, "tchat/" + m.uid + "/" + id + ".jpg"); await uploadBytes(r, b, { contentType: "image/jpeg" }); img = await getDownloadURL(r); }
+  if (!text && !img) return { ok: false, error: "empty" };
+  const reply = p.reply ? { id: String(p.reply.id).slice(0, 40), name: String(p.reply.name || "").slice(0, 60), text: String(p.reply.text || "").slice(0, 120) } : null;
+  await setDoc(D("tchat", ch, "msgs", id), { uid: m.uid, name: String(m.name || "").slice(0, 60), text, img, reply, rx: {}, at: Timestamp.now() });
+  setDoc(D("tchat", ch), { last: Timestamp.now() }, { merge: true }).catch(() => {});
+  return { ok: true, id };
+};
+H.tcReact = async p => { const m = await meInfo(); if (!m || !m.learn) return { ok: false };
+  const ref = D("tchat", String(p.ch), "msgs", String(p.id)), s = await getDoc(ref); if (!s.exists()) return { ok: false };
+  const x = s.data(), rx = Object.assign({}, x.rx || {}), e = String(p.e).slice(0, 8), L = Array.isArray(rx[e]) ? rx[e].slice() : [];
+  const i = L.indexOf(m.uid); if (i >= 0) L.splice(i, 1); else L.push(m.uid); if (L.length) rx[e] = L; else delete rx[e];
+  await setDoc(ref, Object.assign({}, x, { rx })); return { ok: true }; };
+H.tcEdit = async p => { const m = await meInfo(); const ref = D("tchat", String(p.ch), "msgs", String(p.id)), s = await getDoc(ref); if (!s.exists() || !m || s.data().uid !== m.uid) return { ok: false };
+  await setDoc(ref, Object.assign({}, s.data(), { text: String(p.text || "").trim().slice(0, 2000), edited: true })); return { ok: true }; };
+H.tcDel = async p => { const m = await meInfo(); const ref = D("tchat", String(p.ch), "msgs", String(p.id)), s = await getDoc(ref); if (!s.exists() || !m || !(m.admin || s.data().uid === m.uid)) return { ok: false };
+  if (s.data().img) { try { await deleteObject(sRef(stor, "tchat/" + s.data().uid + "/" + s.id + ".jpg")); } catch (e) {} }
+  await deleteDoc(ref); return { ok: true }; };
+H.tcPin = async p => { const m = await meInfo(); if (!m || !m.admin) return { ok: false }; await setDoc(D("tchat", String(p.ch)), { pin: p.pin ? { name: String(p.pin.name || "").slice(0, 60), text: String(p.pin.text || "").slice(0, 400) } : null }, { merge: true }); return { ok: true }; };
+H.tcChSave = async p => { const m = await meInfo(); if (!m || !m.admin) return { ok: false };
+  const id = String(p.id || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 30) || ("c" + Date.now().toString(36)); await setDoc(D("tchat", id), { name: String(p.name || "").trim().slice(0, 40) || id, order: +p.order || 0 }, { merge: true }); return { ok: true, id }; };
+H.tcChDel = async p => { const m = await meInfo(); if (!m || !m.admin) return { ok: false }; const ch = String(p.id), v = await getDocs(C("tchat", ch, "msgs"));
+  for (let i = 0; i < v.docs.length; i += 400) { const b = writeBatch(db); v.docs.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); }
+  await deleteDoc(D("tchat", ch)); return { ok: true }; };
 /* ---- дэлгэцийн бичлэг: 30 секунд тутам хэсэгчлэн Storage руу илгээнэ ---- */
 let REC = null;
 const recPath = (uid, id, k) => "rec/" + uid + "/" + id + "/" + String(k).padStart(4, "0") + ".webm";
