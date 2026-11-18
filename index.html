@@ -1233,35 +1233,6 @@ body.geofull{overflow:hidden}
 .tpsq .tbar{min-height:42px}.tpsq .tcloud{min-height:80px}
 .tpf{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px}.tpf>.btn.ghost{justify-self:start}
 
-/* 🏁 Багийн тоглоом */
-.tgrow{display:flex;gap:10px;flex-wrap:wrap}.tgrow>.fld{flex:1;min-width:150px}.tgrow select,.tpf>.fld select{width:100%;min-height:44px;border-radius:10px;border:1px solid var(--line-2);padding:0 10px;font:inherit;background:var(--surface);color:var(--fg)}
-.tgbody{display:grid;gap:14px;position:relative;overflow:hidden}
-.tgchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.tgchip{padding:8px 16px;border-radius:99px;background:#334155;color:#fff;font:800 18px var(--btn-font);animation:tpop2 .3s}
-.tghd{display:flex;align-items:center;justify-content:space-between;gap:12px}.tghd>b{font:800 18px var(--btn-font)}
-.tgcd{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:#7C3AED;color:#fff;font:900 34px Nunito,sans-serif}.tgcd.low{background:#E21B3C;animation:tbump .5s infinite}
-.tgac{font:800 16px var(--btn-font);color:var(--muted)}
-.tgq{margin:0;text-align:center;font:900 clamp(24px,3.6vw,44px)/1.25 Nunito,var(--btn-font);background:var(--surface);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
-.tgimg{max-height:280px;max-width:100%;justify-self:center;border-radius:12px;object-fit:contain}
-.tgopts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.tgopt{position:relative;display:flex;align-items:center;gap:14px;min-height:84px;padding:14px 18px;border-radius:12px;color:#fff;font:800 clamp(18px,2.4vw,28px) var(--btn-font);box-shadow:0 4px 0 rgba(0,0,0,.25);transition:opacity .3s,transform .3s}
-.tgopt .sh{font-size:1.3em;opacity:.9}.tgopt.dim{opacity:.35}.tgopt.ok{transform:scale(1.03);outline:5px solid #fff;box-shadow:0 0 0 9px #26890C}
-.tgopt .tgn{margin-left:auto;background:rgba(0,0,0,.25);border-radius:99px;padding:4px 12px;font-size:.85em}
-.tglb{display:grid;gap:6px;max-width:560px;width:100%;justify-self:center}.tglb>b{font:900 22px Nunito,sans-serif;text-align:center}
-.tglr{display:flex;justify-content:space-between;padding:10px 16px;border-radius:12px;background:var(--chip);border-left:8px solid var(--c,#7C3AED);font:800 18px var(--btn-font)}
-.tgpod{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin-top:10px}
-.tgpd{display:grid;justify-items:center;gap:4px;width:min(30%,220px)}.tgpd .md{font-size:48px}.tgpd b{font:900 22px Nunito,sans-serif;text-align:center}.tgpd small{font-weight:800;color:var(--muted)}
-.tgpd .st{width:100%;display:grid;place-items:center;border-radius:12px 12px 0 0;background:var(--c,#7C3AED);color:#fff;font:900 40px Nunito,sans-serif}
-.tgpd.p1 .st{height:200px;background:var(--c,#D89E00)}.tgpd.p2 .st{height:150px;background:var(--c,#94A3B8)}.tgpd.p3 .st{height:110px;background:var(--c,#B45309)}
-.tgconf{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;animation:tgfall 3s linear forwards}@keyframes tgfall{to{transform:translateY(900px) rotate(720deg);opacity:0}}
-.tgc{background:#46178F;color:#fff}.tgc .pollb{color:#FDE68A}.tgc .note,.tgc .lbn{color:#E9D5FF}.tgc h3{color:#fff}.tgc .drwx{background:rgba(255,255,255,.15);color:#fff}
-.tgme{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2)}.tgme b{font:900 18px Nunito,sans-serif}
-.tgpb{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tgpb button{min-height:120px;border:0;border-radius:14px;color:#fff;display:grid;place-items:center;gap:4px;padding:10px;font:800 15px var(--btn-font);box-shadow:0 5px 0 rgba(0,0,0,.3);cursor:pointer}
-.tgpb button .sh{font-size:42px}.tgpb button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
-.tgqi{text-align:center;font-weight:800}.tgwait{font-size:56px;text-align:center;animation:tbump 1s infinite}
-.tgres{display:grid;justify-items:center;gap:6px;padding:28px 12px;border-radius:16px}.tgres.ok{background:#26890C}.tgres.no{background:#E21B3C}.tgres b{font:900 34px Nunito,sans-serif}.tgres span{font:800 17px var(--btn-font);text-align:center}
-.tgfin{font-size:72px;text-align:center}
-.tgteams{display:flex;gap:8px;flex-wrap:wrap}.tgteams button{flex:1;min-height:48px;border-radius:12px;border:3px solid transparent;background:var(--c);color:#fff;font:800 15px var(--btn-font);opacity:.55;cursor:pointer}.tgteams button.on{opacity:1;border-color:#fff}
-.tgc .pollin{background:#fff;color:#0F172A}
 </style>
 </head>
 <body>
@@ -5024,8 +4995,7 @@ const TOOLS = [
   ["wheel", "🎡", "Сурагч сонгогч", "Хүрдийг эргүүлж санамсаргүй сурагч сонгоно", "#F59E0B"],
   ["timer", "⏱", "Цаг хэмжигч", "Том дэлгэцэн дээрх цаг, дуусахад дуугарна", "#3B82F6"],
   ["score", "📊", "Онооны самбар", "Багуудын оноог шууд нэмж, хасна", "#8B5CF6"],
-  ["poll", "🗳", "Санал асуулга", "Сурагчид утсаараа кодоор санал өгнө, үр дүн шууд харагдана", "#EC4899"],
-  ["game", "🏁", "Багийн тоглоом", "Kahoot шиг: сурагчид утсаараа хариулж, хурдан зөв хариулсан нь оноо авна", "#F97316"]];
+  ["poll", "🗳", "Санал асуулга", "Сурагчид утсаараа кодоор санал өгнө, үр дүн шууд харагдана", "#EC4899"]];
 function renderTools(box) {
   toolsStop();
   if (!user || !user.teacher) { box.append(el("p", "empty", "🧰 Багшийн туслах багшийн эрхтэй хүнд нээгдэнэ.")); return; }
@@ -5040,7 +5010,7 @@ function toolOpen(k) {
   const st = el("div", "tstage"); st.style.setProperty("--c", t[4]);
   const fs = el("button", "tfs", "⛶"); fs.type = "button"; fs.title = "Бүтэн дэлгэц"; fs.onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else if (st.requestFullscreen) st.requestFullscreen().catch(() => {}); };
   top.append(bk); box.append(top, st); st.append(fs, el("h3", "ttl", t[1] + " " + t[2]));
-  ({ wheel: toolWheel, timer: toolTimer, score: toolScore, poll: toolPoll, game: toolGame })[k](st);
+  ({ wheel: toolWheel, timer: toolTimer, score: toolScore, poll: toolPoll })[k](st);
 }
 /* 👥 нэрсийн жагсаалт: «Миний ангиуд»-аас эсвэл гараар */
 let TCLS = null;
@@ -5240,124 +5210,7 @@ async function pollJoin(code) {
   if (r && r.stop) stop = r.stop; else { const g = await api({ action: "pollGet", code }).catch(() => ({ ok: false })); P = g.ok ? g : null; render(); }
 }
 (() => { const c = new URLSearchParams(location.search).get("p"); if (c && /^\d{5}$/.test(c)) setTimeout(() => pollJoin(c), 300); })();
-(() => { const c = new URLSearchParams(location.search).get("k"); if (c && /^\d{6}$/.test(c)) setTimeout(() => gameJoin(c), 300); })();
 
-/* 🏁 Багийн тоглоом (Kahoot шиг) — багш */
-const GCOL = ["#E21B3C", "#1368CE", "#D89E00", "#26890C", "#864CBF"], GSH = ["▲", "◆", "●", "■", "★"], TEAMC = [["#EF4444", "Улаан"], ["#3B82F6", "Цэнхэр"], ["#F59E0B", "Шар"], ["#10B981", "Ногоон"]];
-function toolGame(st) {
-  const cur = TLS.get("game", null); if (cur && cur.code && cur.qs) return gameHost(st, cur);
-  const f = el("div", "bform tpf"); st.append(f);
-  const fl = (l, n) => { const w = el("label", "fld"); w.append(el("span", "", l), n); return w; };
-  const src = el("select"); src.append(Object.assign(el("option", "", "📚 Сэдвийн сан"), { value: "topic" }), Object.assign(el("option", "", "✏️ Миний асуултууд"), { value: "my" }));
-  const cat = el("select"); TOPIC_CATS.forEach(c => cat.append(Object.assign(el("option", "", c), { value: c })));
-  const tp = el("select"); const fillT = () => { tp.innerHTML = ""; topics.filter(t => (t.cat || "ЭЕШ") === cat.value && t.total).forEach(t => tp.append(Object.assign(el("option", "", t.name + " · " + t.total), { value: t.name }))); if (!tp.children.length) tp.append(Object.assign(el("option", "", "— асуултгүй —"), { value: "" })); };
-  cat.onchange = fillT; fillT();
-  const row = (...a) => { const r = el("div", "tgrow"); a.forEach(x => r.append(x)); return r; };
-  const nS = el("select"); [5, 10, 15, 20].forEach(n => nS.append(Object.assign(el("option", "", n + " асуулт"), { value: String(n) }))); nS.value = "10";
-  const dS = el("select"); [10, 20, 30, 45].forEach(n => dS.append(Object.assign(el("option", "", n + " секунд"), { value: String(n) }))); dS.value = "20";
-  const tS = el("select"); [[0, "👤 Хүн бүр тус тусдаа"], [2, "2 баг"], [3, "3 баг"], [4, "4 баг"]].forEach(([v, t]) => tS.append(Object.assign(el("option", "", t), { value: String(v) })));
-  const tw = row(fl("Анги", cat), fl("Сэдэв", tp));
-  src.onchange = () => { tw.hidden = src.value !== "topic"; };
-  const msg = el("p", "lbn"), go = el("button", "btn tbig", "🚀 Тоглоом бэлдэх"); go.type = "button";
-  f.append(fl("Асуулт хаанаас", src), tw, row(fl("Асуултын тоо", nS), fl("Нэг асуултын хугацаа", dS), fl("Баг", tS)), el("small", "lbn", "Зөвхөн сонгох (A, B, C…) асуултууд орно. Асуултууд санамсаргүй холилдоно."), msg, go);
-  go.onclick = async () => { go.disabled = true; msg.textContent = "Асуултуудыг ачаалж байна…";
-    let Q = []; try {
-      if (src.value === "my") { const r = await api({ action: "myQs" }); Q = (r.list || []).map(x => ({ q: x.q, o: x.o || [], a: x.a, img: x.img || [] })); }
-      else { if (!tp.value) throw 0; const r = await api({ action: "topic", name: tp.value, cat: cat.value }); Q = (r.questions || []).map(x => ({ q: x.q, o: x.o || [], a: x.a, img: x.img || [] })); }
-    } catch (e) {}
-    Q = Q.filter(x => x.q && Array.isArray(x.o) && x.o.length >= 2 && x.o.length <= 5 && x.a >= 0 && x.a < x.o.length && !x.o.some(o => !String(o).trim()));
-    for (let i = Q.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [Q[i], Q[j]] = [Q[j], Q[i]]; }
-    Q = Q.slice(0, +nS.value).map(x => ({ q: String(x.q).slice(0, 400), o: x.o.map(o => String(o).slice(0, 120)), a: x.a, img: typeof x.img[0] === "string" ? x.img[0] : "" }));
-    if (!Q.length) { go.disabled = false; msg.textContent = "Энэ сэдэвт сонгох асуулт олдсонгүй."; return; }
-    const title = src.value === "my" ? "Миний асуултууд" : tp.value;
-    const r = await api({ action: "gameCreate", title, n: Q.length, dur: +dS.value, teams: +tS.value }).catch(() => ({ ok: false }));
-    go.disabled = false; if (!r.ok) { msg.textContent = "Үүсгэж чадсангүй."; return; }
-    const G = { code: r.code, title, dur: +dS.value, teams: +tS.value, qs: Q, cur: -1, sc: {} }; TLS.set("game", G); clearStage(st); gameHost(st, G); };
-}
-async function gameHost(st, G) {
-  const code = G.code, url = "https://geoexam.mn/?k=" + code, save = () => TLS.set("game", G);
-  let P = {}, A = {}, ansT = {}, phase = G.phase || "lobby", t0 = 0, tick = 0;
-  const body = el("div", "tgbody"); st.append(body);
-  const bar = el("div", "tctl c"), endB = el("button", "link danger", "🗑 Тоглоомыг дуусгаж устгах"); endB.type = "button"; bar.append(endB); st.append(bar);
-  endB.onclick = async () => { if (!confirm("Тоглоомыг дуусгаж, бүх өгөгдлийг устгах уу?")) return; toolsStop(); await api({ action: "gameDel", code }).catch(() => {}); TLS.set("game", null); toolOpen("game"); };
-  const set = d => api({ action: "gameSet", code, data: d }).catch(() => {});
-  const plist = () => Object.values(P), total = pid => G.sc[pid] || 0;
-  const teamSc = () => { const T = TEAMC.slice(0, G.teams).map(() => ({ s: 0, n: 0 })); plist().forEach(p => { if (G.teams && T[p.team]) { T[p.team].s += total(p.pid); T[p.team].n++; } }); return T.map((t, i) => ({ i, s: t.n ? Math.round(t.s / t.n) : 0, n: t.n })).sort((a, b) => b.s - a.s); };
-  const ranked = () => plist().map(p => ({ ...p, s: total(p.pid) })).sort((a, b) => b.s - a.s);
-  function lobby() { phase = "lobby"; body.innerHTML = "";
-    const j = el("div", "tpj tgjoin"), qr = el("div", "tqr"), jt = el("div", "tpjt"); jt.append(el("small", "", "Утсаараа орж тоглоорой"), el("b", "", url.replace(/^https?:\/\//, "")), el("span", "tpcode", code)); j.append(qr, jt); body.append(j); tQR(qr, url);
-    body.append(el("h2", "tpq", G.title)); const cnt = el("div", "tpcnt"), chips = el("div", "tgchips"); body.append(cnt, chips);
-    const sb = el("button", "btn tbig", "▶ Тоглоом эхлүүлэх"); sb.type = "button"; const c2 = el("div", "tctl c"); c2.append(sb); body.append(c2);
-    sb.onclick = () => { if (!plist().length && !confirm("Нэг ч тоглогч ороогүй байна. Эхлүүлэх үү?")) return; ask(0); };
-    const draw = () => { cnt.textContent = plist().length + " тоглогч нэгдсэн"; chips.innerHTML = ""; plist().forEach(p => { const c = el("span", "tgchip", p.name); if (G.teams) c.style.background = TEAMC[p.team] ? TEAMC[p.team][0] : ""; chips.append(c); }); };
-    lobby.draw = draw; draw(); }
-  function ask(i) { G.cur = i; phase = "q"; save(); A[i] = A[i] || {}; ansT[i] = ansT[i] || {}; const q = G.qs[i];
-    set({ cur: i, phase: "q", q: { q: q.q, o: q.o, img: q.img || "" }, ans: -1, last: {} }); t0 = Date.now();
-    body.innerHTML = ""; const hd = el("div", "tghd"), num = el("b", "", "Асуулт " + (i + 1) + " / " + G.qs.length), cd = el("div", "tgcd"), ac = el("div", "tgac"); hd.append(num, cd, ac); body.append(hd);
-    body.append(el("h2", "tgq", q.q)); if (q.img) { const im = el("img", "tgimg"); im.src = q.img; im.alt = ""; body.append(im); }
-    const grid = el("div", "tgopts"); q.o.forEach((o, k) => { const d = el("div", "tgopt"); d.style.background = GCOL[k]; d.append(el("span", "sh", GSH[k]), el("span", "", o)); grid.append(d); }); body.append(grid);
-    const skip = el("button", "btn ghost", "⏭ Хариу харуулах"); skip.type = "button"; skip.onclick = reveal; const c2 = el("div", "tctl c"); c2.append(skip); body.append(c2);
-    clearInterval(tick); const upd = () => { const left = Math.max(0, G.dur - (Date.now() - t0) / 1000); cd.textContent = Math.ceil(left); cd.classList.toggle("low", left <= 5);
-      const na = Object.keys(A[i]).length; ac.textContent = na + " / " + plist().length + " хариулсан";
-      if (left <= 0 || (plist().length && na >= plist().length)) reveal(); };
-    ask.upd = upd; tick = setInterval(upd, 250); upd(); }
-  function reveal() { if (phase !== "q") return; phase = "rev"; clearInterval(tick); const i = G.cur, q = G.qs[i], last = {};
-    Object.entries(A[i] || {}).forEach(([pid, v]) => { const ok = v === q.a, t = Math.min(G.dur, (ansT[i][pid] || G.dur * 1000) / 1000), pts = ok ? Math.round(500 + 500 * (1 - t / G.dur)) : 0; G.sc[pid] = total(pid) + pts; last[pid] = pts; });
-    save(); const R = ranked(), top = R.slice(0, 5).map((p, k) => ({ name: p.name, s: p.s, team: p.team })), rk = {}; R.forEach((p, k) => rk[p.pid] = k + 1);
-    set({ phase: "rev", ans: q.a, last, sc: G.sc, rk, top, tsc: G.teams ? teamSc() : [] }); tBeep(660, .15, .2); setTimeout(() => tBeep(990, .25, .2), 140);
-    const cdE = body.querySelector(".tgcd"); if (cdE) cdE.style.visibility = "hidden";
-    body.querySelectorAll(".tgopt").forEach((d, k) => { d.classList.toggle("ok", k === q.a); d.classList.toggle("dim", k !== q.a); const n = Object.values(A[i] || {}).filter(v => v === k).length; d.append(el("b", "tgn", String(n))); });
-    const c2 = body.querySelector(".tctl"); c2.innerHTML = ""; const lb = el("div", "tglb"); lb.append(el("b", "", G.teams ? "🏆 Багууд" : "🏆 Тэргүүлэгчид"));
-    if (G.teams) teamSc().forEach((t, k) => { const r = el("div", "tglr"); r.style.setProperty("--c", TEAMC[t.i][0]); r.append(el("span", "", (k + 1) + ". " + TEAMC[t.i][1] + " баг"), el("b", "", String(t.s))); lb.append(r); });
-    else top.forEach((t, k) => { const r = el("div", "tglr"); r.append(el("span", "", (k + 1) + ". " + t.name), el("b", "", String(t.s))); lb.append(r); });
-    body.insertBefore(lb, c2); const nx = el("button", "btn tbig", i < G.qs.length - 1 ? "Дараагийн асуулт →" : "🏁 Үр дүн"); nx.type = "button"; nx.onclick = () => i < G.qs.length - 1 ? ask(i + 1) : finish(); c2.append(nx); }
-  function finish() { phase = "end"; G.phase = "end"; save(); const R = ranked(), rk = {}; R.forEach((p, k) => rk[p.pid] = k + 1);
-    set({ phase: "end", sc: G.sc, rk, top: R.slice(0, 5).map(p => ({ name: p.name, s: p.s, team: p.team })), tsc: G.teams ? teamSc() : [] });
-    body.innerHTML = ""; body.append(el("h2", "tpq", "🎉 " + G.title + " · Үр дүн"));
-    const pod = el("div", "tgpod"); [1, 0, 2].forEach(k => { const p = G.teams ? teamSc()[k] : R[k]; if (!p) return; const d = el("div", "tgpd p" + (k + 1)); if (G.teams) d.style.setProperty("--c", TEAMC[p.i][0]);
-      d.append(el("span", "md", ["🥇", "🥈", "🥉"][k]), el("b", "", G.teams ? TEAMC[p.i][1] + " баг" : p.name), el("small", "", p.s + " оноо"), el("div", "st", String(k + 1))); pod.append(d); }); body.append(pod);
-    if (!G.teams && R.length > 3) { const lb = el("div", "tglb"); R.slice(3, 10).forEach((p, k) => { const r = el("div", "tglr"); r.append(el("span", "", (k + 4) + ". " + p.name), el("b", "", String(p.s))); lb.append(r); }); body.append(lb); }
-    for (let k = 0; k < 40; k++) { const c = el("i", "tgconf"); c.style.left = Math.random() * 100 + "%"; c.style.background = GCOL[k % 5]; c.style.animationDelay = Math.random() * 1.5 + "s"; body.append(c); }
-    [523, 659, 784, 1046].forEach((f, k) => setTimeout(() => tBeep(f, .25, .2), k * 160)); }
-  const w = await api({ action: "gameWatch", code,
-    onPlayers: L => { P = {}; L.forEach(p => P[p.pid] = p); if (phase === "lobby" && lobby.draw) lobby.draw(); },
-    onAns: L => { L.forEach(a => { A[a.i] = A[a.i] || {}; ansT[a.i] = ansT[a.i] || {}; if (A[a.i][a.pid] === undefined) { A[a.i][a.pid] = a.v; ansT[a.i][a.pid] = Date.now() - t0; if (a.i === G.cur && phase === "q") tBeep(1200, .04, .05); } }); if (phase === "q" && ask.upd) ask.upd(); } }).catch(() => null);
-  if (w && w.stop) TSTOP.push(w.stop); TSTOP.push(() => clearInterval(tick));
-  if (G.phase === "end") finish(); else if (G.cur >= 0) { phase = "q"; ask(G.cur); } else lobby();
-}
-
-/* 🏁 Сурагч: geoexam.mn/?k=123456 → нэрээ бичээд нэгдэнэ, утас нь өнгөт товчлуур болно */
-async function gameJoin(code) {
-  const ov = el("div", "pollov tgov"), cd = el("div", "pollc tgc"); ov.append(cd); document.body.append(ov); document.body.style.overflow = "hidden";
-  let stop = null; const close = () => { if (stop) stop(); ov.remove(); document.body.style.overflow = ""; history.replaceState(null, "", location.pathname); };
-  const x = el("button", "drwx", "✕"); x.type = "button"; x.onclick = close; const top = el("div", "pollb", "🏁 GeoExam · Багийн тоглоом"); cd.append(x, top);
-  const body = el("div", "pollbd"); cd.append(body);
-  const K = "ge-k-" + code; let me = null; try { me = JSON.parse(localStorage.getItem(K) || "null"); } catch (e) {}
-  let Gm = null, shown = "", sent = {};
-  const render = () => { if (!Gm) { body.innerHTML = ""; body.append(el("h3", "", "Тоглоом олдсонгүй"), el("p", "note", "Кодоо шалгана уу.")); return; }
-    if (!me) return joinForm();
-    const key = Gm.phase + "|" + Gm.cur + "|" + (sent[Gm.cur] !== undefined); if (key === shown) return; shown = key; body.innerHTML = "";
-    const myS = (Gm.sc || {})[me.pid] || 0, myR = (Gm.rk || {})[me.pid];
-    const tag = el("div", "tgme"); tag.append(el("b", "", me.name), el("span", "", myS + " оноо" + (myR ? " · " + myR + "-р байр" : ""))); if (me.team !== undefined && Gm.teams) tag.style.borderColor = TEAMC[me.team][0]; body.append(tag);
-    if (Gm.phase === "lobby") { body.append(el("div", "pollok", "✓"), el("h3", "", "Та нэгдлээ!"), el("p", "note", "Нэр чинь багшийн дэлгэц дээр гарсан. Тоглоом эхлэхийг хүлээнэ үү…")); return; }
-    if (Gm.phase === "q") { if (sent[Gm.cur] !== undefined) { body.append(el("div", "tgwait", "⏳"), el("h3", "", "Хариулт илгээгдлээ"), el("p", "note", "Бусдыг хүлээж байна…")); return; }
-      body.append(el("p", "tgqi", "Асуулт " + (Gm.cur + 1) + " / " + Gm.n + " · Багшийн дэлгэцийг хар"));
-      const g = el("div", "tgpb"); (Gm.q && Gm.q.o || []).forEach((o, k) => { const b = el("button"); b.type = "button"; b.style.background = GCOL[k]; b.append(el("span", "sh", GSH[k]), el("span", "tx", o)); b.onclick = async () => { sent[Gm.cur] = k; shown = ""; render(); const r = await api({ action: "gameAnswer", code, pid: me.pid, i: Gm.cur, v: k }).catch(() => ({ ok: false })); if (!r.ok && r.error !== "denied") { delete sent[Gm.cur]; shown = ""; render(); } }; g.append(b); }); body.append(g); return; }
-    if (Gm.phase === "rev") { const pts = (Gm.last || {})[me.pid], ans = sent[Gm.cur];
-      const ok = pts > 0, d = el("div", "tgres " + (ok ? "ok" : "no")); d.append(el("b", "", ok ? "✓ Зөв!" : ans === undefined ? "⌛ Хариулаагүй" : "✗ Буруу"), el("span", "", ok ? "+" + pts + " оноо" : "Зөв хариулт: " + GSH[Gm.ans] + " " + ((Gm.q && Gm.q.o || [])[Gm.ans] || ""))); body.append(d);
-      if (ok) play && play("ok"); return; }
-    if (Gm.phase === "end") { body.append(el("div", "tgfin", myR ? ["🥇", "🥈", "🥉"][myR - 1] || "🏁" : "🏁"), el("h3", "", myR ? myR + "-р байр" : "Тоглоом дууслаа"), el("p", "note", myS + " оноо авлаа. Баяр хүргэе!")); } };
-  function joinForm() { body.innerHTML = ""; body.append(el("h3", "pollq", "Нэрээ бичээд нэгдээрэй"));
-    const n = Object.assign(el("input", "pollin"), { maxLength: 24, placeholder: "Нэр" }); body.append(n); let team = 0;
-    if (Gm.teams) { const tg = el("div", "tgteams"); TEAMC.slice(0, Gm.teams).forEach(([c, t], k) => { const b = el("button", k === 0 ? "on" : "", t); b.type = "button"; b.style.setProperty("--c", c); b.onclick = () => { team = k; tg.querySelectorAll("button").forEach((y, j) => y.classList.toggle("on", j === k)); }; tg.append(b); }); body.append(el("p", "note", "Багаа сонго:"), tg); }
-    const msg = el("p", "lbn"), b = el("button", "btn wide", "Нэгдэх"); b.type = "button"; body.append(b, msg); setTimeout(() => n.focus(), 100);
-    b.onclick = async () => { const nm = n.value.trim(); if (!nm) { msg.textContent = "Нэрээ бичнэ үү."; return; } b.disabled = true;
-      const pid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); const r = await api({ action: "gameJoin", code, pid, name: nm, team }).catch(() => ({ ok: false }));
-      if (!r.ok) { b.disabled = false; msg.textContent = "Нэгдэж чадсангүй. Дахин оролдоно уу."; return; }
-      me = { pid, name: nm, team }; try { localStorage.setItem(K, JSON.stringify(me)); } catch (e) {} shown = ""; render(); }; }
-  body.append(el("p", "lbn", "Ачаалж байна…"));
-  const r = await api({ action: "gameFollow", code, onGame: g => { Gm = g; render(); } }).catch(() => null); if (r && r.stop) stop = r.stop;
-}
 
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
 const IV = { DUR: 2.8, timers: [], on: false, loopT: null, nodes: [] };
@@ -6291,28 +6144,6 @@ H.pollVote = async p => {
   try { await setDoc(D("polls", String(p.code), "votes", String(p.vid) + "_" + i), { v, i, at: Timestamp.now() }); return { ok: true }; } catch (e) { return { ok: false, error: "denied" }; } };
 H.pollWatch = async p => { const u = onSnapshot(C("polls", String(p.code), "votes"), s => p.onVotes(s.docs.map(d => { const x = d.data(); return { i: x.i || 0, v: x.v }; })), () => {}); return { ok: true, stop: u }; };
 H.pollFollow = async p => { const u = onSnapshot(D("polls", String(p.code)), s => { if (!s.exists()) return p.onPoll(null); const x = s.data(); p.onPoll({ title: x.title || "", qs: pollQs(x), cur: x.cur || 0, open: !!x.open }); }, () => p.onPoll(null)); return { ok: true, stop: u }; };
-/* ---- 🏁 Багийн тоглоом (Kahoot шиг): багш удирдана, сурагч нэвтрэхгүйгээр кодоор оролцоно. Зөв хариулт хариу харуулах хүртэл сурагчид очихгүй ---- */
-H.gameCreate = async p => {
-  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
-  let code = ""; for (let i = 0; i < 8; i++) { const c = String(100000 + Math.floor(Math.random() * 900000)); if (!(await getDoc(D("games", c))).exists()) { code = c; break; } }
-  if (!code) return { ok: false, error: "code" };
-  await setDoc(D("games", code), { owner: m.email, title: String(p.title || "").slice(0, 100), n: Math.max(1, Math.min(30, +p.n || 10)), dur: Math.max(5, Math.min(120, +p.dur || 20)), teams: [0, 2, 3, 4].indexOf(+p.teams) >= 0 ? +p.teams : 0, cur: -1, phase: "lobby", q: null, ans: -1, sc: {}, last: {}, at: Timestamp.now() });
-  return { ok: true, code };
-};
-H.gameSet = async p => { const o = Object.assign({}, p.data || {}); delete o.owner; await setDoc(D("games", String(p.code)), o, { merge: true }); return { ok: true }; };
-H.gameDel = async p => { const code = String(p.code);
-  for (const sub of ["players", "ans"]) { const v = await getDocs(C("games", code, sub)); for (let i = 0; i < v.docs.length; i += 400) { const b = writeBatch(db); v.docs.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); } }
-  await deleteDoc(D("games", code)); return { ok: true }; };
-H.gameWatch = async p => { const code = String(p.code);   // багш: тоглогчид + хариултууд
-  const u1 = onSnapshot(C("games", code, "players"), s => p.onPlayers(s.docs.map(d => Object.assign({ pid: d.id }, d.data()))), () => {});
-  const u2 = onSnapshot(C("games", code, "ans"), s => p.onAns((s.docChanges ? s.docChanges() : s.docs.map(d => ({ type: "added", doc: d }))).filter(c => c.type === "added").map(c => c.doc.data())), () => {});
-  return { ok: true, stop: () => { u1(); u2(); } }; };
-H.gameFollow = async p => { const u = onSnapshot(D("games", String(p.code)), s => p.onGame(s.exists() ? s.data() : null), () => p.onGame(null)); return { ok: true, stop: u }; };
-H.gameJoin = async p => { const code = String(p.code), pid = String(p.pid).replace(/[^A-Za-z0-9]/g, "").slice(0, 30), name = String(p.name || "").trim().slice(0, 24);
-  if (!pid || name.length < 1) return { ok: false, error: "form" };
-  try { await setDoc(D("games", code, "players", pid), { name, team: Math.max(0, Math.min(4, Math.floor(+p.team || 0))), at: Timestamp.now() }); return { ok: true }; } catch (e) { return { ok: false, error: "denied" }; } };
-H.gameAnswer = async p => { const code = String(p.code), pid = String(p.pid).replace(/[^A-Za-z0-9]/g, "").slice(0, 30), i = Math.floor(+p.i), v = Math.max(0, Math.min(5, Math.floor(+p.v)));
-  try { await setDoc(D("games", code, "ans", pid + "_" + i), { pid, i, v }); return { ok: true }; } catch (e) { return { ok: false, error: "denied" }; } };
 /* ---- дэлгэцийн бичлэг: 30 секунд тутам хэсэгчлэн Storage руу илгээнэ ---- */
 let REC = null;
 const recPath = (uid, id, k) => "rec/" + uid + "/" + id + "/" + String(k).padStart(4, "0") + ".webm";
