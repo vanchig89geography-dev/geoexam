@@ -857,9 +857,10 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .rsb{min-height:32px!important;padding:4px 10px!important;font-size:12.5px!important;white-space:nowrap}
 .rsbw{white-space:nowrap}.rsbw .rsb+.rsb{margin-left:4px}
 /* 🗂 шалгалтын дүнгийн хуудас: табууд */
-.trtabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;border-radius:14px;background:var(--chip);border:1px solid var(--line);margin:12px 0}
+.trtabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:4px;border-radius:14px;background:var(--chip);border:1px solid var(--line);margin:12px 0}
 .trtabs button{border:2px solid transparent;border-radius:10px;padding:10px 4px;background:transparent;color:var(--muted);font:700 13.5px var(--btn-font);cursor:pointer;white-space:nowrap}
 .trtabs button.on{background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--ig) border-box;color:var(--pd-ink);box-shadow:0 4px 12px -4px rgba(0,87,183,.35)}
+@media(max-width:600px){.trtabs{display:flex;overflow-x:auto;scrollbar-width:none}.trtabs button{flex:1 0 auto;padding:10px 9px;font-size:12.5px}.andist small{font-size:8.5px}}
 .trp[hidden]{display:none}.trtop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 8px}
 .trprint{display:grid;gap:10px}.trpi{display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-radius:14px}.trpi .btn{justify-self:start}
 .dzone{display:grid;gap:6px;justify-items:start;margin-top:18px;padding:12px 14px;border:1px dashed color-mix(in srgb,var(--bad-2) 50%,transparent);border-radius:14px}.dzone b{color:var(--bad)}
@@ -1273,6 +1274,32 @@ body.geofull{overflow:hidden}
 .tsi{color:var(--muted);font-weight:800}.tsnm{display:grid;min-width:0}.tsnm b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tsnm small{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}.tsn{font:900 20px Nunito,var(--btn-font)}
 .tsdet{display:grid;gap:4px;margin:0 0 6px 44px;padding:8px 12px;border-left:3px solid #A5B4FC}.tsc{display:grid}.tsc small{color:var(--muted);font-size:12px}
 @media (max-width:520px){.tsrow{grid-template-columns:24px minmax(0,1fr) 56px 56px;padding:8px}.tsn{font-size:17px}.tssum b{font-size:22px}.tsdet{margin-left:10px}}
+
+/* 📈 Шалгалтын анализ */
+.ansum{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:8px 0}.ansum div{display:grid;justify-items:center;gap:2px;padding:12px 6px;border-radius:14px;background:var(--chip);text-align:center}.ansum span{font-size:18px}.ansum b{font:900 24px Nunito,var(--btn-font)}.ansum small{color:var(--muted);font-weight:700;font-size:12px}
+@media (max-width:700px){.ansum{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.anblk{margin:16px 0;display:grid;gap:6px}.anblk h4{margin:0;font:800 17px var(--btn-font)}
+.andist{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;align-items:end;height:170px;padding:8px;border-radius:14px;background:var(--chip)}
+.anbar{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:3px}.anbar i{width:100%;border-radius:6px 6px 0 0;min-height:2px}.anbar b{font-size:12px}.anbar small{font-size:10.5px;color:var(--muted);white-space:nowrap}
+.anq{display:grid;grid-template-columns:34px minmax(0,1fr) 170px 96px;gap:10px;align-items:center;padding:9px 12px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface);text-align:left;font:inherit;color:var(--fg);cursor:pointer}
+.anhd{background:var(--chip);border:0;cursor:default;font-weight:800;font-size:12.5px;color:var(--muted)}
+.anno{font:900 18px Nunito,var(--btn-font);color:var(--muted)}.anqt{display:grid;min-width:0}.anqt b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.anqt small{color:var(--muted);font-size:12px}
+.anpb{position:relative;height:24px;border-radius:99px;background:var(--chip);overflow:hidden;display:block}.anpb i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}.anpb b{position:relative;display:block;text-align:center;font:800 13px/24px var(--btn-font)}
+.anlv{font-size:12.5px;font-weight:700}
+.andet{display:grid;gap:5px;margin:-2px 0 6px 44px;padding:10px 12px;border-left:3px solid #A5B4FC;background:var(--sunk,var(--chip));border-radius:0 12px 12px 0}
+.anopt{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 60px;gap:8px;align-items:center;font-size:13px}.anopt.ok{font-weight:800;color:#047857}.anob{height:12px;border-radius:99px;background:var(--chip);overflow:hidden;display:block}.anob i{display:block;height:100%;background:#94A3B8}.anopt.ok .anob i{background:#10B981}.anopt b{text-align:right}
+.anwarn{margin:4px 0 0;padding:8px 10px;border-radius:10px;background:#FEF3C7;color:#78350F;font-size:13px}
+.antp{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:10px;align-items:center;font-size:14px;font-weight:600}
+.annote textarea{width:100%;border-radius:12px;border:1.5px solid var(--line-2);padding:12px;font:inherit;font-size:14.5px;line-height:1.55;background:var(--surface);color:var(--fg)}
+@media (max-width:620px){.anq{grid-template-columns:26px minmax(0,1fr) 84px;padding:8px}.anq .anlv,.anhd span:last-child{display:none}.andet{margin-left:8px}.antp{grid-template-columns:minmax(0,1fr) 110px}.anopt{grid-template-columns:minmax(0,1fr) 70px 46px}}
+
+.anxl{margin:4px 0 6px}
+.angrid{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:6px 0 4px}.angrid table{border-collapse:collapse;font-size:12.5px;width:max-content;min-width:100%}
+.angrid th{background:#1E3A8A;color:#fff;padding:6px 4px;font-weight:700;white-space:nowrap;position:sticky;top:0}.angrid td{border:1px solid var(--line);padding:4px 3px;text-align:center;white-space:nowrap;min-width:22px}
+.angrid .ann{text-align:left;font-weight:600}.angrid .anb{font-weight:800}.angrid .anz{color:#DC2626}.angrid .anlvl{font-weight:900;color:#1E3A8A}
+.angrid .annt{text-align:left;white-space:normal;width:290px;min-width:290px;font-size:12px;line-height:1.35;color:var(--ink,#374151);outline:0}.angrid .annt[contenteditable]:focus{background:#FEF9C3}
+.angrid .anlt td,.angrid .anlt th{min-width:52px}
+.ancharts{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0}.ancharts>div{border:1px solid var(--line);border-radius:12px;overflow-x:auto;max-width:100%;background:#fff}.ancharts canvas{display:block;height:auto}
 </style>
 </head>
 <body>
@@ -2135,6 +2162,64 @@ async function renderTeacher(box) {
   } catch (e) {}
 }
 let TRTAB = "res", TRCODE = "";
+/* 📈 Шалгалтын анализ (багш): ерөнхий дүн, тархалт, даалгавар бүр, сэдвээр, дүгнэлт */
+function anaView(box, r, code) {
+  const A = r.ana; if (!A || !A.n) { box.append(el("p", "empty", "Шалгалт өгсөн сурагч алга. Сурагчид хариулсны дараа анализ гарна.")); return; }
+  const L = "ABCDE", col = qCol, lvl = p => p >= 80 ? "🟢 Хялбар" : p >= 40 ? "🟡 Дунд" : "🔴 Хэцүү", R = r.ranking, Q = A.qs, LV = anaLevels(R), SV = (r.note && r.note.st) || {};
+  const NT = {}; R.forEach(x => NT[x.uid] = SV[x.uid] != null ? SV[x.uid] : anaNote(x, A));
+  const sum = el("div", "ansum"); [["👥", A.n, "шалгалт өгсөн"], ["📊", A.avg + "%", "дундаж"], ["🎯", A.med + "%", "медиан"], ["⬆", A.max + "%", "хамгийн өндөр"], ["⬇", A.min + "%", "хамгийн бага"], ["✅", A.pass + "%", "тэнцсэн (≥60%)"]].forEach(([i, v, t]) => { const c = el("div"); c.append(el("span", "", i), el("b", "", String(v)), el("small", "", t)); sum.append(c); }); box.append(sum);
+  const dl = el("button", "btn anxl", "⬇ Анализ татах (Excel)"); dl.type = "button"; box.append(dl);
+  /* 📋 дүнгийн хүснэгт */
+  const gw = el("div", "anblk"); gw.append(el("h4", "", "📋 Дүнгийн хүснэгт"), el("small", "lbn", "Багшийн тэмдэглэл автоматаар бичигдсэн. Дээр нь дарж засаад доорх «💾 Хадгалах»-ыг дарна уу.")); box.append(gw);
+  const sc = el("div", "angrid"), t = el("table"); sc.append(t); gw.append(sc);
+  const tr = (cells, cls) => { const r2 = el("tr", cls || ""); cells.forEach(c => r2.append(c)); t.append(r2); return r2; }, td = (v, cls) => el("td", cls || "", v == null ? "" : String(v)), th = v => el("th", "", v);
+  tr([th("№"), th("Овог нэр")].concat(Q.map(o => th(String(o.i + 1))), [th("Нийт"), th("Хувь"), th("Түвшин"), th("Багшийн тэмдэглэл")]));
+  const edits = {};
+  R.forEach((x, k) => { const p = pctOf(x), n = td(NT[x.uid], "annt"); n.contentEditable = "true"; n.oninput = () => { edits[x.uid] = n.textContent; NT[x.uid] = n.textContent; };
+    tr([td(k + 1), td(x.name, "ann")].concat(Q.map((o, i) => { const v = (x.pts || [])[i] || 0; return td(v, v <= 0 ? "anz" : ""); }), [td(x.score, "anb"), td(p + "%"), td(lvOf(p), "anlvl"), n])); });
+  const pr1 = tr([td(""), td("Гүйцэтгэл %", "ann anb")].concat(Q.map(o => { const c = td(o.pct + "%", "anb"); c.style.background = col(o.pct) + "33"; return c; }), [td(""), td(""), td(""), td("")]));
+  tr([td(""), td("Хүндрэл", "ann anb")].concat(Q.map(o => { const c = td(qLvl(o.pct), "anb"); c.style.background = col(o.pct) + "33"; return c; }), [td(""), td(""), td(""), td("Х — хялбар · Д — дунд · Хц — хэцүү", "annt")]));
+  /* түвшин */
+  const lw = el("div", "anblk"); lw.append(el("h4", "", "Түвшний тархалт")); box.append(lw);
+  const lsc = el("div", "angrid"), lt = el("table", "anlt"); lsc.append(lt); lw.append(lsc);
+  const lr = (a) => { const r2 = el("tr"); a.forEach(c => r2.append(c)); lt.append(r2); };
+  lr([th("Түвшин")].concat(LVS.map(th), [th("Нийт")])); lr([td("Хувь", "ann")].concat(LVT.map(v => td(v)), [td("")]));
+  lr([td("Сурагчийн тоо", "ann anb")].concat(LVS.map(l => td(LV[l], "anb")), [td(A.n, "anb")])); lr([td("Эзлэх %", "ann")].concat(LVS.map(l => td(Math.round(LV[l] / A.n * 100) + "%")), [td("100%")]));
+  const cv = anaCharts(R, A, LV), cw = el("div", "ancharts"); cv.forEach(c => { c.style.width = c.width / 2 + "px"; const d = el("div"); d.append(c); cw.append(d); }); box.append(cw);
+  /* даалгавар бүр */
+  const qw = el("div", "anblk"); qw.append(el("h4", "", "Даалгавар бүрээр"), el("small", "lbn", "Мөр дээр дарж дэлгэрэнгүйг харна. 🔴 хэцүү даалгаврууд дахин давтах шаардлагатай.")); box.append(qw);
+  const hd = el("div", "anq anhd"); ["№", "Даалгавар", "Гүйцэтгэл", "Хүндрэл"].forEach(t2 => hd.append(el("span", "", t2))); qw.append(hd);
+  Q.forEach(o => { const row = el("button", "anq"); row.type = "button"; const bar = el("span", "anpb"), fill = el("i"); fill.style.width = o.pct + "%"; fill.style.background = col(o.pct); bar.append(fill, el("b", "", o.pct + "%"));
+    const tx = el("span", "anqt"); tx.append(el("b", "", o.q || "(зурагтай даалгавар)"), el("small", "", (o.type === "open" ? "Задгай" : o.type === "fill" ? "Нөхөх" : "Сонгох") + (o.topic ? " · " + o.topic : "") + " · " + o.full + "/" + A.n + " бүтэн оноо"));
+    row.append(el("span", "anno", String(o.i + 1)), tx, bar, el("span", "anlv", lvl(o.pct))); qw.append(row);
+    const det = el("div", "andet"); det.hidden = true; qw.append(det); row.onclick = () => { det.hidden = !det.hidden; };
+    if (o.cnt) { const tot = Math.max(1, A.n); o.opts.forEach((t2, k) => { const r2 = el("div", "anopt" + (k === o.a ? " ok" : "")), b2 = el("i"); b2.style.width = (o.cnt[k] / tot * 100) + "%"; r2.append(el("span", "", L[k] + ") " + t2 + (k === o.a ? " ✓" : "")), el("span", "anob", ""), el("b", "", o.cnt[k] + " хүн")); r2.children[1].append(b2); det.append(r2); });
+      if (o.none) det.append(el("small", "lbn", "Хариулаагүй: " + o.none));
+      const wr = o.cnt.map((c, k) => [c, k]).filter(([c, k]) => k !== o.a).sort((a, b) => b[0] - a[0])[0]; if (wr && wr[0] > 0 && wr[0] >= o.cnt[o.a]) det.append(el("p", "anwarn", "⚠️ Олон сурагч «" + L[wr[1]] + ") " + o.opts[wr[1]] + "» гэж буруу хариулсан. Энэ ойлголтыг дахин тайлбарлах хэрэгтэй."));
+    } else det.append(el("small", "lbn", "Дундаж оноо: " + o.avg + " / " + o.max + " · 0 оноо авсан: " + o.zero + " хүн"));
+    if (o.disc != null) det.append(el("small", "lbn", "Ялгах чадвар: " + o.disc + (o.disc < .2 ? " (сул: сайн, муу сурагч ялгаагүй хариулсан)" : o.disc >= .4 ? " (сайн)" : " (дунд)"))); });
+  if (A.topics && A.topics.length) { const tw = el("div", "anblk"); tw.append(el("h4", "", "Сэдэв, бүлгээр")); A.topics.forEach(t2 => { const r2 = el("div", "antp"), b2 = el("span", "anpb"), f2 = el("i"); f2.style.width = t2.pct + "%"; f2.style.background = col(t2.pct); b2.append(f2, el("b", "", t2.pct + "%")); r2.append(el("span", "", t2.t + " (" + t2.k + " даалгавар)"), b2); tw.append(r2); }); box.append(tw); }
+  /* дүгнэлт */
+  const nw = el("div", "anblk annote"); nw.append(el("h4", "", "✍️ Багшийн дүгнэлт")); box.append(nw);
+  const ta = Object.assign(el("textarea"), { rows: 10, maxLength: 6000, placeholder: "Энэ шалгалтын дүн, сурагчдын сул тал, цаашид авах арга хэмжээгээ бичнэ үү…", value: (r.note && r.note.text) || "" });
+  const msg = el("small", "lbn"), bt = el("div", "tbtns"), sv = el("button", "btn", "💾 Хадгалах"), ai = el("button", "btn ghost", "🤖 Дүгнэлт бичүүлэх"), pr = el("button", "btn ghost", "🖨 Хэвлэх / PDF"), dl2 = el("button", "btn ghost", "⬇ Excel"); [sv, ai, pr, dl2].forEach(x => x.type = "button"); bt.append(ai, sv, pr, dl2); nw.append(ta, bt, msg);
+  sv.onclick = async () => { sv.disabled = true; const st = Object.assign({}, SV, edits); const x = await api({ action: "contestNote", code, text: ta.value, st }).catch(() => ({ ok: false })); sv.disabled = false; if (x.ok) Object.assign(SV, edits); msg.textContent = x.ok ? "✓ Хадгалагдлаа" : "Хадгалж чадсангүй."; };
+  ai.onclick = async () => { if (ta.value.trim() && !confirm("Одоо байгаа дүгнэлтийн оронд AI-ийн бичсэн дүгнэлт орох уу?")) return; ai.disabled = true; msg.textContent = "🤖 Дүгнэлт бичиж байна… (10–20 секунд)";
+    const x = await api({ action: "contestAiNote", code }).catch(e => ({ ok: false, msg: String(e) })); ai.disabled = false;
+    if (x.ok) { ta.value = x.text; msg.textContent = "✓ Бэлэн. Шалгаад, засаад «💾 Хадгалах» дарна уу."; } else msg.textContent = x.error === "learn" ? "🔒 AI дүгнэлт Сургалтын эрхтэй багшид нээлттэй." : x.error === "quota" ? "Өнөөдрийн AI хязгаар дууссан." : "Бичиж чадсангүй" + (x.msg ? ": " + x.msg : ""); };
+  dl.onclick = dl2.onclick = async () => { dl.disabled = dl2.disabled = true; try { await anaXlsx(r, NT, ta.value); } catch (e) { alertBox("Татаж чадсангүй: " + e.message); } dl.disabled = dl2.disabled = false; };
+  pr.onclick = () => { const w = window.open("", "_blank"); if (!w) return; const e = s2 => String(s2).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+    const im = cv.map(c => '<img src="' + c.toDataURL("image/png") + '" style="width:' + c.width / 2 + 'px;max-width:100%">').join("");
+    w.document.write('<!doctype html><meta charset="utf-8"><title>Шалгалтын анализ</title><style>@page{size:A4 landscape;margin:10mm}body{font:11px/1.4 Calibri,Arial,sans-serif;margin:0;color:#111}h1{font-size:16px;margin:0 0 8px}table{border-collapse:collapse;margin:0 0 10px}td,th{border:1px solid #9ca3af;padding:2px 4px;text-align:center}th{background:#1e3a8a;color:#fff}.l{text-align:left}.z{color:#dc2626}.nt{text-align:left;font-size:10px;min-width:220px}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}pre{white-space:pre-wrap;font:inherit;border:1px solid #9ca3af;padding:8px;margin:0}h3{background:#1e3a8a;color:#fff;margin:8px 0 0;padding:4px 8px;font-size:12px}</style>'
+      + "<h1>" + e(r.contest.name) + " — шалгалтын анализ</h1><table><tr><th>№</th><th>Овог нэр</th>" + Q.map(o => "<th>" + (o.i + 1) + "</th>").join("") + "<th>Нийт</th><th>Хувь</th><th>Түвшин</th><th>Багшийн тэмдэглэл</th></tr>"
+      + R.map((x, k) => { const p = pctOf(x); return "<tr><td>" + (k + 1) + "</td><td class=l>" + e(x.name) + "</td>" + Q.map((o, i) => { const v = (x.pts || [])[i] || 0; return "<td" + (v <= 0 ? " class=z" : "") + ">" + v + "</td>"; }).join("") + "<td><b>" + x.score + "</b></td><td>" + p + "%</td><td><b>" + lvOf(p) + "</b></td><td class=nt>" + e(NT[x.uid] || "") + "</td></tr>"; }).join("")
+      + "<tr><td></td><td class=l><b>Гүйцэтгэл %</b></td>" + Q.map(o => "<td style='background:" + col(o.pct) + "33'><b>" + o.pct + "%</b></td>").join("") + "<td colspan=4></td></tr>"
+      + "<tr><td></td><td class=l><b>Хүндрэл</b></td>" + Q.map(o => "<td style='background:" + col(o.pct) + "33'><b>" + qLvl(o.pct) + "</b></td>").join("") + "<td colspan=4 class=nt>Х — хялбар · Д — дунд · Хц — хэцүү</td></tr></table>"
+      + '<div class=row><table><tr><th>Түвшин</th>' + LVS.map(l => "<th>" + l + "</th>").join("") + "<th>Нийт</th></tr><tr><td class=l>Хувь</td>" + LVT.map(v => "<td>" + v + "</td>").join("") + "<td></td></tr><tr><td class=l><b>Сурагчийн тоо</b></td>" + LVS.map(l => "<td><b>" + LV[l] + "</b></td>").join("") + "<td><b>" + A.n + "</b></td></tr><tr><td class=l>Эзлэх %</td>" + LVS.map(l => "<td>" + Math.round(LV[l] / A.n * 100) + "%</td>").join("") + "<td>100%</td></tr></table>"
+      + "<table><tr><th colspan=2>Ерөнхий</th></tr><tr><td class=l>Шалгалт өгсөн</td><td>" + A.n + "</td></tr><tr><td class=l>Дундаж</td><td>" + A.avg + "%</td></tr><tr><td class=l>Хамгийн өндөр</td><td>" + A.max + "%</td></tr><tr><td class=l>Хамгийн бага</td><td>" + A.min + "%</td></tr></table></div>"
+      + '<div class=row>' + im + "</div>" + (ta.value.trim() ? "<h3>Багшийн дүгнэлт</h3><pre>" + e(ta.value) + "</pre>" : "") + "<script>setTimeout(()=>print(),400)<\/script>"); w.document.close(); };
+}
+
 async function teacherResults(code) {
   const r = await api({ action: "contestResults", code, token }); if (!r.ok) return alertBox(CERR[r.error] || "Алдаа");
   const box = $("pane"); box.innerHTML = ""; const back = el("button", "link lsback", "← Шалгалтууд"); back.type = "button"; back.onclick = () => renderPane(); box.append(back);
@@ -2152,10 +2237,10 @@ async function teacherResults(code) {
   const edb = el("button", "btn", "✏️ Засах (хугацаа, нэр)"); edb.type = "button";
   /* 🗂 хуудсыг 4 таб болгож цэгцэлнэ: Дүн · Засах · Хэвлэх · Цаас */
   if (TRCODE !== code) { TRCODE = code; TRTAB = "res"; }
-  const TABS = [["res", "📊 Дүн"], ["edit", "✏️ Засах"], ["print", "🖨 Хэвлэх"], ["paper", "📄 Цаас"]], P = {}, seg = el("div", "trtabs");
+  const TABS = [["res", "📊 Дүн"], ["an", "📈 Анализ"], ["edit", "✏️ Засах"], ["print", "🖨 Хэвлэх"], ["paper", "📄 Цаас"]], P = {}, seg = el("div", "trtabs");
   TABS.forEach(([k, t]) => { const b = el("button", "", t); b.type = "button"; b.dataset.k = k; b.onclick = () => { TRTAB = k; show(); }; seg.append(b); P[k] = el("div", "trp"); });
   const show = () => { seg.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.k === TRTAB)); Object.keys(P).forEach(k => P[k].hidden = k !== TRTAB); };
-  box.append(seg, P.res, P.edit, P.print, P.paper);
+  box.append(seg, P.res, P.an, P.edit, P.print, P.paper); anaView(P.an, r, code);
   // ✏️ шалгалтын нэр, эхлэх/дуусах цаг, хугацааг засах
   const ef = el("div", "bform tagrid taq"); P.edit.append(ef);
   { const c = r.contest, loc = d => { const p = n => String(n).padStart(2, "0"); return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes()); };
@@ -3467,7 +3552,7 @@ async function importParse0(file) {
 const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
 function zipMake(files) {   // {name: string}
   const enc = new TextEncoder(), parts = [], cen = []; let off = 0;
-  Object.entries(files).forEach(([name, txt]) => { const d = enc.encode(txt), nm = enc.encode(name); let c = 0xffffffff; for (let i = 0; i < d.length; i++) c = CRC_T[(c ^ d[i]) & 255] ^ (c >>> 8); c = (c ^ 0xffffffff) >>> 0;
+  Object.entries(files).forEach(([name, txt]) => { const d = typeof txt === "string" ? enc.encode(txt) : txt, nm = enc.encode(name); let c = 0xffffffff; for (let i = 0; i < d.length; i++) c = CRC_T[(c ^ d[i]) & 255] ^ (c >>> 8); c = (c ^ 0xffffffff) >>> 0;
     const h = new DataView(new ArrayBuffer(30)); h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint32(14, c, true); h.setUint32(18, d.length, true); h.setUint32(22, d.length, true); h.setUint16(26, nm.length, true);
     const ce = new DataView(new ArrayBuffer(46)); ce.setUint32(0, 0x02014b50, true); ce.setUint16(4, 20, true); ce.setUint16(6, 20, true); ce.setUint16(8, 0x0800, true); ce.setUint32(16, c, true); ce.setUint32(20, d.length, true); ce.setUint32(24, d.length, true); ce.setUint16(28, nm.length, true); ce.setUint32(42, off, true);
     parts.push(h.buffer, nm, d); cen.push(ce.buffer, nm); off += 30 + nm.length + d.length; });
@@ -5343,6 +5428,121 @@ async function renderTChat(box) {
   if (r && r.stop) TC_STOP.push(r.stop); TC_STOP.push(() => { if (stopMsgs) stopMsgs(); });
 }
 
+/* ===== 📈 Шалгалтын анализ: түвшин · сурагчийн тэмдэглэл · Excel ===== */
+const LVS = ["VIII", "VII", "VI", "V", "IV", "III", "II", "I"], LVT = ["90–100", "80–89", "70–79", "60–69", "50–59", "40–49", "30–39", "0–29"];
+const LVC = ["#065F46", "#059669", "#10B981", "#84CC16", "#F59E0B", "#F97316", "#EF4444", "#B91C1C"];
+const lvOf = p => p >= 90 ? "VIII" : p >= 80 ? "VII" : p >= 70 ? "VI" : p >= 60 ? "V" : p >= 50 ? "IV" : p >= 40 ? "III" : p >= 30 ? "II" : "I";
+const qCol = p => p >= 80 ? "#10B981" : p >= 40 ? "#F59E0B" : "#EF4444", qLvl = p => p >= 80 ? "Х" : p >= 40 ? "Д" : "Хц";
+const pctOf = x => x.total ? Math.round(x.score / x.total * 100) : 0;
+
+/* сурагч бүрт автомат тэмдэглэл (AI-гүй, өөр өөр үг хэллэгтэй) */
+function anaNote(x, A) {
+  const p = pctOf(x), P = x.pts || [], Q = A.qs;
+  let h = 0; for (const ch of String(x.uid || x.name)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const c = L => L[(h = (h * 1103515245 + 12345) >>> 0) % L.length];
+  const T = {}; Q.forEach((o, i) => { if (!o.topic) return; T[o.topic] = T[o.topic] || { s: 0, m: 0 }; T[o.topic].s += P[i] || 0; T[o.topic].m += o.max; });
+  const tp = Object.entries(T).filter(([, v]) => v.m).map(([t, v]) => [t, v.s / v.m]);
+  let g, w, J;
+  if (tp.length >= 2) {
+    g = tp.filter(t => t[1] >= .75).sort((a, b) => b[1] - a[1]).slice(0, 2).map(t => t[0]);
+    w = tp.filter(t => t[1] < .5).sort((a, b) => a[1] - b[1]).slice(0, 2).map(t => t[0]);
+    J = (L, f) => L.join(", ") + " " + ({ acc: ["сэдвүүдийг", "сэдвийг"], on: ["сэдвүүд дээр", "сэдэв дээр"], own: ["сэдвүүдээ", "сэдвээ"], nom: ["сэдвүүд", "сэдэв"] }[f][L.length > 1 ? 0 : 1]);
+  } else {   /* сэдэвгүй бол даалгаврын дугаараар */
+    g = []; w = Q.map((o, i) => (P[i] || 0) < o.max ? i + 1 : 0).filter(Boolean);
+    if (w.length > 5 || !w.length) w = []; else w = [w.join(", ") + "-р"];
+    J = (L, f) => L[0] + " " + ({ acc: "даалгавруудыг", on: "даалгавар дээр", own: "даалгавруудаа", nom: "даалгаврууд" }[f]);
+  }
+  const GOOD = [() => J(g, "acc") + " сайн эзэмшсэн байна.", () => J(g, "on") + " сайн гүйцэтгэлтэй байна.", () => J(g, "nom") + " дээр мэдлэг сайн харагдаж байна.", () => J(g, "acc") + " сайн ойлгосон байна."];
+  const WEAK = [() => J(w, "on") + " алдаа гаргасан тул үзсэн хичээлээ сэргээн санаарай.", () => J(w, "own") + " дахин давтаж, ойлголтоо бататгаарай.", () => J(w, "on") + " алдаа их байна, энэ хэсгээ сайн давтаарай.", () => J(w, "nom") + " дутуу байгаа тул нөхөж давтаарай.", () => J(w, "acc") + " дэвтэр, номоо харж дахин уншаарай."];
+  const WEAK2 = [() => J(w, "on") + " их алдсан байна. Үзсэн хичээлээ сэргээн санаж, сайн давтаарай.", () => J(w, "on") + " мэдлэг дутуу байна. Энэ хэсгийн хичээлээ эхнээс нь давтаарай.", () => J(w, "own") + " дахин уншиж, тэмдэглэлээ сайн хараарай.", () => J(w, "on") + " алдаа их гарсан тул тогтмол давтлага хийгээрэй."];
+  const o = [];
+  if (p >= 80) { o.push(c(["Маш сайн дүн үзүүлсэн, баяр хүргэе!", "Сайн ажилласан байна, гайхалтай!", "Өндөр үнэлгээ авсан нь хичээл зүтгэлийн үр дүн юм.", "Мэдлэгээ маш сайн харуулсан, ийм л байгаарай!", "Тогтвортой сайн суралцаж байгаад баяртай байна."]));
+    if (g.length) o.push(c(GOOD)());
+    o.push(w.length ? c([() => J(w, "own") + " давтвал дараагийн удаа бүр илүү өндөр дүн авна.", () => J(w, "on") + " цөөн алдаа гарсныг засвал төгс болно.", () => J(w, "acc") + " дахин нэг хараад гарвал бүрэн эзэмшинэ."])() : c(["Цаашид ч ийм амжилттай суралцаарай!", "Энэ амжилтаа үргэлжлүүлээрэй!"])); }
+  else if (p >= 70) { o.push(c(["Сайн ажилласан байна.", "Хичээнгүй суралцаж байгаа нь харагдаж байна.", "Сайн үр дүн гаргасан байна."])); if (g.length) o.push(c(GOOD)()); if (w.length) o.push(c(WEAK)()); }
+  else if (p >= 50) { if (g.length) o.push(c(GOOD)()); o.push(w.length ? c(WEAK)() : c(["Үзсэн хичээлээ сэргээн санаж, сайн давтаарай.", "Хичээлээ тогтмол давтвал дүн тань ахина."])); }
+  else { if (g.length) o.push(c([() => J(g, "on") + " харьцангуй сайн байна.", () => J(g, "acc") + " ойлгосон байна.", () => J(g, "on") + " зөв хариулт олон байна."])()); o.push(w.length ? c(WEAK2)() : "Үзсэн хичээлээ сэргээн санаж, сайн давтаарай."); }
+  return o.join(" ");
+}
+function anaLevels(R) { const n = {}; LVS.forEach(l => n[l] = 0); R.forEach(x => n[lvOf(pctOf(x))]++); return n; }
+
+/* баганан график → canvas */
+function anaChart(vals, labs, cols, title, W, H, unit) {
+  const cv = document.createElement("canvas"), s = 2; cv.width = W * s; cv.height = H * s; const g = cv.getContext("2d"); g.scale(s, s);
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H); g.fillStyle = "#0F172A"; g.font = "700 14px Inter,Arial,sans-serif"; g.fillText(title, 12, 22);
+  const top = 46, bot = H - 30, mx = Math.max(1, ...vals), bw = (W - 24) / vals.length;
+  g.strokeStyle = "#CBD5E1"; g.beginPath(); g.moveTo(12, bot + .5); g.lineTo(W - 12, bot + .5); g.stroke();
+  vals.forEach((v, i) => { const x = 12 + i * bw + Math.max(2, bw * .12), w = bw - 2 * Math.max(2, bw * .12), hh = v / mx * (bot - top); g.fillStyle = cols[i]; g.fillRect(x, bot - hh, w, hh);
+    g.fillStyle = "#0F172A"; g.textAlign = "center"; g.font = "700 " + (bw < 30 ? 10 : 12) + "px Inter,Arial,sans-serif"; g.fillText(v + (unit || ""), x + w / 2, bot - hh - 5);
+    g.fillStyle = "#475569"; g.font = "600 " + (bw < 30 ? 10 : 12) + "px Inter,Arial,sans-serif"; g.fillText(labs[i], x + w / 2, bot + 17); g.textAlign = "left"; });
+  return cv;
+}
+const anaCharts = (R, A, LV) => [anaChart(LVS.map(l => LV[l]), LVS, LVC, "Түвшний тархалт (сурагчийн тоо)", 460, 260),
+  anaChart(A.qs.map(o => o.pct), A.qs.map(o => String(o.i + 1)), A.qs.map(o => qCol(o.pct)), "Даалгавар бүрийн гүйцэтгэл (%)", Math.max(520, A.qs.length * 34 + 30), 260)];
+
+/* Excel (.xlsx) — графиктай */
+async function anaXlsx(r, notes, concl) {
+  const A = r.ana, R = r.ranking, Q = A.qs, nq = Q.length, LV = anaLevels(R), C = i => { let s = ""; i++; while (i) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = (i - m - 1) / 26 | 0; } return s; };
+  const S = { hd: 1, c: 2, l: 3, z: 4, b: 5, lv: 6, nt: 7, ti: 8, bl: 12, cc: 13, pc: 14, g: 15, y: 16, rd: 17, gs: 9, ys: 10, rs: 11 };
+  const rows = []; let rn = 0; const merges = [], hts = {};
+  const cell = (ci, v, s) => { const ref = C(ci) + rn; if (v == null || v === "") return '<c r="' + ref + '" s="' + s + '"/>'; return typeof v === "number" ? '<c r="' + ref + '" s="' + s + '"><v>' + v + "</v></c>" : '<c r="' + ref + '" s="' + s + '" t="inlineStr"><is><t xml:space="preserve">' + xesc(v) + "</t></is></c>"; };
+  const row = (cells, ht) => { rn++; if (ht) hts[rn] = ht; rows.push('<row r="' + rn + '"' + (ht ? ' ht="' + ht + '" customHeight="1"' : "") + ">" + cells.map(([ci, v, s]) => cell(ci, v, s)).join("") + "</row>"); };
+  const last = nq + 5;   /* №, нэр, Q…, Нийт, Хувь, Түвшин, Тэмдэглэл */
+  row([[0, r.contest.name + " — шалгалтын анализ", S.ti]], 24); merges.push("A1:" + C(last) + "1");
+  row([[0, "№", S.hd], [1, "Овог нэр", S.hd]].concat(Q.map((o, i) => [i + 2, String(i + 1), S.hd]), [[nq + 2, "Нийт", S.hd], [nq + 3, "Хувь", S.hd], [nq + 4, "Түвшин", S.hd], [nq + 5, "Багшийн тэмдэглэл", S.hd]]));
+  R.forEach((x, k) => { const p = pctOf(x), nt = notes[x.uid] || "", ht = Math.max(18, Math.ceil(nt.length / 85) * 15 + 4);
+    row([[0, k + 1, S.c], [1, x.name, S.l]].concat(Q.map((o, i) => { const v = (x.pts || [])[i] || 0; return [i + 2, v, v <= 0 ? S.z : S.c]; }), [[nq + 2, x.score, S.b], [nq + 3, p / 100, S.pc], [nq + 4, lvOf(p), S.lv], [nq + 5, nt, S.nt]]), ht); });
+  row([[0, "", S.c], [1, "Гүйцэтгэл %", S.bl]].concat(Q.map((o, i) => [i + 2, o.pct / 100, o.pct >= 80 ? S.g : o.pct >= 40 ? S.y : S.rd])));
+  row([[0, "", S.c], [1, "Хүндрэл (Х·Д·Хц)", S.bl]].concat(Q.map((o, i) => [i + 2, qLvl(o.pct), o.pct >= 80 ? S.gs : o.pct >= 40 ? S.ys : S.rs])));
+  row([]);
+  const lvRow = (lab, ls, vals, tot) => { const cells = [[1, lab, ls]]; vals.forEach((v, i) => { cells.push([2 + i * 2, v[0], v[1]], [3 + i * 2, "", v[1]]); }); cells.push([18, tot[0], tot[1]], [19, "", tot[1]]); row(cells);
+    for (let i = 0; i < 9; i++) merges.push(C(2 + i * 2) + rn + ":" + C(3 + i * 2) + rn); };
+  lvRow("Түвшин", S.hd, LVS.map(l => [l, S.hd]), ["Нийт", S.hd]);
+  lvRow("Хувь", S.l, LVT.map(l => [l, S.c]), ["", S.c]);
+  lvRow("Сурагчийн тоо", S.bl, LVS.map(l => [LV[l], S.b]), [A.n, S.b]);
+  lvRow("Эзлэх %", S.l, LVS.map(l => [A.n ? LV[l] / A.n : 0, S.pc]), [1, S.pc]);
+  row([]);
+  row([[1, "Ерөнхий", S.hd], [2, "", S.hd]]); merges.push("B" + rn + ":C" + rn);
+  [["Шалгалт өгсөн", A.n], ["Дундаж", A.avg / 100], ["Медиан", A.med / 100], ["Хамгийн өндөр", A.max / 100], ["Хамгийн бага", A.min / 100]].forEach(([t, v], i) => row([[1, t, S.l], [2, v, i ? S.pc : S.c]]));
+  row([]); row([]);
+  const chartRow = rn, cvs = anaCharts(R, A, LV), CH = 260, nRows = Math.ceil(CH / 20) + 1; for (let i = 0; i < nRows; i++) row([], 15);
+  row([[1, "Багшийн дүгнэлт", S.hd]].concat(Array.from({ length: last - 1 }, (_, i) => [i + 2, "", S.hd]))); merges.push("B" + rn + ":" + C(last) + rn);
+  const ct = String(concl || "").trim(), lines = ct.split("\n").reduce((s, l) => s + Math.max(1, Math.ceil(l.length / 150)), 0);
+  row([[1, ct, S.cc]].concat(Array.from({ length: last - 1 }, (_, i) => [i + 2, "", S.cc])), Math.min(409, Math.max(40, lines * 15 + 8))); merges.push("B" + rn + ":" + C(last) + rn);
+  /* баганы өргөн */
+  const cw = [5, 24].concat(Q.map(() => 5), [7, 7, 8, 80]);
+  const cols = cw.map((w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join("");
+  /* 2-р графикийн байрлах багана */
+  const px = w => Math.round(w * 7 + 5); let acc = 0, c2 = 1; for (let i = 1; i < cw.length; i++) { if (acc >= cvs[0].width / 2 + 20) { c2 = i; break; } acc += px(cw[i]); }
+  const png = cv => new Promise(res => cv.toBlob(b => b.arrayBuffer().then(a => res(new Uint8Array(a))), "image/png"));
+  const [p1, p2] = await Promise.all(cvs.map(png));
+  const pic = (id, col, cv) => '<xdr:oneCellAnchor><xdr:from><xdr:col>' + col + '</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>' + chartRow + '</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from><xdr:ext cx="' + (cv.width / 2 * 9525) + '" cy="' + (cv.height / 2 * 9525) + '"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="' + (id + 1) + '" name="Chart' + id + '"/><xdr:cNvPicPr/></xdr:nvPicPr><xdr:blipFill><a:blip r:embed="rId' + id + '"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor>';
+  const X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>', REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+  const bd = '<border><left style="thin"><color rgb="FF9CA3AF"/></left><right style="thin"><color rgb="FF9CA3AF"/></right><top style="thin"><color rgb="FF9CA3AF"/></top><bottom style="thin"><color rgb="FF9CA3AF"/></bottom><diagonal/></border>';
+  const fill = c => '<fill><patternFill patternType="solid"><fgColor rgb="FF' + c + '"/></patternFill></fill>';
+  const xf = (f, fi, b, al, nf) => '<xf numFmtId="' + (nf || 0) + '" fontId="' + f + '" fillId="' + fi + '" borderId="' + b + '" xfId="0" applyFont="1" applyFill="1" applyBorder="1"' + (nf ? ' applyNumberFormat="1"' : "") + (al ? ' applyAlignment="1"><alignment ' + al + "/></xf>" : "/>");
+  const ce = 'horizontal="center" vertical="center"', le = 'horizontal="left" vertical="center"', wr = 'horizontal="left" vertical="top" wrapText="1"';
+  const styles = X + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="7"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FFDC2626"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF1E3A8A"/><name val="Calibri"/></font><font><b/><sz val="14"/><name val="Calibri"/></font><font><sz val="10"/><color rgb="FF374151"/><name val="Calibri"/></font></fonts>'
+    + '<fills count="6"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>' + fill("1E3A8A") + fill("D1FAE5") + fill("FEF3C7") + fill("FEE2E2") + "</fills>"
+    + '<borders count="2"><border/>' + bd + '</borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="18">'
+    + xf(0, 0, 0) + xf(2, 2, 1, ce) + xf(0, 0, 1, ce) + xf(0, 0, 1, le) + xf(3, 0, 1, ce) + xf(1, 0, 1, ce) + xf(4, 0, 1, ce) + xf(6, 0, 1, wr) + xf(5, 0, 0, le)
+    + xf(1, 3, 1, ce) + xf(1, 4, 1, ce) + xf(1, 5, 1, ce) + xf(1, 0, 1, le) + xf(0, 0, 1, wr) + xf(0, 0, 1, ce, 9) + xf(1, 3, 1, ce, 9) + xf(1, 4, 1, ce, 9) + xf(1, 5, 1, ce, 9)
+    + '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+  const sheet = X + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="' + REL + '"><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0"><pane xSplit="2" ySplit="2" topLeftCell="C3" activePane="bottomRight" state="frozen"/></sheetView></sheetViews><cols>' + cols + "</cols><sheetData>" + rows.join("") + "</sheetData>"
+    + '<mergeCells count="' + merges.length + '">' + merges.map(m => '<mergeCell ref="' + m + '"/>').join("") + '</mergeCells><pageSetup orientation="landscape" fitToWidth="1" fitToHeight="0"/><drawing r:id="rId1"/></worksheet>';
+  const F = {
+    "[Content_Types].xml": X + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/></Types>',
+    "_rels/.rels": X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + REL + '/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+    "xl/workbook.xml": X + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="' + REL + '"><sheets><sheet name="Анализ" sheetId="1" r:id="rId1"/></sheets></workbook>',
+    "xl/_rels/workbook.xml.rels": X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + REL + '/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="' + REL + '/styles" Target="styles.xml"/></Relationships>',
+    "xl/styles.xml": styles, "xl/worksheets/sheet1.xml": sheet,
+    "xl/worksheets/_rels/sheet1.xml.rels": X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + REL + '/drawing" Target="../drawings/drawing1.xml"/></Relationships>',
+    "xl/drawings/drawing1.xml": X + '<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="' + REL + '">' + pic(1, 1, cvs[0]) + pic(2, c2, cvs[1]) + "</xdr:wsDr>",
+    "xl/drawings/_rels/drawing1.xml.rels": X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + REL + '/image" Target="../media/image1.png"/><Relationship Id="rId2" Type="' + REL + '/image" Target="../media/image2.png"/></Relationships>',
+    "xl/media/image1.png": p1, "xl/media/image2.png": p2 };
+  const a = document.createElement("a"); a.href = URL.createObjectURL(zipMake(F)); a.download = r.contest.name.replace(/[\\/:*?"<>|]/g, "") + " - анализ.xlsx"; document.body.append(a); a.click(); setTimeout(() => a.remove(), 800);
+}
+
 /* ---------- 🎬 Танилцуулга видео (хөдөлгөөнт, дуутай) ---------- */
 const IV = { DUR: 2.8, timers: [], on: false, loopT: null, nodes: [] };
 const IV_SCENES = [
@@ -5757,8 +5957,8 @@ async function ranking(code, key, roster) {
   const [s, ai] = await Promise.all([getDocs(C("contests", code, "subs")), hasO ? getDocs(C("contests", code, "ai")).catch(() => null) : null]), G = {};
   if (ai) ai.docs.forEach(d => G[d.id] = d.data());
   const list = s.docs.map(d => { const x = d.data(); let A = []; try { A = JSON.parse(x.answers || "[]"); } catch (e) {}
-    let sc = 0, tot = 0; Q.forEach((q, i) => { tot += maxP(q); sc += grade(q, A[i], G[d.id], i); });
-    return { name: x.paper && !x.cls && roster && roster[x.num - 1] ? roster[x.num - 1] : x.name || x.email, email: x.email, score: sc, total: tot, secs: x.secs || 0, uid: d.id, answers: A }; });
+    let sc = 0, tot = 0; const pts = Q.map((q, i) => { const g = grade(q, A[i], G[d.id], i); tot += maxP(q); sc += g; return g; });
+    return { pts, name: x.paper && !x.cls && roster && roster[x.num - 1] ? roster[x.num - 1] : x.name || x.email, email: x.email, score: sc, total: tot, secs: x.secs || 0, uid: d.id, answers: A }; });
   list.sort((a, b) => b.score - a.score || a.secs - b.secs); list.forEach((x, i) => x.rank = i + 1);
   return list;
 }
@@ -5977,8 +6177,37 @@ H.contestResults = async p => {
   const key = (await getDoc(D("contestKeys", code))).data() || {}, R = await ranking(code, key, cs.data().roster);
   if (stat(cs.data()) === "done") await saveRes(code, R);
   let flags = []; if (cs.data().cam) { try { flags = (await getDocs(C("contests", code, "flags"))).docs.map(d => { const x = d.data(); return { uid: x.uid, name: x.name, email: x.email, type: x.type, n: x.n, img: x.img || "", at: x.at ? toD(x.at).toTimeString().slice(0, 8) : "" }; }); } catch (e) {} }
-  const OQ = (key.qs || []).map((q, i) => q.open ? i : -1).filter(i => i >= 0);
-  return { ok: true, flags, open: OQ.length, contest: pubC(code, cs.data()), roster: cs.data().roster || [], ranking: R.map(x => ({ rank: x.rank, name: x.name, email: x.email, score: x.score, total: x.total, secs: x.secs, uid: x.uid })) };
+  const OQ = (key.qs || []).map((q, i) => q.open ? i : -1).filter(i => i >= 0), ana = anaOf(key.qs || [], R), nt = await safe(getDoc(D("contestNotes", code)));
+  return { ok: true, flags, open: OQ.length, ana, note: nt && nt.exists() ? nt.data() : null, contest: pubC(code, cs.data()), roster: cs.data().roster || [], ranking: R.map(x => ({ rank: x.rank, name: x.name, email: x.email, score: x.score, total: x.total, secs: x.secs, uid: x.uid, pts: x.pts })) };
+};
+/* 📈 Шалгалтын анализ: асуулт бүрийн гүйцэтгэл, онооны тархалт (ачаалсан хариултаас тооцоолно, нэмэлт уншилтгүй) */
+function anaOf(Q, R) {
+  const n = R.length, T = Q.reduce((s, q) => s + maxP(q), 0), pc = R.map(x => x.total ? x.score / x.total : 0).sort((a, b) => a - b);
+  const qs = Q.map((q, i) => { const mx = maxP(q), P = R.map(x => (x.pts || [])[i] || 0), avg = n ? P.reduce((a, b) => a + b, 0) / n : 0;
+    const o = { i, q: String(q.q || "").replace(/\s+/g, " ").slice(0, 160), topic: q.topic || "", type: q.open ? "open" : q.slots ? "fill" : "mc", max: mx, avg: Math.round(avg * 100) / 100, pct: mx ? Math.round(avg / mx * 100) : 0, full: P.filter(v => v >= mx).length, zero: P.filter(v => v <= 0).length };
+    if (!q.open && !q.slots && Array.isArray(q.o)) { o.a = q.a; o.opts = q.o.map(t => String(t).slice(0, 60)); o.cnt = q.o.map((_, k) => R.filter(x => (x.answers || [])[i] === k).length); o.none = R.filter(x => { const v = (x.answers || [])[i]; return v == null || v < 0; }).length; }
+    /* ялгах чадвар: дээд 27% − доод 27% */
+    if (n >= 8) { const k = Math.max(1, Math.round(n * .27)), S = R.slice().sort((a, b) => b.score - a.score), hi = S.slice(0, k), lo = S.slice(-k), f = L => L.reduce((s, x) => s + ((x.pts || [])[i] || 0), 0) / (k * (mx || 1)); o.disc = Math.round((f(hi) - f(lo)) * 100) / 100; }
+    return o; });
+  const tp = {}; qs.forEach(o => { if (!o.topic) return; tp[o.topic] = tp[o.topic] || { s: 0, m: 0, k: 0 }; tp[o.topic].s += o.avg; tp[o.topic].m += o.max; tp[o.topic].k++; });
+  const dist = Array(10).fill(0); pc.forEach(v => dist[Math.min(9, Math.floor(v * 10))]++);
+  return { n, total: T, avg: n ? Math.round(pc.reduce((a, b) => a + b, 0) / n * 100) : 0, med: n ? Math.round(pc[Math.floor(n / 2)] * 100) : 0, max: n ? Math.round(pc[n - 1] * 100) : 0, min: n ? Math.round(pc[0] * 100) : 0,
+    pass: n ? Math.round(pc.filter(v => v >= .6).length / n * 100) : 0, dist, lv: anaLevels(R), qs, topics: Object.entries(tp).map(([t, v]) => ({ t, k: v.k, pct: v.m ? Math.round(v.s / v.m * 100) : 0 })).sort((a, b) => a.pct - b.pct) };
+}
+H.contestNote = async p => { const m = await meInfo(); if (!m || !m.teacher) return { ok: false }; const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists() || (!m.admin && cs.data().owner !== m.email)) return { ok: false };
+  const st = {}; Object.entries(p.st || {}).slice(0, 400).forEach(([k, v]) => { st[String(k).slice(0, 80)] = String(v || "").slice(0, 600); });
+  await setDoc(D("contestNotes", code), { text: String(p.text || "").slice(0, 6000), st, at: Timestamp.now() }); return { ok: true }; };
+H.contestAiNote = async p => {   // 🤖 анализаас дүгнэлт бичүүлэх (Сургалтын эрхтэй багш)
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" }; if (!(m.admin || m.learn)) return { ok: false, error: "learn" };
+  const code = String(p.code), cs = await getDoc(D("contests", code)); if (!cs.exists() || (!m.admin && cs.data().owner !== m.email)) return { ok: false, error: "teacher" };
+  if ((await aiQuota(m.email, 0)) < 1) return { ok: false, error: "quota" }; await conf();
+  const key = (await getDoc(D("contestKeys", code))).data() || {}, A = anaOf(key.qs || [], await ranking(code, key, cs.data().roster));
+  const L = ["Шалгалт: " + (cs.data().name || ""), "Шалгалт өгсөн: " + A.n + ", дундаж: " + A.avg + "%, медиан: " + A.med + "%, хамгийн өндөр: " + A.max + "%, хамгийн бага: " + A.min + "%, тэнцсэн (≥60%): " + A.pass + "%", "Түвшний тархалт (VIII ≥90%, VII 80–89, VI 70–79, V 60–69, IV 50–59, III 40–49, II 30–39, I <30%): " + LVS.map(l => l + " — " + A.lv[l] + " сурагч").join(", "), "Даалгавар бүр:"];
+  A.qs.forEach(o => L.push((o.i + 1) + ". [" + (o.type === "open" ? "задгай" : o.type === "fill" ? "нөхөх" : "сонгох") + (o.topic ? ", " + o.topic : "") + "] «" + o.q + "» — гүйцэтгэл " + o.pct + "%" + (o.cnt ? ", зөв хариу " + "ABCDE"[o.a] + ", сонголтууд: " + o.opts.map((t, k) => "ABCDE"[k] + ") " + t + " — " + o.cnt[k] + " хүн").join("; ") : "") + (o.disc != null ? ", ялгах чадвар " + o.disc : "")));
+  if (A.topics.length) L.push("Сэдвээр: " + A.topics.map(t => t.t + " " + t.pct + "%").join("; "));
+  const sys = "Чи Монголын сургуулийн туршлагатай багш, үнэлгээний мэргэжилтэн. Шалгалтын статистикт тулгуурлан багшид зориулсан товч, тодорхой дүгнэлтийг монгол хэлээр бич. Зөвхөн өгөгдсөн тоонд тулгуурла, тоо зохиож болохгүй. Бүтэц: 1) Ерөнхий дүн, түвшний тархалт (2–3 өгүүлбэр); 2) Сайн эзэмшсэн (даалгаврын дугаар, сэдэвтэй); 3) Сул эзэмшсэн, түгээмэл алдаа (буруу сонголтыг их сонгосон шалтгааныг таамаглаж тайлбарла); 4) Даалгаврын чанар (хэт хялбар/хэцүү, ялгах чадвар сул даалгавар); 5) Дараагийн хичээлд хийх 3–5 зөвлөмж. Мөр бүрийг «• »-ээр эхлүүл, гарчгийг тод бичихгүй энгийн текстээр өг.";
+  let out; try { out = await gemini(L.join("\n"), { sys, temp: 0.4, schema: { type: "OBJECT", properties: { text: { type: "STRING" } }, required: ["text"] } }); } catch (e) { return { ok: false, error: "ai", msg: String(e.message || e).slice(0, 200) }; }
+  await aiQuota(m.email, 1); return { ok: true, text: String(out.text || "").slice(0, 6000) };
 };
 H.contestAnswer = async p => {   // 👁 багш: нэг сурагчийн асуулт бүрийн хариу (зөв/буруу)
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
@@ -6534,10 +6763,10 @@ async function aiQuota(email, n) {   // хоногийн хязгаар (баг�
   const used = d.d === today ? (d.n || 0) : 0; if (n === 0) return AI_DAY - used;
   await setDoc(ref, { d: today, n: used + n }); return AI_DAY - used - n;
 }
-async function gemini(text) {
-  const tk = (await acGetToken(appCheck(), false)).token, id = await auth.currentUser.getIdToken();
-  const body = JSON.stringify({ systemInstruction: { parts: [{ text: AI_SYS }] }, contents: [{ role: "user", parts: [{ text }] }],
-    generationConfig: { temperature: 0.1, maxOutputTokens: 8192, responseMimeType: "application/json", responseSchema: AI_SCHEMA } });
+async function gemini(text, o) {
+  o = o || {}; const tk = (await acGetToken(appCheck(), false)).token, id = await auth.currentUser.getIdToken();
+  const body = JSON.stringify({ systemInstruction: { parts: [{ text: o.sys || AI_SYS }] }, contents: [{ role: "user", parts: [{ text }] }],
+    generationConfig: { temperature: o.temp == null ? 0.1 : o.temp, maxOutputTokens: 8192, responseMimeType: "application/json", responseSchema: o.schema || AI_SCHEMA } });
   let last = "";
   for (const mdl of [(CONF && CONF.aiModel) || ""].concat(AI_MODELS).filter(Boolean)) {
     const r = await fetch("https://firebasevertexai.googleapis.com/v1beta/projects/geoexam/locations/global/publishers/google/models/" + mdl + ":generateContent",
