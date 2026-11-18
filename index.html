@@ -1264,6 +1264,15 @@ body.geofull{overflow:hidden}
 .tcib,.tcsb{flex:none;width:46px;height:46px;border-radius:12px;border:0;background:var(--chip);font-size:20px;cursor:pointer}.tcsb{background:linear-gradient(135deg,#38BDF8,#4F46E5);color:#fff}
 @media (max-width:700px){.tcw{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);height:78vh}.tcside{flex-direction:row;align-items:center;border-right:0;border-bottom:1.5px solid var(--line-2);padding:8px;overflow-x:auto}.tcside h4{display:none}.tcchl{flex-direction:row}.tcch{white-space:nowrap;font-size:13px}.tcside .link{white-space:nowrap}.tcm{max-width:94%}.tchd small{display:none}.tcmsgs,.tcin{padding-left:10px;padding-right:10px}}
 @media (max-width:700px){.tcpin{margin:8px 10px 0;font-size:12.5px;max-height:58px;overflow:hidden;cursor:pointer}.tcpin.open{max-height:none}}
+
+/* 📊 Багш нарын идэвх */
+.tssum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:8px 0}.tssum div{display:grid;justify-items:center;gap:2px;padding:14px;border-radius:14px;background:var(--chip)}.tssum span{font-size:22px}.tssum b{font:900 28px Nunito,var(--btn-font)}.tssum small{color:var(--muted);font-weight:700}
+.tsinfo{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px}.tsinfo small{color:var(--muted)}
+.tstab{display:grid;gap:4px}.tsrow{display:grid;grid-template-columns:36px minmax(0,1fr) 110px 110px;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;border:0;background:var(--surface);border:1px solid var(--line-2);text-align:left;font:inherit;color:var(--fg);cursor:pointer}
+.tshd{background:var(--chip);border:0;cursor:default;font-weight:800;font-size:13px}.tshd button{border:0;background:none;font:800 13px var(--btn-font);color:var(--muted);text-align:left;cursor:pointer;padding:0}.tshd button.on{color:#4F46E5}
+.tsi{color:var(--muted);font-weight:800}.tsnm{display:grid;min-width:0}.tsnm b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tsnm small{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}.tsn{font:900 20px Nunito,var(--btn-font)}
+.tsdet{display:grid;gap:4px;margin:0 0 6px 44px;padding:8px 12px;border-left:3px solid #A5B4FC}.tsc{display:grid}.tsc small{color:var(--muted);font-size:12px}
+@media (max-width:520px){.tsrow{grid-template-columns:24px minmax(0,1fr) 56px 56px;padding:8px}.tsn{font-size:17px}.tssum b{font-size:22px}.tsdet{margin-left:10px}}
 </style>
 </head>
 <body>
@@ -3734,6 +3743,7 @@ const ADM_CARDS = [
   ["lgrant", "🎬", "Сургалтын эрх", "Сургалтын төлбөр төлсөн хүнд видео хичээл үзэх эрх олгох"],
   ["grant", "🔑", "Сурагчийн эрх", "Төлбөр төлсөн сурагчид эрх олгох, цуцлах"],
   ["teach", "👩‍🏫", "Багшийн эрх", "Багшид шалгалт үүсгэх эрх олгох"],
+  ["tstats", "📊", "Багш нарын идэвх", "Багш бүрийн үүсгэсэн шалгалт, оруулсан асуултын тоо (7 хоногт нэг шинэчлэгдэнэ)"],
   ["dev", "📱", "Төхөөрөмж", "Сурагчийн утас, компьютерийн жагсаалт цэвэрлэх"],
   ["rec", "🎥", "Дэлгэцийн бичлэг", "Одоогоор унтраалттай (Storage төлбөртэй багц шаардана)"],
   ["notice", "🔔", "Мэдэгдэл", "Багш нарт тэмцээний зар, мэдэгдэл илгээх"],
@@ -3745,7 +3755,7 @@ function renderAdmin(box) {
   if (admSub === "test" || admSub === "learn") { const m = admSub; admSub = ""; return testManager(m === "learn" ? "learn" : undefined); }
   if (admSub) { const k = admSub, c = ADM_CARDS.find(x => x[0] === k) || ADM_CARDS[0];
     const back = el("button", "link lsback", "← Админы тохиргоо"); back.type = "button"; back.onclick = () => { admSub = ""; renderPane(); scrollTo({ top: 0 }); };
-    box.append(back, el("h3", "bh", c[1] + " " + c[2])); if (k === "cert") { certAdmin(box); return; } if (k === "notice") { noticeAdmin(box); return; } box.append(adminPanel(k)); return; }
+    box.append(back, el("h3", "bh", c[1] + " " + c[2])); if (k === "cert") { certAdmin(box); return; } if (k === "notice") { noticeAdmin(box); return; } if (k === "tstats") { tStatsAdmin(box); return; } box.append(adminPanel(k)); return; }
   box.append(el("h3", "bh", "⚙️ Админы тохиргоо"), el("p", "note", "Энэ хэсэг зөвхөн танд (админд) харагдана."));
   const g = el("div", "admgrid");
   ADM_CARDS.forEach(([k, ic, t, d]) => { const b = el("button", "admcard"); b.type = "button"; b.append(el("span", "ic", ic)); const tx = el("span", "tx"); tx.append(el("b", "", t), el("small", "", d)); b.append(tx);
@@ -3776,6 +3786,28 @@ async function fitImages(Q, limit = IMG_LIMIT) {
     for (const [q, k, i] of refs) if (q[k][i].length > per) { try { q[k][i] = await shrinkTo(q[k][i], per); } catch (e) {} }
     tot = JSON.stringify(Q).length; }
   return tot <= limit;
+}
+
+/* 📊 Багш нарын идэвх: 7 хоногт нэг удаа тоолно (хадгалсан тоог л уншина) */
+async function tStatsAdmin(box, force) {
+  const w = el("div", "tsw"); box.append(w); w.append(el("p", "lbn", force ? "Шинээр тоолж байна…" : "Ачаалж байна…"));
+  const r = await api({ action: "tStats", force: !!force }).catch(() => ({ ok: false })); w.innerHTML = "";
+  if (!r.ok) { w.append(el("p", "empty", "Ачаалж чадсангүй.")); return; }
+  const L = r.list, d = new Date(r.at), p2 = n => String(n).padStart(2, "0"), nx = new Date(d.getTime() + 7 * 864e5);
+  const sum = el("div", "tssum"); [["👩‍🏫", L.length, "идэвхтэй багш"], ["📝", L.reduce((a, x) => a + x.ex, 0), "шалгалт"], ["❓", L.reduce((a, x) => a + x.qs, 0), "оруулсан асуулт"]].forEach(([i, n, t]) => { const c = el("div"); c.append(el("span", "", i), el("b", "", String(n)), el("small", "", t)); sum.append(c); }); w.append(sum);
+  const info = el("div", "tsinfo"); info.append(el("small", "", "Тоолсон: " + d.getFullYear() + "." + p2(d.getMonth() + 1) + "." + p2(d.getDate()) + " " + p2(d.getHours()) + ":" + p2(d.getMinutes()) + " · дараагийнх " + p2(nx.getMonth() + 1) + "/" + p2(nx.getDate()) + "-нд автоматаар"));
+  const rb = el("button", "link", "🔄 Одоо шинэчлэх"); rb.type = "button"; rb.onclick = () => { w.remove(); tStatsAdmin(box, true); }; info.append(rb); w.append(info);
+  if (!L.length) { w.append(el("p", "empty", "Шалгалт үүсгэсэн эсвэл асуулт оруулсан багш алга.")); return; }
+  let key = "ex"; const tb = el("div", "tstab"); w.append(tb);
+  const draw = () => { tb.innerHTML = ""; const hd = el("div", "tsrow tshd"); [["", "#"], ["name", "Багш"], ["ex", "📝 Шалгалт"], ["qs", "❓ Асуулт"]].forEach(([k, t]) => { const b = el(k ? "button" : "span", k === key ? "on" : "", t + (k === key ? " ▼" : "")); if (k) { b.type = "button"; b.onclick = () => { key = k; draw(); }; } hd.append(b); }); tb.append(hd);
+    L.slice().sort((a, b) => key === "name" ? a.name.localeCompare(b.name, "mn") : b[key] - a[key] || b.ex - a.ex).forEach((x, i) => { const row = el("button", "tsrow"); row.type = "button"; const nm = el("span", "tsnm"); nm.append(el("b", "", x.name), el("small", "", x.email));
+      row.append(el("span", "tsi", String(i + 1)), nm, el("span", "tsn", String(x.ex)), el("span", "tsn", String(x.qs)));
+      const det = el("div", "tsdet"); det.hidden = true;
+      row.onclick = async () => { det.hidden = !det.hidden; if (det.hidden || det.dataset.ok) return; det.textContent = "Ачаалж байна…"; const q = await api({ action: "tStatsDetail", email: x.email }).catch(() => ({ ok: false })); det.innerHTML = ""; det.dataset.ok = "1";
+        if (!q.ok || !q.list.length) { det.append(el("small", "lbn", "Шалгалт алга.")); return; }
+        q.list.forEach(c => { const r2 = el("div", "tsc"); const dt = c.created ? new Date(c.created) : null; r2.append(el("b", "", c.name || c.code), el("small", "", "#" + c.code + " · " + c.count + " асуулт" + (c.n != null ? " · " + c.n + " оролцогч" : "") + (dt ? " · " + dt.getFullYear() + "." + p2(dt.getMonth() + 1) + "." + p2(dt.getDate()) : "") + " · " + (c.status === "open" ? "🟢 явагдаж буй" : c.status === "upcoming" ? "⏳ эхлээгүй" : "✓ дууссан"))); det.append(r2); }); };
+      tb.append(row, det); }); };
+  draw();
 }
 
 /* ---------- 🎓 Сургалт: видео хичээл → хичээлийн дараах тест ---------- */
@@ -6019,6 +6051,20 @@ H.teacherEmails = async () => {   // «Багш» гэж бүртгүүлсэн 
   const E = new Set(); t.docs.forEach(d => E.add(d.id)); u.docs.forEach(d => { const e = d.data().email; if (e) E.add(low(e)); });
   return { ok: true, emails: [...E].sort() };
 };
+/* ---- 📊 Багш нарын шалгалт, асуултын тоо: 7 хоногт нэг удаа тоолж adminStats/tstats-д хадгална (админ л уншина) ---- */
+H.tStats = async p => {
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "admin" };
+  if (!p.force) { const s = await safe(getDoc(D("adminStats", "tstats"))); if (s && s.exists() && s.data().at && Date.now() - toD(s.data().at).getTime() < 7 * 864e5) { const x = s.data(); return { ok: true, list: x.list || [], at: toD(x.at).toISOString(), cached: true }; } }
+  const [t, u] = await Promise.all([getDocs(C("teachers")), getDocs(query(C("users"), where("role", "==", "teacher"), limit(1000)))]);
+  const N = {}, E = new Set([low(m.email)]); t.docs.forEach(d => { E.add(d.id); if (d.data().name) N[d.id] = d.data().name; }); u.docs.forEach(d => { const e = low(d.data().email || ""); if (e) { E.add(e); if (d.data().name) N[e] = d.data().name; } });
+  const L = [...E], out = [], cnt = async q => { try { return (await getCountFromServer(q)).data().count; } catch (e) { return 0; } };
+  for (let i = 0; i < L.length; i += 10) out.push(...await Promise.all(L.slice(i, i + 10).map(async e => ({ email: e, name: N[e] || e.split("@")[0], ex: await cnt(query(C("contests"), where("owner", "==", e))), qs: await cnt(query(C("teacherQs"), where("owner", "==", e))) }))));
+  const list = out.filter(x => x.ex || x.qs).sort((a, b) => b.ex - a.ex || b.qs - a.qs), at = Timestamp.now();
+  await setDoc(D("adminStats", "tstats"), { list, at, n: L.length }); return { ok: true, list, at: toD(at).toISOString(), cached: false, n: L.length };
+};
+H.tStatsDetail = async p => { const m = await meInfo(); if (!m || !m.admin) return { ok: false };
+  const s = await getDocs(query(C("contests"), where("owner", "==", low(String(p.email))), limit(200)));
+  return { ok: true, list: s.docs.map(d => { const c = d.data(); return { code: d.id, name: c.name || "", count: c.count || 0, created: c.created ? toD(c.created).getTime() : 0, status: stat(c), n: Array.isArray(c.res) ? c.res.length : null }; }).sort((a, b) => b.created - a.created) }; };
 /* ---- 📚 Багшийн булан: багш нарын хуваалцсан материал (Word, PDF, PPT · жижиг файл эсвэл Drive холбоос) ---- */
 const isTch = m => !!m && (m.admin || m.teacher || m.role === "teacher");
 H.matList = async p => {
