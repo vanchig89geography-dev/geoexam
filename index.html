@@ -1321,6 +1321,13 @@ body.geofull{overflow:hidden}
 .cjoin input{border:3.5px solid transparent!important;background:linear-gradient(var(--surface),var(--surface)) padding-box,conic-gradient(from var(--ja),#0057B7,#0057B7 25%,#FFD500 50%,#FFD500 75%,#0057B7) border-box!important;animation:jaSpin 6s linear infinite;box-shadow:0 8px 22px -10px rgba(0,87,183,.5)}
 @keyframes jaSpin{to{--ja:360deg}}
 @media (prefers-reduced-motion:reduce){.cjoin input{animation:none}}
+
+/* 🌙 задгай хариултын талбар бараан горимд уншигдахуйц */
+.openans{background:var(--surface)!important;color:var(--fg)!important}
+.openans[readonly]{opacity:1;-webkit-text-fill-color:var(--fg)}
+.openans::placeholder{color:var(--muted);opacity:.8}
+/* 📱 утсанд маягтууд нэг баганаар (дэлгэцээс халихгүй) */
+@media (max-width:700px){.bform{grid-template-columns:minmax(0,1fr)!important}.bform>*{min-width:0;grid-column:1/-1}.myqty button{min-width:0;white-space:normal}}
 </style>
 </head>
 <body>
@@ -2838,9 +2845,11 @@ function alertBox(m) { const p = el("p", "empty", m); $("pane").prepend(p); }
 document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === tab));
 /* ⚡ ховор хэрэглэгддэг хэсгүүдийг хэрэгтэй үед нь ачаална */
 const LZ_ = {};
-function lz(k) { return LZ_[k] || (LZ_[k] = new Promise((res, rej) => { const t = document.getElementById("lz-" + k); if (!t) return rej(new Error("lz " + k)); const s = document.createElement("script"); s.textContent = t.textContent; document.head.append(s); t.remove(); res(); })); }
+function lz(k) { return LZ_[k] || (LZ_[k] = new Promise((res, rej) => { const go = () => { const t = document.getElementById("lz-" + k); if (!t) { delete LZ_[k]; return rej(new Error("lz " + k)); } const s = document.createElement("script"); s.textContent = t.textContent; document.head.append(s); t.remove(); res(); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go, { once: true }); else go(); })); }   // хуудас бүрэн уншигдсаны дараа
 function renderMapTab(b) { return lz("map").then(() => renderMapTab(b)); }
 function btStop() {}
+function loadMap() { return lz("map").then(() => loadMap()); }   // нүүрний intro газарзүйн зураг
 function renderTools(b) { return lz("tools").then(() => renderTools(b)); }
 function toolsStop() {}
 function renderTChat(b) { return lz("tchat").then(() => renderTChat(b)); }
