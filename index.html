@@ -20,7 +20,7 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&family=Lora:ital,wght@1,600;1,700&family=Nunito:wght@800;900&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&family=Lora:ital,wght@1,600;1,700&family=Nunito:wght@800;900&display=swap"></noscript>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&family=Marck+Script&family=Nunito:wght@800;900&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&family=Marck+Script&family=Nunito:wght@800;900&display=swap"></noscript>
 <style>
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -1069,7 +1069,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
  #exam .nav{margin:16px -12px -12px;padding-left:12px;padding-right:12px}
 }
 .title{margin-top:18px}
-.title p.tagline{font-family:'Lora',Georgia,serif;font-style:italic;font-weight:700;font-size:clamp(17px,4.4vw,20px);letter-spacing:.4px;margin-top:2px;background-image:linear-gradient(135deg,#1D4ED8,#4338CA);-webkit-background-clip:text;background-clip:text;color:transparent}
+.title p.tagline{font-family:'Marck Script','Lora',Georgia,serif;font-style:normal;font-weight:400;font-size:clamp(22px,5.6vw,27px);letter-spacing:.2px;margin-top:2px;background-image:linear-gradient(135deg,#1D4ED8,#4338CA);-webkit-background-clip:text;background-clip:text;color:transparent}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .title p.tagline{background-image:linear-gradient(135deg,color-mix(in srgb,#38BDF8 70%,#fff),color-mix(in srgb,#4F46E5 70%,#fff))}}
 :root[data-theme="dark"] .title p.tagline{background-image:linear-gradient(135deg,color-mix(in srgb,#38BDF8 70%,#fff),color-mix(in srgb,#4F46E5 70%,#fff))}
 .title h1{font-family:"Nunito",var(--btn-font);font-weight:900;letter-spacing:-.01em}
@@ -1306,6 +1306,21 @@ body.geofull{overflow:hidden}
 
 .tcm.pend{opacity:.6}.tcm.fail .tcnm small{color:#DC2626}
 .tcw.one{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important}.tcw.one .tcside{display:none}
+
+/* 🔢 шалгалтын код: тод, гоё хүрээ */
+.cjoin input{border:2.5px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#38BDF8,#4F46E5) border-box;box-shadow:0 6px 18px -8px rgba(79,70,229,.45);font-weight:800}
+.cjoin input:focus{border-color:transparent;box-shadow:0 0 0 4px rgba(56,189,248,.25),0 6px 18px -8px rgba(79,70,229,.5)}
+
+/* 🔍 лого томруулсан */
+.logo img{width:48px!important;height:48px!important}.logo span{font-size:27px!important}
+@media (max-width:440px){.logo img{width:38px!important;height:38px!important}.logo span{font-size:23px!important}.logo{gap:6px}}
+@media (max-width:370px){.logo img{width:34px!important;height:34px!important}.logo span{font-size:21px!important}}
+
+/* 🌈 шалгалтын код: алаг өнгийн, аажим урсдаг хүрээ */
+@property --ja{syntax:"<angle>";initial-value:0deg;inherits:false}
+.cjoin input{border:3.5px solid transparent!important;background:linear-gradient(var(--surface),var(--surface)) padding-box,conic-gradient(from var(--ja),#0057B7,#0057B7 25%,#FFD500 50%,#FFD500 75%,#0057B7) border-box!important;animation:jaSpin 6s linear infinite;box-shadow:0 8px 22px -10px rgba(0,87,183,.5)}
+@keyframes jaSpin{to{--ja:360deg}}
+@media (prefers-reduced-motion:reduce){.cjoin input{animation:none}}
 </style>
 </head>
 <body>
@@ -1618,7 +1633,7 @@ function renderPane() {
 function testCard(t) {
   const c = el("div", "test" + (t.locked ? " locked" : ""));
   c.append(el("span", "tg" + (t.free ? "" : " pay"), t.free ? "Үнэгүй" : (t.locked ? "🔒 Төлбөртэй" : "Төлбөртэй")), el("b", "", t.name),
-    el("small", "", t.count + " даалгавар" + (t.minutes ? " · " + t.minutes + " минут" : "") + (t.desc ? " · " + t.desc : "")));
+    el("small", "", t.count + " даалгавар"));
   const two = el("div", "two");
   if (t.locked) { const b = el("button", "", "🔒 Эрх авах →"); b.type = "button"; b.onclick = () => openAcct(true); two.append(b); }
   else {
@@ -2155,7 +2170,6 @@ function contestReview(r) {
 }
 /* --- багшид --- */
 async function renderTeacher(box) {
-  box.append(el("div", "grp", "👩‍🏫 Багшийн хэсэг"));
   const row = el("div", "tbtns");
   const nb = el("button", "btn", "+ Шинэ шалгалт үүсгэх"); nb.type = "button"; nb.onclick = () => contestBuilder();
   const mq = el("button", "btn ghost", "✍️ Миний асуултууд"); mq.type = "button"; mq.onclick = () => myQuestions();
