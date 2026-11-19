@@ -2438,9 +2438,9 @@ async function myQuestions() {
   const list = el("div", "myql2"); box.append(list);
   if (!all.length) list.append(el("p", "empty", "Асуулт алга. «+ Шинэ асуулт» дарж нэмнэ үү."));
   all.forEach((x, i) => { const d0 = el("details", "myqrow"), sm = el("summary");
-    sm.append(el("span", "myqn", String(i + 1)), el("span", "myqt", (x.open ? "✍️ " : "") + x.q), (x.img && x.img.length) ? el("span", "myqb", "🖼") : "");
+    sm.append(el("span", "myqn", String(i + 1)), el("span", "myqt", (x.open ? "✍️ " : "") + x.q), (x.hi || (x.img && x.img.length)) ? el("span", "myqb", "🖼") : "");
     const e = el("button", "myqi", "✏️"), d = el("button", "myqi", "🗑"); e.type = d.type = "button"; e.title = "Засах"; d.title = "Устгах";
-    e.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); editId = x.id; setTy(!!x.open); rub.value = x.rub || ""; pts.value = x.p || 1; q.value = x.q; oIn.forEach(([rb, t], k) => { t.value = x.o[k] || ""; rb.checked = k === x.a; }); tp.value = x.topic || ""; img.value = (x.img || [])[0] || ""; sol.value = x.sol || ""; sv.textContent = "Засварыг хадгалах"; openForm("✏️ " + (i + 1) + "-р асуултыг засах"); };
+    e.onclick = async ev => { ev.preventDefault(); ev.stopPropagation(); e.disabled = true; const g = await api({ action: "myQGet", id: x.id }).catch(() => null); e.disabled = false; if (g && g.ok) x = Object.assign({}, x, g.q); editId = x.id; setTy(!!x.open); rub.value = x.rub || ""; pts.value = x.p || 1; q.value = x.q; oIn.forEach(([rb, t], k) => { t.value = x.o[k] || ""; rb.checked = k === x.a; }); tp.value = x.topic || ""; img.value = (x.img || [])[0] || ""; sol.value = x.sol || ""; sv.textContent = "Засварыг хадгалах"; openForm("✏️ " + (i + 1) + "-р асуултыг засах"); };
     d.onclick = async ev => { ev.preventDefault(); ev.stopPropagation(); if (!confirm((i + 1) + "-р асуултыг устгах уу?")) return; await api({ action: "myQDel", id: x.id }); d0.remove(); };
     sm.append(e, d); d0.append(sm);
     const ol = el("div", "myqol"); if (x.open) ol.append(el("span", "ok", "📋 " + (x.rub || "") + " · " + (x.p || 1) + " оноо")); (x.o || []).forEach((o, k) => ol.append(el("span", k === x.a ? "ok" : "", L[k] + ". " + o))); if (x.topic) ol.append(el("small", "lbn", x.topic)); d0.append(ol);
@@ -5841,6 +5841,9 @@ async function allTests(force) {
   }
   return TESTS;
 }
+/* ⚡ асуултын товч хураангуй (зураггүй): сан, «Миний асуултууд»-ыг хурдан нээнэ */
+const qSum = qs => (qs || []).map(q => ({ n: q.n, q: String(q.q || "").slice(0, 140), topic: q.topic || "", p: maxP(q), fill: !!q.slots, img: (q.img || []).length + (q.optImg || []).length > 0 }));
+const tqItem = (x, at) => ({ q: String(x.q || "").slice(0, 400), o: (x.o || []).map(v => String(v).slice(0, 150)), a: x.a, p: x.p || 1, topic: x.topic || "", open: !!x.open, rub: String(x.rub || "").slice(0, 300), hi: !!(x.img && x.img.length), at: at || "" });
 async function qsOf(id) { if (!QCACHE[id]) { const s = await getDoc(D("qs", id)); QCACHE[id] = s.exists() ? (s.data().q || []) : []; } return QCACHE[id]; }
 
 /* ---- үйлдлүүд ---- */
@@ -6090,21 +6093,26 @@ const pc_end = c => toD(c.end).toISOString();
 H.contestMy = async () => {
   const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
   const j = await getDocs(C("users", m.uid, "joined")), out = [];
-  for (const d of j.docs) { const cs = await getDoc(D("contests", d.id)); if (!cs.exists()) continue; const pc = pubC(d.id, cs.data());
-    if (pc.status === "done" && !(cs.data().review && !cs.data().pub)) { try { const key = (await getDoc(D("contestKeys", d.id))).data() || {}, sub = (await getDoc(D("contests", d.id, "subs", m.uid))).data() || {};
-      const g = (key.qs || []).some(q => q.open) ? await safe(getDoc(D("contests", d.id, "ai", m.uid))) : null, gd = g && g.exists() ? g.data() : null;
+  /* ⚡ шалгалт бүрийг зэрэг, дотор нь түлхүүр/хариу/AI-г зэрэг уншина */
+  const R = await Promise.all(j.docs.map(async d => { const cs = await getDoc(D("contests", d.id)).catch(() => null); if (!cs || !cs.exists()) return null; const pc = pubC(d.id, cs.data());
+    if (pc.status === "done" && !(cs.data().review && !cs.data().pub)) { try { const [ks, ss, g] = await Promise.all([getDoc(D("contestKeys", d.id)), getDoc(D("contests", d.id, "subs", m.uid)), safe(getDoc(D("contests", d.id, "ai", m.uid)))]);
+      const key = ks.data() || {}, sub = ss.data() || {}, gd = (key.qs || []).some(q => q.open) && g && g.exists() ? g.data() : null;
       let A = []; try { A = JSON.parse(sub.answers || "[]"); } catch (e) {} let sc = 0, tot = 0; (key.qs || []).forEach((q, i) => { tot += maxP(q); sc += grade(q, A[i], gd, i); }); pc.score = sc; pc.total = tot; } catch (e) {} }
-    out.push(pc); }
+    return pc; }));
+  R.forEach(pc => { if (pc) out.push(pc); });
   out.sort((a, b) => a.start < b.start ? 1 : -1);
   return { ok: true, contests: out };
 };
 H.contestBank = async () => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
   const L = (await allTests()).filter(t => !t.lesson && (!t.hidden || m.admin)), qs = [];
-  const lists = await Promise.all(L.map(t => qsOf(t.id)));
-  L.forEach((t, i) => lists[i].forEach(q => qs.push({ id: t.id + "#" + q.n, test: t.id, n: q.n, q: String(q.q).slice(0, 140), topic: q.topic, p: maxP(q), fill: !!q.slots, img: (q.img || []).length + (q.optImg || []).length > 0 })));
-  const mine = (await getDocs(query(C("teacherQs"), where("owner", "==", m.email), limit(500)))).docs;
-  mine.forEach((d, i) => { const x = d.data(); qs.push({ id: "my#" + d.id, test: "my", n: i + 1, q: String(x.q).slice(0, 140), topic: x.topic || "", p: x.p || 1, fill: false, open: !!x.open, img: !!(x.img && x.img.length) }); });
+  const [sumS, mineL] = await Promise.all([getDocs(C("qsum")).catch(() => null), tqList(m)]), SUM = {};
+  if (sumS) sumS.docs.forEach(d => { SUM[d.id] = d.data().list || []; });
+  const lists = await Promise.all(L.map(async t => { const sm = SUM[t.id]; if (sm && (!t.count || sm.length === t.count)) return sm;
+    const full = qSum(await qsOf(t.id)); if (m.admin) setDoc(D("qsum", t.id), { list: full }).catch(() => {}); return full; }));   // хураангуйгүй/хуучирсан бол нэг удаа бүтнээр
+  L.forEach((t, i) => lists[i].forEach(q => qs.push(Object.assign({ id: t.id + "#" + q.n, test: t.id }, q))));
+  const mine = mineL || [];
+  mine.forEach((x, i) => { qs.push({ id: "my#" + x.id, test: "my", n: i + 1, q: String(x.q).slice(0, 140), topic: x.topic || "", p: x.p || 1, fill: false, open: !!x.open, img: !!x.hi }); });
   const T = L.map(t => ({ id: t.id, name: (t.hidden ? "🔒 " : "") + t.name, group: t.hidden ? "🔒 Нууц тест (тэмцээнд)" : t.group })); if (mine.length) T.unshift({ id: "my", name: "Миний асуултууд", group: "Миний" });
   return { ok: true, tests: T, questions: qs };
 };
@@ -6114,8 +6122,10 @@ H.contestCreate = async p => {
   if (!ids.length) return { ok: false, error: "no_q" };
   if (isNaN(start) || isNaN(end) || end <= start) return { ok: false, error: "time" };
   const full = [];
+  await Promise.all([...new Set(ids.map(x => x.split("#")[0]).filter(t => t !== "my"))].map(t => qsOf(t)));   // ⚡ тестүүдийг зэрэг
+  const MY = {}; await Promise.all(ids.filter(x => x.indexOf("my#") === 0).map(async x => { const d = await getDoc(D("teacherQs", x.slice(3))); if (d.exists()) MY[x.slice(3)] = d; }));
   for (const id of ids) { const [tid, n] = id.split("#");
-    if (tid === "my") { const d = await getDoc(D("teacherQs", n)); if (d.exists() && (d.data().owner === m.email || m.admin)) { const x = d.data(); full.push(Object.assign({ id, n: String(full.length + 1), q: x.q, o: x.o || [], a: x.a, p: x.p || 1, topic: x.topic || "", img: x.img || [], optImg: [], sol: x.sol || "" }, x.open ? { open: true, a: -1, o: [], rub: x.rub || "" } : {})); } continue; }
+    if (tid === "my") { const d = MY[n]; if (d && d.exists() && (d.data().owner === m.email || m.admin)) { const x = d.data(); full.push(Object.assign({ id, n: String(full.length + 1), q: x.q, o: x.o || [], a: x.a, p: x.p || 1, topic: x.topic || "", img: x.img || [], optImg: [], sol: x.sol || "" }, x.open ? { open: true, a: -1, o: [], rub: x.rub || "" } : {})); } continue; }
     const q = (await qsOf(tid)).find(x => String(x.n) === n); if (q) full.push(Object.assign({ id }, q)); }
   if (JSON.stringify(full).length > 950000) return { ok: false, error: "big" };
   const pub = full.map(q => { const o = Object.assign({}, q); delete o.a; delete o.sol; delete o.rub; if (o.slots) o.slots = o.slots.map(s => ({ k: s.k, p: s.p })); return o; });
@@ -6211,7 +6221,8 @@ H.contestDelete = async p => {   // багш өөрийн шалгалтыг б�
 H.contestMine = async () => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
   const s = await getDocs(query(C("contests"), where("owner", "==", m.email))), out = [];
-  for (const d of s.docs) { const pc = pubC(d.id, d.data()); try { pc.players = (await getCountFromServer(C("contests", d.id, "subs"))).data().count; } catch (e) { pc.players = 0; } out.push(pc); }
+  out.push(...await Promise.all(s.docs.map(async d => { const pc = pubC(d.id, d.data());   // ⚡ зэрэг тоолно
+    pc.players = await getCountFromServer(C("contests", d.id, "subs")).then(r => r.data().count).catch(() => 0); return pc; })));
   out.sort((a, b) => a.start < b.start ? 1 : -1);
   return { ok: true, contests: out };
 };
@@ -6395,10 +6406,26 @@ H.teacherList = async () => {   // эрхтэй багш нар + хүсэлт �
   return { ok: true, teachers: Object.values(T).sort((a, b) => a.until < b.until ? 1 : -1), pending };
 };
 /* багшийн өөрийн асуултууд */
+/* «Миний асуултууд»: tqsum/{uid} хураангуйгаас (зураггүй) уншина; тоо зөрвөл нэг удаа шинэчилнэ */
+async function tqList(m) {
+  const uid = auth.currentUser.uid, Q = query(C("teacherQs"), where("owner", "==", m.email));
+  const [sd, cnt] = await Promise.all([getDoc(D("tqsum", uid)).catch(() => null), getCountFromServer(Q).then(r => r.data().count).catch(() => null)]);
+  const it = sd && sd.exists() ? sd.data().items || {} : null, L = it ? Object.entries(it).filter(([, v]) => v).map(([id, v]) => Object.assign({ id }, v)) : null;
+  if (L && (cnt == null || cnt === L.length)) return L;
+  const s = await getDocs(query(Q, limit(500))), items = {};
+  s.docs.forEach(d => { const x = d.data(); items[d.id] = tqItem(x, x.at ? ymd(toD(x.at)) : ""); });
+  setDoc(D("tqsum", uid), { items }).catch(() => {});
+  return Object.entries(items).map(([id, v]) => Object.assign({ id }, v));
+}
+const tqPut = (id, item) => setDoc(D("tqsum", auth.currentUser.uid), { items: { [id]: item } }, { merge: true }).catch(() => {});
 H.myQs = async () => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
-  const s = await getDocs(query(C("teacherQs"), where("owner", "==", m.email), limit(500)));
-  return { ok: true, list: s.docs.map(d => Object.assign({ id: d.id }, d.data(), { at: d.data().at ? ymd(toD(d.data().at)) : "" })).sort((a, b) => a.at < b.at ? 1 : -1) };
+  return { ok: true, list: (await tqList(m)).sort((a, b) => a.at < b.at ? 1 : a.at > b.at ? -1 : (a.id < b.id ? 1 : -1)) };
+};
+H.myQGet = async p => {   // ✏️ засахад нэг асуултыг зурагтай нь бүтэн
+  const m = await meInfo(); if (!m || !m.teacher) return { ok: false };
+  const d = await getDoc(D("teacherQs", String(p.id))); if (!d.exists() || (d.data().owner !== m.email && !m.admin)) return { ok: false };
+  return { ok: true, q: Object.assign({ id: d.id }, d.data()) };
 };
 H.myQSave = async p => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
@@ -6411,7 +6438,7 @@ H.myQSave = async p => {
   if (open) Object.assign(data, { open: true, rub });
   const id = p.id ? String(p.id) : (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
   if (p.id) { const old = await getDoc(D("teacherQs", id)); if (!old.exists() || old.data().owner !== m.email) return { ok: false, error: "teacher" }; }
-  await setDoc(D("teacherQs", id), data); return { ok: true, id };
+  await setDoc(D("teacherQs", id), data); await tqPut(id, tqItem(data, ymd(new Date()))); return { ok: true, id };
 };
 H.myQImport = async p => {   // 📥 файлаас таньсан асуултуудыг нэг дор хадгална (дээд тал нь 100)
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
@@ -6419,11 +6446,11 @@ H.myQImport = async p => {   // 📥 файлаас таньсан асуулт�
   L.forEach((x, i) => { const o = (Array.isArray(x.o) ? x.o : []).map(v => String(v || "").trim().slice(0, 300)).filter(Boolean).slice(0, 5), q = String(x.q || "").trim().slice(0, 1200), a = Math.round(+x.a);
     if (q.length < 3 || o.length < 2 || !(a >= 0 && a < o.length)) return;
     b.set(D("teacherQs", Date.now().toString(36) + i.toString(36) + Math.random().toString(36).slice(2, 6)), { owner: m.email, q, o, a, p: Math.max(1, Math.min(10, Math.round(+x.p || 1))), topic: String(x.topic || "").slice(0, 80), sol: String(x.sol || "").slice(0, 600), img: [], at: Timestamp.now() }); n++; });
-  if (n) await b.commit(); return { ok: true, n };
+  if (n) { await b.commit(); await setDoc(D("tqsum", auth.currentUser.uid), { items: null }, { merge: true }).catch(() => {}); } return { ok: true, n };
 };
 H.myQDel = async p => {
   const m = await meInfo(); if (!m || !m.teacher) return { ok: false, error: "teacher" };
-  const d = await getDoc(D("teacherQs", String(p.id))); if (d.exists() && (d.data().owner === m.email || m.admin)) await deleteDoc(D("teacherQs", String(p.id)));
+  const d = await getDoc(D("teacherQs", String(p.id))); if (d.exists() && (d.data().owner === m.email || m.admin)) { await deleteDoc(D("teacherQs", String(p.id))); if (d.data().owner === m.email) await tqPut(String(p.id), null); }
   return { ok: true };
 };
 
@@ -6669,7 +6696,7 @@ H.testSave = async p => {   // 📝 тест нэмэх/засах: {id, meta:{n
   const M = p.meta || {}, { qs, topics } = normQs(p.q);
   if (!qs.length) return { ok: false, error: "no_q" };
   const meta = { name: String(M.name || id).slice(0, 100), group: String(M.group || "Шинэ").slice(0, 60), hidden: M.hidden === true, free: M.free === true && M.hidden !== true, minutes: Math.max(0, Math.min(300, Math.round(+M.minutes || 0))), desc: String(M.desc || "").slice(0, 200), count: qs.length, topics };
-  const b = writeBatch(db); b.set(D("tests", id), meta, { merge: true }); b.set(D("qs", id), { q: qs }); await b.commit();
+  const b = writeBatch(db); b.set(D("tests", id), meta, { merge: true }); b.set(D("qs", id), { q: qs }); if (!meta.lesson) b.set(D("qsum", id), { list: qSum(qs) }); await b.commit();
   TESTS = null; delete QCACHE[id]; await rebuildMeta(); return { ok: true, id, count: qs.length };
 };
 H.lessonSave = async p => {   // 🎓 хичээл: {id, meta:{name,cat,unit,free,desc,gate,order}, q:[...], vid, body}
@@ -6678,13 +6705,13 @@ H.lessonSave = async p => {   // 🎓 хичээл: {id, meta:{name,cat,unit,fre
   const M = p.meta || {}, { qs, topics } = normQs(p.q);
   const meta = { name: String(M.name || "Хичээл").slice(0, 120), group: "Сургалт · " + String(M.cat || "Олимпиад").slice(0, 40), free: M.free === true, minutes: 0, desc: String(M.desc || "").slice(0, 200),
     count: qs.length, topics, lesson: true, unit: String(M.unit || "").slice(0, 80), gate: M.gate !== false, order: Math.round(+M.order || 0) };
-  const b = writeBatch(db); b.set(D("tests", id), meta); b.set(D("qs", id), { q: qs, vid: String(p.vid || "").slice(0, 300), body: String(p.body || "").slice(0, 8000) }); await b.commit();
+  const b = writeBatch(db); b.set(D("tests", id), meta); b.set(D("qs", id), { q: qs, vid: String(p.vid || "").slice(0, 300), body: String(p.body || "").slice(0, 8000) }); if (!meta.lesson) b.set(D("qsum", id), { list: qSum(qs) }); await b.commit();
   TESTS = null; delete QCACHE[id]; await rebuildMeta(); return { ok: true, id, count: qs.length };
 };
 H.testDelete = async p => {
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
   const id = String(p.id || ""); if (!id) return { ok: false };
-  await deleteDoc(D("qs", id)).catch(() => {}); await deleteDoc(D("tests", id)); TESTS = null; delete QCACHE[id]; await rebuildMeta(); return { ok: true };
+  await deleteDoc(D("qs", id)).catch(() => {}); deleteDoc(D("qsum", id)).catch(() => {}); await deleteDoc(D("tests", id)); TESTS = null; delete QCACHE[id]; await rebuildMeta(); return { ok: true };
 };
 H.saveConfig = async p => {
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
@@ -6698,7 +6725,7 @@ H.importSeed = async p => {   // seed.json: {tests:[{id,...,q:[...]}]}
   for (let i = 0; i < L.length; i += 20) {
     const b = writeBatch(db);
     L.slice(i, i + 20).forEach(t => { const q = t.q || []; const meta = Object.assign({}, t); delete meta.q;
-      b.set(D("tests", t.id), meta); b.set(D("qs", t.id), { q }); n += q.length; });
+      b.set(D("tests", t.id), meta); b.set(D("qs", t.id), { q }); if (!meta.lesson) b.set(D("qsum", t.id), { list: qSum(q) }); n += q.length; });
     await b.commit(); if (p.progress) p.progress(Math.min(L.length, i + 20), L.length);
   }
   TESTS = null; QCACHE = {};
