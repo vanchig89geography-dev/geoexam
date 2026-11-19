@@ -1759,7 +1759,10 @@ function renderLB(box, sec, cat, label) {
   };
   if (hit && Date.now() - hit.t < 300e3) return show(hit.r);
   if (!ONLINE) { const N = ["Тэмүүлэн", "Анужин", "Билгүүн", "Номин", "Хулан", "Эрдэнэ", "Мөнхжин"]; return show({ ok: true, count: 7, list: N.map((n, i) => sec === "eesh" ? { rank: i + 1, name: n + " (жишээ)", score: 91 - i * 7, total: 100, tests: 1, pct: 91 - i * 7, me: false } : ({ rank: i + 1, name: n + " (жишээ)", score: 420 - i * 37, tests: 6 - (i >> 1), pct: 92 - i * 4, me: false })) }); }
-  api({ action: "leaderboard", sec, cat: cat || "", period: lbPer, token: token || "" }).then(r => { if (r.ok) LBC[key] = { t: Date.now(), r }; show(r); }).catch(() => show(null));
+  /* ⚡ сүүлд харсан самбарыг шууд харуулаад ард нь шинэчилнэ */
+  const lsk = "ge-lb-" + key + "|" + (token || ""); let had = false; try { const c = JSON.parse(st.get(lsk) || "null"); if (c && c.ok) { show(c); had = true; } } catch (e) {}
+  api({ action: "leaderboard", sec, cat: cat || "", period: lbPer, token: token || "", onList: r => { if (!had && w.isConnected) show(r); } })
+    .then(r => { if (r.ok) { LBC[key] = { t: Date.now(), r }; st.set(lsk, JSON.stringify(r)); } if (w.isConnected && (r.ok || !had)) show(r); }).catch(() => { if (!had) show(null); });
 }
 
 /* ---------- start ---------- */
@@ -5977,16 +5980,17 @@ H.result = async p => {
 H.leaderboard = async p => {
   const board = (p.sec || "var") + "|" + (p.cat || ""), per = periods(new Date())[p.period || "all"] || "all";
   const col = C("boards", board, per);
-  const LIM = Math.max(3, Math.min(+p.limit || 10, 20)), s = await getDocs(query(col, orderBy("score", "desc"), limit(LIM)));
-  const uid = auth.currentUser && auth.currentUser.uid;
+  const LIM = Math.max(3, Math.min(+p.limit || 10, 20)), uid = auth.currentUser && auth.currentUser.uid;
+  /* ⚡ жагсаалт, нийт тоо, миний оноог ЗЭРЭГ уншина */
+  const [s, cnt, md] = await Promise.all([getDocs(query(col, orderBy("score", "desc"), limit(LIM))), getCountFromServer(col).then(x => x.data().count).catch(() => null), uid ? getDoc(D("boards", board, per, uid)).catch(() => null) : null]);
   let rank = 0, prev = null;
   const list = s.docs.map((d, i) => { const x = d.data(); if (!prev || x.score !== prev.score || x.pct !== prev.pct) rank = i + 1; prev = x;
     return { rank, name: x.name || "Сурагч", score: x.score, total: x.total, tests: x.tests, pct: x.pct, me: d.id === uid }; });
-  let me = null, count = list.length;
-  if (list.length >= LIM) { try { count = (await getCountFromServer(col)).data().count; } catch (e) {} }
-  if (uid && !list.some(x => x.me)) { const md = await getDoc(D("boards", board, per, uid)); if (md.exists()) { const x = md.data();
-    const above = (await getCountFromServer(query(col, where("score", ">", x.score)))).data().count; me = { rank: above + 1, name: x.name, score: x.score, total: x.total, tests: x.tests, pct: x.pct, me: true }; } }
-  else me = list.find(x => x.me) || null;
+  let me = list.find(x => x.me) || null; const count = cnt == null ? list.length : Math.max(cnt, list.length);
+  if (!me && md && md.exists()) { const x = md.data();
+    if (p.onList) try { p.onList({ ok: true, list, me: null, count, part: true }); } catch (e) {}   // жагсаалтыг түрүүлж харуулна
+    const above = await getCountFromServer(query(col, where("score", ">", x.score))).then(r => r.data().count).catch(() => null);
+    if (above != null) me = { rank: above + 1, name: x.name, score: x.score, total: x.total, tests: x.tests, pct: x.pct, me: true }; }
   return { ok: true, list, me, count };
 };
 
