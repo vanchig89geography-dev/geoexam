@@ -1492,9 +1492,11 @@ const DEMO = {"tests":[{"id":"2022-A","name":"ЭЕШ 2022 · A хувилбар"
 async function api(params) { if (USE_FB) return (await FB).call(params); const r = await fetch(SCRIPT_URL + "?" + new URLSearchParams(params)); return r.json(); }
 async function post(data) { if (USE_FB) return (await FB).call(data); const r = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) }); return r.json(); }
 if (USE_FB) {
-  FB.then(f => { user = f.user; token = user ? user.uid : null; renderAcct(); askRole(); });
+  const meSave = u => st.set("ge-me", u ? JSON.stringify(u) : null);   // ⚡ дараагийн удаа эрхийг шууд харуулна
+  try { const c = JSON.parse(st.get("ge-me") || "null"); if (c && c.uid) { user = c; token = c.uid; } } catch (e) {}
+  FB.then(f => { user = f.user; token = user ? user.uid : null; meSave(user); renderAcct(); askRole(); });
   window.__devBlocked = () => { devMsg = "Энэ акаунт 3 төхөөрөмж дээр аль хэдийн нэвтэрсэн байна. Шинэ төхөөрөмжөөс нэвтрэхийн тулд багшдаа хандаж төхөөрөмжийн жагсаалтаа цэвэрлүүлнэ үү."; user = null; token = null; renderAcct(); };
-  window.__onAuth = async u => { user = u; token = u ? u.uid : null; st.set("ge-tests", null); renderAcct();
+  window.__onAuth = async u => { user = u; token = u ? u.uid : null; meSave(u); st.set("ge-tests", null); renderAcct();
     if (u && justSigned) { justSigned = false; closeAcct(); }   // нэвтэрмэгц цонх автоматаар хаагдана
     else if (!$("ov").hidden) openAcct(false);
     await loadTests(); askRole(); };
@@ -1535,7 +1537,7 @@ async function loadTests() {
     const [r, c] = await Promise.all([api({ action: "tests", token: token || "" }), Object.keys(cfg).length ? null : api({ action: "config" })]);
     if (c && c.ok) cfg = payDefaults(c.config);
     if (!r.ok && r.error) throw new Error(r.error);
-    tests = r.tests || []; lessons = r.lessons || []; topics = r.topics || []; user = r.user; if (USE_FB) token = user ? user.uid : null; else if (!user && token) { token = null; st.set("ge-token", null); }
+    tests = r.tests || []; lessons = r.lessons || []; topics = r.topics || []; user = r.user; if (USE_FB) st.set("ge-me", user ? JSON.stringify(user) : null); if (USE_FB) token = user ? user.uid : null; else if (!user && token) { token = null; st.set("ge-token", null); }
     st.set("ge-tests", JSON.stringify({ tests, lessons, topics, cfg }));
     renderAcct(); renderPane(); geoBadge();
   } catch (e) { if (cached && cached.tests) return; $("pane").innerHTML = '<p class="empty">Ачаалж чадсангүй. Интернэтээ шалгаад хуудсаа дахин ачаална уу.</p>'; }
@@ -5404,7 +5406,7 @@ function tcText(t) { const f = document.createDocumentFragment(); String(t || ""
   if (i % 2) { const a = el("a", "", part); a.href = part; a.target = "_blank"; a.rel = "noopener noreferrer"; f.append(a); } else f.append(document.createTextNode(part)); }); return f; }
 
 async function renderTChat(box) {
-  tcStop(); const me = user, adm = !!user.admin;
+  tcStop(); TC_CH = null; const me = user, adm = !!user.admin;
   const wrap = el("div", "tcw one"), side = el("div", "tcside"), main = el("div", "tcmain"); wrap.append(side, main); box.append(wrap);
   side.append(el("h4", "", "СЭДЭВ")); const chl = el("div", "tcchl"); side.append(chl);
   if (adm) { const ab = el("button", "link", "+ Сэдэв нэмэх"); ab.type = "button"; ab.onclick = async () => { const n = prompt("Шинэ сэдвийн нэр (жишээ: ЭЕШ-бэлтгэл):"); if (!n) return; await api({ action: "tcChSave", name: n.trim().replace(/^#/, ""), order: CH.length + 1 }); }; side.append(ab); }
