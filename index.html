@@ -20,7 +20,7 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&family=Marck+Script&family=Nunito:wght@800;900&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@800&family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&family=Marck+Script&family=Nunito:wght@800;900&display=swap"></noscript>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Marck+Script&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Marck+Script&display=swap"></noscript>
 <style>
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -38,7 +38,7 @@ button{font-family:var(--btn-font)}
   --blue:#0E8FA8; --violet:#159A62; --orange:#F97316;
   --gold:#F59E0B; --gold-ink:#2B1A00; --good:#047857; --good-2:#10B981; --good-bg:#E3F6EC; --bad:#BE123C; --bad-2:#F43F5E; --bad-bg:#FDE8EC;
   --lock:#92400E; --lock-bg:#FFF1D6;
-  --font:"Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif; --btn-font:"Montserrat","Roboto",system-ui,Arial,sans-serif;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; --btn-font:"Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --r-lg:20px; --r-md:14px; --r-sm:10px;
   --shadow:0 1px 2px rgba(18,22,51,.05),0 6px 20px rgba(18,22,51,.06);
   --shadow-up:0 -6px 18px rgba(18,22,51,.06);
@@ -649,11 +649,11 @@ body.onhome .title{display:none}
 .ivmap{width:min(66%,360px)}
 
 /* шинэ лого: бөмбөрцөг + ✓ */
-.logo span{font-family:"Inter","Inter Display",var(--btn-font);font-weight:800;letter-spacing:-.03em}
+.logo span{font-family:var(--btn-font);font-weight:800;letter-spacing:-.03em}
 .logo .g1{color:var(--fg)!important}.logo .g2{color:#0d9488!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .logo .g2{color:#5eead4!important}}
 :root[data-theme="dark"] .logo .g2{color:#5eead4!important}
-.ivname,.ivurl{font-family:"Inter","Inter Display",var(--btn-font);font-weight:800}
+.ivname,.ivurl{font-family:var(--btn-font);font-weight:800}
 
 #lfoot{margin-top:16px}
 body:has(#exam:not([hidden])) #landing,body:has(#exam:not([hidden])) #lfoot,body:has(#result:not([hidden])) #landing,body:has(#result:not([hidden])) #lfoot{display:none}
@@ -663,7 +663,7 @@ body.onhome #list{margin-top:16px}
 @media (max-width:640px){.ltxt p.lquote{font-size:13px;margin-left:0}}
 .lhero .lcta{justify-content:center!important}
 
-.ltxt h2.leng{font:800 clamp(22px,4.2vw,34px)/1.15 "Inter","Inter Display",var(--btn-font);letter-spacing:-.02em;margin:2px 0 14px;text-align:center}
+.ltxt h2.leng{font:800 clamp(22px,4.2vw,34px)/1.15 var(--btn-font);letter-spacing:-.02em;margin:2px 0 14px;text-align:center}
 .ltxt h2.leng em{font-style:normal;background:linear-gradient(90deg,#0ea5e9,#0d9488);-webkit-background-clip:text;background-clip:text;color:transparent}
 .ltxt h2.leng{white-space:nowrap;font-size:min(34px,5.2vw)}
 .lhero>*{min-width:0}.ltxt h2.leng{font-size:min(34px,4.5vw)}
@@ -905,7 +905,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 /* 🔔 Мэдэгдэл */
 .ntcb{position:relative}
 .ntcb svg{width:20px;height:20px}
-.ntcb i{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font:700 11px/18px Inter,sans-serif;font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--surface)}
+.ntcb i{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font:700 11px/18px var(--font);font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--surface)}
 .ntcb i[hidden]{display:none}
 .ntcbox{max-width:460px;max-height:86vh;overflow:auto}
 .ntctag{display:inline-block;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:linear-gradient(90deg,#FFD500,#38BDF8);color:#0b2a55;margin-bottom:10px}
@@ -1072,7 +1072,7 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .title p.tagline{font-family:'Marck Script','Lora',Georgia,serif;font-style:normal;font-weight:400;font-size:clamp(22px,5.6vw,27px);letter-spacing:.2px;margin-top:2px;background-image:linear-gradient(135deg,#1D4ED8,#4338CA);-webkit-background-clip:text;background-clip:text;color:transparent}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .title p.tagline{background-image:linear-gradient(135deg,color-mix(in srgb,#38BDF8 70%,#fff),color-mix(in srgb,#4F46E5 70%,#fff))}}
 :root[data-theme="dark"] .title p.tagline{background-image:linear-gradient(135deg,color-mix(in srgb,#38BDF8 70%,#fff),color-mix(in srgb,#4F46E5 70%,#fff))}
-.title h1{font-family:"Nunito",var(--btn-font);font-weight:900;letter-spacing:-.01em}
+.title h1{font-family:"Montserrat",var(--btn-font);font-weight:900;letter-spacing:-.01em}
 /* ✨ гарчиг: хар, жигд товгор */
 .title h1{color:#111113;background:none;filter:none;animation:none;
  text-shadow:0 -1px 0 rgba(255,255,255,.9),0 1px 0 #6b6b73,0 2px 0 #8a8a92,0 3px 0 #a8a8b0,0 4px 2px rgba(0,0,0,.15),0 8px 14px rgba(0,0,0,.18)}
@@ -1134,7 +1134,7 @@ body.geofull{overflow:hidden}
 .drwi .ghbadge{margin-left:auto}
 .ghero{display:flex;gap:16px;align-items:center;padding:18px;border-radius:20px;color:#fff;background:linear-gradient(135deg,#0F766E,#0EA5E9 55%,#4F46E5);box-shadow:0 10px 28px rgba(14,116,144,.3);margin:12px 0 6px}
 .ghic svg{width:76px;height:76px;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}
-.ghtx{flex:1;min-width:0}.ghtx h3{margin:0;font:900 26px/1.1 Nunito,var(--btn-font);letter-spacing:-.01em;text-shadow:0 2px 0 rgba(0,0,0,.18)}
+.ghtx{flex:1;min-width:0}.ghtx h3{margin:0;font:900 26px/1.1 Montserrat,var(--btn-font);letter-spacing:-.01em;text-shadow:0 2px 0 rgba(0,0,0,.18)}
 .ghtx p{margin:6px 0 10px;font-size:14.5px;line-height:1.45;opacity:.95}
 .ghsteps{display:flex;flex-wrap:wrap;gap:6px}.ghsteps span{padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.18);font:700 12.5px var(--btn-font)}
 @media (max-width:520px){.ghero{padding:14px;gap:12px;align-items:flex-start}.ghic svg{width:54px;height:54px}.ghtx h3{font-size:22px}.ghtx p{font-size:13.5px}}
@@ -1144,11 +1144,11 @@ body.geofull{overflow:hidden}
 .ghban .go{flex:none;padding:9px 14px;border-radius:12px;background:#FACC15;color:#0B1426;font:800 14px var(--btn-font)}
 @media (max-width:520px){.ghban .go{display:none}}
 .ghhd{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;color:#fff;background:linear-gradient(135deg,#0F766E,#0EA5E9 55%,#4F46E5);box-shadow:0 8px 22px rgba(14,116,144,.25)}
-.ghhd svg{width:40px;height:40px;flex:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.25))}.ghhd>div{flex:1;display:grid;gap:2px}.ghhd b{font:900 20px/1.1 Nunito,var(--btn-font)}.ghhd small{font-size:13px;opacity:.92}.ghhd .ghbadge{margin:0}
+.ghhd svg{width:40px;height:40px;flex:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.25))}.ghhd>div{flex:1;display:grid;gap:2px}.ghhd b{font:900 20px/1.1 Montserrat,var(--btn-font)}.ghhd small{font-size:13px;opacity:.92}.ghhd .ghbadge{margin:0}
 
 /* 🧰 Ангийн хэрэгсэл */
 .thero{display:grid;gap:4px;margin:12px 0;padding:16px 18px;border-radius:18px;color:#fff;background:linear-gradient(135deg,#F59E0B,#EC4899 55%,#8B5CF6);box-shadow:0 8px 22px rgba(236,72,153,.25)}
-.thero b{font:900 22px Nunito,var(--btn-font)}.thero small{font-size:13.5px;opacity:.95}
+.thero b{font:900 22px Montserrat,var(--btn-font)}.thero small{font-size:13.5px;opacity:.95}
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .tcard{display:grid;gap:6px;justify-items:start;text-align:left;padding:16px;border-radius:18px;border:1.5px solid color-mix(in srgb,var(--c) 35%,transparent);background:color-mix(in srgb,var(--c) 8%,var(--surface));color:var(--fg);cursor:pointer;transition:transform .12s,box-shadow .15s}
 .tcard:hover{transform:translateY(-2px);box-shadow:0 10px 24px color-mix(in srgb,var(--c) 25%,transparent)}
@@ -1158,7 +1158,7 @@ body.geofull{overflow:hidden}
 .tstage{position:relative;margin-top:8px;padding:16px;border-radius:20px;background:var(--surface);border:1.5px solid color-mix(in srgb,var(--c) 30%,transparent);display:grid;gap:12px}
 .tstage:fullscreen{overflow:auto;border-radius:0;padding:28px clamp(16px,4vw,60px);background:#fff;align-content:start}
 .tstage:fullscreen .tdig{font-size:min(22vw,34vh)}.tstage:fullscreen .tring{width:min(80vw,70vh)}
-.ttl{margin:0;font:900 22px Nunito,var(--btn-font);color:var(--c)}
+.ttl{margin:0;font:900 22px Montserrat,var(--btn-font);color:var(--c)}
 .tfs{position:absolute;right:12px;top:12px;width:40px;height:40px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface);font-size:20px;cursor:pointer;z-index:2}
 .tbig{font-size:17px!important;min-height:52px!important;padding:12px 22px!important;background:var(--c)!important;color:#fff!important}
 .tctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.tctl.c{justify-content:center}.tctl select{min-height:48px;border-radius:12px;padding:0 12px;font:700 15px var(--btn-font)}
@@ -1171,16 +1171,16 @@ body.geofull{overflow:hidden}
 .tptr{position:absolute;left:50%;top:-4px;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid #0B1426;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
 .tside{display:grid;gap:10px}
 .twin{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;min-width:min(86vw,420px);padding:26px 30px;border-radius:24px;text-align:center;color:#fff;background:var(--c);box-shadow:0 20px 60px rgba(0,0,0,.4);cursor:pointer;animation:tpop .45s cubic-bezier(.2,1.6,.4,1)}
-.twin small{display:block;font:700 16px var(--btn-font);opacity:.9}.twin b{display:block;font:900 clamp(30px,7vw,56px)/1.15 Nunito,var(--btn-font);margin-top:6px}
+.twin small{display:block;font:700 16px var(--btn-font);opacity:.9}.twin b{display:block;font:900 clamp(30px,7vw,56px)/1.15 Montserrat,var(--btn-font);margin-top:6px}
 @keyframes tpop{from{transform:translate(-50%,-50%) scale(.3);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
 .tpicked{display:flex;flex-wrap:wrap;gap:6px}.tpicked span{padding:4px 10px;border-radius:99px;background:var(--chip);font-size:13px;font-weight:700}
 .tteams{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
 .tteam{border-radius:16px;padding:12px 14px;background:color-mix(in srgb,var(--c) 10%,var(--surface));border:2px solid var(--c);animation:tin .4s both}
-.tteam b{display:block;color:var(--c);font:900 18px Nunito,var(--btn-font);margin-bottom:4px}.tteam ol{margin:0;padding-left:22px;font-size:15px;line-height:1.6;font-weight:600}
+.tteam b{display:block;color:var(--c);font:900 18px Montserrat,var(--btn-font);margin-bottom:4px}.tteam ol{margin:0;padding-left:22px;font-size:15px;line-height:1.6;font-weight:600}
 @keyframes tin{from{transform:translateY(14px) scale(.95);opacity:0}to{transform:none;opacity:1}}
 .tring{position:relative;width:min(86vw,380px);aspect-ratio:1;margin:0 auto}.tring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .tring circle{fill:none;stroke-width:9}.tring .bg{stroke:var(--chip)}.tring .fg{stroke:var(--c);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
-.tdig{position:absolute;inset:0;display:grid;place-items:center;font:900 clamp(56px,16vw,104px) Nunito,var(--btn-font);font-variant-numeric:tabular-nums;color:var(--fg)}
+.tdig{position:absolute;inset:0;display:grid;place-items:center;font:900 clamp(56px,16vw,104px) Montserrat,var(--btn-font);font-variant-numeric:tabular-nums;color:var(--fg)}
 .tring.low .tdig{color:#EF4444}.tring.low .fg{stroke:#EF4444}
 .tring.end .tdig{color:#EF4444;animation:tblink .5s steps(2) infinite}@keyframes tblink{50%{opacity:.2}}
 .tpre{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.tpre button{border:0;border-radius:99px;padding:8px 14px;background:var(--chip);font:700 14px var(--btn-font);color:var(--fg);cursor:pointer}.tpre button:hover{background:color-mix(in srgb,var(--c) 18%,var(--chip))}
@@ -1189,7 +1189,7 @@ body.geofull{overflow:hidden}
 .tscr>i{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,var(--c) 16%,transparent);transition:width .4s ease;z-index:0}
 .tscr>*:not(i){position:relative;z-index:1}
 .tscr input{border:0;background:transparent;font:800 18px var(--btn-font);color:var(--fg);min-width:0;width:100%}
-.tsv{font:900 34px Nunito,var(--btn-font);color:var(--c);min-width:70px;text-align:right}.tsv.bump{animation:tbump .35s}
+.tsv{font:900 34px Montserrat,var(--btn-font);color:var(--c);min-width:70px;text-align:right}.tsv.bump{animation:tbump .35s}
 @keyframes tbump{40%{transform:scale(1.35)}}
 .tsb{display:flex;gap:6px}.tsb button{width:48px;height:44px;border-radius:12px;border:0;background:var(--c);color:#fff;font:800 16px var(--btn-font);cursor:pointer}.tsb button.m{background:var(--chip);color:var(--fg)}
 .tsd{border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer;padding:6px}
@@ -1199,27 +1199,27 @@ body.geofull{overflow:hidden}
 .tpj{display:flex;gap:22px;align-items:center;padding:16px;border-radius:16px;background:var(--chip)}
 .tqr{flex:none;padding:6px;background:#fff;border-radius:10px;line-height:0}.tqr{cursor:zoom-in}.tqr img,.tqr canvas{width:220px!important;height:220px!important;display:block}
 .tstage:fullscreen .tqr img,.tstage:fullscreen .tqr canvas{width:min(30vw,340px)!important;height:min(30vw,340px)!important}
-.tqrbig{position:fixed;inset:0;z-index:10000;background:rgba(11,20,38,.85);display:grid;place-items:center;cursor:zoom-out}.tqrbox{background:#fff;border-radius:24px;padding:24px;display:grid;gap:12px;justify-items:center}.tqrbox img{width:min(78vw,78vh);height:min(78vw,78vh);image-rendering:pixelated}.tqrbox b{font:900 clamp(20px,3vw,34px) Nunito,sans-serif;color:#0B1426}
+.tqrbig{position:fixed;inset:0;z-index:10000;background:rgba(11,20,38,.85);display:grid;place-items:center;cursor:zoom-out}.tqrbox{background:#fff;border-radius:24px;padding:24px;display:grid;gap:12px;justify-items:center}.tqrbox img{width:min(78vw,78vh);height:min(78vw,78vh);image-rendering:pixelated}.tqrbox b{font:900 clamp(20px,3vw,34px) Montserrat,sans-serif;color:#0B1426}
 .tpjt{display:grid;gap:2px;min-width:0}.tpjt small{color:var(--muted);font-weight:700}.tpjt b{font:800 clamp(18px,3vw,26px) var(--btn-font);overflow-wrap:anywhere}
-.tpcode{justify-self:start;margin-top:4px;padding:4px 14px;border-radius:12px;background:var(--c);color:#fff;font:900 clamp(26px,5vw,40px) Nunito,var(--btn-font);letter-spacing:.12em}
-.tpq{margin:6px 0 0;font:900 clamp(22px,4vw,34px)/1.25 Nunito,var(--btn-font);text-align:center}
+.tpcode{justify-self:start;margin-top:4px;padding:4px 14px;border-radius:12px;background:var(--c);color:#fff;font:900 clamp(26px,5vw,40px) Montserrat,var(--btn-font);letter-spacing:.12em}
+.tpq{margin:6px 0 0;font:900 clamp(22px,4vw,34px)/1.25 Montserrat,var(--btn-font);text-align:center}
 .tpcnt{text-align:center;color:var(--muted);font-weight:800}
 .tbars{display:grid;gap:10px}.tbars.hid,.tcloud.hid{filter:blur(14px);pointer-events:none}
 .tbar{position:relative;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:56px;padding:8px 16px;border-radius:14px;overflow:hidden;background:var(--chip)}
 .tbar i{position:absolute;left:0;top:0;bottom:0;background:var(--c);transition:width .6s cubic-bezier(.2,.9,.3,1);opacity:.9}
 .tbar span,.tbar b{position:relative;z-index:1;font:800 clamp(16px,2.6vw,22px) var(--btn-font)}.tbar b{white-space:nowrap}
 .tcloud{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;align-items:center;min-height:160px;padding:16px;border-radius:16px;background:var(--chip)}
-.tcloud span{font-family:Nunito,var(--btn-font);font-weight:900;line-height:1.1;animation:tin .4s both}
+.tcloud span{font-family:Montserrat,var(--btn-font);font-weight:900;line-height:1.1;animation:tin .4s both}
 @media (max-width:520px){.tpj{flex-direction:column;text-align:center}.tpjt{justify-items:center}.tpcode{justify-self:center}}
 .pollov{position:fixed;inset:0;z-index:9999;background:rgba(11,20,38,.6);display:grid;place-items:center;padding:16px}
 .pollc{position:relative;width:min(520px,100%);max-height:92vh;overflow:auto;background:var(--surface);color:var(--fg);border-radius:22px;padding:22px 18px;display:grid;gap:12px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
 .pollc .drwx{position:absolute;right:12px;top:12px}
 .pollb{font:800 14px var(--btn-font);color:#EC4899}
-.pollq{margin:0;font:900 22px/1.3 Nunito,var(--btn-font)}
+.pollq{margin:0;font:900 22px/1.3 Montserrat,var(--btn-font)}
 .pollopts{display:grid;gap:10px}.pollopts button{min-height:58px;border:0;border-radius:14px;background:var(--c);color:#fff;font:800 17px var(--btn-font);text-align:left;padding:10px 16px;cursor:pointer}
 .pollopts button:disabled{opacity:.6}
 .pollin{width:100%;min-height:52px;border-radius:14px;border:1.5px solid var(--line-2);padding:0 14px;font:700 18px var(--btn-font);background:var(--surface);color:var(--fg)}
-.pollok{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:#10B981;color:#fff;font:900 40px Nunito;justify-self:center;animation:tpop2 .4s}
+.pollok{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:#10B981;color:#fff;font:900 40px Montserrat;justify-self:center;animation:tpop2 .4s}
 @keyframes tpop2{from{transform:scale(.3)}to{transform:scale(1)}}
 .pollc h3{margin:0;text-align:center}.pollc .note{text-align:center}
 .geoshare{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}.geoshare small{flex-basis:100%}
@@ -1232,7 +1232,7 @@ body.geofull{overflow:hidden}
 .tpqs{display:grid;gap:12px}.tpqe{display:grid;gap:8px;padding:12px;border-radius:14px;border:1.5px solid var(--line-2);background:var(--sunk,var(--chip))}
 .tpqh{display:flex;justify-content:space-between;align-items:center}.tpqh b{font:800 15px var(--btn-font);color:var(--c)}
 .tpqe textarea,.tpqe input,.tpf>.fld input{width:100%;border-radius:10px;border:1px solid var(--line-2);padding:9px 10px;font:inherit;background:var(--surface);color:var(--fg)}
-.tpnav{display:flex;gap:10px;align-items:center;justify-content:center}.tpnav .tpn{font:900 18px Nunito,var(--btn-font);min-width:120px;text-align:center}
+.tpnav{display:flex;gap:10px;align-items:center;justify-content:center}.tpnav .tpn{font:900 18px Montserrat,var(--btn-font);min-width:120px;text-align:center}
 .tpsum{display:grid;gap:14px;padding:14px;border-radius:16px;background:var(--chip)}.tpsum h3{margin:0}.tpsq{display:grid;gap:8px}.tpsq>b{font:800 16px var(--btn-font)}
 .tpsq .tbar{min-height:42px}.tpsq .tcloud{min-height:80px}
 .tpf{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px}.tpf>.btn.ghost{justify-self:start}
@@ -1270,23 +1270,23 @@ body.geofull{overflow:hidden}
 @media (max-width:700px){.tcpin{margin:8px 10px 0;font-size:12.5px;max-height:58px;overflow:hidden;cursor:pointer}.tcpin.open{max-height:none}}
 
 /* 📊 Багш нарын идэвх */
-.tssum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:8px 0}.tssum div{display:grid;justify-items:center;gap:2px;padding:14px;border-radius:14px;background:var(--chip)}.tssum span{font-size:22px}.tssum b{font:900 28px Nunito,var(--btn-font)}.tssum small{color:var(--muted);font-weight:700}
+.tssum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:8px 0}.tssum div{display:grid;justify-items:center;gap:2px;padding:14px;border-radius:14px;background:var(--chip)}.tssum span{font-size:22px}.tssum b{font:900 28px Montserrat,var(--btn-font)}.tssum small{color:var(--muted);font-weight:700}
 .tsinfo{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px}.tsinfo small{color:var(--muted)}
 .tstab{display:grid;gap:4px}.tsrow{display:grid;grid-template-columns:36px minmax(0,1fr) 110px 110px;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;border:0;background:var(--surface);border:1px solid var(--line-2);text-align:left;font:inherit;color:var(--fg);cursor:pointer}
 .tshd{background:var(--chip);border:0;cursor:default;font-weight:800;font-size:13px}.tshd button{border:0;background:none;font:800 13px var(--btn-font);color:var(--muted);text-align:left;cursor:pointer;padding:0}.tshd button.on{color:#4F46E5}
-.tsi{color:var(--muted);font-weight:800}.tsnm{display:grid;min-width:0}.tsnm b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tsnm small{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}.tsn{font:900 20px Nunito,var(--btn-font)}
+.tsi{color:var(--muted);font-weight:800}.tsnm{display:grid;min-width:0}.tsnm b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tsnm small{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}.tsn{font:900 20px Montserrat,var(--btn-font)}
 .tsdet{display:grid;gap:4px;margin:0 0 6px 44px;padding:8px 12px;border-left:3px solid #A5B4FC}.tsc{display:grid}.tsc small{color:var(--muted);font-size:12px}
 @media (max-width:520px){.tsrow{grid-template-columns:24px minmax(0,1fr) 56px 56px;padding:8px}.tsn{font-size:17px}.tssum b{font-size:22px}.tsdet{margin-left:10px}}
 
 /* 📈 Шалгалтын анализ */
-.ansum{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:8px 0}.ansum div{display:grid;justify-items:center;gap:2px;padding:12px 6px;border-radius:14px;background:var(--chip);text-align:center}.ansum span{font-size:18px}.ansum b{font:900 24px Nunito,var(--btn-font)}.ansum small{color:var(--muted);font-weight:700;font-size:12px}
+.ansum{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:8px 0}.ansum div{display:grid;justify-items:center;gap:2px;padding:12px 6px;border-radius:14px;background:var(--chip);text-align:center}.ansum span{font-size:18px}.ansum b{font:900 24px Montserrat,var(--btn-font)}.ansum small{color:var(--muted);font-weight:700;font-size:12px}
 @media (max-width:700px){.ansum{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .anblk{margin:16px 0;display:grid;gap:6px}.anblk h4{margin:0;font:800 17px var(--btn-font)}
 .andist{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;align-items:end;height:170px;padding:8px;border-radius:14px;background:var(--chip)}
 .anbar{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:3px}.anbar i{width:100%;border-radius:6px 6px 0 0;min-height:2px}.anbar b{font-size:12px}.anbar small{font-size:10.5px;color:var(--muted);white-space:nowrap}
 .anq{display:grid;grid-template-columns:34px minmax(0,1fr) 170px 96px;gap:10px;align-items:center;padding:9px 12px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface);text-align:left;font:inherit;color:var(--fg);cursor:pointer}
 .anhd{background:var(--chip);border:0;cursor:default;font-weight:800;font-size:12.5px;color:var(--muted)}
-.anno{font:900 18px Nunito,var(--btn-font);color:var(--muted)}.anqt{display:grid;min-width:0}.anqt b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.anqt small{color:var(--muted);font-size:12px}
+.anno{font:900 18px Montserrat,var(--btn-font);color:var(--muted)}.anqt{display:grid;min-width:0}.anqt b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.anqt small{color:var(--muted);font-size:12px}
 .anpb{position:relative;height:24px;border-radius:99px;background:var(--chip);overflow:hidden;display:block}.anpb i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}.anpb b{position:relative;display:block;text-align:center;font:800 13px/24px var(--btn-font)}
 .anlv{font-size:12.5px;font-weight:700}
 .andet{display:grid;gap:5px;margin:-2px 0 6px 44px;padding:10px 12px;border-left:3px solid #A5B4FC;background:var(--sunk,var(--chip));border-radius:0 12px 12px 0}
@@ -1328,6 +1328,8 @@ body.geofull{overflow:hidden}
 .openans::placeholder{color:var(--muted);opacity:.8}
 /* 📱 утсанд маягтууд нэг баганаар (дэлгэцээс халихгүй) */
 @media (max-width:700px){.bform{grid-template-columns:minmax(0,1fr)!important}.bform>*{min-width:0;grid-column:1/-1}.myqty button{min-width:0;white-space:normal}}
+
+.ansum div{padding:10px 6px!important;gap:1px!important}.ansum b{font:700 19px var(--btn-font)!important;letter-spacing:-.01em}.ansum small{font-size:11.5px!important;font-weight:600!important}
 </style>
 </head>
 <body>
@@ -2025,7 +2027,7 @@ function renderContest(box) {
   if (!user) { const b = el("button", "btn", "Нэвтрэх"); b.type = "button"; b.onclick = () => openAcct(false);
     const w = el("div", "cjoin"); w.append(el("p", "empty", "Шалгалтад оролцохын тулд майлаараа нэвтэрнэ үү."), b); box.append(w); return; }
   const j = el("form", "cjoin"); const inp = el("input"); inp.inputMode = "numeric"; inp.maxLength = 6; inp.placeholder = "Шалгалтын код"; inp.id = "cCode";
-  inp.value = st.get("ge-ccode") || ""; const go = el("button", "btn", "Нэгдэх"); go.type = "submit";
+  const go = el("button", "btn", "Нэгдэх"); go.type = "submit";
   const err = el("p", "err"); j.append(inp, go, err);
   j.onsubmit = e => { e.preventDefault(); const c = inp.value.replace(/\D/g, ""); if (c.length !== 6) { err.textContent = "6 оронтой кодоо оруулна уу."; return; } openContest(c, err); };
   box.append(j);
@@ -2192,7 +2194,7 @@ function anaView(box, r, code) {
   const A = r.ana; if (!A || !A.n) { box.append(el("p", "empty", "Шалгалт өгсөн сурагч алга. Сурагчид хариулсны дараа анализ гарна.")); return; }
   const L = "ABCDE", col = qCol, lvl = p => p >= 80 ? "🟢 Хялбар" : p >= 40 ? "🟡 Дунд" : "🔴 Хэцүү", R = r.ranking, Q = A.qs, LV = anaLevels(R), SV = (r.note && r.note.st) || {};
   const NT = {}; R.forEach(x => NT[x.uid] = SV[x.uid] != null ? SV[x.uid] : anaNote(x, A));
-  const sum = el("div", "ansum"); [["👥", A.n, "шалгалт өгсөн"], ["📊", A.avg + "%", "дундаж"], ["🎯", A.med + "%", "медиан"], ["⬆", A.max + "%", "хамгийн өндөр"], ["⬇", A.min + "%", "хамгийн бага"], ["✅", A.pass + "%", "тэнцсэн (≥60%)"]].forEach(([i, v, t]) => { const c = el("div"); c.append(el("span", "", i), el("b", "", String(v)), el("small", "", t)); sum.append(c); }); box.append(sum);
+  const sum = el("div", "ansum"); [[A.n, "шалгалт өгсөн"], [A.avg + "%", "дундаж"], [A.med + "%", "медиан"], [A.max + "%", "хамгийн өндөр"], [A.min + "%", "хамгийн бага"], [A.pass + "%", "тэнцсэн (≥60%)"]].forEach(([v, t]) => { const c = el("div"); c.append(el("b", "", String(v)), el("small", "", t)); sum.append(c); }); box.append(sum);
   const dl = el("button", "btn anxl", "⬇ Анализ татах (Excel)"); dl.type = "button"; box.append(dl);
   /* 📋 дүнгийн хүснэгт */
   const gw = el("div", "anblk"); gw.append(el("h4", "", "📋 Дүнгийн хүснэгт"), el("small", "lbn", "Багшийн тэмдэглэл автоматаар бичигдсэн. Дээр нь дарж засаад доорх «💾 Хадгалах»-ыг дарна уу.")); box.append(gw);
@@ -4445,30 +4447,30 @@ function geoShareBar(q, adm) {
 }
 async function geoPoster(q) {
   const im = await new Promise((res, rej) => { const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => res(i); i.onerror = rej; i.src = /^https?:/.test(q.img) ? q.img + (q.img.indexOf("?") < 0 ? "?" : "&") + "cx=1" : q.img; });
-  try { await document.fonts.load("900 40px Nunito"); } catch (e) {}
+  try { await document.fonts.load("900 40px Montserrat"); } catch (e) {}
   const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H; const x = c.getContext("2d");
   const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, "#0F766E"); g.addColorStop(.55, "#0EA5E9"); g.addColorStop(1, "#4F46E5"); x.fillStyle = g; x.fillRect(0, 0, W, H);
   x.globalAlpha = .08; x.fillStyle = "#fff"; for (let i = 0; i < 9; i++) { x.beginPath(); x.arc(W * ((i * 37) % 100) / 100, H * ((i * 61) % 100) / 100, 60 + i * 18, 0, 7); x.fill(); } x.globalAlpha = 1;
   const rr = (X, Y, w, h, r) => { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); };
-  x.textBaseline = "alphabetic"; x.fillStyle = "#fff"; x.textAlign = "left"; x.font = "900 76px Nunito, sans-serif"; x.shadowColor = "rgba(0,0,0,.25)"; x.shadowOffsetY = 4; x.shadowBlur = 8;
-  x.fillText("📍 GeoHunt", 60, 120); x.font = "800 34px Nunito, sans-serif"; x.textAlign = "right"; x.fillText("GeoExam", W - 60, 112); x.textAlign = "left";
-  x.font = "700 36px Nunito, sans-serif"; x.globalAlpha = .95; x.fillText("Энэ зургийг хаана авсан бэ? Таагаад шагнал аваарай!", 60, 178); x.globalAlpha = 1;
+  x.textBaseline = "alphabetic"; x.fillStyle = "#fff"; x.textAlign = "left"; x.font = "900 76px Montserrat, sans-serif"; x.shadowColor = "rgba(0,0,0,.25)"; x.shadowOffsetY = 4; x.shadowBlur = 8;
+  x.fillText("📍 GeoHunt", 60, 120); x.font = "800 34px Montserrat, sans-serif"; x.textAlign = "right"; x.fillText("GeoExam", W - 60, 112); x.textAlign = "left";
+  x.font = "700 36px Montserrat, sans-serif"; x.globalAlpha = .95; x.fillText("Энэ зургийг хаана авсан бэ? Таагаад шагнал аваарай!", 60, 178); x.globalAlpha = 1;
   const PX = 60, PY = 220, PW = W - 120, PH = 720; x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 30; x.shadowOffsetY = 12; rr(PX - 10, PY - 10, PW + 20, PH + 20, 34); x.fillStyle = "#fff"; x.fill(); x.shadowColor = "transparent";
   x.save(); rr(PX, PY, PW, PH, 26); x.clip(); const s = Math.max(PW / im.naturalWidth, PH / im.naturalHeight), iw = im.naturalWidth * s, ih = im.naturalHeight * s; x.drawImage(im, PX + (PW - iw) / 2, PY + (PH - ih) / 2, iw, ih); x.restore();
-  x.font = "900 54px Nunito, sans-serif"; x.fillStyle = "#fff"; x.shadowColor = "rgba(0,0,0,.25)"; x.shadowBlur = 8; x.shadowOffsetY = 3;
+  x.font = "900 54px Montserrat, sans-serif"; x.fillStyle = "#fff"; x.shadowColor = "rgba(0,0,0,.25)"; x.shadowBlur = 8; x.shadowOffsetY = 3;
   let t = q.title; while (t.length > 4 && x.measureText(t).width > W - 120) t = t.slice(0, -2) + "…"; x.fillText(t, 60, 1030);
   const pz = (q.prizes || []).map((m, i) => m ? ["🥇", "🥈", "🥉", "4", "5"][i] + " " + geoPrizeTxt(m) : "").filter(Boolean).slice(0, 3);
-  x.font = "800 34px Nunito, sans-serif"; let px = 60; x.shadowColor = "transparent";
+  x.font = "800 34px Montserrat, sans-serif"; let px = 60; x.shadowColor = "transparent";
   pz.forEach(p => { const w = x.measureText(p).width + 40; rr(px, 1062, w, 58, 29); x.fillStyle = "rgba(255,255,255,.2)"; x.fill(); x.fillStyle = "#fff"; x.fillText(p, px + 20, 1103); px += w + 12; });
-  x.font = "800 34px Nunito, sans-serif"; x.fillStyle = "#fff"; x.fillText("⏰ " + shortD(q.end).replace(" ", " · ") + " хүртэл · Нэг хүн нэг удаа", 60, 1178);
-  rr(60, 1214, W - 120, 92, 26); x.fillStyle = "#FACC15"; x.fill(); x.fillStyle = "#0B1426"; x.font = "900 46px Nunito, sans-serif"; x.textAlign = "center"; x.fillText("👉 " + geoUrl(q.id).replace(/^https?:\/\//, ""), W / 2, 1276);
+  x.font = "800 34px Montserrat, sans-serif"; x.fillStyle = "#fff"; x.fillText("⏰ " + shortD(q.end).replace(" ", " · ") + " хүртэл · Нэг хүн нэг удаа", 60, 1178);
+  rr(60, 1214, W - 120, 92, 26); x.fillStyle = "#FACC15"; x.fill(); x.fillStyle = "#0B1426"; x.font = "900 46px Montserrat, sans-serif"; x.textAlign = "center"; x.fillText("👉 " + geoUrl(q.id).replace(/^https?:\/\//, ""), W / 2, 1276);
   return c.toDataURL("image/png");
 }
 
 /* 🖼 Дүнгийн зураг: хиймэл дагуулын газарзүйн зураг дээр бүх оролцогчийн цэг (нэртэй), ⭐ зөв байршил, жагсаалт */
 async function geoResultImage(q, L) {
   const W = 2400, H = 1500, MW = 1640, HD = 120, c = document.createElement("canvas"); c.width = W; c.height = H; const x = c.getContext("2d");
-  try { await document.fonts.load("800 30px Nunito"); await document.fonts.load("600 20px Inter"); } catch (e) {}
+  try { await document.fonts.load("800 30px Montserrat"); } catch (e) {}
   const P = L.filter(p => isFinite(p.lat) && isFinite(p.lon)), K = q.key;
   /* хүрээ: бүх цэг + зөв байршил, 12% зайтай, хамгийн багадаа 4°, Монголын хүрээнээс гарахгүй */
   let la0 = Math.min(K[0], ...P.map(p => p.lat)), la1 = Math.max(K[0], ...P.map(p => p.lat)), lo0 = Math.min(K[1], ...P.map(p => p.lon)), lo1 = Math.max(K[1], ...P.map(p => p.lon));
@@ -4499,9 +4501,9 @@ async function geoResultImage(q, L) {
   ord.forEach(p => { const [a, b] = XY(p.lat, p.lon), r = rad(p); if (p.rank <= TOPN) placed.push([a - r, b - r, a + r, b + r]); });
   ord.forEach(p => { const [a, b] = XY(p.lat, p.lon), top = p.rank <= 3, r = rad(p);
     x.beginPath(); x.arc(a, b, r, 0, 7); x.fillStyle = top ? MED[p.rank - 1] : p.rank <= TOPN ? "#EF4444" : "rgba(250,204,21,.95)"; x.fill(); x.lineWidth = p.rank <= TOPN ? 3 : 1.5; x.strokeStyle = p.rank <= TOPN ? "#fff" : "rgba(0,0,0,.6)"; x.stroke();
-    if (p.rank > TOPN) return; x.fillStyle = top && p.rank === 2 ? "#0F172A" : "#fff"; x.font = (top ? "900 18px" : "800 13px") + " Nunito, sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(String(p.rank), a, b + 1); });
+    if (p.rank > TOPN) return; x.fillStyle = top && p.rank === 2 ? "#0F172A" : "#fff"; x.font = (top ? "900 18px" : "800 13px") + " Montserrat, sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(String(p.rank), a, b + 1); });
   P.filter(p => p.rank <= TOPN).sort((a, b) => a.rank - b.rank).forEach(p => { const [a, b] = XY(p.lat, p.lon), top = p.rank <= 3, r = rad(p), nm = String(p.name || "").slice(0, 26);
-    x.font = (top ? "800 22px" : "700 16px") + " Inter, sans-serif"; const w = x.measureText(nm).width + 14, h = top ? 32 : 24;
+    x.font = (top ? "800 22px" : "700 16px") + " system-ui, Arial, sans-serif"; const w = x.measureText(nm).width + 14, h = top ? 32 : 24;
     const cand = [[a + r + 4, b - h / 2], [a - r - 4 - w, b - h / 2], [a - w / 2, b - r - 4 - h], [a - w / 2, b + r + 4]];
     for (const d of [40, 70, 100]) for (const [ux, uy] of [[1, -1], [-1, -1], [1, 1], [-1, 1], [0, -1.3], [0, 1.3]]) cand.push([a + ux * d - (ux < 0 ? w : ux === 0 ? w / 2 : 0), b + uy * d - h / 2]);
     const free = cand.find(([l, t]) => !hit([l, t, l + w, t + h])) || (top ? cand[0] : null);   // эхний 3-ын нэр заавал
@@ -4513,25 +4515,25 @@ async function geoResultImage(q, L) {
   x.restore();
   /* толгой */
   const g = x.createLinearGradient(0, 0, W, 0); g.addColorStop(0, "#0F766E"); g.addColorStop(.55, "#0EA5E9"); g.addColorStop(1, "#4F46E5"); x.fillStyle = g; x.fillRect(0, 0, W, HD);
-  x.fillStyle = "#fff"; x.textAlign = "left"; x.textBaseline = "alphabetic"; x.font = "900 50px Nunito, sans-serif"; x.fillText("📍 GeoHunt · Дүн", 40, 72);
-  const tx0 = 40 + x.measureText("📍 GeoHunt · Дүн").width + 28; x.font = "700 26px Inter, sans-serif"; let tt = q.title; while (tt.length > 4 && x.measureText(tt).width > 1100) tt = tt.slice(0, -2) + "…"; x.fillText(tt, tx0, 70);
-  x.textAlign = "right"; x.font = "800 26px Inter, sans-serif"; x.fillText(P.length + " оролцогч · geoexam.mn", W - 40, 70);
-  x.font = "600 18px Inter, sans-serif"; x.fillStyle = "rgba(255,255,255,.8)"; x.fillText("⭐ Зөв байршил · 🔴 Эхний 20 · 🟡 Бусад", W - 40, 102);
-  x.textAlign = "left"; x.fillStyle = "rgba(255,255,255,.75)"; x.font = "600 14px Inter, sans-serif"; x.fillText("Esri, Maxar, Earthstar Geographics", 14, H - 12);
+  x.fillStyle = "#fff"; x.textAlign = "left"; x.textBaseline = "alphabetic"; x.font = "900 50px Montserrat, sans-serif"; x.fillText("📍 GeoHunt · Дүн", 40, 72);
+  const tx0 = 40 + x.measureText("📍 GeoHunt · Дүн").width + 28; x.font = "700 26px system-ui, Arial, sans-serif"; let tt = q.title; while (tt.length > 4 && x.measureText(tt).width > 1100) tt = tt.slice(0, -2) + "…"; x.fillText(tt, tx0, 70);
+  x.textAlign = "right"; x.font = "800 26px system-ui, Arial, sans-serif"; x.fillText(P.length + " оролцогч · geoexam.mn", W - 40, 70);
+  x.font = "600 18px system-ui, Arial, sans-serif"; x.fillStyle = "rgba(255,255,255,.8)"; x.fillText("⭐ Зөв байршил · 🔴 Эхний 20 · 🟡 Бусад", W - 40, 102);
+  x.textAlign = "left"; x.fillStyle = "rgba(255,255,255,.75)"; x.font = "600 14px system-ui, Arial, sans-serif"; x.fillText("Esri, Maxar, Earthstar Geographics", 14, H - 12);
   /* баруун талд жагсаалт */
   const LX = MW, LW = W - MW; x.fillStyle = "#F8FAFC"; x.fillRect(LX, HD, LW, H - HD);
   const S2 = P.slice().sort((a, b) => a.rank - b.rank).slice(0, TOPN), lh = Math.min(64, (H - HD - 140) / Math.max(10, S2.length)), fs = Math.min(30, lh * .52);
-  x.textAlign = "left"; x.textBaseline = "alphabetic"; x.fillStyle = "#0F172A"; x.font = "900 32px Nunito, sans-serif"; x.fillText("🏆 Эхний " + S2.length + " байр", LX + 30, HD + 52);
+  x.textAlign = "left"; x.textBaseline = "alphabetic"; x.fillStyle = "#0F172A"; x.font = "900 32px Montserrat, sans-serif"; x.fillText("🏆 Эхний " + S2.length + " байр", LX + 30, HD + 52);
   S2.forEach((p, i) => { const X0 = LX + 24, Y0 = HD + 76 + i * lh, w = LW - 48;
     if (p.rank <= 3) { x.fillStyle = ["#FEF3C7", "#E2E8F0", "#FFEDD5"][p.rank - 1]; x.beginPath(); x.roundRect ? x.roundRect(X0 - 8, Y0 + 2, w + 16, lh - 4, 10) : x.rect(X0 - 8, Y0 + 2, w + 16, lh - 4); x.fill(); }
     else if (i % 2) { x.fillStyle = "#EEF2F7"; x.fillRect(X0 - 8, Y0 + 2, w + 16, lh - 4); }
     const cy2 = Y0 + lh / 2; x.textBaseline = "middle";
     x.beginPath(); x.arc(X0 + fs * .7, cy2, fs * .62, 0, 7); x.fillStyle = p.rank <= 3 ? MED[p.rank - 1] : "#EF4444"; x.fill();
-    x.fillStyle = p.rank === 2 ? "#0F172A" : "#fff"; x.textAlign = "center"; x.font = "900 " + Math.round(fs * .62) + "px Nunito, sans-serif"; x.fillText(String(p.rank), X0 + fs * .7, cy2 + 1);
-    x.textAlign = "left"; x.fillStyle = "#0F172A"; x.font = (p.rank <= 3 ? "800 " : "700 ") + Math.round(fs) + "px Inter, sans-serif";
+    x.fillStyle = p.rank === 2 ? "#0F172A" : "#fff"; x.textAlign = "center"; x.font = "900 " + Math.round(fs * .62) + "px Montserrat, sans-serif"; x.fillText(String(p.rank), X0 + fs * .7, cy2 + 1);
+    x.textAlign = "left"; x.fillStyle = "#0F172A"; x.font = (p.rank <= 3 ? "800 " : "700 ") + Math.round(fs) + "px system-ui, Arial, sans-serif";
     let nm = String(p.name || ""); const maxW = w - fs * 6.5; while (nm.length > 3 && x.measureText(nm).width > maxW) nm = nm.slice(0, -2) + "…";
-    x.fillText(nm, X0 + fs * 1.7, cy2); x.textAlign = "right"; x.fillStyle = "#475569"; x.font = "700 " + Math.round(fs * .8) + "px Inter, sans-serif"; x.fillText(geoFmtKm(p.km), X0 + w, cy2); });
-  if (P.length > TOPN) { x.textAlign = "left"; x.textBaseline = "alphabetic"; x.fillStyle = "#64748B"; x.font = "600 20px Inter, sans-serif"; x.fillText("🟡 Бусад " + (P.length - TOPN) + " оролцогчийн цэг газарзүйн зураг дээр", LX + 30, H - 26); }
+    x.fillText(nm, X0 + fs * 1.7, cy2); x.textAlign = "right"; x.fillStyle = "#475569"; x.font = "700 " + Math.round(fs * .8) + "px system-ui, Arial, sans-serif"; x.fillText(geoFmtKm(p.km), X0 + w, cy2); });
+  if (P.length > TOPN) { x.textAlign = "left"; x.textBaseline = "alphabetic"; x.fillStyle = "#64748B"; x.font = "600 20px system-ui, Arial, sans-serif"; x.fillText("🟡 Бусад " + (P.length - TOPN) + " оролцогчийн цэг газарзүйн зураг дээр", LX + 30, H - 26); }
   return c.toDataURL("image/png");
 }
 
@@ -4576,12 +4578,12 @@ function anaLevels(R) { const n = {}; LVS.forEach(l => n[l] = 0); R.forEach(x =>
 /* баганан график → canvas */
 function anaChart(vals, labs, cols, title, W, H, unit) {
   const cv = document.createElement("canvas"), s = 2; cv.width = W * s; cv.height = H * s; const g = cv.getContext("2d"); g.scale(s, s);
-  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H); g.fillStyle = "#0F172A"; g.font = "700 14px Inter,Arial,sans-serif"; g.fillText(title, 12, 22);
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H); g.fillStyle = "#0F172A"; g.font = "700 14px system-ui,Arial,sans-serif"; g.fillText(title, 12, 22);
   const top = 46, bot = H - 30, mx = Math.max(1, ...vals), bw = (W - 24) / vals.length;
   g.strokeStyle = "#CBD5E1"; g.beginPath(); g.moveTo(12, bot + .5); g.lineTo(W - 12, bot + .5); g.stroke();
   vals.forEach((v, i) => { const x = 12 + i * bw + Math.max(2, bw * .12), w = bw - 2 * Math.max(2, bw * .12), hh = v / mx * (bot - top); g.fillStyle = cols[i]; g.fillRect(x, bot - hh, w, hh);
-    g.fillStyle = "#0F172A"; g.textAlign = "center"; g.font = "700 " + (bw < 30 ? 10 : 12) + "px Inter,Arial,sans-serif"; g.fillText(v + (unit || ""), x + w / 2, bot - hh - 5);
-    g.fillStyle = "#475569"; g.font = "600 " + (bw < 30 ? 10 : 12) + "px Inter,Arial,sans-serif"; g.fillText(labs[i], x + w / 2, bot + 17); g.textAlign = "left"; });
+    g.fillStyle = "#0F172A"; g.textAlign = "center"; g.font = "700 " + (bw < 30 ? 10 : 12) + "px system-ui,Arial,sans-serif"; g.fillText(v + (unit || ""), x + w / 2, bot - hh - 5);
+    g.fillStyle = "#475569"; g.font = "600 " + (bw < 30 ? 10 : 12) + "px system-ui,Arial,sans-serif"; g.fillText(labs[i], x + w / 2, bot + 17); g.textAlign = "left"; });
   return cv;
 }
 const anaCharts = (R, A, LV) => [anaChart(LVS.map(l => LV[l]), LVS, LVC, "Түвшний тархалт (сурагчийн тоо)", 460, 260),
@@ -5251,7 +5253,7 @@ function toolWheel(st) {
   function draw() { if (!S) return; const L = left.length ? left : ["Нэр оруулна уу"], n = L.length, r = S / 2 - 6, c = S / 2, seg = 2 * Math.PI / n;
     x.clearRect(0, 0, S, S); x.save(); x.translate(c, c);
     for (let i = 0; i < n; i++) { const a = rot + i * seg; x.beginPath(); x.moveTo(0, 0); x.arc(0, 0, r, a, a + seg); x.closePath(); x.fillStyle = TCOL[i % TCOL.length]; if (n % TCOL.length === 1 && i === n - 1 && n > 1) x.fillStyle = TCOL[2]; x.fill(); x.strokeStyle = "rgba(255,255,255,.85)"; x.lineWidth = 2; x.stroke();
-      x.save(); x.rotate(a + seg / 2); x.fillStyle = "#fff"; x.textAlign = "right"; x.textBaseline = "middle"; const fz = Math.max(10, Math.min(22, seg * r * .55, r / 8)); x.font = "800 " + fz + "px Nunito, sans-serif";
+      x.save(); x.rotate(a + seg / 2); x.fillStyle = "#fff"; x.textAlign = "right"; x.textBaseline = "middle"; const fz = Math.max(10, Math.min(22, seg * r * .55, r / 8)); x.font = "800 " + fz + "px Montserrat, sans-serif";
       let t = L[i]; while (t.length > 3 && x.measureText(t).width > r * .72) t = t.slice(0, -2) + "…"; x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 3; x.fillText(t, r - 12, 0); x.restore(); }
     x.beginPath(); x.arc(0, 0, r * .13, 0, 7); x.fillStyle = "#fff"; x.fill(); x.lineWidth = 4; x.strokeStyle = "#0B1426"; x.stroke(); x.restore(); }
   const idx = () => { const n = left.length, seg = 2 * Math.PI / n; let a = (-Math.PI / 2 - rot) % (2 * Math.PI); if (a < 0) a += 2 * Math.PI; return Math.floor(a / seg) % n; };
