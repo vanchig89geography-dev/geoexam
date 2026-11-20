@@ -1537,6 +1537,7 @@ if (USE_FB) {
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 
 /* ---------- account chip ---------- */
+var SHARE_NAV = null;
 function navLabels() {   // багш/админд «Шалгалт үүсгэх», бусдад «Шалгалт · Олимпиад»
   const lab = user && user.teacher ? "Шалгалт үүсгэх" : "Шалгалт · Олимпиад";
   const tb = document.querySelector('#tabs [data-t="contest"]'); if (tb) tb.textContent = lab;
@@ -1548,6 +1549,12 @@ function navLabels() {   // багш/админд «Шалгалт үүсгэх�
   if (tch && ti < 0) { const a2 = NAV.findIndex(x => x[0] === "admin"); NAV.splice(a2 < 0 ? NAV.length : a2, 0, ["tools", "Багшийн туслах", "Хүрд · цаг · оноо · санал асуулга", '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18M10 13v2h4v-2"/>']); }
   if (!tch && ti >= 0) NAV.splice(ti, 1);
   const tb2 = document.querySelector('#tabs [data-t="tools"]'); if (tb2) tb2.hidden = !tch;
+  /* 👩‍🏫 Багшийн булан: зөвхөн багш (эрхтэй эсвэл «Багш» гэж бүртгүүлсэн) ба админд */
+  const tchr = !!(user && (user.teacher || user.admin || user.role === "teacher")), si = NAV.findIndex(x => x[0] === "share");
+  if (!tchr && si >= 0) SHARE_NAV = NAV.splice(si, 1)[0];
+  if (tchr && si < 0 && typeof SHARE_NAV !== "undefined" && SHARE_NAV) { const t2 = NAV.findIndex(x => x[0] === "tools" || x[0] === "admin"); NAV.splice(t2 < 0 ? NAV.length : t2, 0, SHARE_NAV); }
+  const tb3 = document.querySelector('#tabs [data-t="share"]'); if (tb3) tb3.hidden = !tchr;
+  if (!tchr && tab === "share") tab = "var";
   if (!tch && tab === "tools") tab = "var";
   if (!adm && tab === "admin") tab = "var";
   if (typeof secTitle === "function" && $("secT")) secTitle();
@@ -4105,6 +4112,7 @@ const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1
 
 async function renderShare(box) {
   /* 🔒 зөвхөн Сургалтын эрх авсан (төлбөр төлсөн) хүмүүст нээлттэй */
+  if (user && !user.admin && !user.teacher && user.role !== "teacher") { box.append(el("p", "empty", "Багшийн булан зөвхөн багш нарт зориулагдсан.")); return; }
   if (!user || !(user.admin || user.learn)) { const lk = el("div", "mlock");
     lk.append(el("div", "mlic", "🔒"), el("b", "", "Багшийн булан зөвхөн Сургалтын эрхтэй багш нарт нээлттэй"), el("p", "lbn", "Сургалтын эрх авсан багш нар бие биеийнхээ хичээлийн төлөвлөгөө, слайд, ажлын хуудсыг үзэж, татаж, өөрсдийнхөө материалыг хуваалцана."));
     if (!user) { const b = el("button", "btn", "🔑 Нэвтрэх"); b.type = "button"; b.onclick = () => openAcct(true); lk.append(b); } else lk.append(learnPayHTML());
