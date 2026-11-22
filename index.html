@@ -892,6 +892,10 @@ select option,select optgroup{background:var(--surface);color:var(--fg)}
 .qzbadge{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:14px}
 .qzbadge.ok{background:var(--good-bg)}.qzbadge.ok b{color:var(--good)}
 .qzbadge.wait{background:color-mix(in srgb,#F59E0B 14%,var(--surface))}.qzbadge.wait b{color:#B45309}
+.qzwin{margin-top:10px;border-radius:16px;padding:14px;text-align:center;background:linear-gradient(135deg,color-mix(in srgb,#F59E0B 18%,var(--surface)),color-mix(in srgb,#38BDF8 14%,var(--surface)))}
+.qzwin .wi{font-size:42px;line-height:1}.qzwin b{display:block;font-size:18px;margin:6px 0 2px}.qzwin p{margin:4px 0 10px;color:var(--muted);font-size:14px}
+.qzwin.gift{background:linear-gradient(135deg,color-mix(in srgb,#10B981 16%,var(--surface)),color-mix(in srgb,#38BDF8 14%,var(--surface)))}
+.qzwin .qzbadge{margin-top:8px}.qznote{background:color-mix(in srgb,#F59E0B 12%,var(--surface));border:1px solid color-mix(in srgb,#F59E0B 40%,transparent);border-radius:12px;padding:10px 12px;font-size:13px;margin:10px 0}
 .qzedit{font-size:13px;white-space:nowrap}
 .qzdl{font:700 12.5px var(--font);color:var(--pd-ink);background:var(--pd-bg);padding:4px 10px;border-radius:999px}
 .qzrl{justify-self:center;font-size:14px}
@@ -3559,6 +3563,7 @@ function quizCard(q, adm) {
   else if (need && !me.paid) { const w = el("div", "qzbadge wait"); w.append(el("b", "", "⏳ Хүсэлт илгээгдсэн"), edit()); st.append(w); }
   else { const w = el("div", "qzbadge ok"); w.append(el("b", "", "✓ Баталгаажсан"), edit()); st.append(w); }
   if (st.children.length) c.append(st);
+  if (me && q.win) c.append(quizWinBox(q));   // 🏅 шагналт байр (1–3: данс, 4–5: эрх бэлэг)
   /* хуваарь: дугаар + огноо */
   if (q.rounds.length) { const L = el("div", "qzrounds");
     q.rounds.forEach((rd, i) => { const row = el("div", "qzr " + rd.status); const tx = el("div");
@@ -3581,19 +3586,22 @@ function quizRegForm(q) {
   box.append(el("h3", "bh", "📝 " + q.title));
   const f = el("div", "bform tagrid"), fld = (lab, inp, full) => { const l = el("label", "fld" + (full ? " full" : "")); l.append(el("span", "", lab), inp); f.append(l); return inp; };
   const sel = (arr, v, ph) => { const s = el("select"); s.append(Object.assign(el("option", "", ph), { value: "" })); arr.forEach(x => s.append(Object.assign(el("option", "", x), { value: x, selected: x === v }))); return s; };
-  const nm = fld("Овог, нэр *", Object.assign(el("input"), { value: me.name || (user && user.name) || "", maxLength: 60, placeholder: "Жишээ: Батын Тэмүүлэн" }), true);
+  const ln = fld("Овог *", Object.assign(el("input"), { value: me.last || "", maxLength: 40, placeholder: "Жишээ: Батын" }));
+  const nm = fld("Нэр *", Object.assign(el("input"), { value: me.first || (me.last ? "" : me.name) || "", maxLength: 40, placeholder: "Жишээ: Тэмүүлэн" }));
   const ph = fld("Утасны дугаар *", Object.assign(el("input"), { value: me.phone || "", maxLength: 15, inputMode: "tel", placeholder: "99112233" }));
-  const gr = fld("Төрөл", sel(q.cats && q.cats.length ? q.cats : QZ_GRADES, me.grade, "— сонгох —"));
-  const sc = fld("Сургууль", Object.assign(el("input"), { value: me.school || "", maxLength: 80, placeholder: "Жишээ: 1-р сургууль" }), true);
-  const lc = fld("Аймаг / дүүрэг", sel(QZ_LOC, me.loc, "— сонгох —"), true);
+  const GR = q.cats && q.cats.length ? q.cats : QZ_GRADES, isCls = GR.every(x => /анги/i.test(x));
+  const gr = fld(isCls ? "Анги *" : "Төрөл *", sel(GR, me.grade, "— сонгох —"));
+  const lc = fld("Аймаг / дүүрэг *", sel(QZ_LOC, me.loc, "— сонгох —"), true);
+  const sc = fld("Сургуулийн нэр *", Object.assign(el("input"), { value: me.school || "", maxLength: 80, placeholder: "Жишээ: 1-р сургууль" }), true);
   box.append(f);
   let ag = null; if (q.rules && !q.me) { const jb = el("div", "qzrules"); jb.append(el("b", "", "📜 Тэмцээний журам"), el("div", "qzrtx", q.rules)); box.append(jb);
     const al = el("label", "chk qzagree"); ag = Object.assign(el("input"), { type: "checkbox" }); al.append(ag, el("span", "", " Журамтай танилцаж, зөвшөөрч байна")); box.append(al); }
   const er = el("p", "err"), sv = el("button", "btn wide", q.me ? "💾 Хадгалах" : "📝 Хүсэлт илгээх"); sv.type = "button";
-  sv.onclick = async () => { er.textContent = ""; if (ag && !ag.checked) { er.textContent = "Журамтай танилцаж, зөвшөөрснөө тэмдэглэнэ үү."; ag.parentNode.scrollIntoView({ behavior: "smooth", block: "center" }); return; } sv.disabled = true; let x; try { x = await api({ action: "quizReg", id: q.id, name: nm.value, phone: ph.value, grade: gr.value, school: sc.value, loc: lc.value }); } catch (e) { x = { ok: false }; }
+  sv.onclick = async () => { er.textContent = ""; if (ag && !ag.checked) { er.textContent = "Журамтай танилцаж, зөвшөөрснөө тэмдэглэнэ үү."; ag.parentNode.scrollIntoView({ behavior: "smooth", block: "center" }); return; } sv.disabled = true; let x; try { if (ln.value.trim().length < 1 || nm.value.trim().length < 2 || !gr.value || !lc.value || sc.value.trim().length < 2) { sv.disabled = false; er.textContent = "Од (*) тэмдэгтэй бүх талбарыг бөглөнө үү."; return; }
+    x = await api({ action: "quizReg", id: q.id, last: ln.value, first: nm.value, name: (ln.value.trim() + " " + nm.value.trim()).trim(), phone: ph.value, grade: gr.value, school: sc.value, loc: lc.value }); } catch (e) { x = { ok: false }; }
     sv.disabled = false; if (!x.ok) { er.textContent = QZ_ERR[x.error] || "Хадгалж чадсангүй."; return; }
     play && play("ok"); tab = "quiz"; renderPane(); scrollTo({ top: 0 }); };
-  box.append(er, sv); nm.focus();
+  box.append(er, sv); ln.focus();
 }
 async function quizBoard(q) {
   const box = $("pane"); box.innerHTML = '<p class="empty">Ачаалж байна…</p>';
@@ -3604,6 +3612,12 @@ async function quizBoard(q) {
   const t = el("table", "qzboard"), h = el("tr"); ["#", "Нэр", "Оноо", "Тойрог", "Хугацаа"].forEach(x => h.append(el("th", "", x))); t.append(h);
   r.list.forEach(x => { const tr = el("tr", x.rank <= 3 ? "top" + x.rank : x.me ? "me" : ""); [x.rank <= 3 ? ["🥇", "🥈", "🥉"][x.rank - 1] : x.rank, x.name, x.score + " / " + x.total, x.n, fmtS(x.secs)].forEach(v => tr.append(el("td", "", v))); t.append(tr); });
   const w = el("div", "rank"); w.append(t); box.append(w);
+  if (user && user.admin && r.list.length) {   // 🏅 шилдэг 5-ыг зарлах: 1–3 данс бөглөнө, 4–5 эрх бэлэг
+    const n = Math.min(5, r.list.length), b = el("button", "btn", q.winners && q.winners.length ? "🏅 Шагналт байрыг дахин зарлах" : "🏅 Шилдэг " + n + "-ыг зарлах"), m = el("p", "note"); b.type = "button";
+    if (q.winners && q.winners.length) m.textContent = "Зарласан: " + q.winners.length + " хүн. 1–3-р байр данс бөглөх, 4–5-р байр 1 жилийн эрхийн мэдэгдэл харна.";
+    b.onclick = async () => { if (!confirm("Эхний " + n + " хүнийг шагналт байранд зарлах уу?\n1–3-р байр: данс бөглөх хэсэг гарна.\n4–5-р байр: 1 жилийн эрх бэлэглэсэн мэдэгдэл гарна.")) return; b.disabled = true;
+      const x = await api({ action: "quizWinners", id: q.id }); b.disabled = false; if (x.ok) { q.winners = x.winners; m.textContent = "✓ Зарлалаа: " + x.winners.length + " хүн."; play && play("ok"); } else m.textContent = "Хадгалж чадсангүй."; };
+    box.append(b, m); }
 }
 async function quizAdmin(q) {
   const box = $("pane"); box.innerHTML = '<p class="empty">Ачаалж байна…</p>'; hideLanding && hideLanding();
@@ -3640,6 +3654,7 @@ async function quizAdmin(q) {
   const bt = el("div", "tbtns"); bt.append(sv); if (q) bt.append(dl); box.append(er, bt);
   if (!q) return;
   /* 2. бүртгэл, төлбөр */
+  const WN = new Map((q.winners || []).map(x => [x.uid, x.rank]));
   const L = regs.ok ? regs.list : [], need = q.fee > 0 || q.approve !== false, okW = q.fee ? "✓ Төлсөн" : "✓ Баталгаажсан", noW = q.fee ? "Төлөөгүй" : "Баталгаажуулах";
   const rh = el("div", "grp"), rhT = () => rh.textContent = "Бүртгэлтэй хүмүүс · " + L.length + (need ? " · " + L.filter(x => x.paid).length + (q.fee ? " төлсөн" : " баталгаажсан") : ""); rhT(); box.append(rh);
   let flt = "all"; const fw = el("div", "tbtns"), tw = el("div", "rank qzregs");
@@ -3651,15 +3666,15 @@ async function quizAdmin(q) {
     const r = await api({ action: "quizPaid", id: q.id, uids: U.map(x => x.uid), paid: true }); all.disabled = false; if (r.ok) { U.forEach(x => x.paid = true); draw(); } };
   fw.append(csv, cpE, gm); if (need) fw.append(all); box.append(fw, tw);
   const draw = () => { rhT(); tw.innerHTML = ""; const V = view(); if (!V.length) { tw.append(el("p", "empty", "Бүртгэл алга.")); return; }
-    const t = el("table"), h = el("tr"); ["#", "Нэр", "Утас", "Сургууль · төрөл", "Байршил"].concat(need ? [q.fee ? "Төлбөр" : "Төлөв"] : []).forEach(x => h.append(el("th", "", x))); t.append(h);
-    V.forEach((x, i) => { const tr = el("tr"); [i + 1, x.name + "\n" + x.email, x.phone, [x.school, x.grade].filter(Boolean).join(" · "), x.loc].forEach(v => tr.append(el("td", "", v)));
+    const t = el("table"), h = el("tr"); ["#", "Нэр", "Утас", "Сургууль · төрөл", "Байршил"].concat(WN.size ? ["Байр · данс"] : []).concat(need ? [q.fee ? "Төлбөр" : "Төлөв"] : []).forEach(x => h.append(el("th", "", x))); t.append(h);
+    V.forEach((x, i) => { const tr = el("tr"); [i + 1, x.name + "\n" + x.email, x.phone, [x.school, x.grade].filter(Boolean).join(" · "), x.loc].concat(WN.size ? [WN.has(x.uid) ? WN.get(x.uid) + "-р байр" + (WN.get(x.uid) <= 3 ? "\n" + (x.acct ? x.bank + " · " + x.acct + "\n" + x.holder : "данс бөглөөгүй") : "\n🎁 1 жилийн эрх") : ""] : []).forEach(v => tr.append(el("td", "", v)));
       if (need) { const td = el("td"), b = el("button", "frsw " + (x.paid ? "free" : "paid"), x.paid ? okW : noW); b.type = "button";
         b.onclick = async () => { b.disabled = true; const r = await api({ action: "quizPaid", id: q.id, uid: x.uid, paid: !x.paid }); b.disabled = false; if (r.ok) { x.paid = !x.paid; draw(); } };
         td.append(b); tr.append(td); }
       t.append(tr); });
     tw.append(t); };
   draw();
-  csv.onclick = () => { const rows = [["#", "Нэр", "Майл", "Утас", "Сургууль", "Төрөл", "Байршил", "Төлбөр", "Бүртгүүлсэн"]].concat(view().map((x, i) => [i + 1, x.name, x.email, x.phone, x.school, x.grade, x.loc, x.paid ? (q.fee ? "Төлсөн" : "Баталгаажсан") : (need ? (q.fee ? "Төлөөгүй" : "Хүлээгдэж буй") : "Үнэгүй"), x.at]));
+  csv.onclick = () => { const rows = [["#", "Овог", "Нэр", "Майл", "Утас", "Сургууль", "Анги/төрөл", "Байршил", "Байр", "Банк", "Данс", "Эзэмшигч", "Төлбөр", "Бүртгүүлсэн"]].concat(view().map((x, i) => [i + 1, x.last || "", x.first || x.name, x.email, x.phone, x.school, x.grade, x.loc, WN.get(x.uid) || "", x.bank || "", x.acct || "", x.holder || "", x.paid ? (q.fee ? "Төлсөн" : "Баталгаажсан") : (need ? (q.fee ? "Төлөөгүй" : "Хүлээгдэж буй") : "Үнэгүй"), x.at]));
     const txt = "﻿" + rows.map(r => r.map(v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"').join(",")).join("\r\n");
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt], { type: "text/csv;charset=utf-8" })); a.download = q.title.replace(/[\\/:*?"<>|]/g, "") + " - бүртгэл.csv"; document.body.append(a); a.click(); setTimeout(() => a.remove(), 500); };
   const emails = () => view().map(x => x.email).filter(Boolean);
@@ -3677,6 +3692,35 @@ function quizRules(q) {   // 📜 журам унших цонх
   b.append(el("h4", "", "📜 " + q.title + " · журам"), el("div", "qzrtx", q.rules));
   const cl = el("button", "btn", "Ойлголоо"); cl.type = "button"; cl.onclick = () => z.remove(); const r = el("div", "recrow"); r.append(cl); b.append(r);
   z.onclick = e => { if (e.target === z) z.remove(); };
+}
+
+/* 🏅 шагналт байр: 1–3 данс бөглөнө, 4–5 сайтын 1 жилийн эрх бэлэг */
+const QZ_BANKS = ["Хаан банк", "Голомт банк", "Худалдаа хөгжлийн банк", "Хас банк", "Төрийн банк", "Капитрон банк", "Богд банк", "М банк", "Ариг банк", "Транс банк", "Чингис хаан банк", "Үндэсний хөрөнгө оруулалтын банк", "Кредит банк"];
+function quizWinBox(q) {
+  const w = q.win, me = q.me, md = ["🥇", "🥈", "🥉", "🏅", "🏅"][w - 1] || "🏅";
+  if (w <= 3) { const b = el("div", "qzwin"); b.append(el("div", "wi", md), el("b", "", "Баяр хүргэе! Та " + w + "-р байр эзэллээ"));
+    if (me.acct) { const k = el("div", "qzbadge ok"), e = el("button", "link qzedit", "✏️ Засах"); e.type = "button"; e.onclick = () => quizPayForm(q);
+      k.append(el("b", "", "✓ Данс илгээгдсэн · " + me.bank), e); b.append(el("p", "", "Шагналыг тань удахгүй шилжүүлнэ."), k); }
+    else { b.append(el("p", "", "Мөнгөн шагналаа авахын тулд дансаа бөглөнө үү.")); const bt = el("button", "btn wide", "💳 Дансаа бөглөх"); bt.type = "button"; bt.onclick = () => quizPayForm(q); b.append(bt); }
+    return b; }
+  const b = el("div", "qzwin gift"); b.append(el("div", "wi", "🎁"), el("b", "", "Баяр хүргэе! Та " + w + "-р байр эзэллээ"),
+    el("p", "", "Танд geoexam.mn-ийн 1 жилийн эрх бэлэглэлээ. Эрхийг тань зохион байгуулагч удахгүй нээж өгнө."));
+  return b;
+}
+function quizPayForm(q) {
+  const box = $("pane"); box.innerHTML = ""; quizBack(box); const me = q.me || {};
+  box.append(el("h3", "bh", "💳 " + q.title + " · шагнал авах данс"), el("p", "note", "Та " + q.win + "-р байр эзэлсэн. Шагналыг доорх дансанд шилжүүлнэ."));
+  const f = el("div", "bform tagrid"), fld = (lab, inp, full) => { const l = el("label", "fld" + (full ? " full" : "")); l.append(el("span", "", lab), inp); f.append(l); return inp; };
+  const bs = el("select"); bs.append(Object.assign(el("option", "", "— сонгох —"), { value: "" })); QZ_BANKS.forEach(x => bs.append(Object.assign(el("option", "", x), { value: x, selected: x === me.bank })));
+  const bk = fld("Банк *", bs, true);
+  const ac = fld("Дансны дугаар *", Object.assign(el("input"), { value: me.acct || "", maxLength: 30, inputMode: "numeric", placeholder: "Жишээ: 5000123456" }), true);
+  const ho = fld("Данс эзэмшигчийн нэр *", Object.assign(el("input"), { value: me.holder || "", maxLength: 60, placeholder: "Жишээ: Батын Сарантуяа" }), true);
+  box.append(f, el("div", "qznote", "Сурагч өөрөө данс эзэмшдэггүй бол эцэг, эхийн дансыг бичиж болно. Энэ мэдээллийг зөвхөн зохион байгуулагч харна."));
+  const er = el("p", "err"), sv = el("button", "btn wide", "💳 Илгээх"); sv.type = "button";
+  sv.onclick = async () => { er.textContent = ""; if (!bk.value || ac.value.replace(/\D/g, "").length < 6 || ho.value.trim().length < 2) { er.textContent = "Банк, дансны дугаар, эзэмшигчийн нэрээ бүрэн бичнэ үү."; return; }
+    sv.disabled = true; let x; try { x = await api({ action: "quizPay", id: q.id, bank: bk.value, acct: ac.value, holder: ho.value }); } catch (e) { x = { ok: false }; }
+    sv.disabled = false; if (!x.ok) { er.textContent = "Хадгалж чадсангүй."; return; } play && play("ok"); tab = "quiz"; renderPane(); scrollTo({ top: 0 }); };
+  box.append(er, sv);
 }
 
 /* ---------- 📷 Камертай хяналт: утас, олон хүн, нүүр алга, цонх орхих ---------- */
@@ -5982,7 +6026,7 @@ async function qsOf(id) { if (!QCACHE[id]) { const s = await getDoc(D("qs", id))
 /* ---- үйлдлүүд ---- */
 const H = {};
 /* ---- 🏆 GeoQuiz: бүртгэл, төлбөр, тойрог, нийт жагсаалт ---- */
-const QZ_FIELDS = ["name", "phone", "school", "grade", "loc"];
+const QZ_FIELDS = ["name", "last", "first", "phone", "school", "grade", "loc"], QZ_PAY = ["bank", "acct", "holder"];
 async function quizGate(c, m) {   // тойрогт оролцох эрх: бүртгэлтэй + (үнэгүй эсвэл төлсөн)
   if (!c.quiz) return null; if (m.admin || c.owner === m.email) return null;
   const q = await getDoc(D("quiz", c.quiz)); if (!q.exists()) return null; const fee = +q.data().fee || 0, need = fee > 0 || q.data().approve !== false;
@@ -6001,9 +6045,10 @@ H.quizList = async () => {
     /* ⚡ тоолох, өөрийн бүртгэлийг зэрэг уншина */
     const [cN, cP, rg] = await Promise.all([getCountFromServer(C("quiz", d.id, "reg")).catch(() => null), (+x.fee > 0 || x.approve !== false) ? getCountFromServer(query(C("quiz", d.id, "reg"), where("paid", "==", true))).catch(() => null) : null, m ? getDoc(D("quiz", d.id, "reg", m.uid)).catch(() => null) : null]);
     const n = cN ? cN.data().count : 0, paid = cP ? cP.data().count : 0;
-    let me = null; if (rg && rg.exists()) { const y = rg.data(); me = { paid: y.paid === true }; QZ_FIELDS.forEach(k => me[k] = y[k] || ""); }
+    let me = null; if (rg && rg.exists()) { const y = rg.data(); me = { paid: y.paid === true }; QZ_FIELDS.concat(QZ_PAY).forEach(k => me[k] = y[k] || ""); }
+    const W = Array.isArray(x.winners) ? x.winners : [], mw = m ? W.find(w => w.uid === m.uid) : null;
     const regEnd = x.regEnd ? toD(x.regEnd).toISOString() : "", regOpen = x.regOpen !== false && (!regEnd || Date.now() <= new Date(regEnd).getTime());
-    return ({ id: d.id, title: x.title || "GeoQuiz", desc: x.desc || "", prize: x.prize || "", rules: x.rules || "", cats: Array.isArray(x.cats) ? x.cats : [], regEnd, regOn: x.regOpen !== false, fee: +x.fee || 0, approve: x.approve !== false, regOpen, hidden: !!x.hidden, rounds, n, paid, me }); }))).filter(Boolean);
+    return ({ id: d.id, title: x.title || "GeoQuiz", desc: x.desc || "", prize: x.prize || "", rules: x.rules || "", cats: Array.isArray(x.cats) ? x.cats : [], regEnd, regOn: x.regOpen !== false, fee: +x.fee || 0, approve: x.approve !== false, regOpen, hidden: !!x.hidden, rounds, n, paid, me, win: me && mw ? mw.rank : 0, winners: m && m.admin ? W : [] }); }))).filter(Boolean);
   return { ok: true, list: out, user: m };
 };
 H.quizReg = async p => {   // өөрийн бүртгэл (нэр, утас, сургууль…)
@@ -6015,7 +6060,20 @@ H.quizReg = async p => {   // өөрийн бүртгэл (нэр, утас, с�
   QZ_FIELDS.forEach(k => d[k] = String(p[k] || "").trim().slice(0, 80));
   d.phone = d.phone.replace(/[^\d+]/g, "").slice(0, 15);
   if (d.name.length < 2 || d.phone.replace(/\D/g, "").length < 8) return { ok: false, error: "form" };
-  await setDoc(ref, d); return { ok: true, paid: d.paid };
+  await setDoc(ref, d, { merge: true }); return { ok: true, paid: d.paid };
+};
+H.quizPay = async p => {   // 🏅 1–3-р байр: шагнал авах данс (өөрийн бүртгэлд; зөвхөн өөрөө ба админ уншина)
+  const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
+  const id = String(p.id || ""), q = await getDoc(D("quiz", id)); if (!q.exists()) return { ok: false, error: "none" };
+  const w = (q.data().winners || []).find(x => x.uid === m.uid); if (!w || w.rank > 3) return { ok: false, error: "none" };
+  const d = {}; QZ_PAY.forEach(k => d[k] = String(p[k] || "").trim().slice(0, 60)); d.acct = d.acct.replace(/[^\d]/g, "").slice(0, 30); d.payAt = Timestamp.now();
+  await setDoc(D("quiz", id, "reg", m.uid), d, { merge: true }); return { ok: true };
+};
+H.quizWinners = async p => {   // админ: нийт жагсаалтын эхний 5-ыг шагналт байранд зарлана
+  const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
+  const id = String(p.id || ""), r = await H.quizBoard({ id, keepUid: true }); if (!r.ok) return { ok: false };
+  const winners = r.list.slice(0, 5).map(x => ({ uid: x.uid, rank: x.rank, name: x.name }));
+  await setDoc(D("quiz", id), { winners, winAt: Timestamp.now() }, { merge: true }); return { ok: true, winners };
 };
 H.quizSave = async p => {   // админ: GeoQuiz үүсгэх/засах
   const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
@@ -6035,7 +6093,7 @@ H.quizDelete = async p => { const m = await meInfo(); if (!m || !m.admin) return
   const b = writeBatch(db); (q.data().rounds || []).forEach(c => b.set(D("contests", c), { quiz: "" }, { merge: true })); b.delete(D("quiz", id)); await b.commit(); return { ok: true }; };
 H.quizRegs = async p => { const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
   const s = await getDocs(C("quiz", String(p.id), "reg"));
-  return { ok: true, list: s.docs.map(d => { const x = d.data(), o = { uid: d.id, email: x.email || "", paid: x.paid === true, at: x.at ? ymd(toD(x.at)) : "" }; QZ_FIELDS.forEach(k => o[k] = x[k] || ""); return o; }).sort((a, b) => a.at < b.at ? 1 : -1) }; };
+  return { ok: true, list: s.docs.map(d => { const x = d.data(), o = { uid: d.id, email: x.email || "", paid: x.paid === true, at: x.at ? ymd(toD(x.at)) : "" }; QZ_FIELDS.concat(QZ_PAY).forEach(k => o[k] = x[k] || ""); return o; }).sort((a, b) => a.at < b.at ? 1 : -1) }; };
 H.quizPaid = async p => { const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
   const uids = (Array.isArray(p.uids) ? p.uids : [p.uid]).map(String).filter(Boolean).slice(0, 400), v = p.paid === true;
   const b = writeBatch(db); uids.forEach(u => b.set(D("quiz", String(p.id), "reg", u), { paid: v, paidAt: Timestamp.now() }, { merge: true })); await b.commit(); return { ok: true, n: uids.length }; };
@@ -6045,7 +6103,7 @@ H.quizBoard = async p => {   // улирлын нийт жагсаалт: той
   cs.forEach(c => { if (!c.exists() || !Array.isArray(c.data().res) || (c.data().review && !c.data().pub)) return; ready++;
     c.data().res.forEach(x => { const a = A[x.uid] || (A[x.uid] = { uid: x.uid, name: x.name, score: 0, total: 0, secs: 0, n: 0 }); a.score += x.score; a.total += x.total; a.secs += x.secs || 0; a.n++; }); });
   const uid = auth.currentUser && auth.currentUser.uid, L = Object.values(A).sort((a, b) => b.score - a.score || a.secs - b.secs);
-  L.forEach((x, i) => { x.rank = i + 1; x.me = x.uid === uid; delete x.uid; });
+  L.forEach((x, i) => { x.rank = i + 1; x.me = x.uid === uid; if (!p.keepUid) delete x.uid; });
   return { ok: true, list: L.slice(0, 300), me: L.find(x => x.me) || null, rounds: (q.data().rounds || []).length, ready };
 };
 H.config = async () => { const c = await conf(), o = {}; Object.keys(CFG_KEYS).forEach(k => { if (c[k]) o[CFG_KEYS[k]] = c[k]; }); return { ok: true, config: o, recExam: !!c.recExam }; };
