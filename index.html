@@ -633,6 +633,27 @@ body.onhome .title{display:none}
 .lhero .ltxt{text-align:center}.lhero .lcta{justify-content:center}.ltxt p{max-width:620px;margin-left:auto;margin-right:auto}
 @media (max-width:640px){.ivid{aspect-ratio:1/1}.lhero .ltxt{text-align:left}.lhero .lcta{justify-content:flex-start}}
 
+/* 🌍 3D дэлхий + 🏆 GeoQuiz шууд */
+.geo3d{background:radial-gradient(120% 90% at 50% 55%,#0e2a4f,#050b18 70%)}
+.geo3d:before{content:'';position:absolute;inset:0;background-image:radial-gradient(1px 1px at 6% 10%,#fff9,transparent),radial-gradient(1px 1px at 84% 20%,#fff8,transparent),radial-gradient(1.5px 1.5px at 22% 82%,#fffa,transparent),radial-gradient(1px 1px at 92% 76%,#fff7,transparent),radial-gradient(1px 1px at 42% 7%,#fff6,transparent),radial-gradient(1px 1px at 11% 52%,#fff8,transparent),radial-gradient(1.2px 1.2px at 72% 93%,#fff9,transparent),radial-gradient(1px 1px at 60% 40%,#fff5,transparent)}
+.geo3d canvas{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%)}
+.g3cap{position:absolute;top:10px;left:0;right:0;text-align:center;font-weight:800;font-size:clamp(13px,2.4vw,17px);z-index:3;text-shadow:0 2px 8px #0008}
+.g3tag{position:absolute;z-index:3;padding:3px 8px;border-radius:8px;background:#ef4444;color:#fff;font-size:12px;font-weight:800;transform:translate(-50%,-140%);transition:opacity .3s;opacity:0;pointer-events:none;white-space:nowrap}
+.g3fc{position:absolute;z-index:3;padding:6px 10px;border-radius:12px;background:rgba(255,255,255,.95);color:#0b1d3a;font-size:clamp(11px,1.9vw,13px);font-weight:800;box-shadow:0 8px 20px #0008;white-space:nowrap;animation:g3pop .55s cubic-bezier(.2,1.6,.4,1) both}
+.g3fc small{display:block!important;font-weight:600;color:#64748b;font-size:.82em}
+.g3fc.g3tl{left:3%;top:15%}.g3fc.g3tr{right:3%;top:17%}.g3fc.g3bl{left:3%;bottom:8%}.g3fc.g3br{right:3%;bottom:8%}
+@keyframes g3pop{from{opacity:0;transform:scale(.4)}}
+@media (max-width:640px){.g3fc{padding:5px 8px}}
+@media (prefers-reduced-motion:reduce){.g3fc{animation:none}}
+.qlive{margin-top:14px;border-radius:18px;padding:14px 16px;color:#fff;background:linear-gradient(135deg,#0b1d3a,#0e4a6b 55%,#0f766e);box-shadow:0 10px 30px rgba(2,32,64,.25);display:grid;gap:10px}
+.qlh{display:flex;align-items:center;gap:8px;font-size:15px}.qlh b{font-family:var(--btn-font)}
+.qldot{width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 #22c55eaa;animation:qlp 1.4s infinite;flex:none}.qldot.red{background:#ef4444;box-shadow:0 0 0 0 #ef4444aa}
+@keyframes qlp{to{box-shadow:0 0 0 10px transparent}}
+.qlrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.qlnum{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 12px;display:grid}
+.qlnum b{font-size:clamp(20px,4.5vw,26px);font-variant-numeric:tabular-nums;font-family:var(--btn-font)}.qlnum span{font-size:12px;opacity:.85}
+.qlive[hidden]{display:none!important}.qlbtn{justify-self:start;background:#fde047!important;background-image:none!important;color:#0b1d3a!important;border:0!important;font-weight:800}
+
 /* тестийн үнэ солих */
 .frg{border:1px solid var(--line);border-radius:12px;padding:6px 10px;margin:6px 0;background:var(--surface)}
 .frg summary{cursor:pointer;font-weight:700;padding:4px 0}
@@ -4861,7 +4882,75 @@ function ivSound(box, on) { IV.on = on; const b = box.querySelector(".ivsnd"); b
 const ivMuted = () => { try { return localStorage.getItem("gx-ivmute") === "1" || !SOUND; } catch (e) { return !SOUND; } };
 function ivSetMute(v) { try { localStorage.setItem("gx-ivmute", v ? "1" : "0"); } catch (e) {} }
 function ivStop() { IV.timers.forEach(t => { clearTimeout(t); clearInterval(t); }); IV.timers = []; if (AC && IV.on) { try { AC.close(); } catch (e) {} AC = null; } IV.on = false; }
+/* ---------- 🌍 3D дэлхий (нүүрний танилцуулга; газарзүйн зургийн өгөгдлийг дахин ашиглана) ---------- */
+const GL = { raf: 0, io: null };
 function introPlayer() {
+  cancelAnimationFrame(GL.raf); if (GL.io) GL.io.disconnect();
+  const box = el("div", "ivid geo3d"); box.innerHTML = '<div class="g3cap">🌍 GeoExam — газарзүйг тоглож сур</div><canvas></canvas><div class="g3tag"></div>';
+  const F = [["📝 1,345+ даалгавар", "ЭЕШ хувилбар", "g3tl"], ["🗺️ 190+ улс", "газарзүйн зураг", "g3tr"], ["⚔️ Battle", "найзуудтайгаа", "g3bl"], ["🏆 GeoQuiz", "шагналтай тэмцээн", "g3br"]];
+  F.forEach((x, k) => { const d = el("div", "g3fc " + x[2]); d.style.animationDelay = (0.6 + k * 0.7) + "s"; d.innerHTML = x[0] + "<small>" + x[1] + "</small>"; box.append(d); });
+  const cv = box.querySelector("canvas"), tag = box.querySelector(".g3tag");
+  const SEQ = ["496", "250", "076", "840", "156", "036", "818", "392", "710", "643"], NM = { "496": "Монгол", "250": "Франц", "076": "Бразил", "840": "АНУ", "156": "Хятад", "036": "Австрали", "818": "Египет", "392": "Япон", "710": "Өмнөд Африк", "643": "Орос" };
+  const DES = ["818", "434", "012", "682", "036", "504", "732", "478", "466", "562", "148", "729", "512", "784", "887", "368", "364"];
+  loadMap().then(M => { if (!box.isConnected || typeof d3 === "undefined") return;
+    // 🪶 хөнгөн болгох: цэгүүдийг сийрүүлнэ (утсанд гацахгүй)
+    const thin = r => r.length > 24 ? r.filter((p, i) => i % 3 === 0 || i === r.length - 1) : r;
+    const C = M.map(f => { const g = f.geometry, co = g.type === "Polygon" ? g.coordinates.map(thin) : g.coordinates.map(p => p.map(thin));
+      return { code: f.code, f: { type: "Feature", geometry: { type: g.type, coordinates: co } }, lat: d3.geoCentroid(f)[1], c: d3.geoCentroid(f) }; });
+    const ctx = cv.getContext("2d"), pr = d3.geoOrthographic().clipAngle(90), pa = d3.geoPath(pr, ctx), gr = d3.geoGraticule10();
+    let S = 0, R = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
+    const size = () => { const b = box.getBoundingClientRect(); S = Math.max(120, Math.min(b.width * 0.62, b.height * 0.84)); R = S / 2 - S * 0.06;
+      cv.width = cv.height = Math.round(S * dpr); cv.style.width = cv.style.height = S + "px"; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); pr.scale(R).translate([S / 2, S / 2]); };
+    size(); window.addEventListener("resize", size);
+    let i = 0, hi = null, rot = [-105, -20], tgt = null;
+    const next = () => { hi = C.find(x => x.code === SEQ[i++ % SEQ.length]); if (hi) tgt = [-hi.c[0], -hi.c[1] * 0.6]; };
+    next(); if (tgt) rot = tgt.slice(); let last = 0, swap = performance.now(), on = true;
+    const draw = () => { ctx.clearRect(0, 0, S, S); pr.rotate(rot); const cx = S / 2;
+      let g = ctx.createRadialGradient(cx, cx, R * 0.9, cx, cx, R * 1.12); g.addColorStop(0, "#38bdf888"); g.addColorStop(1, "#38bdf800"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cx, R * 1.12, 0, 7); ctx.fill();
+      g = ctx.createRadialGradient(cx - R * 0.35, cx - R * 0.4, R * 0.1, cx, cx, R); g.addColorStop(0, "#3b9fe0"); g.addColorStop(0.6, "#1565a8"); g.addColorStop(1, "#0a2f5c");
+      ctx.beginPath(); pa({ type: "Sphere" }); ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); pa(gr); ctx.strokeStyle = "rgba(255,255,255,.1)"; ctx.lineWidth = 0.6; ctx.stroke();
+      ctx.lineWidth = 0.4; ctx.strokeStyle = "rgba(20,83,45,.7)";
+      C.forEach(x => { if (d3.geoDistance(x.c, [-rot[0], -rot[1]]) > 2.2) return; ctx.beginPath(); pa(x.f);
+        ctx.fillStyle = x === hi ? "#ef4444" : Math.abs(x.lat) > 62 ? "#e8eef2" : DES.includes(x.code) ? "#d6b36a" : "#4caf50"; ctx.fill(); ctx.stroke(); });
+      if (hi) { ctx.beginPath(); pa(hi.f); ctx.strokeStyle = "#7f1d1d"; ctx.lineWidth = 1.4; ctx.stroke(); }
+      g = ctx.createRadialGradient(cx - R * 0.45, cx - R * 0.45, 0, cx, cx, R * 1.05); g.addColorStop(0, "rgba(255,255,255,.25)"); g.addColorStop(0.35, "rgba(255,255,255,.03)"); g.addColorStop(0.75, "rgba(0,0,0,.19)"); g.addColorStop(1, "rgba(0,0,0,.63)");
+      ctx.beginPath(); pa({ type: "Sphere" }); ctx.fillStyle = g; ctx.fill();
+      const vis = hi && d3.geoDistance(hi.c, [-rot[0], -rot[1]]) < 1.3, p = vis && pr(hi.c);
+      if (p) { const b = box.getBoundingClientRect(), o = cv.getBoundingClientRect(); tag.style.opacity = 1; tag.style.left = (o.left - b.left + p[0]) + "px"; tag.style.top = (o.top - b.top + p[1]) + "px"; tag.textContent = NM[hi.code] || ""; } else tag.style.opacity = 0; };
+    const loop = t => { if (!box.isConnected) { window.removeEventListener("resize", size); return; }
+      GL.raf = requestAnimationFrame(loop); if (!on || document.hidden || t - last < 33) return; last = t;   // ~30 кадр/с
+      if (t - swap > 2600) { swap = t; next(); }
+      if (tgt) { rot[0] += ((tgt[0] - rot[0] + 540) % 360 - 180) * 0.07; rot[1] += (tgt[1] - rot[1]) * 0.07; }
+      draw(); };
+    if ("IntersectionObserver" in window) { GL.io = new IntersectionObserver(e => { on = e[0].isIntersecting; }); GL.io.observe(box); }
+    draw(); GL.raf = requestAnimationFrame(loop);
+  }).catch(() => {});
+  return box;
+}
+/* ---------- 🏆 Нүүрэнд: GeoQuiz бүртгэл (шууд) ---------- */
+const QL = { t: 0 };
+function quizLiveStrip() {
+  clearInterval(QL.t); const w = el("div", "qlive"); w.hidden = true;
+  const p2 = n => String(n).padStart(2, "0"), left = ms => { const s = Math.max(0, Math.floor(ms / 1000)), d = Math.floor(s / 86400);
+    return (d ? d + " өдөр " : "") + p2(Math.floor(s % 86400 / 3600)) + ":" + p2(Math.floor(s % 3600 / 60)) + ":" + p2(s % 60); };
+  let q = null, at = 0;
+  const load = () => api({ action: "quizLive" }).then(r => { if (r && r.ok && r.q) { q = r.q; at = Date.now(); paint(); } else w.hidden = true; }).catch(() => {});
+  const paint = () => { if (!q) return; const now = Date.now(), re = q.regEnd ? new Date(q.regEnd).getTime() : 0, st = q.start ? new Date(q.start).getTime() : 0, en = q.end ? new Date(q.end).getTime() : 0;
+    let lab, tm = "", live = false;
+    if (re && now < re) { lab = "⏳ Бүртгэл хаагдахад"; tm = left(re - now); }
+    else if (st && now < st) { lab = "🔔 Тэмцээн эхлэхэд"; tm = left(st - now); }
+    else if (st && en && now < en) { lab = "Тэмцээн явагдаж байна"; live = true; }
+    else { w.hidden = true; return; }
+    w.hidden = false;
+    w.innerHTML = '<div class="qlh"><span class="qldot' + (live ? " red" : "") + '"></span><b>' + (live ? "LIVE · " : "") + q.title.replace(/</g, "&lt;") + '</b></div>'
+      + '<div class="qlrow">' + (q.n != null ? '<div class="qlnum"><b>' + q.n.toLocaleString("en-US") + '</b><span>сурагч бүртгүүлсэн</span></div>' : "")
+      + '<div class="qlnum"><b>' + (tm || "🔴") + '</b><span>' + lab + '</span></div></div>';
+    const b = el("button", "btn qlbtn", re && now < re ? "📝 Бүртгүүлэх →" : "🏆 GeoQuiz руу →"); b.type = "button"; b.onclick = () => goSection("quiz"); w.append(b); };
+  load(); QL.t = setInterval(() => { if (!w.isConnected) return clearInterval(QL.t); if (document.hidden) return; paint(); if (Date.now() - at > 90e3) load(); }, 1000);
+  return w;
+}
+function introPlayerOld() {
   if (typeof loadMap === "function") loadMap().catch(() => {});   // газарзүйн зургийн өгөгдлийг урьдчилан ачаална
   const box = el("div", "ivid"); box.innerHTML = '<div class="ivbg"></div><div class="ivstage"></div><div class="ivcap"></div><button class="ivsnd" type="button"></button><div class="ivbar"><i></i></div><button class="ivplay" type="button" hidden><span>▶</span><b>Дарж үзэх</b></button>';
   IV.pending = false;
@@ -4911,7 +5000,7 @@ function renderLanding() {
   const nQ = tests.reduce((a, t) => a + (t.count || 0), 0), nE = tests.filter(t => /^ЭЕШ/.test(t.group || "")).length;
   const hero = el("div", "lhero card"); const tx = el("div", "ltxt");
   const hh = el("h2", "leng", ""); hh.innerHTML = "I'm ready for my <em>Geography</em> exam ✓"; tx.append(hh);
-  ivStop(); const vis = el("div", "lvis"); vis.append(introPlayer()); hero.append(tx, vis); L.append(hero);
+  ivStop(); const vis = el("div", "lvis"); vis.append(introPlayer()); hero.append(tx, vis); L.append(hero); L.append(quizLiveStrip());
   const stats = el("div", "lstats");
   [[nQ ? nQ.toLocaleString("en-US") + "+" : "1,300+", "даалгавар"], [nE || 5, "ЭЕШ хувилбар"], ["190+", "улсын газарзүйн зураг"], ["0₮", "үнэгүй эхлэх"]].forEach(([n, t]) => { const d = el("div"); d.append(el("b", "", String(n)), el("span", "", t)); stats.append(d); });
   L.append(stats);
@@ -6050,6 +6139,13 @@ H.quizList = async () => {
     const regEnd = x.regEnd ? toD(x.regEnd).toISOString() : "", regOpen = x.regOpen !== false && (!regEnd || Date.now() <= new Date(regEnd).getTime());
     return ({ id: d.id, title: x.title || "GeoQuiz", desc: x.desc || "", prize: x.prize || "", rules: x.rules || "", cats: Array.isArray(x.cats) ? x.cats : [], regEnd, regOn: x.regOpen !== false, fee: +x.fee || 0, approve: x.approve !== false, regOpen, hidden: !!x.hidden, rounds, n, paid, me, win: me && mw ? mw.rank : 0, winners: m && m.admin ? W : [] }); }))).filter(Boolean);
   return { ok: true, list: out, user: m };
+};
+H.quizLive = async () => {   // нүүрний шууд самбар: хамгийн сүүлийн нээлттэй GeoQuiz + бүртгэлийн тоо (хувийн мэдээлэлгүй)
+  const s = await getDocs(query(C("quiz"), orderBy("created", "desc"), limit(5)));
+  const d = s.docs.find(d => !d.data().hidden); if (!d) return { ok: true, q: null };
+  const x = d.data(), R = (x.rinfo || []).slice().sort((a, b) => a.start < b.start ? -1 : 1), r0 = R[0], rl = R[R.length - 1];
+  let n = null; try { n = (await getCountFromServer(C("quiz", d.id, "reg"))).data().count; } catch (e) {}
+  return { ok: true, q: { id: d.id, title: x.title || "GeoQuiz", regEnd: x.regEnd ? toD(x.regEnd).toISOString() : "", start: r0 ? r0.start : "", end: rl ? rl.end : "", n } };
 };
 H.quizReg = async p => {   // өөрийн бүртгэл (нэр, утас, сургууль…)
   const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
