@@ -4886,7 +4886,7 @@ function ivStop() { IV.timers.forEach(t => { clearTimeout(t); clearInterval(t); 
 const GL = { raf: 0, io: null };
 function introPlayer() {
   cancelAnimationFrame(GL.raf); if (GL.io) GL.io.disconnect();
-  const box = el("div", "ivid geo3d"); box.innerHTML = '<div class="g3cap">GeoExam — газарзүйг тоглож сур</div><canvas></canvas><div class="g3tag"></div>';
+  const box = el("div", "ivid geo3d"); box.innerHTML = '<div class="g3cap">GeoExam — Сур бас давт</div><canvas></canvas><div class="g3tag"></div>';
   const F = [["1,345+ даалгавар", "ЭЕШ хувилбар", "g3tl"], ["190+ улс", "газарзүйн зураг", "g3tr"], ["Battle", "найзуудтайгаа", "g3bl"], ["GeoQuiz", "шагналтай тэмцээн", "g3br"]];
   F.forEach((x, k) => { const d = el("div", "g3fc " + x[2]); d.style.animationDelay = (0.6 + k * 0.7) + "s"; d.innerHTML = x[0] + "<small>" + x[1] + "</small>"; box.append(d); });
   const cv = box.querySelector("canvas"), tag = box.querySelector(".g3tag");
