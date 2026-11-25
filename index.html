@@ -652,7 +652,7 @@ body.onhome .title{display:none}
 .qlrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 .qlnum{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 12px;display:grid}
 .qlnum b{font-size:clamp(20px,4.5vw,26px);font-variant-numeric:tabular-nums;font-family:var(--btn-font)}.qlnum span{font-size:12px;opacity:.85}
-.qlive[hidden]{display:none!important}.qlbtn{justify-self:start;background:#fde047!important;background-image:none!important;color:#0b1d3a!important;border:0!important;font-weight:800}
+.qlive[hidden]{display:none!important}.qlbtns{display:flex;gap:8px;flex-wrap:wrap}.qlrul{background:rgba(255,255,255,.15)!important;background-image:none!important;color:#fff!important;border:1px solid rgba(255,255,255,.4)!important;font-weight:800}.qlbtn{justify-self:start;background:#fde047!important;background-image:none!important;color:#0b1d3a!important;border:0!important;font-weight:800}
 
 /* тестийн үнэ солих */
 .frg{border:1px solid var(--line);border-radius:12px;padding:6px 10px;margin:6px 0;background:var(--surface)}
@@ -4941,13 +4941,13 @@ function quizLiveStrip() {
     else if (st && now < st) { lab = "🔔 Тэмцээн эхлэхэд"; tm = left(st - now); }
     else if (st && en && now < en) { lab = "Тэмцээн явагдаж байна"; }
     else { w.hidden = true; return; }
-    const key = q.id + "|" + lab + "|" + (q.n != null ? q.n : "") + "|" + q.title;
+    const key = q.id + "|" + lab + "|" + (q.n != null ? q.n : "") + "|" + q.title + "|" + (q.rules ? 1 : 0);
     if (w.dataset.k === key) { const b = w.querySelector(".qltm"); if (b) b.textContent = tm || "🔴"; w.hidden = false; return; }   // ⚡ зөвхөн цагийг шинэчилнэ
     w.dataset.k = key; w.hidden = false;
     w.innerHTML = '<div class="qlh"><span class="qldot red"></span><span class="qllive">LIVE</span><b>' + q.title.replace(/</g, "&lt;") + '</b></div>'
       + '<div class="qlrow">' + (q.n != null ? '<div class="qlnum"><b>' + q.n.toLocaleString("en-US") + '</b><span>сурагч бүртгүүлсэн</span></div>' : "")
       + '<div class="qlnum"><b class="qltm">' + (tm || "🔴") + '</b><span>' + lab + '</span></div></div>';
-    const b = el("button", "btn qlbtn", re && now < re ? "📝 Бүртгүүлэх →" : "🏆 GeoQuiz руу →"); b.type = "button"; b.onclick = () => goSection("quiz"); w.append(b); };
+    const b = el("button", "btn qlbtn", re && now < re ? "📝 Бүртгүүлэх →" : "🏆 GeoQuiz руу →"); b.type = "button"; b.onclick = () => goSection("quiz"); const bw = el("div", "qlbtns"); bw.append(b); if (q.rules) { const rb = el("button", "btn qlrul", "📜 Журам"); rb.type = "button"; rb.onclick = () => quizRules(q); bw.append(rb); } w.append(bw); };
   const keep = x => { q = x; at = Date.now(); try { localStorage.setItem("gx-qlive", JSON.stringify(x)); } catch (e) {} paint(); };
   const V = v => v ? (v.stringValue != null ? v.stringValue : v.timestampValue != null ? v.timestampValue : v.booleanValue != null ? v.booleanValue : v.integerValue != null ? +v.integerValue : null) : null;
   /* ⚡ хурдан зам: Firebase SDK-г хүлээлгүй шууд REST-ээр (≈0.3 сек) */
@@ -4956,7 +4956,7 @@ function quizLiveStrip() {
     .then(r => r.json()).then(a => { const d = (Array.isArray(a) ? a : []).map(x => x.document).find(x => x && !V(x.fields.hidden));
       if (!d) { q = null; w.hidden = true; try { localStorage.removeItem("gx-qlive"); } catch (e) {} return; }
       const f = d.fields, id = d.name.split("/").pop(), R = ((f.rinfo && f.rinfo.arrayValue && f.rinfo.arrayValue.values) || []).map(v => (v.mapValue && v.mapValue.fields) || {}).map(m => ({ start: V(m.start) || "", end: V(m.end) || "" })).sort((a, b) => a.start < b.start ? -1 : 1);
-      keep({ id, title: V(f.title) || "GeoQuiz", regEnd: V(f.regEnd) || "", start: R[0] ? R[0].start : "", end: R.length ? R[R.length - 1].end : "", n: q && q.id === id ? q.n : null }); });
+      keep({ id, title: V(f.title) || "GeoQuiz", rules: V(f.rules) || "", regEnd: V(f.regEnd) || "", start: R[0] ? R[0].start : "", end: R.length ? R[R.length - 1].end : "", n: q && q.id === id ? q.n : null }); });
   const slow = () => api({ action: "quizLive" }).then(r => { if (r && r.ok && r.q) keep(r.q); }).catch(() => {});
   const isAdm = () => typeof user !== "undefined" && user && user.admin;
   try { const c = JSON.parse(localStorage.getItem("gx-qlive") || "null"); if (c && c.id) { q = c; paint(); } } catch (e) {}   // ⚡ өмнөх мэдээллээр шууд
@@ -6159,7 +6159,7 @@ H.quizLive = async () => {   // нүүрний шууд самбар: хамги
   const d = s.docs.find(d => !d.data().hidden); if (!d) return { ok: true, q: null };
   const x = d.data(), R = (x.rinfo || []).slice().sort((a, b) => a.start < b.start ? -1 : 1), r0 = R[0], rl = R[R.length - 1];
   let n = null; const me = await meInfo().catch(() => null); if (me && me.admin) try { n = (await getCountFromServer(C("quiz", d.id, "reg"))).data().count; } catch (e) {}
-  return { ok: true, q: { id: d.id, title: x.title || "GeoQuiz", regEnd: x.regEnd ? toD(x.regEnd).toISOString() : "", start: r0 ? r0.start : "", end: rl ? rl.end : "", n } };
+  return { ok: true, q: { id: d.id, title: x.title || "GeoQuiz", rules: x.rules || "", regEnd: x.regEnd ? toD(x.regEnd).toISOString() : "", start: r0 ? r0.start : "", end: rl ? rl.end : "", n } };
 };
 H.quizReg = async p => {   // өөрийн бүртгэл (нэр, утас, сургууль…)
   const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
