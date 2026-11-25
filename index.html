@@ -647,7 +647,7 @@ body.onhome .title{display:none}
 @media (prefers-reduced-motion:reduce){.g3fc{animation:none}}
 .qlive{margin-top:14px;border-radius:18px;padding:14px 16px;color:#fff;background:linear-gradient(135deg,#0b1d3a,#0e4a6b 55%,#0f766e);box-shadow:0 10px 30px rgba(2,32,64,.25);display:grid;gap:10px}
 .qlh{display:flex;align-items:center;gap:8px;font-size:15px}.qlh b{font-family:var(--btn-font)}
-.qldot{width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 #22c55eaa;animation:qlp 1.4s infinite;flex:none}.qldot.red{background:#ef4444;box-shadow:0 0 0 0 #ef4444aa}
+.qldot{width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 #22c55eaa;animation:qlp 1.4s infinite;flex:none}.qldot.red{background:#ef4444;box-shadow:0 0 0 0 #ef4444aa}.qllive{background:#ef4444;color:#fff;font:800 11px var(--btn-font);padding:2px 7px;border-radius:6px;letter-spacing:.06em;animation:qlbl 1.4s ease-in-out infinite}@keyframes qlbl{50%{opacity:.55}}
 @keyframes qlp{to{box-shadow:0 0 0 10px transparent}}
 .qlrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 .qlnum{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 12px;display:grid}
@@ -4886,8 +4886,8 @@ function ivStop() { IV.timers.forEach(t => { clearTimeout(t); clearInterval(t); 
 const GL = { raf: 0, io: null };
 function introPlayer() {
   cancelAnimationFrame(GL.raf); if (GL.io) GL.io.disconnect();
-  const box = el("div", "ivid geo3d"); box.innerHTML = '<div class="g3cap">🌍 GeoExam — газарзүйг тоглож сур</div><canvas></canvas><div class="g3tag"></div>';
-  const F = [["📝 1,345+ даалгавар", "ЭЕШ хувилбар", "g3tl"], ["🗺️ 190+ улс", "газарзүйн зураг", "g3tr"], ["⚔️ Battle", "найзуудтайгаа", "g3bl"], ["🏆 GeoQuiz", "шагналтай тэмцээн", "g3br"]];
+  const box = el("div", "ivid geo3d"); box.innerHTML = '<div class="g3cap">GeoExam — газарзүйг тоглож сур</div><canvas></canvas><div class="g3tag"></div>';
+  const F = [["1,345+ даалгавар", "ЭЕШ хувилбар", "g3tl"], ["190+ улс", "газарзүйн зураг", "g3tr"], ["Battle", "найзуудтайгаа", "g3bl"], ["GeoQuiz", "шагналтай тэмцээн", "g3br"]];
   F.forEach((x, k) => { const d = el("div", "g3fc " + x[2]); d.style.animationDelay = (0.6 + k * 0.7) + "s"; d.innerHTML = x[0] + "<small>" + x[1] + "</small>"; box.append(d); });
   const cv = box.querySelector("canvas"), tag = box.querySelector(".g3tag");
   const SEQ = ["496", "250", "076", "840", "156", "036", "818", "392", "710", "643"], NM = { "496": "Монгол", "250": "Франц", "076": "Бразил", "840": "АНУ", "156": "Хятад", "036": "Австрали", "818": "Египет", "392": "Япон", "710": "Өмнөд Африк", "643": "Орос" };
@@ -4943,7 +4943,7 @@ function quizLiveStrip() {
     else if (st && en && now < en) { lab = "Тэмцээн явагдаж байна"; live = true; }
     else { w.hidden = true; return; }
     w.hidden = false;
-    w.innerHTML = '<div class="qlh"><span class="qldot' + (live ? " red" : "") + '"></span><b>' + (live ? "LIVE · " : "") + q.title.replace(/</g, "&lt;") + '</b></div>'
+    w.innerHTML = '<div class="qlh"><span class="qldot red"></span><span class="qllive">LIVE</span><b>' + q.title.replace(/</g, "&lt;") + '</b></div>'
       + '<div class="qlrow">' + (q.n != null ? '<div class="qlnum"><b>' + q.n.toLocaleString("en-US") + '</b><span>сурагч бүртгүүлсэн</span></div>' : "")
       + '<div class="qlnum"><b>' + (tm || "🔴") + '</b><span>' + lab + '</span></div></div>';
     const b = el("button", "btn qlbtn", re && now < re ? "📝 Бүртгүүлэх →" : "🏆 GeoQuiz руу →"); b.type = "button"; b.onclick = () => goSection("quiz"); w.append(b); };
