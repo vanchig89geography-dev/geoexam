@@ -6305,9 +6305,11 @@ async function ranking(code, key, roster) {
   const Q = key.qs || [], hasO = Q.some(q => q.open);
   const [s, ai] = await Promise.all([getDocs(C("contests", code, "subs")), hasO ? getDocs(C("contests", code, "ai")).catch(() => null) : null]), G = {};
   if (ai) ai.docs.forEach(d => G[d.id] = d.data());
+  /* 🎓 GeoQuiz: Google нэрийн оронд бүртгүүлсэн овог, нэрийг ашиглана */
+  const RN = {}; try { const cq = (await getDoc(D("contests", code))).data() || {}; if (cq.quiz) (await getDocs(C("quiz", cq.quiz, "reg"))).docs.forEach(d => { const y = d.data(), n = (y.last && y.first ? y.last + " " + y.first : y.name || "").trim(); if (n) RN[d.id] = n; }); } catch (e) {}
   const list = s.docs.map(d => { const x = d.data(); let A = []; try { A = JSON.parse(x.answers || "[]"); } catch (e) {}
     let sc = 0, tot = 0; const pts = Q.map((q, i) => { const g = grade(q, A[i], G[d.id], i); tot += maxP(q); sc += g; return g; });
-    return { pts, name: x.paper && !x.cls && roster && roster[x.num - 1] ? roster[x.num - 1] : x.name || x.email, email: x.email, score: sc, total: tot, secs: x.secs || 0, uid: d.id, answers: A }; });
+    return { pts, name: x.paper && !x.cls && roster && roster[x.num - 1] ? roster[x.num - 1] : RN[d.id] || x.name || x.email, email: x.email, score: sc, total: tot, secs: x.secs || 0, uid: d.id, answers: A }; });
   list.sort((a, b) => b.score - a.score || a.secs - b.secs); list.forEach((x, i) => x.rank = i + 1);
   return list;
 }
