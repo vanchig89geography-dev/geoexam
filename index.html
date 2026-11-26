@@ -2138,7 +2138,7 @@ async function openContest(code, errEl) {
       let x; try { x = await api({ action: "contestRes", code }); } catch (e) { x = null; } if (x && x.ready) { openContest(code); return; } setTimeout(poll, 120000 + Math.random() * 60000); };
     setTimeout(poll, 90000 + Math.random() * 60000);
   } else {
-    if (r.my) { const me = r.ranking.find(x => x.email === (user.email || "")); box.append(el("div", "cme", "Таны дүн: " + r.my.score + " / " + r.my.total + (me ? " · " + me.rank + "-р байр / " + r.ranking.length : "")));
+    if (r.my) { const me = r.ranking.find(x => x.email === (user.email || "")); box.append(el("div", "cme", "Таны дүн: " + r.my.score + " / " + r.my.total + (me ? " · " + me.rank + "-р байр / " + Math.max(r.ranking.length, +c.resN || 0) : "")));
       const rv = el("button", "btn ghost", "Миний хариуг харах"); rv.type = "button"; rv.onclick = () => contestReview(r);
       const certBtn = m0 => { if (!(c.cert && m0 && m0.rank <= c.cert)) return null; const cb = el("button", "btn certbtn", "🎓 Өргөмжлөл татах · " + m0.rank + "-р байр"); cb.type = "button"; cb.onclick = () => certOpen(certInfo(c, m0), true); return cb; };
       const cb0 = certBtn(me); const rw0 = el("div", "tbtns"); if (cb0) rw0.append(cb0); rw0.append(rv); box.append(rw0); CT.certBtn = certBtn; CT.certRow = rw0; }
@@ -2148,7 +2148,7 @@ async function openContest(code, errEl) {
       const poll = async () => { if (!(CT && CT.contest && CT.contest.code === code && (tab === "contest" || tab === "quiz") && pi.isConnected) || ++n > 20) return;   // 1 уншилт, 1.5–2 мин тутам, дээд тал нь 20 удаа
         let x; try { x = await api({ action: "contestRes", code }); } catch (e) { x = null; }
         if (x && x.ready) { const me = x.ranking.find(z => z.email === (user.email || "")); const cme = box.querySelector(".cme");
-          if (me && cme) { cme.textContent += " · " + me.rank + "-р байр / " + x.ranking.length; const cb = CT.certBtn && CT.certBtn(me); if (cb && CT.certRow) CT.certRow.prepend(cb); } if (user && user.admin) pi.replaceWith(rankTable(x.ranking, false)); else pi.remove(); return; }
+          if (me && cme) { cme.textContent += " · " + me.rank + "-р байр / " + (x.n || x.ranking.length); const cb = CT.certBtn && CT.certBtn(me); if (cb && CT.certRow) CT.certRow.prepend(cb); } if (user && user.admin) pi.replaceWith(rankTable(x.ranking, false)); else pi.remove(); return; }
         setTimeout(poll, 90000 + Math.random() * 30000); };
       setTimeout(poll, 60000 + Math.random() * 30000); }
     else if (user && user.admin) box.append(rankTable(r.ranking, false));   // 🔒 оролцогч зөвхөн өөрийн оноо, байраа харна
@@ -6300,7 +6300,7 @@ H.leaderboard = async p => {
 
 /* ---- тэмцээн ---- */
 const stat = c => { const now = Date.now(); return now < toD(c.start).getTime() ? "upcoming" : now <= toD(c.end).getTime() ? "open" : "done"; };
-const pubC = (code, c) => ({ code, name: c.name, start: toD(c.start).toISOString(), end: toD(c.end).toISOString(), minutes: c.minutes || 0, count: c.count || 0, desc: c.desc || "", rec: !!c.rec, cam: !!c.cam, cert: c.cert == null ? 3 : +c.cert || 0, review: !!c.review, pub: !!c.pub, certBy: c.certBy || "", type: c.type || "exam", status: stat(c) });
+const pubC = (code, c) => ({ code, name: c.name, start: toD(c.start).toISOString(), end: toD(c.end).toISOString(), minutes: c.minutes || 0, count: c.count || 0, desc: c.desc || "", rec: !!c.rec, cam: !!c.cam, cert: c.cert == null ? 3 : +c.cert || 0, review: !!c.review, pub: !!c.pub, certBy: c.certBy || "", type: c.type || "exam", resN: +c.resN || 0, status: stat(c) });
 async function ranking(code, key, roster) {
   const Q = key.qs || [], hasO = Q.some(q => q.open);
   const [s, ai] = await Promise.all([getDocs(C("contests", code, "subs")), hasO ? getDocs(C("contests", code, "ai")).catch(() => null) : null]), G = {};
@@ -6312,7 +6312,9 @@ async function ranking(code, key, roster) {
   return list;
 }
 function saveRes(code, R) {   // дууссан тэмцээний дүнг нэг баримтад хадгална (сурагч бүр бүх хариултыг уншихгүй)
-  return setDoc(D("contests", code), { res: R.slice(0, 3000).map(x => ({ rank: x.rank, name: String(x.name || "").slice(0, 60), score: x.score, total: x.total, secs: x.secs, uid: x.uid })), resAt: Timestamp.now() }, { merge: true }).catch(() => {});
+  const put = extra => setDoc(D("contests", code), Object.assign({ res: R.slice(0, 3000).map(x => ({ rank: x.rank, name: String(x.name || "").slice(0, 60), score: x.score, total: x.total, secs: x.secs, uid: x.uid })), resAt: Timestamp.now() }, extra), { merge: true }).catch(() => {});
+  /* 👥 GeoQuiz: бүртгүүлсэн нийт тоо (оролцоогүй = 0 оноо) — «N-р байр / нийт» */
+  return getDoc(D("contests", code)).then(s => { const q = s.exists() && s.data().quiz; return q ? getCountFromServer(C("quiz", q, "reg")).then(x => ({ resN: x.data().count })) : {}; }).catch(() => ({})).then(put);
 }
 H.contest = async p => {
   const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
@@ -6351,7 +6353,7 @@ H.contestRes = async p => {   // ⚡ байрын жагсаалт гарсан 
   const m = await meInfo(); if (!m) return { ok: false, error: "auth" };
   const cs = await getDoc(D("contests", String(p.code))); if (!cs.exists()) return { ok: false };
   const c = cs.data(); if (!Array.isArray(c.res) || (c.review && !c.pub)) return { ok: true, ready: false };
-  return { ok: true, ready: true, ranking: c.res.map(x => ({ rank: x.rank, name: x.name, email: x.uid === m.uid ? m.email : "", score: x.score, total: x.total, secs: x.secs })) };
+  return { ok: true, ready: true, n: Math.max(c.res.length, +c.resN || 0), ranking: c.res.map(x => ({ rank: x.rank, name: x.name, email: x.uid === m.uid ? m.email : "", score: x.score, total: x.total, secs: x.secs })) };
 };
 H.certTpl = async () => { const s = await getDoc(D("config", "cert")); return { ok: true, tpl: s.exists() ? s.data() : {} }; };
 H.certTplSave = async p => { const m = await meInfo(); if (!m || !m.admin) return { ok: false, error: "teacher" };
