@@ -654,6 +654,7 @@ body.onhome .title{display:none}
 .qlnum b{font-size:clamp(20px,4.5vw,26px);font-variant-numeric:tabular-nums;font-family:var(--btn-font)}.qlnum span{font-size:12px;opacity:.85}
 .qlive[hidden]{display:none!important}.qlbtns{display:flex;gap:8px;flex-wrap:wrap}.qlrul{background:rgba(255,255,255,.15)!important;background-image:none!important;color:#fff!important;border:1px solid rgba(255,255,255,.4)!important;font-weight:800}.qlbtn{justify-self:start;background:#fde047!important;background-image:none!important;color:#0b1d3a!important;border:0!important;font-weight:800}
 
+.tsub{margin:0 0 14px}
 /* тестийн үнэ солих */
 .frg{border:1px solid var(--line);border-radius:12px;padding:6px 10px;margin:6px 0;background:var(--surface)}
 .frg summary{cursor:pointer;font-weight:700;padding:4px 0}
@@ -1571,11 +1572,11 @@ function navLabels() {   // багш/админд «Шалгалт үүсгэх�
   if (adm && ai < 0) NAV.push(["admin", "Админы тохиргоо", "Тест, сургалт, үнэ, данс, эрх", '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>']);
   if (!adm && ai >= 0) NAV.splice(ai, 1);
   const tch = !!(user && user.teacher), ti = NAV.findIndex(x => x[0] === "tools");   // 🧰 Багшийн туслах: зөвхөн багшид
-  if (tch && ti < 0) { const a2 = NAV.findIndex(x => x[0] === "admin"); NAV.splice(a2 < 0 ? NAV.length : a2, 0, ["tools", "Багшийн туслах", "Хүрд · цаг · оноо · санал асуулга", '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18M10 13v2h4v-2"/>']); }
-  if (!tch && ti >= 0) NAV.splice(ti, 1);
-  const tb2 = document.querySelector('#tabs [data-t="tools"]'); if (tb2) tb2.hidden = !tch;
+  if (false && tch && ti < 0) { const a2 = NAV.findIndex(x => x[0] === "admin"); NAV.splice(a2 < 0 ? NAV.length : a2, 0, ["tools", "Багшийн туслах", "Хүрд · цаг · оноо · санал асуулга", '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18M10 13v2h4v-2"/>']); }
+  if (ti >= 0) NAV.splice(ti, 1);   // 🧰 «Багшийн булан» дотор орсон
+  const tb2 = document.querySelector('#tabs [data-t="tools"]'); if (tb2) tb2.hidden = true;
   /* 👩‍🏫 Багшийн булан: зөвхөн багш (эрхтэй эсвэл «Багш» гэж бүртгүүлсэн) ба админд */
-  const tchr = !!(user && (user.teacher || user.admin || user.role === "teacher")), si = NAV.findIndex(x => x[0] === "share");
+  const tchr = !!(user && (user.teacher || user.admin)), si = NAV.findIndex(x => x[0] === "share");
   if (!tchr && si >= 0) SHARE_NAV = NAV.splice(si, 1)[0];
   if (tchr && si < 0 && typeof SHARE_NAV !== "undefined" && SHARE_NAV) { const t2 = NAV.findIndex(x => x[0] === "tools" || x[0] === "admin"); NAV.splice(t2 < 0 ? NAV.length : t2, 0, SHARE_NAV); }
   const tb3 = document.querySelector('#tabs [data-t="share"]'); if (tb3) tb3.hidden = !tchr;
@@ -1625,7 +1626,7 @@ const NAV = [
   ["learn", "Сургалт", "Видео хичээл · хичээлийн дараах тест", '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M10 8l5 2.5-5 2.5z"/><path d="M8 21h8M12 17v4"/>'],
   ["map", "Газарзүйн зураг", "🎯 Solo ба ⚔️ Battle", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'],
   ["quiz", "GeoQuiz", "Бүртгэл · тойрог · шагнал", '<circle cx="12" cy="15" r="6"/><path d="M8.6 10.2 6 3h4l2 4.5L14 3h4l-2.6 7.2"/><path d="m12 12.3.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2-1.45-1.4 2-.3z"/>'],
-  ["share", "Багшийн булан", "Туршлага, хичээлийн материал хуваалцах", '<path d="M4 4h10l6 6v10a0 0 0 0 1 0 0H4z"/><path d="M14 4v6h6"/><path d="M8 14h8M8 17h5"/>'],
+  ["share", "Багшийн булан", "Материал хуваалцах · хүрд · цаг · санал асуулга", '<path d="M4 4h10l6 6v10a0 0 0 0 1 0 0H4z"/><path d="M14 4v6h6"/><path d="M8 14h8M8 17h5"/>'],
   ["contest", "Шалгалт · Олимпиад", "Олимпиадууд · багшийн шалгалтад кодоор нэгдэх", '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>']];
 const navSvg = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + d + "</svg>";
 function secTitle() { let h = $("secT"); if (!h) { h = el("button", "secT"); h.id = "secT"; h.type = "button"; h.onclick = () => openNav(); $("tabs").before(h); }
@@ -1645,6 +1646,15 @@ function openNav() {
 }
 $("hamb").onclick = () => openNav();
 $("tabs").onclick = e => { const b = e.target.closest("button"); if (b) setTab(b.dataset.t); };
+/* 👩‍🏫 Багшийн булан: материал хуваалцах + туслах хэрэгслүүд нэг дор (зөвхөн эрх нь хүчинтэй багш, админ) */
+let TSUB = "share";
+function renderTeacher(box) {
+  if (!(user && (user.teacher || user.admin))) { box.append(el("p", "empty", "👩‍🏫 Энэ хэсэг зөвхөн эрх нь хүчинтэй багшид нээлттэй.")); return; }
+  if (tab === "tools") { TSUB = "tools"; tab = "share"; }
+  const sw = el("div", "bseg tsub"); [["share", "📚 Материал хуваалцах"], ["tools", "🧰 Туслах хэрэгслүүд"]].forEach(([v, x]) => { const b = el("button", v === TSUB ? "on" : "", x); b.type = "button"; b.onclick = () => { if (TSUB === v) return; if (TSUB === "tools" && typeof toolsStop === "function") toolsStop(); TSUB = v; renderPane(); }; sw.append(b); });
+  box.append(sw); const inner = el("div"); box.append(inner);
+  return TSUB === "tools" ? renderTools(inner) : renderShare(inner);
+}
 function renderPane() {
   if (tab === "learn" && typeof LOPEN !== "undefined" && LOPEN) return;   // хичээл нээлттэй бол бичлэгийг тасалдуулахгүй
   if ($("landing") && !$("landing").hidden) renderLanding();
@@ -1654,8 +1664,7 @@ function renderPane() {
   if (tab === "map") return renderMapTab(box);
   if (tab === "learn") return renderLearn(box);
   if (tab === "quiz") return renderQuiz(box);
-  if (tab === "share") return renderShare(box);
-  if (tab === "tools") return renderTools(box);
+  if (tab === "share" || tab === "tools") return renderTeacher(box);
   if (tab === "admin") return renderAdmin(box);
   let list = tests.filter(t => !isTopicOnly(t) && (tab === "own" ? isOwn(t) : !isOwn(t)));
   if (tab === "own") {   // Мультимедиа: IGEO · Улсын олимпиад · Шинэ
