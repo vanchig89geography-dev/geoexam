@@ -1648,7 +1648,7 @@ $("hamb").onclick = () => openNav();
 $("tabs").onclick = e => { const b = e.target.closest("button"); if (b) setTab(b.dataset.t); };
 /* 👩‍🏫 Багшийн булан: материал хуваалцах + туслах хэрэгслүүд нэг дор (зөвхөн эрх нь хүчинтэй багш, админ) */
 let TSUB = "share";
-function renderTeacher(box) {
+function renderTCorner(box) {
   if (!(user && (user.teacher || user.admin))) { box.append(el("p", "empty", "👩‍🏫 Энэ хэсэг зөвхөн эрх нь хүчинтэй багшид нээлттэй.")); return; }
   if (tab === "tools") { TSUB = "tools"; tab = "share"; }
   const sw = el("div", "bseg tsub"); [["share", "📚 Материал хуваалцах"], ["tools", "🧰 Туслах хэрэгслүүд"]].forEach(([v, x]) => { const b = el("button", v === TSUB ? "on" : "", x); b.type = "button"; b.onclick = () => { if (TSUB === v) return; if (TSUB === "tools" && typeof toolsStop === "function") toolsStop(); TSUB = v; renderPane(); }; sw.append(b); });
@@ -1664,7 +1664,7 @@ function renderPane() {
   if (tab === "map") return renderMapTab(box);
   if (tab === "learn") return renderLearn(box);
   if (tab === "quiz") return renderQuiz(box);
-  if (tab === "share" || tab === "tools") return renderTeacher(box);
+  if (tab === "share" || tab === "tools") return renderTCorner(box);
   if (tab === "admin") return renderAdmin(box);
   let list = tests.filter(t => !isTopicOnly(t) && (tab === "own" ? isOwn(t) : !isOwn(t)));
   if (tab === "own") {   // Мультимедиа: IGEO · Улсын олимпиад · Шинэ
